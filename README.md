@@ -29,6 +29,7 @@ TODO: VKPR CLI install script. Currently wo do it manually:
 vkpr init
 # runs a local k8s cluster (using k3d)
 vkpr infra up
+vkpr infra down
 # global settings
 vkpr global set domain --name=vtgdev.net
 # install ingress controller (using helm chart)

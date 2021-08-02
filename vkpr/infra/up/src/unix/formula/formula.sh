@@ -1,17 +1,62 @@
 #!/bin/sh
 
 runFormula() {
-  echo "Hello World!!!"
-  echoColor "green" "My name is $RIT_INPUT_TEXT."
+  echo "VKPR local infra start routine"
+  echo "=============================="
+  echoColor "yellow" "Ports used:"
+  echo "Kubernetes API: "
+  echo "Ingress controller (load balancer): "
+  echo "Local registry: 5000"
+  echo "Docker Hub registry mirror (cache): 5001"
+  echoColor "yellow" "Volumes used:"
+  echo "Two local unamed docker volumes"
 
-  if [ "$RIT_INPUT_BOOLEAN" = "true" ]; then
-    echoColor "blue" "I've already created formulas using Ritchie."
+  # TODO: test dependencies
+
+  # VKPR home is "~/.vkpr"
+  VKPR_HOME=~/.vkpr
+  # starts local registry and mirror
+  configRegistry
+  startRegistry
+  # starts kubernetes using registries
+  startCluster
+}
+
+configRegistry() {
+  HOST_IP="172.17.0.1" # linux native
+  cat > $VKPR_HOME/config/registry.yaml << EOF
+mirrors:
+  "docker.io":
+    endpoint:
+      - "http://$HOST_IP:5001"
+EOF
+}
+
+startCluster() {
+  # local registry
+  if ! $(k3d cluster list | grep -q "vkpr-local"); then
+    k3d cluster create vkpr-local \
+      -p "8000:80@loadbalancer" \
+      --registry-use k3d-registry.localhost \
+      --registry-config $VKPR_HOME/config/registry.yaml
   else
-    echoColor "red" "I'm excited in creating new formulas using Ritchie."
+    echoColor "yellow" "Cluster vkpr-local already started, skipping."
   fi
+}
 
-  echoColor "yellow" "Today, I want to automate $RIT_INPUT_LIST."
-  echoColor "cyan"  "My secret is $RIT_INPUT_PASSWORD."
+startRegistry() {
+  # local registry
+  if ! $(k3d registry list | grep -q "k3d-mirror.localhost"); then
+    k3d registry create registry.localhost -p 5000
+  else
+    echoColor "yellow" "Registry already started, skipping."
+  fi
+  # docker hub mirror
+  if ! $(k3d registry list | grep -q "k3d-registry.localhost"); then
+    k3d registry create mirror.localhost -i vertigo/registry-mirror -p 5001
+  else
+    echoColor "yellow" "Mirror already started, skipping."
+  fi
 }
 
 echoColor() {

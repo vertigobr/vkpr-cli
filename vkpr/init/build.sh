@@ -2,9 +2,9 @@
 
 BIN_FOLDER=bin
 BINARY_NAME_UNIX=run.sh
-BINARY_NAME_WINDOWS=run.bat
+#BINARY_NAME_WINDOWS=run.bat
 ENTRY_POINT_UNIX=main.sh
-ENTRY_POINT_WINDOWS=main.bat
+#ENTRY_POINT_WINDOWS=main.bat
 
 #bash-build:
 	mkdir -p $BIN_FOLDER
@@ -13,7 +13,7 @@ ENTRY_POINT_WINDOWS=main.bat
 	chmod +x $BIN_FOLDER/$BINARY_NAME_UNIX
 
 #bat-build:
-	mv $BIN_FOLDER/$ENTRY_POINT_WINDOWS $BIN_FOLDER/$BINARY_NAME_WINDOWS
+#	mv $BIN_FOLDER/$ENTRY_POINT_WINDOWS $BIN_FOLDER/$BINARY_NAME_WINDOWS
 
 #docker:
-	cp Dockerfile set_umask.sh $BIN_FOLDER
+#	cp Dockerfile set_umask.sh $BIN_FOLDER

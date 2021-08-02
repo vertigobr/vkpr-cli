@@ -7,25 +7,13 @@
 #
 # Requires: curl
 
-# OS/PLATFORM DETECTION
-OS_PLATFORM=$(uname -m)
-if [[ "$OS_PLATFORM" == "x86_64" ]]; then
-  OS_ARCH="amd64"
-else # arm64
-  OS_ARCH="$OS_PLATFORM"
-fi
-
-# ARKADE
-
-#KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt)
-#if [[ "$OSTYPE" == "darwin"* ]]; then # osx intel or arm
-#  KUBECTL_URL="https://dl.k8s.io/release/$KUBECTL_VERSION/bin/darwin/$OS_ARCH/kubectl"
-#else # linux
-#  KUBECTL_URL="https://dl.k8s.io/release/$KUBECTL_VERSION/bin/linux/amd64/kubectl"
-#fi
-
-
-TOOLS_ARRAY=('kubectl' 'k3d' 'helm')
+# # OS/PLATFORM DETECTION
+# OS_PLATFORM=$(uname -m)
+# if [[ "$OS_PLATFORM" == "x86_64" ]]; then
+#   OS_ARCH="amd64"
+# else # arm64
+#   OS_ARCH="$OS_PLATFORM"
+# fi
 
 runFormula() {
   echo "VKPR initialization"
@@ -33,8 +21,15 @@ runFormula() {
   VKPR_HOME=~/.vkpr
   # required paths
   mkdir -p $VKPR_HOME/bin
+  mkdir -p $VKPR_HOME/config
 
   installArkade
+  installTool "kubectl"
+  installTool "helm"
+  installTool "k3d"
+  installTool "jq"
+  installTool "yq"
+  installTool "k9s"
 
   # if [ "$RIT_INPUT_BOOLEAN" = "true" ]; then
   #   echoColor "blue" "I've already created formulas using Ritchie."
@@ -46,13 +41,28 @@ runFormula() {
   # echoColor "cyan"  "My secret is $RIT_INPUT_PASSWORD."
 }
 
+installTool() {
+  toolName=$1
+  if [[ -f "$HOME/.vkpr/bin/$toolName" ]]; then
+    echoColor "yellow" "Tool $toolName already installed. Skipping."
+  else
+    echoColor "green" "Installing $toolName using arkade..."
+    $VKPR_HOME/bin/arkade get "$toolName" --stash=true
+    mv "$HOME/.arkade/bin/$toolName" $VKPR_HOME/bin
+  fi
+}
+
 installArkade() {
-  echoColor "green" "Installing arkade..."
-  # patches download script in order to change BINLOCATION
-  curl -sLS https://get.arkade.dev > /tmp/arkinst.sh
-  sed "s/^export BINLOCATION=.*/export BINLOCATION=~\/\.vkpr\/bin/g" -i /tmp/arkinst.sh
-  chmod +x /tmp/arkinst.sh
-  /tmp/arkinst.sh  
+  if [[ -f "$HOME/.vkpr/bin/arkade" ]]; then
+    echoColor "yellow" "Alex Ellis' arkade already installed. Skipping."
+  else
+    echoColor "green" "Installing arkade..."
+    # patches download script in order to change BINLOCATION
+    curl -sLS https://get.arkade.dev > /tmp/arkinst.sh
+    sed "s/^export BINLOCATION=.*/export BINLOCATION=~\/\.vkpr\/bin/g" -i /tmp/arkinst.sh
+    chmod +x /tmp/arkinst.sh
+    /tmp/arkinst.sh
+  fi
 }
 
 echoColor() {
