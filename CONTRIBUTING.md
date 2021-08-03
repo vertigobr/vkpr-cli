@@ -25,3 +25,8 @@ Ex:
 ```
 rit add workspace --name vkpr-formulas --path $(pwd)
 ```
+
+## Publishing Formulas
+
+1. Finish creating or updating formulas (see above)
+2. Make sure you have Github credentials in Ritchie (`rit set credential `)
