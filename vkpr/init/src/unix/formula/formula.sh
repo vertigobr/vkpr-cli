@@ -58,9 +58,10 @@ installArkade() {
   else
     echoColor "green" "Installing arkade..."
     # patches download script in order to change BINLOCATION
-    curl -sLS https://get.arkade.dev > /tmp/arkinst.sh
-    sed "s/^export BINLOCATION=.*/export BINLOCATION=~\/\.vkpr\/bin/g" -i /tmp/arkinst.sh
+    curl -sLS https://get.arkade.dev > /tmp/arkinst0.sh
+    sed "s/^export BINLOCATION=.*/export BINLOCATION=~\/\.vkpr\/bin/g" /tmp/arkinst0.sh > /tmp/arkinst.sh
     chmod +x /tmp/arkinst.sh
+    rm /tmp/arkinst0.sh
     /tmp/arkinst.sh
   fi
 }
