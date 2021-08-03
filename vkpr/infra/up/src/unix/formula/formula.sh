@@ -23,7 +23,8 @@ runFormula() {
 }
 
 configRegistry() {
-  HOST_IP="172.17.0.1" # linux native
+  #HOST_IP="172.17.0.1" # linux native
+  HOST_IP="host.k3d.internal"
   cat > $VKPR_HOME/config/registry.yaml << EOF
 mirrors:
   "docker.io":
@@ -37,11 +38,15 @@ startCluster() {
   if ! $(k3d cluster list | grep -q "vkpr-local"); then
     k3d cluster create vkpr-local \
       -p "8000:80@loadbalancer" \
+      --k3s-server-arg '--no-deploy=traefik' \
       --registry-use k3d-registry.localhost \
       --registry-config $VKPR_HOME/config/registry.yaml
   else
     echoColor "yellow" "Cluster vkpr-local already started, skipping."
   fi
+  # use cluster
+  $VKPR_HOME/bin/kubectl config use-context k3d-vkpr-local
+  $VKPR_HOME/bin/kubectl cluster-info
 }
 
 startRegistry() {
