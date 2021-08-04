@@ -20,7 +20,8 @@ TODO: VKPR CLI install script. Currently wo do it manually:
 # todo
 # download rit
 # rit add repo --provider="Github" --name="vkprxxx" --repoUrl="xx" # (url do vkpr-cli no github)
-# create alias vkpr=rit vkpr
+# create alias
+alias vkpr="rit vkpr"
 ```
 
 ## Documentation
@@ -31,14 +32,24 @@ vkpr init
 vkpr infra up
 vkpr infra down
 # global settings
+vkpr global template
 vkpr global set domain --name=vtgdev.net
 # install ingress controller (using helm chart)
 vkpr ingress install
-
-# instala keycloak (via helm chart)
-vkpr keycloak install
+vkpr ingress remove
+# install whoami sample app
+vkpr whoami install
+vkpr whoami remove
 # instala cert-manager (via helm chart)
 vkpr cert-manager install
-
-
+vkpr cert-manager remove
+# instala external-dns (via helm chart)
+vkpr external-dns install
+vkpr external-dns remove
+# instala loki (via helm chart)
+vkpr loki install
+vkpr loki remove
+# instala keycloak (via helm chart)
+vkpr keycloak install
+vkpr keycloak remove
 

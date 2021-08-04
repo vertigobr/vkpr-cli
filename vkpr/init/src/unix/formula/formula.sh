@@ -39,7 +39,7 @@ runFormula() {
 
   # echoColor "yellow" "Today, I want to automate $RIT_INPUT_LIST."
   # echoColor "cyan"  "My secret is $RIT_INPUT_PASSWORD."
-}
+} 
 
 installTool() {
   toolName=$1
