@@ -3,29 +3,34 @@
 runFormula() {
   echoColor "yellow" "Instalando Whoami..."
   VKPR_HOME=~/.vkpr
-  mkdir -p $VKPR_HOME/values/whoami
+  mkdir -p $VKPR_HOME/values/Whoami
   VKPR_WHOAMI_VALUES=$VKPR_HOME/values/whoami/values.yaml
+  touch $VKPR_WHOAMI_VALUES
 
   addRepoWhoami
-  if [[ -e $VKPR_WHOAMI_VALUES ]]; then
-      installWhoami
-    else
-      echoColor "red" "Não há ingress instalado, será criado um ingress padrão para uso"
-      touch $VKPR_WHOAMI_VALUES
-      printf "ingress:\n  enabled: true\n  pathType: Prefix\n  hosts:\n    - paths:\n      - "/whoami"\n  annotations:\n    kubernetes.io/ingress.class: nginx" >> $VKPR_WHOAMI_VALUES
-      installWhoami
-  fi
+  installWhoami
 }
 
 addRepoWhoami(){
   helm repo add cowboysysop https://cowboysysop.github.io/charts/
 }
 
+verifyHasIngress(){
+  sleep 10
+  INGRESS=$($VKPR_HOME/bin/kubectl get deployment --selector="app.kubernetes.io/instance=ingress-nginx" -o jsonpath="{.items[*].metadata.name}")
+  if [[ ! $INGRESS = "ingress-nginx-controller" ]]; then
+    local res=$?
+    echo $res
+  fi
+}
+
 installWhoami(){
-  if [[ -n $1 ]]; then 
-    helm upgrade -i $1 -f $VKPR_WHOAMI_VALUES cowboysysop/whoami
-  else 
-    helm upgrade -i whoami -f $VKPR_WHOAMI_VALUES cowboysysop/whoami
+  if [[ ! -n $(verifyHasIngress) ]]; then
+    printf "ingress:\n  enabled: true\n  pathType: Prefix\n  hosts:\n    - paths:\n      - "/whoami"\n  annotations:\n    kubernetes.io/ingress.class: nginx" > $VKPR_WHOAMI_VALUES
+    helm upgrade -i -f $VKPR_WHOAMI_VALUES whoami cowboysysop/whoami
+  else
+    echoColor "red" "Não há ingress instalado, para utilizar o Whoami no localhost deve-se subir o ingress."
+    helm upgrade -i whoami cowboysysop/whoami
   fi
 }
 
