@@ -1,0 +1,4 @@
+{
+  "short": "Add the Whoami to the cluster.",
+  "long": "Add a Pod and dependences containing a Whoami App in the cluster."
+}
