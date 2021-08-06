@@ -14,42 +14,49 @@ For more information (if you are curious about it), please check the [Ritchie CL
 
 The VKPR CLI tool will do its best to hide its internals (including Ritchie).
 
-TODO: VKPR CLI install script. Currently wo do it manually:
+TODO: VKPR CLI install script. Currently we do it manually:
 
 ```sh
-# todo
-# download rit
-# rit add repo --provider="Github" --name="vkprxxx" --repoUrl="xx" # (url do vkpr-cli no github)
-# create alias
+# Install the Rit
+curl -fsSL https://commons-repo.ritchiecli.io/install.sh | bash
+# Download VKPR Repo
+rit add repo --provider="Github" --name="vkpr-cli" --repoUrl=<Github URL Project>
+# Create alias
 alias vkpr="rit vkpr"
 ```
 
+## Tools
+
+| Tools                    | Description |
+| ------------------------ | ----------- |
+| nginx-ingress-controller |             |
+| Whoami                   |             |
+| cert-manager             |             |
+| external-dns             |             |
+| loki                     |             |
+| keycloak                 |             |
+
 ## Documentation
 
-# download dependencies (tools/other CLIs)
-vkpr init
-# runs a local k8s cluster (using k3d)
-vkpr infra up
-vkpr infra down
+|     Objects + Verb     | Description                               |
+| :--------------------: | ----------------------------------------- |
+|         `init`         | Download dependencies                     |
+|       `infra up`       | Install a local K8S cluster (Using K3D)   |
+|      `infra down`      | Uninstall a local K8S cluster (Using K3D) |
+|   `ingress install`    | Install the Ingress Controller            |
+|    `ingress remove`    | Uninstall the Ingress Controller          |
+|    `whoami install`    | Install the Whoami App                    |
+|    `whoami remove`     | Uninstall the Whoami App                  |
+| `cert-manager install` | Install the cert-manager App              |
+| `cert-manager remove`  | Uninstall the cert-manager App            |
+| `external-dns install` | Install the external-dns App              |
+| `external-dns remove`  | Uninstall the external-dns App            |
+|     `loki install`     | Install the loki App                      |
+|     `loki remove`      | Uninstall the loki App                    |
+|   `keycloak install`   | Install the keycloak App                  |
+|   `keycloak remove`    | Uninstall the keycloak App                |
+
 # global settings
+
 vkpr global template
 vkpr global set domain --name=vtgdev.net
-# install ingress controller (using helm chart)
-vkpr ingress install
-vkpr ingress remove
-# install whoami sample app
-vkpr whoami install
-vkpr whoami remove
-# instala cert-manager (via helm chart)
-vkpr cert-manager install
-vkpr cert-manager remove
-# instala external-dns (via helm chart)
-vkpr external-dns install
-vkpr external-dns remove
-# instala loki (via helm chart)
-vkpr loki install
-vkpr loki remove
-# instala keycloak (via helm chart)
-vkpr keycloak install
-vkpr keycloak remove
-
