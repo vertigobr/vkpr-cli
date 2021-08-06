@@ -16,8 +16,7 @@ addRepoWhoami(){
 }
 
 verifyHasIngress(){
-  sleep 10
-  INGRESS=$($VKPR_HOME/bin/kubectl get deployment --selector="app.kubernetes.io/instance=ingress-nginx" -o jsonpath="{.items[*].metadata.name}")
+  INGRESS=$($VKPR_HOME/bin/kubectl wait --for=condition=available deploy ingress-nginx-controller -o name | cut -d "/" -f2)
   if [[ ! $INGRESS = "ingress-nginx-controller" ]]; then
     local res=$?
     echo $res
@@ -26,7 +25,15 @@ verifyHasIngress(){
 
 installWhoami(){
   if [[ ! -n $(verifyHasIngress) ]]; then
-    printf "ingress:\n  enabled: true\n  pathType: Prefix\n  hosts:\n    - paths:\n      - "/whoami"\n  annotations:\n    kubernetes.io/ingress.class: nginx" > $VKPR_WHOAMI_VALUES
+    printf \
+  "ingress:
+  enabled: true
+  pathType: Prefix
+  hosts:
+    - paths:
+      - "/whoami"
+  annotations:
+    kubernetes.io/ingress.class: nginx" > $VKPR_WHOAMI_VALUES
     helm upgrade -i -f $VKPR_WHOAMI_VALUES whoami cowboysysop/whoami
   else
     echoColor "red" "Não há ingress instalado, para utilizar o Whoami no localhost deve-se subir o ingress."
