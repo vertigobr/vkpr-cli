@@ -30,8 +30,8 @@ installWhoami(){
   enabled: true
   pathType: Prefix
   hosts:
-    - paths:
-      - "/whoami"
+    - host: whoami.vkpr-dev.vertigo.com.br
+      paths: ['"/"']
   annotations:
     kubernetes.io/ingress.class: nginx" > $VKPR_WHOAMI_VALUES
     helm upgrade -i -f $VKPR_WHOAMI_VALUES whoami cowboysysop/whoami
