@@ -3,8 +3,8 @@
 runFormula() {
   echoColor "yellow" "Instalando Whoami..."
   VKPR_HOME=~/.vkpr
-  mkdir -p $VKPR_HOME/values/Whoami
-  VKPR_WHOAMI_VALUES=$VKPR_HOME/values/Whoami/values.yaml
+  mkdir -p $VKPR_HOME/values/whoami
+  VKPR_WHOAMI_VALUES=$VKPR_HOME/values/whoami/values.yaml
   touch $VKPR_WHOAMI_VALUES
 
   addRepoWhoami
@@ -25,15 +25,7 @@ verifyHasIngress(){
 
 installWhoami(){
   if [[ ! -n $(verifyHasIngress) ]]; then
-    printf \
-  "ingress:
-  enabled: true
-  pathType: Prefix
-  hosts:
-    - host: whoami.vkpr-dev.vertigo.com.br
-      paths: ['"/"']
-  annotations:
-    kubernetes.io/ingress.class: nginx" > $VKPR_WHOAMI_VALUES
+    . $(dirname "$0")/utils/whoami.sh $VKPR_WHOAMI_VALUES
     helm upgrade -i -f $VKPR_WHOAMI_VALUES whoami cowboysysop/whoami
   else
     echoColor "red" "Não há ingress instalado, para utilizar o Whoami no localhost deve-se subir o ingress."

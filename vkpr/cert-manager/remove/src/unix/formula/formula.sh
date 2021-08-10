@@ -1,10 +1,11 @@
 #!/bin/sh
 
 runFormula() {
-  echoColor "yellow" "Removendo external-dns..."
   VKPR_HOME=~/.vkpr
-  rm -rf $VKPR_HOME/values/external-dns
-  helm delete vkpr
+  echoColor "yellow" "Removendo Cert-manager do cluster..."
+  rm -rf $VKPR_HOME/configs/cert-manager/ $VKPR_HOME/values/cert-manager/
+  $VKPR_HOME/bin/helm uninstall cert-manager
+  $VKPR_HOME/bin/kubectl delete ns cert-manager
 }
 
 echoColor() {

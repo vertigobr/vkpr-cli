@@ -1,7 +1,6 @@
 {
   "execution": [
-    "local",
-    "docker"
+    "local"
   ],
   "os": {
     "deps": [],
@@ -11,6 +10,8 @@
     ]
   },
   "tags": [
-    "vkpr", "external-dns", "install"
+    "vkpr",
+    "cert-manager",
+    "remove"
   ]
 }
