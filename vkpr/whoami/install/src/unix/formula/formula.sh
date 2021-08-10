@@ -4,7 +4,7 @@ runFormula() {
   echoColor "yellow" "Instalando Whoami..."
   VKPR_HOME=~/.vkpr
   mkdir -p $VKPR_HOME/values/Whoami
-  VKPR_WHOAMI_VALUES=$VKPR_HOME/values/whoami/values.yaml
+  VKPR_WHOAMI_VALUES=$VKPR_HOME/values/Whoami/values.yaml
   touch $VKPR_WHOAMI_VALUES
 
   addRepoWhoami
@@ -30,8 +30,8 @@ installWhoami(){
   enabled: true
   pathType: Prefix
   hosts:
-    - paths:
-      - "/whoami"
+    - host: whoami.vkpr-dev.vertigo.com.br
+      paths: ['"/"']
   annotations:
     kubernetes.io/ingress.class: nginx" > $VKPR_WHOAMI_VALUES
     helm upgrade -i -f $VKPR_WHOAMI_VALUES whoami cowboysysop/whoami
