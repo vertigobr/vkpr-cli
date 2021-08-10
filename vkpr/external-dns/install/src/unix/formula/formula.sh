@@ -7,11 +7,24 @@ runFormula() {
   VKPR_EXTERNAL_DNS_VALUES=$VKPR_HOME/values/external-dns/values.yaml
   export DO_AUTH_TOKEN=$INPUT_DIGITAL_OCEAN
   if [[ ! -e $VKPR_EXTERNAL_DNS_VALUES ]]; then
-      cp . "$(dirname "$0")"/unix/formula/values.yaml $VKPR_HOME/values/external-dns
+      touch $VKPR_EXTERNAL_DNS_VALUES
+      createValues
   fi
-  sed -i "/^digitalocean:/{n;s/apiToken:.*/apiToken: $DO_AUTH_TOKEN/;}" $VKPR_EXTERNAL_DNS_VALUES
   helm repo add bitnami https://charts.bitnami.com/bitnami
   helm upgrade -i vkpr -f $VKPR_EXTERNAL_DNS_VALUES bitnami/external-dns
+}
+
+createValues(){
+  printf \
+  "rbac:
+    create: true
+sources:
+  - ingress
+  - service
+provider: digitalocean
+interval: 1m
+digitalocean:
+  apiToken: $DO_AUTH_TOKEN" > $VKPR_EXTERNAL_DNS_VALUES
 }
 
 echoColor() {
