@@ -6,4 +6,4 @@ sources:
 provider: digitalocean
 interval: "1m"
 digitalocean:
-  apiToken: ${DO_AUTH_TOKEN}
+  apiToken: <DIGITAL_OCEAN_TOKEN>

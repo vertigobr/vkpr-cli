@@ -9,6 +9,7 @@ runFormula() {
   if [[ ! -e $VKPR_EXTERNAL_DNS_VALUES ]]; then
       cp . "$(dirname "$0")"/unix/formula/values.yaml $VKPR_HOME/values/external-dns
   fi
+  sed -i "/^digitalocean:/{n;s/apiToken:.*/apiToken: $DO_AUTH_TOKEN/;}" $VKPR_EXTERNAL_DNS_VALUES
   helm repo add bitnami https://charts.bitnami.com/bitnami
   helm upgrade -i vkpr -f $VKPR_EXTERNAL_DNS_VALUES bitnami/external-dns
 }
