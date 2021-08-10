@@ -3,7 +3,7 @@
 runFormula() {
   echoColor "yellow" "Instalando Whoami..."
   VKPR_HOME=~/.vkpr
-  mkdir -p $VKPR_HOME/values/Whoami
+  mkdir -p $VKPR_HOME/values/whoami
   VKPR_WHOAMI_VALUES=$VKPR_HOME/values/whoami/values.yaml
   touch $VKPR_WHOAMI_VALUES
 
