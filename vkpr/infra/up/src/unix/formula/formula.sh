@@ -38,6 +38,7 @@ startCluster() {
   if ! $(k3d cluster list | grep -q "vkpr-local"); then
     k3d cluster create vkpr-local \
       -p "8000:80@loadbalancer" \
+      -p "8001:443@loadbalancer" \
       --k3s-server-arg '--no-deploy=traefik' \
       --registry-use k3d-registry.localhost \
       --registry-config $VKPR_HOME/config/registry.yaml
