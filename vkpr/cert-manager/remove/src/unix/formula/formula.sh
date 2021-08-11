@@ -5,7 +5,6 @@ runFormula() {
   echoColor "yellow" "Removendo Cert-manager do cluster..."
   rm -rf $VKPR_HOME/configs/cert-manager/ $VKPR_HOME/values/cert-manager/
   $VKPR_HOME/bin/helm uninstall cert-manager
-  $VKPR_HOME/bin/kubectl delete ns cert-manager
 }
 
 echoColor() {

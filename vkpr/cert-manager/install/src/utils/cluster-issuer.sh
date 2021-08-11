@@ -1,7 +1,7 @@
 #!/bin/sh
 printf \
 "apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
+kind: Issuer
 metadata:
   name: letsencrypt-staging
 spec:
@@ -15,15 +15,14 @@ spec:
           digitalocean:
             tokenSecretRef:
               name: digitalocean-dns
-              key: $2
+              key: access-token
 ---
 apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
+kind: Issuer
 metadata:
   name: letsencrypt-production
 spec:
   acme:
-    # Change this email address to yours
     email: $1
     server: https://acme-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
@@ -33,4 +32,4 @@ spec:
           digitalocean:
             tokenSecretRef:
               name: digitalocean-dns
-              key: $2" > $3
+              key: access-token" > $2
