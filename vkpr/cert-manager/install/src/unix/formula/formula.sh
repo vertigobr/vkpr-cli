@@ -3,14 +3,14 @@
 runFormula() {
   VKPR_HOME=~/.vkpr
   VKPR_CERT_VALUES=$VKPR_HOME/values/cert-manager/cert-manager.yaml
-  VKPR_CERT_ISSUER=$VKPR_HOME/configs/cert-manager/cluster-issuer.yaml
+  VKPR_CERT_ISSUER=$VKPR_HOME/configs/cert-manager/issuer.yaml
   VKPR_CERT_TOKEN=$VKPR_HOME/configs/cert-manager/token-dns.yaml
   mkdir -p $VKPR_HOME/configs/cert-manager/ $VKPR_HOME/values/cert-manager/
 
   add_token_dns
   install_crds
   add_repo_certmanager
-  add_cluster_issuer
+  add_issuer
   install_certmanager
 }
 
@@ -30,9 +30,10 @@ install_crds() {
   $VKPR_HOME/bin/kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.4.2/cert-manager.crds.yaml
 }
 
-add_cluster_issuer() {
+add_issuer() {
   echoColor "yellow" "Adicionando Cluster Issuer do cert-manager..."
   export VKPR_EMAIL_INPUT=$INPUT_EMAIL_CLUSTER_ISSUER
+  . $(dirname $0)/utils/issuer.sh $VKPR_EMAIL_INPUT $VKPR_CERT_ISSUER
   $VKPR_HOME/bin/kubectl apply -f $VKPR_CERT_ISSUER
 }
 
