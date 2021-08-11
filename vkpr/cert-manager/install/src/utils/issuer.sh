@@ -1,7 +1,7 @@
 #!/bin/sh
 printf \
 "apiVersion: cert-manager.io/v1
-kind: Issuer
+kind: ClusterIssuer
 metadata:
   name: letsencrypt-staging
 spec:

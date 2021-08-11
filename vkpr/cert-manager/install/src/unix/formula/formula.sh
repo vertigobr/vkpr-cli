@@ -23,6 +23,7 @@ add_token_dns(){
   export VKPR_ACCESS_TOKEN_INPUT=$INPUT_API_AT_CLUSTER_ISSUER
   . $(dirname "$0")/utils/token-dns.sh $VKPR_CERT_TOKEN
   echo $VKPR_ACCESS_TOKEN_INPUT | base64 >> $VKPR_CERT_TOKEN
+  $VKPR_HOME/bin/kubectl apply -f $VKPR_CERT_TOKEN
 }
 
 install_crds() {
