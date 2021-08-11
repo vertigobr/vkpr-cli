@@ -1,0 +1,21 @@
+{
+  "dockerImageBuilder": "ritclizup/rit-shell-bat-builder",
+  "inputs": [
+    {
+      "label": "Type your email to use to generate certificates: ",
+      "name": "input_email_cluster_issuer",
+      "required": true,
+      "tutorial": "<email>@<email>.com",
+      "type": "text"
+    },
+    {
+      "label": "Type your API Access Token from the Digital Ocean",
+      "name": "input_API_AT_cluster_issuer",
+      "required": true,
+      "tutorial": "",
+      "type": "text"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease:": "2.16.2"
+}
