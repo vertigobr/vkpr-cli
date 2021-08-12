@@ -1,6 +1,25 @@
 {
   "dockerImageBuilder": "ritclizup/rit-shell-bat-builder",
-  "inputs": [],
+  "inputs": [
+    {
+      "default": "whoami.localhost",
+      "label": "Type the Whoami domain: ",
+      "name": "input_domain",
+      "required": true,
+      "type": "text"
+    },
+    {
+      "default": "false",
+      "items": [
+        "true",
+        "false"
+      ],
+      "label": "Secure? ",
+      "name": "input_secure",
+      "required": true,
+      "type": "bool"
+    }
+  ],
   "template": "shell-bat",
   "templateRelease:": "2.16.2"
 }
