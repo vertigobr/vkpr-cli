@@ -17,11 +17,23 @@ add_repo_external_dns() {
 }
 
 install_external_dns() {
-  export DO_AUTH_TOKEN=$INPUT_DIGITAL_OCEAN
+  getProvider $INPUT_CLOUD_PROVIDER
   if [[ ! -e $VKPR_EXTERNAL_DNS_VALUES ]]; then
-    . $(dirname "$0")/utils/external-dns.sh $DO_AUTH_TOKEN $VKPR_EXTERNAL_DNS_VALUES
+    . $(dirname "$0")/utils/external-dns.sh $VKPR_EXTERNAL_DNS_VALUES $DO_AUTH_TOKEN
   fi
   $VKPR_HOME/bin/helm upgrade -i vkpr -f $VKPR_EXTERNAL_DNS_VALUES bitnami/external-dns
+}
+
+getProvider(){
+  case $1 in
+  DIGITALOCEAN)
+    export DO_AUTH_TOKEN=$DIGITALOCEAN_APITOKEN
+    ;;
+  AWS)
+    echoColor "yellow" "AWS is a working in progress."
+    exit 0
+    ;;
+  esac
 }
 
 echoColor() {

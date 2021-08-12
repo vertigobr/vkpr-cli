@@ -2,12 +2,22 @@
   "dockerImageBuilder": "ritclizup/rit-shell-bat-builder",
   "inputs": [
     {
-      "label": "Type you Digital Ocean Api Key: ",
-      "name": "input_digital_ocean",
+      "default": "DIGITALOCEAN",
+      "items": [
+        "DIGITALOCEAN",
+        "AWS"
+      ],
+      "label": "What is your cloud provider? ",
+      "name": "input_cloud_provider",
       "required": true,
       "type": "text"
+    },
+    {
+      "name": "digitalocean_apitoken",
+      "type": "CREDENTIAL_DIGITALOCEAN_APITOKEN"
     }
   ],
   "template": "shell-bat",
   "templateRelease:": "2.16.2"
 }
+
