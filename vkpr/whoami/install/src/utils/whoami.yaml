@@ -2,7 +2,8 @@ ingress:
   enabled: true
   annotations:
     kubernetes.io/ingress.class: nginx
-    cert-manager.io/cluster-issuer: letsencrypt-staging
+    kubernetes.io/tls-acme: "true"
+    #cert-manager.io/cluster-issuer: letsencrypt-staging
   hosts:
     - host: "whoami.vkpr-dev.vertigo.com.br"
       paths: ["/"]

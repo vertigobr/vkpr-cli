@@ -3,13 +3,13 @@
   "inputs": [
     {
       "label": "Type your email to use to generate certificates: ",
-      "name": "input_email_cluster_issuer",
+      "name": "email",
       "required": true,
       "tutorial": "<email>@<domain>",
       "type": "text"
     },
     {
-      "name": "input_API_AT_cluster_issuer",
+      "name": "token",
       "type": "CREDENTIAL_DIGITALOCEAN_TOKEN"
     }
   ],

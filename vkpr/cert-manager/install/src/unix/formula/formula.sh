@@ -20,7 +20,7 @@ runFormula() {
 get_credentials() {
   # CREDENTIAL INPUT NOT WORKING IN SHELL FORMULA
   # PARSING FILE DIRECTLY AND IGNORING INPUT ("-r" is important!!!)
-  VKPR_ACCESS_TOKEN_INPUT=$(jq -r .credential.token ~/.rit/credentials/default/digitalocean)
+  #VKPR_ACCESS_TOKEN_INPUT=$(jq -r .credential.token ~/.rit/credentials/default/digitalocean)
   if [ -z "$VKPR_ACCESS_TOKEN_INPUT" ]; then
     echo "yellow" "No digitalocean token found in rit credentials. Falling back to DO_AUTH_TOKEN env variable."
     VKPR_ACCESS_TOKEN_INPUT="$DO_AUTH_TOKEN"
@@ -59,7 +59,7 @@ add_token_dns() {
   else
     # replaces token in VKPR_CERT_TOKEN template
     VKPR_ACCESS_TOKEN_INPUT_BASE64=$(echo "$VKPR_ACCESS_TOKEN_INPUT" | base64 $BASE64_ARGS) \
-      ~/.vkpr/bin/yq eval '.data.access-token = env(VKPR_ACCESS_TOKEN_INPUT_BASE64) | .data.access-token style = "double"' "$VKPR_CERT_TOKEN" \
+      $VKPR_HOME/bin/yq eval '.data.access-token = env(VKPR_ACCESS_TOKEN_INPUT_BASE64) | .data.access-token style = "double"' "$VKPR_CERT_TOKEN" \
       | $VKPR_HOME/bin/kubectl apply -f -
   fi
 }
