@@ -1,4 +1,4 @@
 {
-  "short": "Remove the Whoami from the cluster.",
-  "long": "Remove all the content about the Whoami App in the cluster."
+  "short": "Remove whoami",
+  "long": "Remove the whoami and its dependencies from the cluster"
 }
