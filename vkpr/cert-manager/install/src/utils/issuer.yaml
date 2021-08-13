@@ -16,9 +16,7 @@ spec:
             tokenSecretRef:
               name: digitalocean-dns
               key: access-token
-
 ---
-
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:

@@ -2,14 +2,20 @@
   "dockerImageBuilder": "ritclizup/rit-shell-bat-builder",
   "inputs": [
     {
-      "label": "Type your email to use to generate certificates: ",
+      "label": "Type your email to use to generate certificates:",
       "name": "email",
       "required": true,
       "tutorial": "<email>@<domain>",
-      "type": "text"
+      "type": "text",
+      "cache": {
+        "active": true,
+        "qty": 2,
+        "newLabel": "Type other email: "
+      }
     },
     {
       "name": "token",
+      "required": true,
       "type": "CREDENTIAL_DIGITALOCEAN_TOKEN"
     }
   ],
