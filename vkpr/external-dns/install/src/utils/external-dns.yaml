@@ -1,0 +1,9 @@
+rbac:
+  create: true
+sources:
+  - ingress
+  - service
+provider: digitalocean
+interval: "1m"
+digitalocean:
+  apiToken: $Token
