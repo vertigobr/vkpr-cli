@@ -1,5 +1,4 @@
 {
-  "dockerImageBuilder": "ritclizup/rit-shell-bat-builder",
   "inputs": [
     {
       "label": "Type your email to use to generate certificates:",

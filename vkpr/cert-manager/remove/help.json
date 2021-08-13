@@ -1,0 +1,4 @@
+{
+  "short": "Remove cert-manager",
+  "long": "Remove the cert-manager and its dependencies from the cluster"
+}
