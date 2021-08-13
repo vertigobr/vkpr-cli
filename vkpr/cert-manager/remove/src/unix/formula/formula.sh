@@ -2,9 +2,10 @@
 
 runFormula() {
   VKPR_HOME=~/.vkpr
-  echoColor "yellow" "Removendo Cert-manager do cluster..."
+  echoColor "yellow" "Removing cert-manager..."
   rm -rf $VKPR_HOME/configs/cert-manager/ $VKPR_HOME/values/cert-manager/
-  $VKPR_HOME/bin/helm uninstall cert-manager
+  $VKPR_HOME/bin/kubectl delete clusterissuer letsencrypt-staging
+  $VKPR_HOME/bin/helm uninstall cert-manager -n cert-manager
   $VKPR_HOME/bin/kubectl delete ns cert-manager
 }
 

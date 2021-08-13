@@ -1,36 +1,38 @@
 #!/bin/sh
 
 runFormula() {
-  echoColor "yellow" "Instalando Whoami..."
+  echoColor "yellow" "Installing whoami..."
   VKPR_HOME=~/.vkpr
-  mkdir -p $VKPR_HOME/values/whoami
-  VKPR_WHOAMI_VALUES=$VKPR_HOME/values/whoami/values.yaml
-  touch $VKPR_WHOAMI_VALUES
-  echoColor "yellow" "Secure is a working in progress."
+  #mkdir -p $VKPR_HOME/values/whoami
+  VKPR_WHOAMI_VALUES=$(dirname "$0")/utils/whoami.yaml
+  #touch $VKPR_WHOAMI_VALUES
+
   addRepoWhoami
   installWhoami
 }
 
 addRepoWhoami(){
-  helm repo add cowboysysop https://cowboysysop.github.io/charts/
+  $VKPR_HOME/bin/helm repo add cowboysysop https://cowboysysop.github.io/charts/
+  $VKPR_HOME/bin/helm repo update
 }
 
-verifyHasIngress(){
-  INGRESS=$($VKPR_HOME/bin/kubectl wait --for=condition=available deploy ingress-nginx-controller -o name | cut -d "/" -f2)
-  if [[ ! $INGRESS = "ingress-nginx-controller" ]]; then
-    local res=$?
-    echo $res
-  fi
-}
+# verifyHasIngress(){
+#   INGRESS=$($VKPR_HOME/bin/kubectl wait --for=condition=available deploy ingress-nginx-controller -o name | cut -d "/" -f2)
+#   if [[ ! $INGRESS = "ingress-nginx-controller" ]]; then
+#     local res=$?
+#     echo $res
+#   fi
+# }
 
 installWhoami(){
-  if [[ ! -n $(verifyHasIngress) ]]; then
-    . $(dirname "$0")/utils/whoami.sh $VKPR_WHOAMI_VALUES $INPUT_DOMAIN
-    helm upgrade -i -f $VKPR_WHOAMI_VALUES whoami cowboysysop/whoami
-  else
-    echoColor "red" "Não há ingress instalado, para utilizar o Whoami no localhost deve-se subir o ingress."
-    helm upgrade -i whoami cowboysysop/whoami
-  fi
+  # if [[ ! -n $(verifyHasIngress) ]]; then
+  #   . $(dirname "$0")/utils/whoami.sh $VKPR_WHOAMI_VALUES
+  #   helm upgrade -i -f $VKPR_WHOAMI_VALUES whoami cowboysysop/whoami
+  # else
+  #   echoColor "red" "Não há ingress instalado, para utilizar o Whoami no localhost deve-se subir o ingress."
+  #   helm upgrade -i whoami cowboysysop/whoami
+  # fi
+  $VKPR_HOME/bin/helm upgrade -i -f $VKPR_WHOAMI_VALUES whoami cowboysysop/whoami
 }
 
 echoColor() {

@@ -38,6 +38,7 @@ startCluster() {
   if ! $(k3d cluster list | grep -q "vkpr-local"); then
     k3d cluster create vkpr-local \
       -p "8000:80@loadbalancer" \
+      -p "8001:443@loadbalancer" \
       --k3s-server-arg '--no-deploy=traefik' \
       --registry-use k3d-registry.localhost \
       --registry-config $VKPR_HOME/config/registry.yaml
@@ -51,13 +52,13 @@ startCluster() {
 
 startRegistry() {
   # local registry
-  if ! $(k3d registry list | grep -q "k3d-mirror.localhost"); then
+  if ! $(k3d registry list | grep -q "k3d-registry\.localhost"); then
     k3d registry create registry.localhost -p 5000
   else
     echoColor "yellow" "Registry already started, skipping."
   fi
   # docker hub mirror
-  if ! $(k3d registry list | grep -q "k3d-registry.localhost"); then
+  if ! $(k3d registry list | grep -q "k3d-mirror\.localhost"); then
     k3d registry create mirror.localhost -i vertigo/registry-mirror -p 5001
   else
     echoColor "yellow" "Mirror already started, skipping."
