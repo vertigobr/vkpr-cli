@@ -8,7 +8,8 @@ runFormula() {
 }
 
 uninstallWhoami(){
-  helm uninstall whoami
+  $VKPR_HOME/bin/helm uninstall whoami
+  $VKPR_HOME/bin/kubectl delete secret whoami-cert
 }
 
 echoColor() {
