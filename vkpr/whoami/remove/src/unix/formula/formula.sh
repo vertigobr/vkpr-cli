@@ -1,14 +1,15 @@
 #!/bin/sh
 
 runFormula() {
-  echoColor "yellow" "Removendo Whoami..."
   VKPR_HOME=~/.vkpr
-  rm -rf $VKPR_HOME/values/whoami
+
   uninstallWhoami
 }
 
 uninstallWhoami(){
-  helm uninstall whoami
+  echoColor "yellow" "Removendo Whoami..."
+  $VKPR_HOME/bin/helm uninstall whoami
+  $VKPR_HOME/bin/kubectl delete secret whoami-cert
 }
 
 echoColor() {

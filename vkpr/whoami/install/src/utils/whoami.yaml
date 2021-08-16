@@ -3,12 +3,11 @@ ingress:
   annotations:
     kubernetes.io/ingress.class: nginx
     kubernetes.io/tls-acme: "true"
-    #cert-manager.io/cluster-issuer: letsencrypt-staging
   hosts:
-    - host: "whoami.vkpr-dev.vertigo.com.br"
+    - host: domain
       paths: ["/"]
+  pathType: Prefix
   tls:
   - hosts:
-    - "whoami.vkpr-dev.vertigo.com.br"
+    - domain
     secretName: whoami-cert
-  pathType: Prefix

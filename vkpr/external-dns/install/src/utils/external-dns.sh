@@ -8,4 +8,4 @@ sources:
 provider: digitalocean
 interval: '"1m"'
 digitalocean:
-  apiToken: $1" > $2
+  apiToken: $2" > $1

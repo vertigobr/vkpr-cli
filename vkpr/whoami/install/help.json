@@ -1,4 +1,4 @@
 {
-  "short": "Install the Whoami to the cluster.",
-  "long": "Install the Pod and dependences containing a Whoami App in the cluster."
+  "short": "Install whoami",
+  "long": "Install the whoami in the cluster by a Helm Chart."
 }
