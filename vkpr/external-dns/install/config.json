@@ -8,12 +8,12 @@
         "AWS"
       ],
       "label": "What is your cloud provider? ",
-      "name": "input_cloud_provider",
+      "name": "provider",
       "required": true,
       "type": "text"
     },
     {
-      "name": "digitalocean_apitoken",
+      "name": "token",
       "type": "CREDENTIAL_DIGITALOCEAN_APITOKEN"
     }
   ],
