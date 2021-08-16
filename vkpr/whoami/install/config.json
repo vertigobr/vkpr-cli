@@ -4,7 +4,7 @@
     {
       "default": "whoami.localhost",
       "label": "Type the Whoami domain: ",
-      "name": "input_domain",
+      "name": "domain",
       "required": true,
       "type": "text"
     },
@@ -15,7 +15,7 @@
         "false"
       ],
       "label": "Secure? ",
-      "name": "input_secure",
+      "name": "secure",
       "required": true,
       "type": "bool"
     }
