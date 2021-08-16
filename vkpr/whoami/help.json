@@ -1,4 +1,4 @@
 {
-  "short": "Add the Whoami to the cluster.",
-  "long": "Add a Pod and dependences containing a Whoami App in the cluster."
+  "short": "Manage whoami",
+  "long": "Whoami is a Tiny Go webserver that prints OS information and HTTP request to output"
 }
