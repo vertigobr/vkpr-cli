@@ -1,0 +1,11 @@
+{
+  "dockerImageBuilder": "ritclizup/rit-shell-bat-builder",
+  "inputs": [
+    {
+      "name": "password",
+      "type": "CREDENTIAL_POSTGRES_PASSWORD"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease:": "2.16.2"
+}
