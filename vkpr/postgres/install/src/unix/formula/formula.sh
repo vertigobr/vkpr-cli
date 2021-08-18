@@ -17,7 +17,7 @@ addRepoPostgres(){
 
 installPostgres(){
   echoColor "yellow" "Installing postgres..."
-  $VKPR_HELM upgrade -i -f $VKPR_POSTGRES_VALUES postgres bitnami/postgresql
+  $VKPR_HELM upgrade -i --set global.postgresql.postgresqlPassword=$PASSWORD postgres bitnami/postgresql
 }
 
 echoColor() {
