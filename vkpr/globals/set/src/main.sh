@@ -8,8 +8,6 @@ fi
 
 source $CURRENT_PWD/global/log.sh
 source $CURRENT_PWD/global/var.sh
-source $CURRENT_PWD/global/helper.sh
-source $CURRENT_PWD/global/.env
 
 # shellcheck source=/dev/null
 . "$(dirname "$0")"/unix/formula/formula.sh --source-only

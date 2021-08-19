@@ -12,6 +12,7 @@
 **/dist/*
 /test/tests.*
 /test/coverage.*
+global/
 
 # Test binary, built with " go test -c "
 *.test

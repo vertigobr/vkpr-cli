@@ -19,6 +19,7 @@ runFormula() {
   echo "VKPR initialization"
   # VKPR home is "~/.vkpr"
   VKPR_HOME=~/.vkpr
+  VKPR_GLOBAL=$CURRENT_PWD/global
   # required paths
   mkdir -p $VKPR_HOME/bin
   mkdir -p $VKPR_HOME/config
@@ -30,7 +31,7 @@ runFormula() {
   installTool "jq"
   installTool "yq"
   installTool "k9s"
-
+  installGlobals
   # if [ "$RIT_INPUT_BOOLEAN" = "true" ]; then
   #   echoColor "blue" "I've already created formulas using Ritchie."
   # else
@@ -64,6 +65,16 @@ installArkade() {
     rm /tmp/arkinst0.sh
     /tmp/arkinst.sh
   fi
+}
+
+installGlobals() {
+  mkdir -p $VKPR_GLOBAL
+  createPackagesFiles
+}
+
+createPackagesFiles() {
+  touch $VKPR_GLOBAL/.env
+  cp $(dirname "$0")/utils/* $VKPR_GLOBAL
 }
 
 echoColor() {
