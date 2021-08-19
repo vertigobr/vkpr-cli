@@ -74,7 +74,7 @@ installGlobals() {
 
 createPackagesFiles() {
   touch $VKPR_GLOBAL/.env
-  cp $(dirname "$0")/utils/* $VKPR_GLOBAL
+  cp $(dirname "$0")/utils/* $VKPR_GLOBALS
 }
 
 echoColor() {
