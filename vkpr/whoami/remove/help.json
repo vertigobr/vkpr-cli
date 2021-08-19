@@ -1,4 +1,4 @@
 {
   "short": "Remove whoami",
-  "long": "Remove the whoami and its dependencies from the cluster"
+  "long": "Remove the whoami and its dependencies from the Kubernetes cluster"
 }

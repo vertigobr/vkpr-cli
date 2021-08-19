@@ -1,0 +1,4 @@
+{
+  "short": "Remove external-DNS",
+  "long": "Remove the external-DNS and its dependencies from the Kubernetes cluster"
+}

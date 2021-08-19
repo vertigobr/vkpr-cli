@@ -1,0 +1,4 @@
+{
+  "short": "Install external-DNS",
+  "long": "Install the external-DNS in the Kubernetes cluster."
+}
