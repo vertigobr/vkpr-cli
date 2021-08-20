@@ -8,20 +8,19 @@ VKPR-CLI is Tool build with Shell that has the objetive to make it easier for th
 VKPR-CLI also helps the local development by using k3d to fully provision a Kubernetes cluster instance for testing purposes.
 
 - [VKPR-CLI](#vkpr-cli-tool)
-  - [Why Ritchie](##why-ritchie)
-  - [Minimum Required](##minimum-required)
-  - [Usage](##usage)
-    - [Initializate](###init)
-    - [Create a cluster](###create-a-cluster)
-    - [Running the scripts](###running-the-scripts)
-    - [Uninstalling the objects](###uninstalling-the-objects)
-  - [Tools](##apps)
-  - [Documentation](##docs)
-  - [License](##license)
+  - [Why Ritchie](##Why-Ritchie?)
+  - [Minimum Required](##Minimum-required)
+  - [Get VKPR](##Get-VKPR)
+  - [Usage](##Usage)
+    - [Initializate](###Init)
+    - [Create a cluster](###Create-a-cluster)
+    - [Running the scripts](###Running-the-scripts)
+    - [Uninstalling the objects](###Uninstalling-the-objects)
+  - [Tools](##Apps)
+  - [Documentation](##Docs)
+  - [License](##License)
 
 ## Why Ritchie?
-
----
 
 Using Ritchie we could create our own CLI and implement it with plain shell scripts.
 
@@ -31,16 +30,12 @@ For more information (if you are curious about it), please check the [Ritchie CL
 
 ## Minimum required
 
----
-
 VKPR-CLI was made to run on Linux / MacOS. It's pre-requisites are:
 
 - [Docker](https://docs.docker.com/get-docker/)
 - [Git](https://git-scm.com/downloads)
 
 ## Get VKPR
-
----
 
 The VKPR CLI tool will do its best to hide its internals (including Ritchie).
 
@@ -54,8 +49,6 @@ alias vkpr="rit vkpr"
 ```
 
 ## Usage
-
----
 
 Try yourself to use VKPR following the next steps:
 
@@ -124,12 +117,8 @@ vkpr whoami remove
 
 ## Docs
 
----
-
 The Documentation can be viewed in the following [link](https://github.com/vertigobr/vkpr-cli).
 
 ## License
-
----
 
 VKPR-CLI is licensed under the Apache License Version 2.0.
