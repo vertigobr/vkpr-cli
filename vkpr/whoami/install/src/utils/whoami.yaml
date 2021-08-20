@@ -8,6 +8,6 @@ ingress:
       paths: ["/"]
   pathType: Prefix
   tls:
-  - hosts:
-    - domain
-    secretName: whoami-cert
+    - hosts:
+        - domain
+      secretName: whoami-cert

@@ -1,0 +1,27 @@
+{
+  "inputs": [
+    {
+      "label": "Type of global:",
+      "name": "global_type",
+      "required": true,
+      "type": "text",
+      "items": [
+        "credential",
+        "file"
+      ],
+      "default": "file"
+    },
+    {
+      "label": "Type the env name:",
+      "name": "name",
+      "type": "text"
+    },
+    {
+      "label": "Type the env content:",
+      "name": "content",
+      "type": "text"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease:": "2.16.2"
+}
