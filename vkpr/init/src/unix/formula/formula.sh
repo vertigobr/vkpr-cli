@@ -23,6 +23,7 @@ runFormula() {
   # required paths
   mkdir -p $VKPR_HOME/bin
   mkdir -p $VKPR_HOME/config
+  mkdir -p $VKPR_HOME/test
 
   installArkade
   installTool "kubectl"
@@ -32,6 +33,7 @@ runFormula() {
   installTool "yq"
   installTool "k9s"
   installGlobals
+  installBats
   # if [ "$RIT_INPUT_BOOLEAN" = "true" ]; then
   #   echoColor "blue" "I've already created formulas using Ritchie."
   # else
@@ -70,6 +72,19 @@ installArkade() {
 installGlobals() {
   mkdir -p $VKPR_GLOBAL
   createPackagesFiles
+}
+
+installBats(){
+  echoColor "green" "intalling bats..."
+  mkdir -p /tmp/bats
+  git clone https://github.com/bats-core/bats-core.git /tmp/bats-core
+  git clone https://github.com/bats-core/bats-support.git $VKPR_HOME/test
+  git clone https://github.com/bats-core/bats-assert $VKPR_HOME/test
+  cd /tmp/bats-core
+  ./install.sh $VKPR_HOME/test
+  cd /tmp
+  rm -r --force bats-core
+
 }
 
 createPackagesFiles() {

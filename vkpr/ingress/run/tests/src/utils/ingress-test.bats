@@ -1,7 +1,6 @@
-#!/usr/bin/env bats
 VKPR_HOME=~/.vkpr
-load  $VKPR_HOME/lib/bats/libexec/test/test_helper/bats-support/load.bash
-load $VKPR_HOME/lib/bats/libexec/bats-assert/load.bash
+load  $VKPR_HOME/test/bats-support/load.bash
+load $VKPR_HOME/test/bats-assert/load.bash
 
 
 setup() {

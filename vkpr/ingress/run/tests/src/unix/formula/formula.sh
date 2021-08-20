@@ -1,10 +1,10 @@
 #!/bin/sh
-
 runFormula() {
   echo ""
+  VKPR_HOME=~/.vkpr
   TEST_SCRIPT=$(dirname "$0")/utils/ingress-test.bats
 
-  bats $TEST_SCRIPT
+  $VKPR_HOME/test/bin/bats $TEST_SCRIPT
   
 }
 
