@@ -1,4 +1,4 @@
 {
   "short": "Install cert-manager",
-  "long": "Install the cert-manager in the cluster"
+  "long": "Install the cert-manager in the Kubernetes cluster."
 }

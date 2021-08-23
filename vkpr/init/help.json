@@ -1,4 +1,4 @@
 {
-	"short": "vkpr init formula",
-	"long": "vkpr init formula"
+	"short": "Initialize the dependencies of VKPR",
+	"long": "Initialize all dependencies for VKPR functioning and integrity"
 }

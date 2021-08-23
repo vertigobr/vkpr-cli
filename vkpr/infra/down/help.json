@@ -1,0 +1,4 @@
+{
+  "short": "Delete the Kubernetes cluster",
+  "long": "Delete the Kubernetes cluster and all the installed dependencies"
+}
