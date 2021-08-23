@@ -19,7 +19,7 @@ runFormula() {
   echo "VKPR initialization"
   # VKPR home is "~/.vkpr"
   VKPR_HOME=~/.vkpr
-  VKPR_GLOBAL=$CURRENT_PWD/global
+  VKPR_GLOBALS=$VKPR_HOME/global
   # required paths
   mkdir -p $VKPR_HOME/bin
   mkdir -p $VKPR_HOME/config
@@ -70,7 +70,7 @@ installArkade() {
 }
 
 installGlobals() {
-  mkdir -p $VKPR_GLOBAL
+  mkdir -p $VKPR_GLOBALS
   createPackagesFiles
 }
 
@@ -88,8 +88,8 @@ installBats(){
 }
 
 createPackagesFiles() {
-  touch $VKPR_GLOBAL/.env
-  cp $(dirname "$0")/utils/* $VKPR_GLOBAL
+  touch $VKPR_GLOBALS/.env
+  cp $(dirname "$0")/utils/* $VKPR_GLOBALS
 }
 
 echoColor() {
