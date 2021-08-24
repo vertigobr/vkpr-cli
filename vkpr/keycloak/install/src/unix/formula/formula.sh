@@ -6,8 +6,16 @@ runFormula() {
   PG_DATABASE_NAME="keycloak"
 
   VKPR_KEYCLOAK_YAML=$(dirname "$0")/utils/keycloak.yaml
-
-  verifyExistingEnv 'KEYCLOAK_ADMIN_USER' "$ADMIN_USER" 'KEYCLOAK_ADMIN_PASSWORD' "$ADMIN_PASSWORD" 'SECURE' "$SECURE" 'DOMAIN' "$DOMAIN"
+  
+  if [ -z $(cat $VKPR_GLOBALS/.env | grep KEYCLOAK_ADMIN_USER) ] || [ -z $(cat $VKPR_GLOBALS/.env | grep KEYCLOAK_ADMIN_PASSWORD) ]; then
+    VKPR_ENV_KEYCLOAK_ADMIN_USER=$ADMIN_USER
+    VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD=$ADMIN_PASSWORD
+    VKPR_ENV_SECURE=$SECURE
+    VKPR_ENV_DOMAIN=$DOMAIN
+    verifyExistingEnv 'KEYCLOAK_ADMIN_USER' "$VKPR_ENV_KEYCLOAK_ADMIN_USER" \
+    'KEYCLOAK_ADMIN_PASSWORD' "$VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD" \
+    'SECURE' "$VKPR_ENV_SECURE" 'DOMAIN' "$VKPR_ENV_DOMAIN"
+  fi
 
   addRepoKeycloak
   if [[ $(verifyExistingPostgres) == "true" ]]; then
@@ -36,14 +44,17 @@ verifyExistingPostgres(){
 }
 
 installKeycloak(){
-  $VKPR_YQ eval '.ingress.hosts[0].host = "'$VKPR_ENV_DOMAIN'" |
-  .ingress.tls[0].hosts[0] = "'$VKPR_ENV_DOMAIN'" |
+  $VKPR_YQ eval '.ingress.hosts[0].host = "'$VKPR_ENV_DOMAIN'" | .ingress.tls[0].hosts[0] = "'$VKPR_ENV_DOMAIN'" |
   .auth.adminUser = "'$VKPR_ENV_KEYCLOAK_ADMIN_USER'" |
   .auth.adminPassword = "'$VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD'"' "$VKPR_KEYCLOAK_YAML" \
  | $VKPR_HELM upgrade -i -f - keycloak bitnami/keycloak
 }
 
 installKeycloakDB(){
-  $VKPR_YQ eval '.ingress.hosts[0].host = "'$VKPR_ENV_DOMAIN'" | .ingress.tls[0].hosts[0] = "'$VKPR_ENV_DOMAIN'" | .externalDatabase.host = "postgres-postgresql" | .externalDatabase.port = "5432" | .externalDatabase.user = "'$PG_USER'" | .externalDatabase.password = "'$PG_PASSWORD'" | .externalDatabase.database = "'$PG_DATABASE_NAME'" | .auth.adminUser = "'$VKPR_ENV_KEYCLOAK_ADMIN_USER'" | .auth.adminPassword = "'$VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD'"' "$VKPR_KEYCLOAK_YAML" \
+  $VKPR_YQ eval '.ingress.hosts[0].host = "'$VKPR_ENV_DOMAIN'" | .ingress.tls[0].hosts[0] = "'$VKPR_ENV_DOMAIN'" |
+  .externalDatabase.host = "postgres-postgresql" | .externalDatabase.port = "5432" |
+  .externalDatabase.user = "'$PG_USER'" | .externalDatabase.password = "'$PG_PASSWORD'" |
+  .externalDatabase.database = "'$PG_DATABASE_NAME'" |
+  .auth.adminUser = "'$VKPR_ENV_KEYCLOAK_ADMIN_USER'" | .auth.adminPassword = "'$VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD'"' "$VKPR_KEYCLOAK_YAML" \
  | $VKPR_HELM upgrade -i -f - keycloak bitnami/keycloak
 }
