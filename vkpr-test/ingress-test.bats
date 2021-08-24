@@ -9,7 +9,7 @@ setup_file() {
         echo "running cluster and installing ingress...."
         rit vkpr infra up
         rit vkpr ingress install
-        kubectl wait --for=condition=ready --timeout=30s pod --all
+        kubectl wait --for=condition=ready --timeout=1m pod --all
         sleep 2
     fi
 }
@@ -20,6 +20,16 @@ setup_file() {
 @test "curl to localhost:8000 must return 404" {
     #command that tests whether ingress is running
     run "$(curl localhost:8000)"
+    actual="${lines[1]}"
+    trim "$actual"
+    actual="$TRIMMED"
+    expected="<head><title>404 Not Found</title></head>"
+    assert_equal "$actual" "$expected"
+}
+
+@test "curl to https://localhost:8001 must return 404" {
+    #command that tests whether ingress is running
+    run "$(curl -k https://localhost:8001)"
     actual="${lines[1]}"
     trim "$actual"
     actual="$TRIMMED"
