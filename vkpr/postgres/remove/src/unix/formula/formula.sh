@@ -1,12 +1,22 @@
 #!/bin/sh
 
 runFormula() {
-  echoColor "green" "Removing Postgres..."
   VKPR_HOME=~/.vkpr
   VKPR_HELM=$VKPR_HOME/bin/helm
 
-  $VKPR_HELM delete postgres
+  removePostgres
+  removePVC
 
+}
+
+removePostgres(){
+  echoColor "green" "Removing Postgres..."
+  $VKPR_HELM uninstall postgres
+}
+
+removePVC(){
+    echoColor "green" "Removing PVC..."
+    kubectl delete pvc -l app.kubernetes.io/instance=postgres
 }
 
 echoColor() {
