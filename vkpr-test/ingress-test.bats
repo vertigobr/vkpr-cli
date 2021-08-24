@@ -4,7 +4,7 @@ load $VKPR_HOME/bats/bats-assert/load.bash
 
 setup_file() {
     if [ "$VKPR_TEST_SKIP_SETUP" == "true" ]; then
-        echo "skipping teardown due to VKPR_TEST_SKIP_SETUP=true"
+        echo "skipping setup due to VKPR_TEST_SKIP_SETUP=true"
     else
         echo "running cluster and installing ingress...."
         rit vkpr infra up
