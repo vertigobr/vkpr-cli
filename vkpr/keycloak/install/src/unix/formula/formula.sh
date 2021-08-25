@@ -4,8 +4,10 @@ runFormula() {
   PG_USER="postgres"
   PG_PASSWORD=$($VKPR_JQ -r '.credential.password' ~/.rit/credentials/default/postgres)
   PG_DATABASE_NAME="keycloak"
+  PG_EXISTING_DATABASE=$(checkExistingDatabase $PG_USER $PG_PASSWORD $PG_DATABASE_NAME $PG_DATABASE_NAME)
 
   VKPR_KEYCLOAK_YAML=$(dirname "$0")/utils/keycloak.yaml
+  
   
   if [ -z $(cat $VKPR_GLOBALS/.env | grep KEYCLOAK_ADMIN_USER) ] || [ -z $(cat $VKPR_GLOBALS/.env | grep KEYCLOAK_ADMIN_PASSWORD) ]; then
     VKPR_ENV_KEYCLOAK_ADMIN_USER=$ADMIN_USER
@@ -18,10 +20,12 @@ runFormula() {
   fi
 
   addRepoKeycloak
-  if [[ $(verifyExistingPostgres) == "true" ]]; then
+  if [[ $(verifyExistingPostgres) -eq "true" ]]; then
     echoColor "yellow" "Initializing Keycloak with Postgres already created"
     VKPR_KEYCLOAK_YAML=$(dirname "$0")/utils/keycloak-db.yaml
-    createDatabase $PG_USER $PG_PASSWORD $PG_DATABASE_NAME
+    if [[ ! -n $PG_EXISTING_DATABASE ]]; then
+      createDatabase $PG_USER $PG_PASSWORD $PG_DATABASE_NAME
+    fi
     installKeycloakDB
   else
     echoColor "yellow" "There is no Postgres installed, Keycloak will generate one for your use"
@@ -36,7 +40,7 @@ addRepoKeycloak(){
 
 verifyExistingPostgres(){
   POSTGRES=$($VKPR_KUBECTL wait --for=condition=Ready pod/postgres-postgresql-0 -o name | cut -d "/" -f2)
-  if [[ $POSTGRES == "postgres-postgresql-0" ]]; then
+  if [[ $POSTGRES -eq "postgres-postgresql-0" ]]; then
     echo "true"
   else
     echo "false"

@@ -7,9 +7,11 @@ externalDatabase:
   password: ""
   database: ""
 ingress:
-  enabled: false
+  enabled: true
   annotations:
     kubernetes.io/ingress.class: nginx
+  certManager: false
+  hostname: login.localhost
   path: "/"
   tls: true
 readinessProbe:
