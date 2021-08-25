@@ -1,15 +1,13 @@
 #!/bin/bash
 
-if [ ! -d ~/.vkpr/global ]; then
+if [ ! -d $CURRENT_PWD/global ]; then
   echo "Doesn't initializated the vkpr... Call again the function"
   rit vkpr init
   exit;
 fi
 
-source ~/.vkpr/global/log.sh
-source ~/.vkpr/global/var.sh
-source ~/.vkpr/global/helper.sh
-source ~/.vkpr/global/.env
+source $CURRENT_PWD/global/log.sh
+source $CURRENT_PWD/global/var.sh
 
 # shellcheck source=/dev/null
 . "$(dirname "$0")"/unix/formula/formula.sh --source-only
