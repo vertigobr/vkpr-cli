@@ -1,4 +1,13 @@
-#!/bin/bash
+#!/bin/sh
+
+runFormula() {
+  echoColor "green" "Removing Postgres..."
+  VKPR_HOME=~/.vkpr
+  VKPR_HELM=$VKPR_HOME/bin/helm
+
+  $VKPR_HELM delete postgres
+
+}
 
 echoColor() {
   case $1 in
@@ -17,7 +26,5 @@ echoColor() {
     cyan)
       echo "$(printf '\033[36m')$2$(printf '\033[0m')"
       ;;
-    bold)
-      echo "$(printf '\033[1m')$2$(printf '\033[0m')"
     esac
 }
