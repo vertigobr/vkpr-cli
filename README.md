@@ -40,10 +40,8 @@ VKPR-CLI was made to run on Linux / MacOS. It's pre-requisites are:
 The VKPR CLI tool will do its best to hide its internals (including Ritchie).
 
 ```sh
-# Install the Rit
-curl -fsSL https://commons-repo.ritchiecli.io/install.sh | bash
-# Download VKPR Repo
-rit add repo --provider="Github" --name="vkpr-cli" --repoUrl=<Github URL Project>
+# Install the VKPR
+curl -fsSL https://get.vkpr.net/ | bash
 # Create alias
 alias vkpr="rit vkpr"
 ```
