@@ -1,0 +1,4 @@
+{
+  "short": "Remove ingress-nginx",
+  "long": "Remove the ingress-nginx and its dependencies from the Kubernetes cluster"
+}

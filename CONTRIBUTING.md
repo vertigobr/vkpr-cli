@@ -4,10 +4,16 @@
 
 1. Clone the repository (or fork if you don't have write access)
 2. Create a branch: `git checkout -b <branch_name>`
-3. Check the step by step of [how to create formulas on Ritchie](https://docs.ritchiecli.io/tutorials/formulas/how-to-create-formulas)
+3. To create your formula, you need to run the command `vkpr create formula`
 4. Add your formulas to the repository and commit your implementation: `git commit -s -m '<commit_message>'`
 5. Push your branch: `git push origin <project_name>/<location>`
 6. Open a pull request on the repository for analysis.
+
+Ex:
+
+```sh
+vkpr create formula --vkpr_formula="<name-of-formula>"
+```
 
 ## Updating Formulas
 

@@ -1,0 +1,4 @@
+{
+  "short": "Remove PostgreSQL",
+  "long": "Remove the PostgreSQL and its dependencies from the Kubernetes cluster"
+}

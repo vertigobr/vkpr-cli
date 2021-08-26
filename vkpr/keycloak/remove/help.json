@@ -1,0 +1,4 @@
+{
+  "short": "Remove Keycloak",
+  "long": "Remove the Keycloak and its dependencies from the Kubernetes cluster"
+}

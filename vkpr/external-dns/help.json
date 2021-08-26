@@ -1,0 +1,4 @@
+{
+  "short": "Manage External-DNS",
+  "long": "External-DNS synchronizes exposed Kubernetes Services and Ingresses with DNS providers."
+}

@@ -23,6 +23,7 @@ runFormula() {
   # required paths
   mkdir -p $VKPR_HOME/bin
   mkdir -p $VKPR_HOME/config
+  mkdir -p $VKPR_HOME/test
 
   installArkade
   installTool "kubectl"
@@ -32,6 +33,7 @@ runFormula() {
   installTool "yq"
   installTool "k9s"
   installGlobals
+  installBats
   # if [ "$RIT_INPUT_BOOLEAN" = "true" ]; then
   #   echoColor "blue" "I've already created formulas using Ritchie."
   # else
@@ -44,7 +46,7 @@ runFormula() {
 
 installTool() {
   toolName=$1
-  if [[ -f "$HOME/.vkpr/bin/$toolName" ]]; then
+  if [[ -f "$VKPR_HOME/bin/$toolName" ]]; then
     echoColor "yellow" "Tool $toolName already installed. Skipping."
   else
     echoColor "green" "Installing $toolName using arkade..."
@@ -54,7 +56,7 @@ installTool() {
 }
 
 installArkade() {
-  if [[ -f "$HOME/.vkpr/bin/arkade" ]]; then
+  if [[ -f "$VKPR_HOME/bin/arkade" ]]; then
     echoColor "yellow" "Alex Ellis' arkade already installed. Skipping."
   else
     echoColor "green" "Installing arkade..."
@@ -70,6 +72,22 @@ installArkade() {
 installGlobals() {
   mkdir -p $VKPR_GLOBALS
   createPackagesFiles
+}
+
+installBats(){
+  if [[ -f "$VKPR_HOME/bats/bin/bats" ]]; then
+    echoColor "yellow" "Tool $toolName already installed. Skipping."
+  else
+    echoColor "green" "intalling bats..."
+    mkdir -p /tmp/bats
+    git clone https://github.com/bats-core/bats-core.git /tmp/bats-core
+    /tmp/bats-core/install.sh $VKPR_HOME/bats
+    rm -r --force /tmp/bats-core
+    echoColor "green" "intalling bats add-ons..."
+    git clone https://github.com/bats-core/bats-support $VKPR_HOME/bats/bats-support
+    git clone https://github.com/bats-core/bats-assert $VKPR_HOME/bats/bats-assert
+    git clone https://github.com/bats-core/bats-file $VKPR_HOME/bats/bats-file
+  fi
 }
 
 createPackagesFiles() {

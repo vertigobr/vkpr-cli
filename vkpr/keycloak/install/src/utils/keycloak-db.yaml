@@ -1,0 +1,28 @@
+postgresql:
+  enabled: false
+externalDatabase:
+  host: ""
+  port: ""
+  user: ""
+  password: ""
+  database: ""
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  certManager: false
+  hostname: login.localhost
+  path: "/"
+  tls: true
+readinessProbe:
+  enabled: false
+rbac:
+  create: true
+auth:
+  adminUser: ""
+  adminPassword: ""
+proxyAddressForwarding: true
+extraEnv: |
+  - name: JAVA_OPTS
+      value: >-
+        -Dkeycloak.migration.file=/realm/realm.json
