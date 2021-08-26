@@ -1,17 +1,11 @@
 #!/bin/sh
 
 runFormula() {
-  VKPR_HOME=~/.vkpr
   VKPR_CERT_VERSION="v1.5.0"
 
   VKPR_CERT_VALUES=$VKPR_HOME/values/cert-manager.yaml
   VKPR_CERT_ISSUER=$(dirname "$0")/utils/issuers.yaml
   VKPR_CERT_TOKEN=$(dirname "$0")/utils/token-dns.yaml
-
-  VKPR_KUBECTL=$VKPR_HOME/bin/kubectl
-  VKPR_HELM=$VKPR_HOME/bin/helm
-  VKPR_YQ=$VKPR_HOME/bin/yq
-
   VKPR_INPUT_ACCESS_TOKEN=$TOKEN
   VKPR_INPUT_EMAIL="$EMAIL"
 
@@ -75,24 +69,4 @@ add_issuer() {
   echoColor "yellow" "Installing Issuers and/or ClusterIssuers..."
   $VKPR_YQ eval '.spec.acme.email = strenv(VKPR_INPUT_EMAIL)' "$VKPR_CERT_ISSUER" \
     | $VKPR_KUBECTL apply -f -
-}
-
-echoColor() {
-  case $1 in
-    red)
-      echo "$(printf '\033[31m')$2$(printf '\033[0m')"
-      ;;
-    green)
-      echo "$(printf '\033[32m')$2$(printf '\033[0m')"
-      ;;
-    yellow)
-      echo "$(printf '\033[33m')$2$(printf '\033[0m')"
-      ;;
-    blue)
-      echo "$(printf '\033[34m')$2$(printf '\033[0m')"
-      ;;
-    cyan)
-      echo "$(printf '\033[36m')$2$(printf '\033[0m')"
-      ;;
-    esac
 }
