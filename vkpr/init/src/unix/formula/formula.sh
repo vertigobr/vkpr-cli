@@ -23,7 +23,7 @@ runFormula() {
   # required paths
   mkdir -p $VKPR_HOME/bin
   mkdir -p $VKPR_HOME/config
-  mkdir -p $VKPR_HOME/test
+  mkdir -p $VKPR_HOME/bats
 
   installArkade
   installTool "kubectl"
