@@ -1,21 +1,23 @@
+
 VKPR_HOME=~/.vkpr
-load $VKPR_HOME/bats/bats-support/load.bash
-load $VKPR_HOME/bats/bats-assert/load.bash
 
 setup_file() {
+    load 'common-setup'
+    _common_setup
     if [ "$VKPR_TEST_SKIP_SETUP" == "true" ]; then
         echo "skipping setup due to VKPR_TEST_SKIP_SETUP=true"
     else
-        echo "running cluster and installing ingress...."
-        rit vkpr infra up
+        echo "installing ingress...."
         rit vkpr ingress install
         kubectl wait --for=condition=ready --timeout=1m pod --all
         sleep 2
     fi
 }
 
-# setup() {
-# }
+setup() {
+    load $VKPR_HOME/bats/bats-support/load.bash
+    load $VKPR_HOME/bats/bats-assert/load.bash
+}
 
 @test "curl to localhost:8000 must return 404" {
     #command that tests whether ingress is running
