@@ -5,9 +5,9 @@ setup_file() {
     load 'common-setup'
     _common_setup
     if [ "$VKPR_TEST_SKIP_SETUP" == "true" ]; then
-        echo "skipping setup due to VKPR_TEST_SKIP_SETUP=true"
+        echo "setup: skipping setup due to VKPR_TEST_SKIP_SETUP=true" >&3
     else
-        echo "installing ingress...."
+        echo "setup: installing ingress...." >&3
         rit vkpr ingress install
         kubectl wait --for=condition=ready --timeout=1m pod --all
         sleep 2
@@ -44,9 +44,9 @@ setup() {
 
 teardown_file() {
     if [ "$VKPR_TEST_SKIP_TEARDOWN" == "true" ]; then
-        echo "skipping teardown due to VKPR_TEST_SKIP_TEARDOWN=true"
+        echo "teardown: skipping teardown due to VKPR_TEST_SKIP_TEARDOWN=true" >&3
     else
-        echo "uninstalling ingress...."
+        echo "teardown: uninstalling ingress...." >&3
         rit vkpr ingress remove
         rit vkpr infra down
     fi
