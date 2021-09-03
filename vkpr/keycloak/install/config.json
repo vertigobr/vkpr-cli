@@ -28,6 +28,10 @@
       "label": "Type the user Password:",
       "name": "admin_password",
       "type": "password"
+    },
+    {
+      "name": "password",
+      "type": "CREDENTIAL_POSTGRES_PASSWORD"
     }
   ],
   "template": "shell-bat",

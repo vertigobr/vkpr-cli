@@ -20,7 +20,7 @@ runFormula() {
   fi
 
   addRepoKeycloak
-  if [[ $(verifyExistingPostgres) -eq "true" ]]; then
+  if [[ $(verifyExistingPostgres) = "true" ]]; then
     echoColor "yellow" "Initializing Keycloak with Postgres already created"
     VKPR_KEYCLOAK_YAML=$(dirname "$0")/utils/keycloak-db.yaml
     if [[ ! -n $PG_EXISTING_DATABASE ]]; then
@@ -40,7 +40,7 @@ addRepoKeycloak(){
 
 verifyExistingPostgres(){
   POSTGRES=$($VKPR_KUBECTL wait --for=condition=Ready pod/postgres-postgresql-0 -o name | cut -d "/" -f2)
-  if [[ $POSTGRES -eq "postgres-postgresql-0" ]]; then
+  if [[ $POSTGRES = "postgres-postgresql-0" ]]; then
     echo "true"
   else
     echo "false"
