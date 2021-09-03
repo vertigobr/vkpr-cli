@@ -1,3 +1,27 @@
+resources:
+  limits:
+    cpu: 500m
+    memory: 2Gi
+  requests:
+    cpu: 100m
+    memory: 512Mi
+ingress:
+  enabled: false
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  hostname: keycloak.localhost
+  certManager: false
+  path: "/"
+  servicePort: 80
+  tls: false
+  existingSecret: "keycloak-cert"
+readinessProbe:
+  enabled: false
+rbac:
+  create: true
+auth:
+  adminUser: ""
+  adminPassword: ""
 postgresql:
   enabled: false
 externalDatabase:
@@ -6,21 +30,6 @@ externalDatabase:
   user: ""
   password: ""
   database: ""
-ingress:
-  enabled: true
-  annotations:
-    kubernetes.io/ingress.class: nginx
-  certManager: false
-  hostname: login.localhost
-  path: "/"
-  tls: true
-readinessProbe:
-  enabled: false
-rbac:
-  create: true
-auth:
-  adminUser: ""
-  adminPassword: ""
 proxyAddressForwarding: true
 extraEnv: |
   - name: JAVA_OPTS

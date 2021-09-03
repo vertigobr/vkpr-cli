@@ -1,13 +1,6 @@
-# Description
+# Globals file
 
-Formula description
-
-## Command
-
-```bash
-rit vkpr keycloak install
-```
-
-## Requirements
-
-## Demonstration
+.global.keycloak.domain
+.global.keycloak.secure
+.global.keycloak.admin_user
+.global.keycloak.admin_password

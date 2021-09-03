@@ -1,33 +1,32 @@
 {
-  "dockerImageBuilder": "ritclizup/rit-shell-bat-builder",
   "inputs": [
     {
-      "default": "login.localhost",
       "label": "Type the Keycloak domain:",
       "name": "domain",
-      "type": "text"
+      "type": "text",
+      "default": "keycloak.localhost"
     },
     {
+      "label": "Secure?",
+      "name": "secure",
+      "type": "bool",
       "default": "false",
       "items": [
         "true",
         "false"
-      ],
-      "label": "Secure?",
-      "name": "secure",
-      "type": "bool"
+      ]
     },
     {
-      "default": "admin",
       "label": "Type the Admin user:",
       "name": "admin_user",
-      "type": "text"
+      "type": "text",
+      "default": "admin"
     },
     {
-      "default": "vkpr123",
       "label": "Type the user Password:",
       "name": "admin_password",
-      "type": "password"
+      "type": "password",
+      "default": "vkpr123"
     },
     {
       "name": "password",
