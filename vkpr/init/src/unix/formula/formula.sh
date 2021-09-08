@@ -17,10 +17,8 @@
 
 runFormula() {
   echo "VKPR initialization"
-  # VKPR home is "~/.vkpr"
   VKPR_HOME=~/.vkpr
   VKPR_GLOBALS=$VKPR_HOME/global
-  # required paths
   mkdir -p $VKPR_HOME/bin
   mkdir -p $VKPR_HOME/config
   mkdir -p $VKPR_HOME/bats
@@ -34,14 +32,6 @@ runFormula() {
   installTool "k9s"
   installGlobals
   installBats
-  # if [ "$RIT_INPUT_BOOLEAN" = "true" ]; then
-  #   echoColor "blue" "I've already created formulas using Ritchie."
-  # else
-  #   echoColor "red" "I'm excited in creating new formulas using Ritchie."
-  # fi
-
-  # echoColor "yellow" "Today, I want to automate $RIT_INPUT_LIST."
-  # echoColor "cyan"  "My secret is $RIT_INPUT_PASSWORD."
 } 
 
 installTool() {
@@ -91,8 +81,8 @@ installBats(){
 }
 
 createPackagesFiles() {
-  touch $VKPR_GLOBALS/.env
-  cp $(dirname "$0")/utils/* $VKPR_GLOBALS
+  touch global-values.yaml
+  cp $(dirname "$0")/utils/*.sh $VKPR_GLOBALS
 }
 
 echoColor() {
