@@ -6,14 +6,14 @@ resources:
     cpu: 100m
     memory: 512Mi
 ingress:
-  enabled: false
+  enabled: true
   annotations:
     kubernetes.io/ingress.class: nginx
   hostname: keycloak.localhost
   certManager: false
   path: "/"
   servicePort: 80
-  tls: false
+  tls: true
   existingSecret: "keycloak-cert"
 readinessProbe:
   enabled: false
