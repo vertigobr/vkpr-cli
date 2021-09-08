@@ -6,7 +6,7 @@ metadata:
 spec:
   acme:
     email: user@example.com
-    server: https://host.k3d.internal/acme/acme/directory
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
       name: letsencrypt-staging-key
     solvers:
@@ -25,7 +25,7 @@ metadata:
 spec:
   acme:
     email: user@example.com
-    server: https://host.k3d.internal/acme/acme/directory
+    server: https://acme-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
       name: letsencrypt-production-key
     solvers:
