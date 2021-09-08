@@ -15,7 +15,7 @@ add_repo_external_dns() {
 }
 
 install_external_dns() {
-  $VKPR_HOME/bin/helm upgrade -i vkpr-external-dns \
+  $VKPR_HOME/bin/helm upgrade -i external-dns \
     --set pdns.apiKey=$APIKEY \
     --set pdns.apiUrl=$APIURL \
     -f $VKPR_EXTERNAL_DNS_VALUES bitnami/external-dns
