@@ -1,13 +1,10 @@
 #!/bin/sh
 
 runFormula() {
-  echoColor "yellow" "Instalando external-dns..."
-  VKPR_EXTERNAL_DNS_LOCAL=$VKPR_HOME/values/external-dns
-  VKPR_EXTERNAL_DNS_VALUES=$VKPR_EXTERNAL_DNS_LOCAL/external-dns.yaml
-  mkdir -p $VKPR_EXTERNAL_DNS_LOCAL
+  echoColor "yellow" "Instalando external-dns with DigitalOcean DNS..."
   VKPR_EXTERNAL_DNS_VALUES=$(dirname "$0")/utils/external-dns.yaml
 
-  getProvider $PROVIDER
+  getProviderCreds
   add_repo_external_dns
   install_external_dns
 }
@@ -18,10 +15,12 @@ add_repo_external_dns() {
 }
 
 install_external_dns() {
-  $VKPR_HOME/bin/helm upgrade -i vkpr -f $VKPR_EXTERNAL_DNS_VALUES bitnami/external-dns
+  $VKPR_HOME/bin/helm upgrade -i external-dns \
+    --set digitalocean.apiToken=$TOKEN \
+    -f $VKPR_EXTERNAL_DNS_VALUES bitnami/external-dns
 }
 
-get_credentials() {
+getProviderCreds(){
   # CREDENTIAL INPUT NOT WORKING IN SHELL FORMULA
   # PARSING FILE DIRECTLY AND IGNORING INPUT ("-r" is important!!!)
   #VKPR_ACCESS_TOKEN_INPUT=$(jq -r .credential.token ~/.rit/credentials/default/digitalocean)
@@ -34,16 +33,4 @@ get_credentials() {
     echoColor "red" "Cert-manager will fail to negotiate certificates unless you provide the digitalocean-dns secret manually."
     echoColor "red" "Please check https://cert-manager.io/docs/configuration/acme/dns01/digitalocean/"
   fi
-}
-
-getProvider(){
-  case $1 in
-  DIGITALOCEAN)
-    get_credentials
-    ;;
-  AWS)
-    echoColor "yellow" "AWS is a working in progress."
-    exit 0
-    ;;
-  esac
 }
