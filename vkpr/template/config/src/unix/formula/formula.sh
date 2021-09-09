@@ -6,5 +6,5 @@ runFormula() {
 }
 
 outputGlobalTemplate(){
-  $VKPR_YQ eval $VKPR_GLOBALS/global-values.yaml
+  $VKPR_YQ eval $VKPR_HOME/global-values.yaml
 }
