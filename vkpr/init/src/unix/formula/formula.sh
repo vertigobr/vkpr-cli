@@ -18,10 +18,12 @@
 runFormula() {
   echo "VKPR initialization"
   VKPR_HOME=~/.vkpr
-  VKPR_GLOBALS=$VKPR_HOME/global
+  VKPR_SCRIPTS=$VKPR_HOME/src
+  
   mkdir -p $VKPR_HOME/bin
   mkdir -p $VKPR_HOME/config
   mkdir -p $VKPR_HOME/bats
+  mkdir -p $VKPR_HOME/src
 
   installArkade
   installTool "kubectl"
@@ -60,7 +62,6 @@ installArkade() {
 }
 
 installGlobals() {
-  mkdir -p $VKPR_GLOBALS
   createPackagesFiles
 }
 
@@ -81,9 +82,10 @@ installBats(){
 }
 
 createPackagesFiles() {
-  touch global-values.yaml
-  cp $(dirname "$0")/utils/*.sh $VKPR_GLOBALS
+  touch $VKPR_HOME/global-values.yaml
+  cp $(dirname "$0")/utils/*.sh $VKPR_SCRIPTS
 }
+
 
 echoColor() {
   case $1 in
@@ -102,5 +104,7 @@ echoColor() {
     cyan)
       echo "$(printf '\033[36m')$2$(printf '\033[0m')"
       ;;
+    bold)
+      echo "$(printf '\033[1m')$2$(printf '\033[0m')"
     esac
 }
