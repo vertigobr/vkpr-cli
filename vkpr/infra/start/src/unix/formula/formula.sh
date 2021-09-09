@@ -34,13 +34,20 @@ EOF
 
 startCluster() {
   # traefik flag
-  if [ "$ENABLE_TRAEFIK" == "true" ]; then TRAEFIK_FLAG=""; else TRAEFIK_FLAG="--k3s-server-arg '--no-deploy=traefik'"; fi
+  TRAEFIK_FLAG=""
+  if [ "$ENABLE_TRAEFIK" == "true" ]; then 
+    echo "startCluster: Traefik is enabled"
+  else
+    echo "startCluster: Traefik is disabled"
+    TRAEFIK_FLAG="--no-deploy=traefik"
+  fi
+  echo "startCluster: TRAEFIK_FLAG=$TRAEFIK_FLAG"
   # local registry
   if ! $(k3d cluster list | grep -q "vkpr-local"); then
     k3d cluster create vkpr-local \
       -p "$HTTP_PORT:80@loadbalancer" \
       -p "$HTTPS_PORT:443@loadbalancer" \
-      $TRAEFIK_FLAG \
+      --k3s-server-arg "$TRAEFIK_FLAG" \
       --registry-use k3d-registry.localhost \
       --registry-config $VKPR_HOME/config/registry.yaml
   else
