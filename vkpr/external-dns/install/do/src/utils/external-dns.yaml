@@ -6,4 +6,4 @@ sources:
 provider: digitalocean
 interval: "1m"
 digitalocean:
-  apiToken: $Token
+  apiToken: $TOKEN

@@ -5,7 +5,7 @@ Formula description
 ## Command
 
 ```bash
-rit vkpr external-dns install
+rit vkpr infra start
 ```
 
 ## Requirements

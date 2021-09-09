@@ -13,3 +13,25 @@ When cloning this repo please add its folder as a workspace:
 ```
 rit add workspace --name vkpr-formulas --path $(pwd)
 ```
+
+Ritchie must be installed:
+
+```
+curl -fsSL https://commons-repo.ritchiecli.io/install.sh | bash
+```
+
+## Using containers
+
+You can use temporary containers to test your formulas in a clean environment:
+
+```
+docker run --rm -ti -v $(pwd):/opt centos
+```
+
+Install Ritchie in it and configure the workspace:
+
+```
+curl -fsSL https://commons-repo.ritchiecli.io/install.sh | sed -e 's/sudo//g' | bash
+rit set formula-runner --runner=local
+rit add workspace --name vkpr-formulas --path /opt
+```
