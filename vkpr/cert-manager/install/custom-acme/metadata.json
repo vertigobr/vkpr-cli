@@ -12,6 +12,7 @@
   "tags": [
     "vkpr",
     "cert-manager",
-    "install"
+    "install",
+    "custom-acme"
   ]
 }

@@ -5,7 +5,7 @@ Formula description
 ## Command
 
 ```bash
-rit vkpr cert-manager install
+rit vkpr cert-manager install do
 ```
 
 ## Requirements

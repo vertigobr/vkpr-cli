@@ -13,6 +13,17 @@
       }
     },
     {
+      "default": "letsencrypt-staging",
+      "items": [
+        "letsencrypt-staging",
+        "letsencrypt-production"
+      ],
+      "label": "What is the default cluster issuer? ",
+      "name": "issuer",
+      "required": true,
+      "type": "text"
+    },
+    {
       "name": "token",
       "required": true,
       "type": "CREDENTIAL_DIGITALOCEAN_TOKEN"

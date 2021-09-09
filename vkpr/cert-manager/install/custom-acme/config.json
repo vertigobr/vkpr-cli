@@ -1,0 +1,18 @@
+{
+  "inputs": [
+    {
+      "label": "Type your email to use to generate certificates:",
+      "name": "email",
+      "required": true,
+      "tutorial": "<email>@<domain>",
+      "type": "text",
+      "cache": {
+        "active": true,
+        "qty": 2,
+        "newLabel": "Type other email: "
+      }
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease:": "2.16.2"
+}
