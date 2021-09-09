@@ -1,29 +1,21 @@
-resources:
-  limits:
-    cpu: 500m
-    memory: 2Gi
-  requests:
-    cpu: 100m
-    memory: 512Mi
-ingress:
-  enabled: true
-  annotations:
-    kubernetes.io/ingress.class: nginx
-  hostname: keycloak.localhost
-  certManager: false
-  path: "/"
-  servicePort: 80
-  tls: true
-  existingSecret: "keycloak-cert"
-readinessProbe:
-  enabled: false
-rbac:
-  create: true
 auth:
   adminUser: ""
   adminPassword: ""
-proxyAddressForwarding: true
-extraEnv: |
-  - name: JAVA_OPTS
-      value: >-
-        -Dkeycloak.migration.file=/realm/realm.json
+  managementPassword: "senha"
+containerPorts:
+  http: 8080
+  https: 8443
+service:
+  type: ClusterIP
+ingress:
+  enabled: true
+  certManager: false
+  hostname: keycloak.localhost
+  ingressClassName: "nginx"
+  path: /
+  tls: false
+rbac:
+  create: true
+postgresql:
+  persistence:
+    enabled: false

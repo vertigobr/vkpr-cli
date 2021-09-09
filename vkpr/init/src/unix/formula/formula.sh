@@ -26,6 +26,7 @@ runFormula() {
   mkdir -p $VKPR_HOME/src
 
   installArkade
+  installGlab
   installTool "kubectl"
   installTool "helm"
   installTool "k3d"
@@ -58,6 +59,17 @@ installArkade() {
     chmod +x /tmp/arkinst.sh
     rm /tmp/arkinst0.sh
     /tmp/arkinst.sh
+  fi
+}
+
+installGlab() {
+  if [[ -f "$VKPR_HOME/bin/glab" ]]; then
+    echoColor "yellow" "Glab already installed. Skipping."
+  else
+    echoColor "green" "Installing Glab..."
+    curl -sLS https://j.mp/glab-cli > /tmp/glab.sh
+    chmod +x /tmp/glab.sh
+    /tmp/glab.sh $VKPR_HOME/bin
   fi
 }
 
