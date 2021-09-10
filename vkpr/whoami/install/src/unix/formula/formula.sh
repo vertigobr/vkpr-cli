@@ -3,7 +3,8 @@
 runFormula() {
   VKPR_WHOAMI_VALUES=$(dirname "$0")/utils/whoami.yaml
 
-  verifyExistingEnv 'SECURE' "${SECURE}" 'DOMAIN' "${DOMAIN}"
+  checkGlobalConfig $DOMAIN "whoami.localhost" "whoami.domain" "WHOAMI_DOMAIN"
+  checkGlobalConfig $SECURE "false" "whoami.secure" "WHOAMI_SECURE" # Unused Variable TODO: See if is secure and then enable the cert-manager and TLS
   addRepoWhoami
   installWhoami
 }
@@ -15,6 +16,6 @@ addRepoWhoami(){
 
 installWhoami(){
   echoColor "yellow" "Installing whoami..."
-  $VKPR_YQ eval '.ingress.hosts[0].host = "'$VKPR_ENV_DOMAIN'" | .ingress.tls[0].hosts[0] = "'$VKPR_ENV_DOMAIN'"' "$VKPR_WHOAMI_VALUES" \
- | $VKPR_HELM upgrade -i -f - whoami cowboysysop/whoami
+  $VKPR_YQ eval '.ingress.hosts[0].host = "'$VKPR_ENV_WHOAMI_DOMAIN'" | .ingress.tls[0].hosts[0] = "'$VKPR_ENV_WHOAMI_DOMAIN'"' "$VKPR_WHOAMI_VALUES" \
+ | $VKPR_HELM upgrade -i -f - vkpr-whoami cowboysysop/whoami
 }
