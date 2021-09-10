@@ -35,7 +35,7 @@ install_certmanager() {
   $VKPR_HELM upgrade -i -f $VKPR_CERT_VALUES \
     -n cert-manager --create-namespace \
     --version "$VKPR_CERT_VERSION" \
-    cert-manager jetstack/cert-manager
+    vkpr-cert-manager jetstack/cert-manager
 }
 
 get_cert_values() {

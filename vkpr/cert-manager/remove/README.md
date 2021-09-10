@@ -1,13 +1,11 @@
 # Description
 
-Formula description
+Uninstall all the content of cert-manager from the cluster. (Doesnt uninstall the crds)
 
-## Command
+## Commands
+
+Non-interactive:
 
 ```bash
-rit vkpr cert-manager remove
+vkpr cert-manager remove
 ```
-
-## Requirements
-
-## Demonstration
