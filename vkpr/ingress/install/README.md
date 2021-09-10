@@ -1,10 +1,6 @@
 # Description
 
-Install ingress controller into cluster. Uses [ingress-nginx](https://artifacthub.io/packages/helm/ingress-nginx/ingress-nginx) Helm chart.
-
-Requires these global definitions:
-
-- domain
+Install nginx-ingress controller into cluster. Uses [ingress-nginx](https://artifacthub.io/packages/helm/ingress-nginx/ingress-nginx) Helm chart.
 
 ## Command
 
@@ -12,6 +8,16 @@ Requires these global definitions:
 rit vkpr ingress install
 ```
 
-## Requirements
+### Content installed on the Cluster
 
-## Demonstration
+- Deployment
+- Service
+- Daemonset
+- Secret (certificate)
+- ConfigMap
+- Job
+- ClusterRole
+- Role
+- RoleBinding
+- ServiceAccount
+- ValidatingWebhookConfiguration
