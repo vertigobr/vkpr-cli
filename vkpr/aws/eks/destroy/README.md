@@ -1,13 +1,11 @@
 # Description
 
-Formula description
+Destroy the EKS in AWS.
 
-## Command
+## Commands
+
+Non-interactive:
 
 ```bash
-rit vkpr aws eks destroy
+vkpr aws eks destroy
 ```
-
-## Requirements
-
-## Demonstration
