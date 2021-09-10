@@ -18,7 +18,7 @@ add_repo_external_dns() {
 }
 
 install_external_dns() {
-  $VKPR_HOME/bin/helm upgrade -i vkpr -f $VKPR_EXTERNAL_DNS_VALUES bitnami/external-dns
+  $VKPR_HOME/bin/helm upgrade -i vkpr-external-dns -f $VKPR_EXTERNAL_DNS_VALUES bitnami/external-dns
 }
 
 get_credentials() {

@@ -1,13 +1,11 @@
 # Description
 
-Formula description
+Uninstall all the contet of external-dns from the cluster.
 
-## Command
+## Commands
+
+Non-interactive:
 
 ```bash
-rit vkpr external-dns install
+vkpr external-dns remove
 ```
-
-## Requirements
-
-## Demonstration
