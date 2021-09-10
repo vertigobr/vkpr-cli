@@ -1,13 +1,11 @@
 # Description
 
-Formula description
+Uninstall all the contet of Postgres from the cluster.
 
-## Command
+## Commands
+
+Non-interactive:
 
 ```bash
-rit vkpr postgres remove
+vkpr postgres remove
 ```
-
-## Requirements
-
-## Demonstration
