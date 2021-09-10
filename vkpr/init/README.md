@@ -1,16 +1,11 @@
 # Description
 
-Formula description
+Initializate all necessary tools to run the VKPR.
 
-## Command
+## Commands
+
+Non-interactive:
 
 ```bash
-rit vkpr init
+vkpr init
 ```
-
-## Requirements
-
-None.
-
-## Demonstration
-
