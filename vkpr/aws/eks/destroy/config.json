@@ -1,0 +1,14 @@
+{
+  "inputs": [
+    {
+      "name": "gitlab_token",
+      "type": "CREDENTIAL_GITLAB_TOKEN"
+    },
+    {
+      "name": "gitlab_username",
+      "type": "CREDENTIAL_GITLAB_USERNAME"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease:": "2.16.2"
+}

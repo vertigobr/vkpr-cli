@@ -1,13 +1,11 @@
 # Description
 
-Formula description
+Uninstall all the contet of whoami from the cluster.
 
-## Command
+## Commands
+
+Non-interactive:
 
 ```bash
-rit vkpr whoami remove
+vkpr whoami remove
 ```
-
-## Requirements
-
-## Demonstration

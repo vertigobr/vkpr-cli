@@ -2,9 +2,7 @@
 
 BIN_FOLDER=bin
 BINARY_NAME_UNIX=run.sh
-#BINARY_NAME_WINDOWS=run.bat
 ENTRY_POINT_UNIX=main.sh
-#ENTRY_POINT_WINDOWS=main.bat
 
 #bash-build:
 	mkdir -p $BIN_FOLDER

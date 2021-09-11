@@ -1,13 +1,11 @@
 # Description
 
-Formula description
+Show the values setted on the global-values.
 
-## Command
+## Commands
+
+Non-interactive:
 
 ```bash
-rit vkpr template config
+vkpr template config
 ```
-
-## Requirements
-
-## Demonstration

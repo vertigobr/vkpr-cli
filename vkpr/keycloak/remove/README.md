@@ -1,13 +1,11 @@
 # Description
 
-Formula description
+Uninstall all the contet of Keycloak from the cluster.
 
-## Command
+## Commands
+
+Non-interactive:
 
 ```bash
-rit vkpr keycloak remove
+vkpr keycloak remove
 ```
-
-## Requirements
-
-## Demonstration

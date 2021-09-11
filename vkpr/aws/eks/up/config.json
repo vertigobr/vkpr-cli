@@ -1,0 +1,33 @@
+{
+  "inputs": [
+    {
+      "name": "aws_access_key",
+      "type": "CREDENTIAL_AWS_ACCESSKEYID"
+    },
+    {
+      "name": "aws_secret_key",
+      "type": "CREDENTIAL_AWS_SECRETACCESSKEY"
+    },
+    {
+      "name": "aws_region",
+      "label": "Type your aws region: ",
+      "type": "text",
+      "default": "us-east-1",
+      "cache": {
+        "active": true,
+        "qty": 2,
+        "newLabel": "Type another region: "
+      }
+    },
+    {
+      "name": "gitlab_token",
+      "type": "CREDENTIAL_GITLAB_TOKEN"
+    },
+    {
+      "name": "gitlab_username",
+      "type": "CREDENTIAL_GITLAB_USERNAME"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease:": "2.16.2"
+}

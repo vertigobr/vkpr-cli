@@ -18,20 +18,33 @@
 runFormula() {
   echo "VKPR initialization"
   VKPR_HOME=~/.vkpr
-  VKPR_GLOBALS=$VKPR_HOME/global
+  VKPR_SCRIPTS=$VKPR_HOME/src
+  
   mkdir -p $VKPR_HOME/bin
   mkdir -p $VKPR_HOME/config
   mkdir -p $VKPR_HOME/bats
+  mkdir -p $VKPR_HOME/src
 
   installArkade
+  installGlab
   installTool "kubectl"
   installTool "helm"
   installTool "k3d"
   installTool "jq"
   installTool "yq"
   installTool "k9s"
-  installGlobals
+
+  installGlobals 
   installBats
+
+  # if [ "$RIT_INPUT_BOOLEAN" = "true" ]; then
+  #   echoColor "blue" "I've already created formulas using Ritchie."
+  # else
+  #   echoColor "red" "I'm excited in creating new formulas using Ritchie."
+  # fi
+
+  # echoColor "yellow" "Today, I want to automate $RIT_INPUT_LIST."
+  # echoColor "cyan"  "My secret is $RIT_INPUT_PASSWORD."
 } 
 
 installTool() {
@@ -59,31 +72,57 @@ installArkade() {
   fi
 }
 
+installGlab() {
+  if [[ -f "$VKPR_HOME/bin/glab" ]]; then
+    echoColor "yellow" "Glab already installed. Skipping."
+  else
+    echoColor "green" "Installing Glab..."
+    curl -sLS https://j.mp/glab-cli > /tmp/glab.sh
+    chmod +x /tmp/glab.sh
+    /tmp/glab.sh $VKPR_HOME/bin
+  fi
+}
+
 installGlobals() {
-  mkdir -p $VKPR_GLOBALS
   createPackagesFiles
 }
 
 installBats(){
   if [[ -f "$VKPR_HOME/bats/bin/bats" ]]; then
-    echoColor "yellow" "Tool $toolName already installed. Skipping."
+    echoColor "yellow" "Bats already installed. Skipping."
   else
-    echoColor "green" "intalling bats..."
+    echoColor "green" "intalling Bats..."
     mkdir -p /tmp/bats
-    git clone https://github.com/bats-core/bats-core.git /tmp/bats-core
+    # bats-core
+    curl -sL -o /tmp/bats-core.tar.gz https://github.com/bats-core/bats-core/archive/refs/tags/v1.4.1.tar.gz
+    tar -xzf /tmp/bats-core.tar.gz -C /tmp
+    mv /tmp/bats-core-1.4.1 /tmp/bats-core
     /tmp/bats-core/install.sh $VKPR_HOME/bats
     rm -r --force /tmp/bats-core
+
     echoColor "green" "intalling bats add-ons..."
-    git clone https://github.com/bats-core/bats-support $VKPR_HOME/bats/bats-support
-    git clone https://github.com/bats-core/bats-assert $VKPR_HOME/bats/bats-assert
-    git clone https://github.com/bats-core/bats-file $VKPR_HOME/bats/bats-file
+    # bats-support
+    #git clone https://github.com/bats-core/bats-support $VKPR_HOME/bats/bats-support
+    curl -sL -o /tmp/bats-support.tar.gz https://github.com/bats-core/bats-support/archive/refs/tags/v0.3.0.tar.gz
+    tar -xzf /tmp/bats-support.tar.gz -C /tmp
+    mv /tmp/bats-support-0.3.0 $VKPR_HOME/bats/bats-support
+    # bats-assert
+    curl -sL -o /tmp/bats-assert.tar.gz https://github.com/bats-core/bats-assert/archive/refs/tags/v2.0.0.tar.gz
+    tar -xzf /tmp/bats-assert.tar.gz -C /tmp
+    mv /tmp/bats-assert-2.0.0 $VKPR_HOME/bats/bats-assert
+    # bats-file
+    curl -sL -o /tmp/bats-file.tar.gz https://github.com/bats-core/bats-file/archive/refs/tags/v0.3.0.tar.gz
+    tar -xzf /tmp/bats-file.tar.gz -C /tmp
+    mv /tmp/bats-file-0.3.0 $VKPR_HOME/bats/bats-file
+    echo "Bats add-ons installed"
   fi
 }
 
 createPackagesFiles() {
-  touch global-values.yaml
-  cp $(dirname "$0")/utils/*.sh $VKPR_GLOBALS
+  touch $VKPR_HOME/global-values.yaml
+  cp $(dirname "$0")/utils/*.sh $VKPR_SCRIPTS
 }
+
 
 echoColor() {
   case $1 in
@@ -102,5 +141,7 @@ echoColor() {
     cyan)
       echo "$(printf '\033[36m')$2$(printf '\033[0m')"
       ;;
+    bold)
+      echo "$(printf '\033[1m')$2$(printf '\033[0m')"
     esac
 }

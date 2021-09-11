@@ -1,13 +1,11 @@
 # Description
 
-Formula description
+Drop all the cluster.
 
-## Command
+## Commands
+
+Non-interactive:
 
 ```bash
-rit vkpr infra down
+vkpr infra down
 ```
-
-## Requirements
-
-## Demonstration

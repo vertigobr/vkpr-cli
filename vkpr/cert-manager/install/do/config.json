@@ -1,0 +1,34 @@
+{
+  "inputs": [
+    {
+      "label": "Type your email to use to generate certificates:",
+      "name": "email",
+      "required": true,
+      "tutorial": "<email>@<domain>",
+      "type": "text",
+      "cache": {
+        "active": true,
+        "qty": 2,
+        "newLabel": "Type other email: "
+      }
+    },
+    {
+      "default": "letsencrypt-staging",
+      "items": [
+        "letsencrypt-staging",
+        "letsencrypt-production"
+      ],
+      "label": "What is the default cluster issuer? ",
+      "name": "issuer",
+      "required": true,
+      "type": "text"
+    },
+    {
+      "name": "token",
+      "required": true,
+      "type": "CREDENTIAL_DIGITALOCEAN_TOKEN"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease:": "2.16.2"
+}

@@ -1,13 +1,11 @@
 # Description
 
-Formula description
+Uninstall all the contet of nginx-ingress controller from the cluster.
 
-## Command
+## Commands
+
+Non-interactive:
 
 ```bash
-rit vkpr ingress remove
+vkpr ingress remove
 ```
-
-## Requirements
-
-## Demonstration
