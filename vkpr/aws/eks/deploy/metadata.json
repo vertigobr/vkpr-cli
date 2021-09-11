@@ -11,7 +11,8 @@
   },
   "tags": [
     "vkpr",
-    "globals",
-    "set"
+    "aws",
+    "eks",
+    "deploy"
   ]
 }

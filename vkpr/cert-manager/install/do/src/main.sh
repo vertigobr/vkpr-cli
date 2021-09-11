@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# shellcheck source=/dev/null
-. "$(dirname "$0")"/unix/formula/formula.sh --source-only
+VKPR_SCRIPTS=~/.vkpr/src
 
-source ~/.vkpr/global/log.sh
-source ~/.vkpr/global/var.sh
+source $VKPR_SCRIPTS/log.sh
+source $VKPR_SCRIPTS/var.sh
+source $VKPR_SCRIPTS/helper.sh
 
 # TODO: detectar se já fez init
 if [ ! -d ~/.vkpr/global ]; then

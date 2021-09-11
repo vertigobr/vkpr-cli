@@ -36,10 +36,13 @@ cleanupFormula() {
     echoColor "red" "cleanupFormula: This is not a formula path (no 'config.json' file), bailing out."
     exit 1
   fi
+  # create file
+  touch "$formulaPath/help.json"
   # delete files
   rm -f "$formulaPath/build.bat"
   rm -f "$formulaPath/Dockerfile"
   rm -f "$formulaPath/Makefile"
+  rm -f "$formulaPath/set_umask.sh"
   rm -Rf "$formulaPath/src/windows"
   # change files
   sed -i.bak '/BINARY_NAME_WINDOWS/d' "$formulaPath/build.sh" # sao duas

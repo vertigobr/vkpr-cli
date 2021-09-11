@@ -17,15 +17,16 @@
 
 runFormula() {
   echo "VKPR initialization"
-  # VKPR home is "~/.vkpr"
   VKPR_HOME=~/.vkpr
-  VKPR_GLOBALS=$VKPR_HOME/global
-  # required paths
+  VKPR_SCRIPTS=$VKPR_HOME/src
+  
   mkdir -p $VKPR_HOME/bin
   mkdir -p $VKPR_HOME/config
   mkdir -p $VKPR_HOME/bats
+  mkdir -p $VKPR_HOME/src
 
   installArkade
+  installGlab
   installTool "kubectl"
   installTool "helm"
   installTool "k3d"
@@ -71,8 +72,18 @@ installArkade() {
   fi
 }
 
+installGlab() {
+  if [[ -f "$VKPR_HOME/bin/glab" ]]; then
+    echoColor "yellow" "Glab already installed. Skipping."
+  else
+    echoColor "green" "Installing Glab..."
+    curl -sLS https://j.mp/glab-cli > /tmp/glab.sh
+    chmod +x /tmp/glab.sh
+    /tmp/glab.sh $VKPR_HOME/bin
+  fi
+}
+
 installGlobals() {
-  mkdir -p $VKPR_GLOBALS
   createPackagesFiles
 }
 
@@ -108,9 +119,10 @@ installBats(){
 }
 
 createPackagesFiles() {
-  touch $VKPR_GLOBALS/.env
-  cp $(dirname "$0")/utils/* $VKPR_GLOBALS
+  touch $VKPR_HOME/global-values.yaml
+  cp $(dirname "$0")/utils/*.sh $VKPR_SCRIPTS
 }
+
 
 echoColor() {
   case $1 in
@@ -129,5 +141,7 @@ echoColor() {
     cyan)
       echo "$(printf '\033[36m')$2$(printf '\033[0m')"
       ;;
+    bold)
+      echo "$(printf '\033[1m')$2$(printf '\033[0m')"
     esac
 }

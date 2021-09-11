@@ -1,13 +1,16 @@
 # Description
 
-Formula description
+Create a k3d cluster to test the applications.
 
-## Command
+## Commands
+
+Non-interactive:
 
 ```bash
-rit vkpr infra up
+vkpr infra up
 ```
 
-## Requirements
+### Ports
 
-## Demonstration
+- 8000: http
+- 8001: https

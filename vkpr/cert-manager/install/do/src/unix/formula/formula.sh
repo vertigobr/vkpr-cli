@@ -36,7 +36,7 @@ install_certmanager() {
     -n cert-manager --create-namespace \
     --set ingressShim.defaultIssuerName="$ISSUER" \
     --version "$VKPR_CERT_VERSION" \
-    cert-manager jetstack/cert-manager
+    vkpr-cert-manager jetstack/cert-manager
 }
 
 get_cert_values() {
