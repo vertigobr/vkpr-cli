@@ -1,13 +1,25 @@
 # Description
 
-Formula description
+Install Postgres into cluster. Uses [postgresql](https://artifacthub.io/packages/helm/bitnami/postgresql) Helm chart.
 
-## Command
+## Commands
+
+Interactive input:
 
 ```bash
-rit vkpr postgres install
+vkpr postgres install
 ```
 
-## Requirements
+Non-interactive:
 
-## Demonstration
+```bash
+rit set credential --provider="postgres" --fields="password" --values="<your-postgres-password>"
+vkpr postgres install
+```
+
+### Content installed on the Cluster
+
+- Statefulset
+- Service
+- Secret
+- PV and PVC

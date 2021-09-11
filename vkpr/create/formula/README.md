@@ -7,6 +7,7 @@ Files/folders removed:
 - build.bat
 - Dockerfile
 - Makefile
+- set_umask.sh
 - src/windows/
 - src/main.bat
 
@@ -29,9 +30,3 @@ Non-interactive:
 ```bash
 vkpr create formula --vkpr_formula="vkpr object verb"
 ```
-
-
-## Requirements
-
-## Demonstration
-

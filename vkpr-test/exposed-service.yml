@@ -1,0 +1,43 @@
+# nginx service with external-dns annotations
+# 
+# generated with the commands below:
+# 
+# kubectl run nginx --image=nginx --port=80 --dry-run=client -o yaml
+# kubectl expose pod nginx --port=8000 --target-port=80 --type=LoadBalancer --dry-run=client -o yaml
+#
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: nginx
+  name: nginx
+spec:
+  containers:
+  - image: nginx
+    name: nginx
+    ports:
+    - containerPort: 80
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: nginx
+  name: nginx
+  annotations:
+    external-dns.alpha.kubernetes.io/ttl: "10"
+    external-dns.alpha.kubernetes.io/hostname: nginx.example.com.
+spec:
+  ports:
+  - port: 8000
+    protocol: TCP
+    targetPort: 80
+  selector:
+    run: nginx
+  type: LoadBalancer

@@ -21,10 +21,10 @@ addRepoKeycloak(){
 }
 
 verifyExistingPostgres(){
-  EXISTING_POSTGRES=$($VKPR_KUBECTL get po/postgres-postgresql-0 -o name --ignore-not-found | cut -d "/" -f2)
-  if [[ $EXISTING_POSTGRES = "postgres-postgresql-0" ]]; then
-    POSTGRES=$($VKPR_KUBECTL wait --for=condition=Ready po/postgres-postgresql-0 -o name | cut -d "/" -f2)
-    if [[ $POSTGRES = "postgres-postgresql-0" ]]; then
+  EXISTING_POSTGRES=$($VKPR_KUBECTL get po/vkpr-postgres-postgresql-0 -o name --ignore-not-found | cut -d "/" -f2)
+  if [[ $EXISTING_POSTGRES = "vkpr-postgres-postgresql-0" ]]; then
+    POSTGRES=$($VKPR_KUBECTL wait --for=condition=Ready po/vkpr-postgres-postgresql-0 -o name | cut -d "/" -f2)
+    if [[ $POSTGRES = "vkpr-postgres-postgresql-0" ]]; then
       echo "true"
       return
     fi
@@ -36,7 +36,7 @@ settingKeycloak(){
   $VKPR_YQ eval '.ingress.hosts[0].host = "'$VKPR_ENV_KEYCLOAK_DOMAIN'" | .ingress.tls[0].hosts[0] = "'$VKPR_ENV_KEYCLOAK_DOMAIN'" |
   .auth.adminUser = "'$VKPR_ENV_KEYCLOAK_ADMIN_USER'" |
   .auth.adminPassword = "'$VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD'"' "$VKPR_KEYCLOAK_YAML" \
- | $VKPR_HELM upgrade -i -f - keycloak bitnami/keycloak
+ | $VKPR_HELM upgrade -i -f - vkpr-keycloak bitnami/keycloak
 }
 
 settingKeycloakDB(){
@@ -45,7 +45,7 @@ settingKeycloakDB(){
   .externalDatabase.user = "'$PG_USER'" | .externalDatabase.password = "'$PG_PASSWORD'" |
   .externalDatabase.database = "'$PG_DATABASE_NAME'" |
   .auth.adminUser = "'$VKPR_ENV_KEYCLOAK_ADMIN_USER'" | .auth.adminPassword = "'$VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD'"' "$VKPR_KEYCLOAK_YAML" \
- | $VKPR_HELM upgrade -i -f - keycloak bitnami/keycloak
+ | $VKPR_HELM upgrade -i -f - vkpr-keycloak bitnami/keycloak
 }
 
 installKeycloak(){

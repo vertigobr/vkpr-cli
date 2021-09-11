@@ -2,5 +2,5 @@
 
 runFormula() {
   echoColor "green" "Removing keycloak..."
-  $VKPR_HELM uninstall keycloak
+  $VKPR_HELM uninstall vkpr-keycloak
 }

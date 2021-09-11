@@ -2,5 +2,5 @@
 
 runFormula() {
   echo "VKPR Ingress install"
-  $VKPR_HOME/bin/arkade install ingress-nginx
+  $VKPR_ARKADE install ingress-nginx
 }

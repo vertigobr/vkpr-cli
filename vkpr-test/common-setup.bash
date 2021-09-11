@@ -12,3 +12,14 @@ _common_setup() {
         fi
     fi
 }
+
+_common_teardown() {
+    if [ "$VKPR_TEST_SKIP_TEARDOWN" == "true" ]; then
+        echo "common_teardown: skipping common-teardown due to VKPR_TEST_SKIP_TEARDOWN=true" >&3
+    elif [ "$VKPR_TEST_SKIP_COMMON_TEARDOWN" == "true" ]; then
+        echo "common_teardown: skipping common-teardown due to VKPR_TEST_SKIP_COMMON_TEARDOWN=true" >&3
+    else
+        echo "common_teardown: killing vkpr cluster...." >&3
+        rit vkpr infra down
+    fi
+}
