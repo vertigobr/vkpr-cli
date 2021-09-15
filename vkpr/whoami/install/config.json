@@ -1,7 +1,7 @@
 {
   "inputs": [
     {
-      "default": "whoami.localhost",
+      "default": "localhost",
       "label": "Type the Whoami domain: ",
       "name": "domain",
       "type": "text"

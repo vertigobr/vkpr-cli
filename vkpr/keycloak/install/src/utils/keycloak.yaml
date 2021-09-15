@@ -1,6 +1,4 @@
 auth:
-  adminUser: ""
-  adminPassword: ""
   managementPassword: "senha"
 containerPorts:
   http: 8080
@@ -9,11 +7,8 @@ service:
   type: ClusterIP
 ingress:
   enabled: true
-  certManager: false
-  hostname: keycloak.localhost
   ingressClassName: "nginx"
   path: /
-  tls: false
 rbac:
   create: true
 postgresql:
