@@ -24,7 +24,7 @@
       "type": "text"
     },
     {
-      "name": "token",
+      "name": "do_token",
       "required": true,
       "type": "CREDENTIAL_DIGITALOCEAN_TOKEN"
     }
