@@ -35,9 +35,8 @@ vkpr whoami install --default
 
 ```yaml
 global:
-  whoami:
-    domain: <String>
-    secure: <Bool>
+  domain: <String>
+  secure: <Bool>
 ```
 
 ### Content installed on the Cluster
