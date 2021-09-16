@@ -1,0 +1,43 @@
+alertmanager:
+  enabled: false
+  ingress:
+    enabled: false
+    ingressClassName: nginx
+    hosts:
+      - paths: "/"
+    pathType: ImplementationSpecific
+grafana:
+  enabled: true
+  sidecar:
+    datasources:
+      enabled: true
+  persistence:
+    enabled: false
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    path: "/"
+prometheusOperator:
+  enabled: true
+prometheus:
+  enabled: true
+kubeApiServer:
+  enabled: false
+kubelet:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+coreDns:
+  enabled: false
+kubeDns:
+  enabled: false
+kubeEtcd:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false
+kubeStateMetrics:
+  enabled: false
+nodeExporter:
+  enabled: false

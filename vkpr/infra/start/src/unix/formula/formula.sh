@@ -54,8 +54,8 @@ startCluster() {
     echoColor "yellow" "Cluster vkpr-local already started, skipping."
   fi
   # use cluster
-  $VKPR_HOME/bin/kubectl config use-context k3d-vkpr-local
-  $VKPR_HOME/bin/kubectl cluster-info
+  $VKPR_KUBECTL config use-context k3d-vkpr-local
+  $VKPR_KUBECTL cluster-info
 }
 
 startRegistry() {

@@ -1,0 +1,32 @@
+{
+  "inputs": [
+    {
+      "default": "localhost",
+      "label": "Type the stack domain: ",
+      "name": "domain",
+      "type": "text"
+    },
+    {
+      "default": "false",
+      "items": [
+        "true",
+        "false"
+      ],
+      "label": "Secure? ",
+      "name": "secure",
+      "type": "bool"
+    },
+    {
+      "default": "false",
+      "items": [
+        "true",
+        "false"
+      ],
+      "label": "Alert-Manager? ",
+      "name": "alertmanager",
+      "type": "bool"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease:": "2.16.2"
+}
