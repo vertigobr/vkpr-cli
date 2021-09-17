@@ -1,0 +1,7 @@
+{
+  "dockerImageBuilder": "ritclizup/rit-shell-bat-builder",
+  "inputs": [
+  ],
+  "template": "shell-bat",
+  "templateRelease:": "2.16.2"
+}
