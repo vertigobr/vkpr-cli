@@ -34,6 +34,16 @@ settingStack() {
       .alertmanager.ingress.hosts[0] = "'$VKPR_ENV_ALERT_MANAGER_DOMAIN'"
     '
   fi
+  if [[ $(existLoki) = "true" ]]; then
+    YQ_VALUES=''$YQ_VALUES' |
+      .grafana.additionalDataSources[0].name = "Loki" |
+      .grafana.additionalDataSources[0].type = "loki" |
+      .grafana.additionalDataSources[0].url = "http://vkpr-loki-stack:3100" |
+      .grafana.additionalDataSources[0].access = "proxy" |
+      .grafana.additionalDataSources[0].basicAuth = false |
+      .grafana.additionalDataSources[0].editable = true
+    '
+  fi
   if [[ $VKPR_ENV_SECURE = true ]]; then
     YQ_VALUES=''$YQ_VALUES' |
       .grafana.ingress.annotations.["'kubernetes.io/tls-acme'"] = "'true'" |
@@ -49,3 +59,13 @@ settingStack() {
     fi
   fi
 }
+
+existLoki() {
+  local EXISTING_LOKI=$($VKPR_KUBECTL get pod vkpr-loki-stack-0 -o name --ignore-not-found | cut -d "/" -f 2)
+  if [[ $EXISTING_LOKI = "vkpr-loki-stack-0" ]]; then
+    echo "true"
+    return
+  fi
+  echo "false"
+}
+
