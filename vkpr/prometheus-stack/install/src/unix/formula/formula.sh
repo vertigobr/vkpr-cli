@@ -20,7 +20,7 @@ addRepoPrometheusStack() {
 installPrometheusStack() {
   echoColor "yellow" "Installing prometheus stack..."
   local VKPR_PROMETHEUS_VALUES=$(dirname "$0")/utils/prometheus.yaml
-  local YQ_VALUES='.grafana.ingress.hosts[0] = "'$VKPR_ENV_GRAFANA_DOMAIN'" | .grafana.ingress.hosts style = "double"'
+  local YQ_VALUES='.grafana.ingress.hosts[0] = "'$VKPR_ENV_GRAFANA_DOMAIN'" | .grafana.ingress.hosts style = "double" | .grafana.adminPassword = "'$GRAFANA_PASSWORD'"'
   settingStack
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_PROMETHEUS_VALUES" \
   | $VKPR_HELM upgrade -i -f - vkpr-prometheus-stack prometheus-community/kube-prometheus-stack

@@ -8,11 +8,6 @@ alertmanager:
     pathType: ImplementationSpecific
 grafana:
   enabled: true
-  sidecar:
-    datasources:
-      enabled: true
-  persistence:
-    enabled: false
   ingress:
     enabled: true
     ingressClassName: nginx

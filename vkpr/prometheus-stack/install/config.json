@@ -7,6 +7,12 @@
       "type": "text"
     },
     {
+      "default": "vkpr123",
+      "label": "Type the Grafana admin password: ",
+      "name": "grafana_password",
+      "type": "text"
+    },
+    {
       "default": "false",
       "items": [
         "true",
