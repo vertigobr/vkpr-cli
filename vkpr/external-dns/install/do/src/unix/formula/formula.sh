@@ -2,7 +2,6 @@
 
 runFormula() {
   echoColor "yellow" "Instalando external-dns with DigitalOcean DNS..."
-  VKPR_EXTERNAL_DNS_VALUES=$(dirname "$0")/utils/external-dns.yaml
 
   getProviderCreds
   add_repo_external_dns
@@ -10,12 +9,12 @@ runFormula() {
 }
 
 add_repo_external_dns() {
-  $VKPR_HOME/bin/helm repo add bitnami https://charts.bitnami.com/bitnami
-  $VKPR_HOME/bin/helm repo update
+  $VKPR_HELM repo add bitnami https://charts.bitnami.com/bitnami --force-update
 }
 
 install_external_dns() {
-  $VKPR_HOME/bin/helm upgrade -i external-dns \
+  local VKPR_EXTERNAL_DNS_VALUES=$(dirname "$0")/utils/external-dns.yaml
+  $VKPR_HELM upgrade -i external-dns \
     --set digitalocean.apiToken=$TOKEN \
     -f $VKPR_EXTERNAL_DNS_VALUES bitnami/external-dns
 }

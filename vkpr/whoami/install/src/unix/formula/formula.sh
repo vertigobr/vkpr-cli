@@ -1,11 +1,12 @@
 #!/bin/sh
 
 runFormula() {
-  checkGlobalConfig $DOMAIN "whoami.localhost" "domain" "DOMAIN"
-  checkGlobalConfig $SECURE "false" "secure" "SECURE" # Unused Variable TODO: See if is secure and then enable the cert-manager and TLS
+  checkGlobalConfig $DOMAIN "localhost" "domain" "DOMAIN"
+  checkGlobalConfig $SECURE "false" "secure" "SECURE"
   
   local VKPR_ENV_WHOAMI_DOMAIN="whoami.${VKPR_ENV_DOMAIN}"
 
+  echo $VKPR_ENV_WHOAMI_DOMAIN
   addRepoWhoami
   installWhoami
 }
