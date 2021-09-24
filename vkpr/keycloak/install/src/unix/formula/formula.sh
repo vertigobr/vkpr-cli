@@ -9,26 +9,16 @@ runFormula() {
   local PG_USER="postgres"
   local PG_PASSWORD=$($VKPR_JQ -r '.credential.password' ~/.rit/credentials/default/postgres)
   local PG_DATABASE_NAME="keycloak"
-  local VKPR_ENV_KEYCLOAK_DOMAIN="keycloak.${VKPR_ENV_DOMAIN}"
+  local VKPR_ENV_KEYCLOAK_DOMAIN="vkpr-keycloak.${VKPR_ENV_DOMAIN}"
+  local VKPR_KEYCLOAK_IMPORT="$(dirname "$0")/utils/realm.json"
 
   addRepoKeycloak
+  kubectl create secret generic vkpr-realm-secret --from-file=$VKPR_KEYCLOAK_IMPORT
   installKeycloak
 }
 
 addRepoKeycloak(){
   $VKPR_HELM repo add bitnami https://charts.bitnami.com/bitnami --force-update
-}
-
-verifyExistingPostgres(){
-  local EXISTING_POSTGRES=$($VKPR_KUBECTL get pod/vkpr-postgres-postgresql-0 -o name --ignore-not-found | cut -d "/" -f2)
-  if [[ $EXISTING_POSTGRES = "vkpr-postgres-postgresql-0" ]]; then
-    local POSTGRES=$($VKPR_KUBECTL wait --for=condition=Ready pod/vkpr-postgres-postgresql-0 -o name | cut -d "/" -f2)
-    if [[ $POSTGRES = "vkpr-postgres-postgresql-0" ]]; then
-      echo "true"
-      return
-    fi
-  fi
-  echo "false"
 }
 
 settingKeycloak(){
@@ -37,7 +27,7 @@ settingKeycloak(){
     .auth.adminUser = "'$VKPR_ENV_KEYCLOAK_ADMIN_USER'" |
     .auth.adminPassword = "'$VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD'"
   '
-  if [[ $VKPR_ENV_SECURE == true ]]; then
+  if [[ $VKPR_ENV_SECURE = true ]]; then
     YQ_VALUES=''$YQ_VALUES' |
       .ingress.certManager = true |
       .ingress.tls = true
@@ -53,13 +43,21 @@ settingKeycloak(){
       .externalDatabase.database = "'$PG_DATABASE_NAME'"
     '
   fi
+  #if [[ $EXISTING_GRAFANA != "vkpr-prometheus-stack-grafana" ]]; then
+  #  YQ_VALUES=''$YQ_VALUES' |
+  #    .extraVolumes = "" |
+  #    .extraVolumeMounts = "" |
+  #    .extraEnvVars = "" 
+  #  '
+  #fi
+  
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_KEYCLOAK_VALUES" \
   | $VKPR_HELM upgrade -i -f - vkpr-keycloak bitnami/keycloak
 }
 
 installKeycloak(){
   local VKPR_KEYCLOAK_VALUES=$(dirname "$0")/utils/keycloak.yaml
-  if [[ $(verifyExistingPostgres) = "true" ]]; then
+  if [[ $(checkExistingPostgres) = "true" ]]; then
     echoColor "yellow" "Initializing Keycloak with Postgres already created"
     local PG_EXISTING_DATABASE=$(checkExistingDatabase $PG_USER $PG_PASSWORD $PG_DATABASE_NAME $PG_DATABASE_NAME)
     if [ $PG_EXISTING_DATABASE != "keycloak" ]; then
