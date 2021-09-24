@@ -20,8 +20,7 @@ installLoki(){
 
 
 existGrafana() {
-  local EXISTING_GRAFANA=$($VKPR_KUBECTL get deploy vkpr-prometheus-stack-grafana -o name --ignore-not-found | cut -d "/" -f 2)
-  if [[ $EXISTING_GRAFANA = "vkpr-prometheus-stack-grafana" ]]; then
+  if [[ $(checkExistingGrafana) = "vkpr-prometheus-stack-grafana" ]]; then
     local LOGINGRAFANA="$($VKPR_KUBECTL get secret vkpr-prometheus-stack-grafana -o yaml | $VKPR_YQ eval '.data.admin-user' - | base64 -d):$($VKPR_KUBECTL get secret vkpr-prometheus-stack-grafana -o yaml | $VKPR_YQ eval '.data.admin-password' - | base64 -d)"
     local TOKEN_API_GRAFANA=$(curl -sk -X POST -H "Host: grafana.localhost" \
     -H "Content-Type: application/json" \
