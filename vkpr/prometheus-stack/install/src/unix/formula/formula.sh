@@ -34,7 +34,7 @@ settingStack() {
       .alertmanager.ingress.hosts[0] = "'$VKPR_ENV_ALERT_MANAGER_DOMAIN'"
     '
   fi
-  if [[ $(existLoki) = "true" ]]; then
+  if [[ $(checkExistingLoki) = "true" ]]; then
     YQ_VALUES=''$YQ_VALUES' |
       .grafana.additionalDataSources[0].name = "Loki" |
       .grafana.additionalDataSources[0].type = "loki" |
@@ -42,6 +42,30 @@ settingStack() {
       .grafana.additionalDataSources[0].access = "proxy" |
       .grafana.additionalDataSources[0].basicAuth = false |
       .grafana.additionalDataSources[0].editable = true
+    '
+  fi
+  if [[ $(checkExistingKeycloak) = "true" ]]; then
+    # addapt to use https (only find http)
+    local K3D_PORTS=":$($VKPR_K3D cluster ls vkpr-local -o yaml | $VKPR_YQ eval '.[].cluster.nodes[0].portMappings.80/tcp[0].hostport' -)"
+    local KEYCLOAK_DOMAIN="vkpr-keycloak.$($VKPR_YQ eval .global.domain $VKPR_GLOBAL)${K3D_PORTS}/auth/realms/grafana/protocol/openid-connect"
+    local ROLES="contains(roles[], 'admin') && 'Admin' || contains(roles[], 'editor') && 'Editor' || 'Viewer'"
+    YQ_VALUES=''$YQ_VALUES' |
+      .grafana.env.GF_SERVER_ROOT_URL = "http://'${VKPR_ENV_GRAFANA_DOMAIN}${K3D_PORTS}'/" |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_ENABLED = true |
+      .grafana.env.GF_AUTH_DISABLE_LOGIN_FORM = true |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_NAME = "Keycloak" |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_CLIENT_ID = "grafana" |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET = "3162d962-c3d1-498e-8cb3-a1ae0005c4d9" |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_SCOPES = "openid profile email" |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP = true |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_AUTO_LOGIN = false |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_TLS_SKIP_VERIFY_INSECURE = true |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH = "'${ROLES}'" |
+      .grafana.env.GF_SERVER_ROOT_URL = "http://'${VKPR_ENV_GRAFANA_DOMAIN}'/" |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_AUTH_URL = "http://'${KEYCLOAK_DOMAIN}'/auth" |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_TOKEN_URL = "http://'${KEYCLOAK_DOMAIN}'/token" |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_API_URL = "http://'${KEYCLOAK_DOMAIN}'/usernfo" |
+      .grafana.env.GF_AUTH_SIGNOUT_REDIRECT_URL = "http://'${KEYCLOAK_DOMAIN}'/logout?redirect_uri=http%3A%2F%2F'${VKPR_ENV_GRAFANA_DOMAIN}${K3D_PORTS}'%2Flogin"
     '
   fi
   if [[ $VKPR_ENV_SECURE = true ]]; then
@@ -59,13 +83,3 @@ settingStack() {
     fi
   fi
 }
-
-existLoki() {
-  local EXISTING_LOKI=$($VKPR_KUBECTL get pod vkpr-loki-stack-0 -o name --ignore-not-found | cut -d "/" -f 2)
-  if [[ $EXISTING_LOKI = "vkpr-loki-stack-0" ]]; then
-    echo "true"
-    return
-  fi
-  echo "false"
-}
-
