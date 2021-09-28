@@ -43,6 +43,65 @@
   "quickLoginCheckMilliSeconds": 1000,
   "maxDeltaTimeSeconds": 43200,
   "failureFactor": 30,
+  "users": [
+    {
+      "username": "sample-user",
+      "enabled": true,
+      "email": "sample-user@example",
+      "firstName": "Sample",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password"
+        }
+      ],
+      "realmRoles": [],
+      "clientRoles": {
+        "grafana": [
+          "viewer"
+        ]
+      }
+    },
+    {
+      "username": "sample-editor",
+      "enabled": true,
+      "email": "sample-editor@example",
+      "firstName": "Sample",
+      "lastName": "Editor",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password"
+        }
+      ],
+      "realmRoles": [],
+      "clientRoles": {
+        "grafana": [
+          "editor"
+        ]
+      }
+    },
+    {
+      "username": "sample-admin",
+      "enabled": true,
+      "email": "sample-admin@example",
+      "firstName": "Sample",
+      "lastName": "Admin",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password"
+        }
+      ],
+      "realmRoles": [],
+      "clientRoles": {
+        "grafana": [
+          "admin"
+        ]
+      }
+    }
+  ],
   "roles": {
     "realm": [
       {
