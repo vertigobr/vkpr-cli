@@ -2,6 +2,7 @@
 
 VKPR_HOME=~/.vkpr
 VKPR_GLOBAL=$VKPR_HOME/global-values.yaml
+VKPR_CONFIG=$VKPR_HOME/config
 
 VKPR_GLAB=$VKPR_HOME/bin/glab
 VKPR_K3D=$VKPR_HOME/bin/k3d
