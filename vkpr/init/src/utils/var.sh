@@ -13,5 +13,3 @@ VKPR_KUBECTL=$VKPR_HOME/bin/kubectl
 VKPR_HELM=$VKPR_HOME/bin/helm
 VKPR_JQ=$VKPR_HOME/bin/jq
 VKPR_YQ=$VKPR_HOME/bin/yq
-
-export HELM_HOME=$VKPR_HOME/data/helm
