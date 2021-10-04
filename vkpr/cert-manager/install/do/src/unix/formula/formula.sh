@@ -16,7 +16,7 @@ installCRDS() {
 }
 
 addCertManager() {
-  $VKPR_HELM repo add jetstack https://charts.jetstack.io --force-update
+  registerHelmRepository jetstack https://charts.jetstack.io 
 }
 
 installCertManager() {
@@ -25,9 +25,10 @@ installCertManager() {
   local VKPR_ENV_CERT_ISSUER="$ISSUER"
   $VKPR_YQ eval $VKPR_CERT_MANAGER_VALUES \
   | $VKPR_HELM upgrade -i -f - \
-      -n cert-manager --create-namespace \
+      --namespace cert-manager --create-namespace \
       --set ingressShim.defaultIssuerName="$VKPR_ENV_CERT_ISSUER" \
       --version "$VKPR_CERT_VERSION" \
+      --wait --timeout 5m \
       vkpr-cert-manager jetstack/cert-manager
 }
 

@@ -2,8 +2,8 @@
 # 
 # generated with the commands below:
 # 
-# kubectl run nginx --image=nginx --port=80 --dry-run=client -o yaml
-# kubectl expose pod nginx --port=8000 --target-port=80 --type=LoadBalancer --dry-run=client -o yaml
+# $VKPR_KUBECTL run nginx --image=nginx --port=80 --dry-run=client -o yaml
+# $VKPR_KUBECTL expose pod nginx --port=8000 --target-port=80 --type=LoadBalancer --dry-run=client -o yaml
 #
 apiVersion: v1
 kind: Pod

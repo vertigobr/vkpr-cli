@@ -12,7 +12,7 @@ runFormula() {
 }
 
 addRepoWhoami(){
-  $VKPR_HELM repo add cowboysysop https://cowboysysop.github.io/charts/ --force-update
+  registerHelmRepository cowboysysop https://cowboysysop.github.io/charts/
 }
 
 installWhoami(){
@@ -27,5 +27,7 @@ installWhoami(){
     '
   fi
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_WHOAMI_VALUES" \
-  | $VKPR_HELM upgrade -i -f - vkpr-whoami cowboysysop/whoami
+  $VKPR_HELM upgrade -i -f - vkpr-whoami cowboysysop/whoami \
+    --namespace $VKPR_K8S_NAMESPACE --create-namespace \
+    --wait --timeout 5m
 }

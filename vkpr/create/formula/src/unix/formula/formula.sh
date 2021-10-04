@@ -51,11 +51,11 @@ cleanupFormula() {
   rm -f "$formulaPath/build.sh.bak"
   # no inputs
   cp "$formulaPath/config.json" "$formulaPath/config.json.bak"
-  "$VKPR_HOME/bin/jq" '.inputs=[]' "$formulaPath/config.json.bak" > "$formulaPath/config.json"
+  $VKPR_JQ '.inputs=[]' "$formulaPath/config.json.bak" > "$formulaPath/config.json"
   rm "$formulaPath/config.json.bak"
   # only local
   cp "$formulaPath/metadata.json" "$formulaPath/metadata.json.bak"
-  "$VKPR_HOME/bin/jq" '.execution=["local"]' "$formulaPath/metadata.json.bak" > "$formulaPath/metadata.json"
+  $VKPR_JQ '.execution=["local"]' "$formulaPath/metadata.json.bak" > "$formulaPath/metadata.json"
   rm "$formulaPath/metadata.json.bak"
 }
 

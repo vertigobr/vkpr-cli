@@ -9,10 +9,10 @@ setup_file() {
     else
         echo "setup: installing ingress...." >&3
         rit vkpr ingress install
-        kubectl wait --for=condition=ready --timeout=1m pod --all
+        $VKPR_KUBECTL wait --for=condition=ready --timeout=1m pod --all
         echo "setup: installing whoami...." >&3
         rit vkpr whoami install --default
-        kubectl wait --for=condition=ready --timeout=1m pod --all
+        $VKPR_KUBECTL wait --for=condition=ready --timeout=1m pod --all
         sleep 20
     fi
 }
@@ -40,7 +40,7 @@ teardown_file() {
 }
 
 podName(){
-  local pod=$($VKPR_HOME/bin/kubectl get po -o name | grep whoami | cut -d "/" -f 2)
+  local pod=$($VKPR_KUBECTL get po -o name | grep whoami | cut -d "/" -f 2)
   echo "Hostname: ${pod}"
 }
 
