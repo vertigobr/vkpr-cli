@@ -10,12 +10,11 @@ runFormula() {
 }
 
 add_repo_external_dns() {
-  $VKPR_HOME/bin/helm repo add bitnami https://charts.bitnami.com/bitnami
-  $VKPR_HOME/bin/helm repo update
+  registerHelmRepository bitnami https://charts.bitnami.com/bitnami
 }
 
 install_external_dns() {
-  $VKPR_HOME/bin/helm upgrade -i external-dns \
+  $VKPR_HELM upgrade -i external-dns \
     --set pdns.apiKey=$APIKEY \
     --set pdns.apiUrl=$APIURL \
     -f $VKPR_EXTERNAL_DNS_VALUES bitnami/external-dns

@@ -2,6 +2,6 @@
 
 runFormula() {
   echoColor "green" "Removing keycloak..."
-  $VKPR_HELM uninstall vkpr-keycloak
-  $VKPR_KUBECTL delete secret vkpr-realm-secret
+  $VKPR_HELM uninstall --namespace $VKPR_K8S_NAMESPACE vkpr-keycloak
+  $VKPR_KUBECTL delete secret --namespace $VKPR_K8S_NAMESPACE vkpr-realm-secret
 }

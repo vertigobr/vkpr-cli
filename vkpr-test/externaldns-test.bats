@@ -18,9 +18,9 @@ setup_file() {
         rit vkpr external-dns install pdns --apiurl=http://host.k3d.internal
         # expose test service
         echo "setup: creating and exposing annotated service...." >&3
-        kubectl apply -f $BATS_TEST_DIRNAME/exposed-service.yml
+        $VKPR_KUBECTL apply -f $BATS_TEST_DIRNAME/exposed-service.yml
         # wait for all to be ready
-        kubectl wait --for=condition=ready --timeout=1m pod --all
+        $VKPR_KUBECTL wait --for=condition=ready --timeout=1m pod --all
         #sleep 20
     fi
 }
@@ -46,7 +46,7 @@ dig_local(){
 
 @test "testing if external-dns dealt with exposed annotated service" {
     # service
-    external_ip=$(kubectl get svc nginx --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}")
+    external_ip=$($VKPR_KUBECTL get svc nginx --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}")
     trim "$external_ip"
     external_ip="$TRIMMED"
     echo "external_ip=$external_ip" >&3
@@ -60,8 +60,8 @@ dig_exposed_service(){
 }
 
 get_host_ip() {
-    kubectl run --rm=true -i busybox --image=busybox --restart=Never \
-        --command -- ping -c1 -n host.k3d.internal | head -n1 | sed 's/.*(\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\)).*/\1/g'
+    $VKPR_KUBECTL run --rm=true -i busybox --image=busybox --restart=Never \
+        --command -- ping -c1 --namespace host.k3d.internal | head -n1 | sed 's/.*(\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\)).*/\1/g'
 }
 
 startPowerDNS() {
@@ -95,7 +95,7 @@ teardown_file() {
         echo "teardown: skipping teardown due to VKPR_TEST_SKIP_TEARDOWN=true" >&3
     else
         echo "teardown: removing annotated service...." >&3
-        kubectl delete --ignore-not-found=true -f $BATS_TEST_DIRNAME/exposed-service.yml
+        $VKPR_KUBECTL delete --ignore-not-found=true -f $BATS_TEST_DIRNAME/exposed-service.yml
         echo "teardown: stopping power-dns...." >&3
         stopPowerDNS
         echo "teardown: uninstalling external-dns...." >&3

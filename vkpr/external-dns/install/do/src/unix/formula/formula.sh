@@ -9,12 +9,13 @@ runFormula() {
 }
 
 add_repo_external_dns() {
-  $VKPR_HELM repo add bitnami https://charts.bitnami.com/bitnami --force-update
+  registerHelmRepository bitnami https://charts.bitnami.com/bitnami
 }
 
 install_external_dns() {
   local VKPR_EXTERNAL_DNS_VALUES=$(dirname "$0")/utils/external-dns.yaml
   $VKPR_HELM upgrade -i external-dns \
+    --namespace $VKPR_K8S_NAMESPACE --create-namespace \
     --set digitalocean.apiToken=$TOKEN \
     -f $VKPR_EXTERNAL_DNS_VALUES bitnami/external-dns
 }
@@ -22,7 +23,7 @@ install_external_dns() {
 getProviderCreds(){
   # CREDENTIAL INPUT NOT WORKING IN SHELL FORMULA
   # PARSING FILE DIRECTLY AND IGNORING INPUT ("-r" is important!!!)
-  #VKPR_ACCESS_TOKEN_INPUT=$(jq -r .credential.token ~/.rit/credentials/default/digitalocean)
+  #VKPR_ACCESS_TOKEN_INPUT=$($VKPR_JQ -r .credential.token ~/.rit/credentials/default/digitalocean)
   if [ -z "$TOKEN" ]; then
     echo "yellow" "No digitalocean token found in rit credentials. Falling back to DO_AUTH_TOKEN env variable."
     TOKEN="$DO_AUTH_TOKEN"
