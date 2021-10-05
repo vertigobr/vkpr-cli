@@ -2,5 +2,5 @@
 
 runFormula() {  
   echo "VKPR Ingress remove"
-  $VKPR_HELM uninstall vkpr-ingress --namespace $VKPR_K8S_NAMESPACE || echoColor "red" "VKPR Ingress not found"
+  $VKPR_HELM uninstall ingress-nginx -n vkpr
 }
