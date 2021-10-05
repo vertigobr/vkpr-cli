@@ -32,7 +32,7 @@ teardown_file() {
     else
         echo "teardown: uninstalling postgres...." >&3
         rit vkpr postgres remove
-        rit vkpr infra down
+        rit vkpr infra down --default
     fi
 }
 

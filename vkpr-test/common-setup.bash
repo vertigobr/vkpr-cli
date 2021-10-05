@@ -22,6 +22,6 @@ _common_teardown() {
         echo "common_teardown: skipping common-teardown due to VKPR_TEST_SKIP_COMMON_TEARDOWN=true" >&3
     else
         echo "common_teardown: killing vkpr cluster...." >&3
-        rit vkpr infra down
+        rit vkpr infra down --default
     fi
 }

@@ -54,7 +54,7 @@ teardown_file() {
         sleep 5
         rit vkpr ingress remove
         sleep 5
-        rit vkpr infra down
+        rit vkpr infra down --default
         sleep 5
     fi
 }
