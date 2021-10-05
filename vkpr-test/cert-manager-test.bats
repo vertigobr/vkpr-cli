@@ -25,7 +25,7 @@ setup_file() {
         chmod +r /tmp/root_ca.crt
 
         echo "setup: initialising infra. Cluster running on port 80 , 443 is manadatory for this test." >&3
-        rit vkpr infra start --http_port 80 --https_port 443
+        rit vkpr infra start --http_port 80 --https_port 443 --default
         kubectl wait --all-namespaces --for=condition=ready --timeout=20m pod --all
         sleep 2
 
