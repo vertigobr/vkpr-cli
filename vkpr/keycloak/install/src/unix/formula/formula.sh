@@ -14,12 +14,12 @@ runFormula() {
   local VKPR_KEYCLOAK_IMPORT="$(dirname "$0")/utils/realm.json"
 
   addRepoKeycloak
-  kubectl create secret generic vkpr-realm-secret --from-file=$VKPR_KEYCLOAK_IMPORT
+  $VKPR_KUBECTL create secret generic vkpr-realm-secret --namespace $VKPR_K8S_NAMESPACE --from-file=$VKPR_KEYCLOAK_IMPORT
   installKeycloak
 }
 
 addRepoKeycloak(){
-  $VKPR_HELM repo add bitnami https://charts.bitnami.com/bitnami --force-update
+  registerHelmRepository bitnami https://charts.bitnami.com/bitnami
 }
 
 settingKeycloak(){
@@ -53,7 +53,9 @@ settingKeycloak(){
   #fi
   
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_KEYCLOAK_VALUES" \
-  | $VKPR_HELM upgrade -i -f - vkpr-keycloak bitnami/keycloak
+  | $VKPR_HELM upgrade -i -f - keycloak bitnami/keycloak \
+    --namespace $VKPR_K8S_NAMESPACE --create-namespace \
+    --wait --timeout 5m
 }
 
 installKeycloak(){
@@ -61,7 +63,7 @@ installKeycloak(){
   if [[ $(checkExistingPostgres) = "true" ]]; then
     echoColor "yellow" "Initializing Keycloak with Postgres already created"
     local PG_EXISTING_DATABASE=$(checkExistingDatabase $PG_USER $PG_PASSWORD $PG_DATABASE_NAME $PG_DATABASE_NAME)
-    if [ $PG_EXISTING_DATABASE != "keycloak" ]; then
+    if [[ $PG_EXISTING_DATABASE != "keycloak" ]]; then
       echoColor "yellow" "Creating Database Instance..."
       createDatabase $PG_USER $PG_PASSWORD $PG_DATABASE_NAME
     fi

@@ -9,10 +9,10 @@ setup_file() {
     else
         echo "setup: installing ingress...." >&3
         rit vkpr ingress install
-        kubectl wait --for=condition=ready --timeout=1m pod --all
+        $VKPR_HOME/bin/kubectl wait --for=condition=ready --timeout=1m pod --all
         echo "setup: installing keycloak...." >&3
         rit vkpr keycloak install --default
-        kubectl wait --for=condition=ready --timeout=2m pod --all
+        $VKPR_HOME/bin/kubectl wait --for=condition=ready --timeout=2m pod --all
         sleep 60
         sleep 2
     fi
@@ -70,8 +70,8 @@ curlKeycloakToken(){
 }
 
 curlKeycloakUserinfo(){
-    TOKEN_VALUE=$(curl -X POST -H "Host: vkpr-keycloak.localhost" -H "Content-Type: application/x-www-form-urlencoded" -d "grant_type=password&username=sample-admin&password=password&client_secret=3162d962-c3d1-498e-8cb3-a1ae0005c4d9&client_id=grafana&scope=openid" http://127.0.0.1:8000/auth/realms/grafana/protocol/openid-connect/token/ | $VKPR_HOME/bin/jq -r '.access_token')
-    content=$(curl -X POST -H "Host: vkpr-keycloak.localhost" -H "Authorization: Bearer ${TOKEN_VALUE}" http://127.0.0.1:8000/auth/realms/grafana/protocol/openid-connect/userinfo | $VKPR_HOME/bin/jq -r '.name')
+    TOKEN_VALUE=$(curl -X POST -H "Host: vkpr-keycloak.localhost" -H "Content-Type: application/x-www-form-urlencoded" -d "grant_type=password&username=sample-admin&password=password&client_secret=3162d962-c3d1-498e-8cb3-a1ae0005c4d9&client_id=grafana&scope=openid" http://127.0.0.1:8000/auth/realms/grafana/protocol/openid-connect/token/ | $VKPR_HOME/bin/yq -r '.access_token')
+    content=$(curl -X POST -H "Host: vkpr-keycloak.localhost" -H "Authorization: Bearer ${TOKEN_VALUE}" http://127.0.0.1:8000/auth/realms/grafana/protocol/openid-connect/userinfo | $VKPR_HOME/bin/yq -r '.name')
     echo ${content}
 }
 

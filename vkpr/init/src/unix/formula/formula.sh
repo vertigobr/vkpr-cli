@@ -32,7 +32,7 @@ runFormula() {
 }
 
 installArkade() {
-  if [[ -f "$VKPR_HOME/bin/arkade" ]]; then
+  if [[ -f "$VKPR_ARKADE" ]]; then
     echoColor "yellow" "Alex Ellis' arkade already installed. Skipping..."
   else
     echoColor "blue" "Installing arkade..."
@@ -58,7 +58,7 @@ installTool() {
 }
 
 installGlab() {
-  if [[ -f "$VKPR_HOME/bin/glab" ]]; then
+  if [[ -f "$VKPR_GLAB" ]]; then
     echoColor "yellow" "Glab already installed. Skipping..."
   else
     echoColor "blue" "Installing Glab..."
@@ -102,26 +102,4 @@ installBats(){
     mv /tmp/bats-file-0.3.0 $VKPR_HOME/bats/bats-file
     echoColor "green" "Bats add-ons installed"
   fi
-}
-
-echoColor() {
-  case $1 in
-    red)
-      echo "$(printf '\033[31m')$2$(printf '\033[0m')"
-      ;;
-    green)
-      echo "$(printf '\033[32m')$2$(printf '\033[0m')"
-      ;;
-    yellow)
-      echo "$(printf '\033[33m')$2$(printf '\033[0m')"
-      ;;
-    blue)
-      echo "$(printf '\033[34m')$2$(printf '\033[0m')"
-      ;;
-    cyan)
-      echo "$(printf '\033[36m')$2$(printf '\033[0m')"
-      ;;
-    bold)
-      echo "$(printf '\033[1m')$2$(printf '\033[0m')"
-    esac
 }

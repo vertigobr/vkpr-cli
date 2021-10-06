@@ -9,7 +9,7 @@ setup_file() {
     else
         echo "setup: installing postgres...." >&3
         rit vkpr postgres install
-        kubectl wait --for=condition=ready --timeout=1m pod --all
+        $VKPR_HOME/bin/kubectl wait --for=condition=ready --timeout=1m pod --all
         sleep 2
     fi
 }

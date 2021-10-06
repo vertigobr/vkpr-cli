@@ -43,8 +43,8 @@ teardown_file() {
         rit vkpr whoami remove
         echo "teardown: uninstalling ingress..." >&3
         rit vkpr ingress remove
-        rit vkpr infra down --default
     fi
+    _common_teardown
 }
 
 podName(){

@@ -7,7 +7,7 @@ setup_file() {
     else
         echo "setup: installing loki...." >&3
         rit vkpr loki install
-        kubectl wait --for=condition=ready --timeout=1m pod --all
+        $VKPR_HOME/bin/kubectl wait --for=condition=ready --timeout=1m pod --all
         sleep 2
     fi
 }
@@ -18,7 +18,7 @@ setup() {
 }
 
 @test "curl to Loki must return ready" {
-    run echo "$(kubectl run --wait --timeout 1m curl-test --image=radial/busyboxplus:curl -i --rm --restart=Never --command -- curl -s  -H "Content-Type: application/json" http://vkpr-loki-stack:3100/ready)"
+    run echo "$($VKPR_HOME/bin/kubectl run --wait --timeout 1m curl-test --image=radial/busyboxplus:curl -i --rm --restart=Never --command -- curl -s  -H "Content-Type: application/json" http://vkpr-loki-stack:3100/ready)"
     actual="${lines[0]}"
     trim "$actual"
     actual="$TRIMMED"

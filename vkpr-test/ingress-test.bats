@@ -9,7 +9,7 @@ setup_file() {
     else
         echo "setup: installing ingress...." >&3
         rit vkpr ingress install
-        kubectl wait --for=condition=ready --timeout=1m pod --all
+        $VKPR_HOME/bin/kubectl wait --for=condition=ready --timeout=1m pod --all
         sleep 2
     fi
 }

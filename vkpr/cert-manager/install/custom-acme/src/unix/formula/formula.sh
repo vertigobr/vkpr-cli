@@ -15,7 +15,7 @@ installCRDS() {
 }
 
 addCertManager() {
-  $VKPR_HELM repo add jetstack https://charts.jetstack.io --force-update
+  registerHelmRepository jetstack https://charts.jetstack.io
 }
 
 installCertManager() {
@@ -25,6 +25,7 @@ installCertManager() {
   | $VKPR_HELM upgrade -i -f - \
       -n cert-manager --create-namespace \
       --version "$VKPR_CERT_VERSION" \
+      --wait \
       vkpr-cert-manager jetstack/cert-manager
 }
 

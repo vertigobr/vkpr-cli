@@ -26,27 +26,27 @@ setup_file() {
 
         echo "setup: initialising infra. Cluster running on port 80 , 443 is manadatory for this test." >&3
         rit vkpr infra start --http_port 80 --https_port 443 --default
-        kubectl wait --all-namespaces --for=condition=ready --timeout=20m pod --all
+        $VKPR_HOME/bin/kubectl wait --all-namespaces --for=condition=ready --timeout=20m pod --all
         sleep 2
 
         echo "setup: Copying root_ca.crt to cert-manager namespace.." >&3
-        kubectl create namespace cert-manager
-        kubectl create secret generic custom-ca-secret -n cert-manager \
+        $VKPR_HOME/bin/kubectl create namespace cert-manager
+        $VKPR_HOME/bin/kubectl create secret generic custom-ca-secret --namespace cert-manager \
         --from-file=ca-certificates.crt=/tmp/root_ca.crt
 
         echo "setup: installing cert-manager...." >&3
         rit vkpr cert-manager install custom-acme --email eu@aqui.com
-        kubectl wait --all-namespaces --for=condition=ready --timeout=5m pod --all
+        $VKPR_HOME/bin/kubectl wait --all-namespaces --for=condition=ready --timeout=5m pod --all
         sleep 2
 
         echo "setup: instaling ingress..." >&3
         rit vkpr ingress install
-        kubectl wait --all-namespaces --for=condition=ready --timeout=5m pod --all
+        $VKPR_HOME/bin/kubectl wait --all-namespaces --for=condition=ready --timeout=5m pod --all
         sleep 2
 
         echo "setup: installing whoami to create a certificate...." >&3
         rit vkpr whoami install --domain "host.k3d.internal"
-        kubectl wait --all-namespaces --for=condition=ready --timeout=5m pod --all
+        $VKPR_HOME/bin/kubectl wait --all-namespaces --for=condition=ready --timeout=5m pod --all
         sleep 1m
     fi
 }
