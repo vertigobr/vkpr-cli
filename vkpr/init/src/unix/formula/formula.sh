@@ -7,18 +7,11 @@
 #
 # Requires: curl
 
-# # OS/PLATFORM DETECTION
-# OS_PLATFORM=$(uname -m)
-# if [[ "$OS_PLATFORM" == "x86_64" ]]; then
-#   OS_ARCH="amd64"
-# else # arm64
-#   OS_ARCH="$OS_PLATFORM"
-# fi
-
 runFormula() {
-  echo "VKPR initialization"
-  VKPR_HOME=~/.vkpr
-  VKPR_SCRIPTS=$VKPR_HOME/src
+  echoColor "green" "VKPR initialization"
+  echo "=============================="
+  local VKPR_HOME=~/.vkpr
+  local VKPR_SCRIPTS=$VKPR_HOME/src
   
   mkdir -p $VKPR_HOME/bin
   mkdir -p $VKPR_HOME/config
@@ -32,51 +25,43 @@ runFormula() {
   installTool "k3d"
   installTool "jq"
   installTool "yq"
-  installTool "k9s"
+  #installTool "k9s"
 
   installGlobals 
   installBats
-
-  # if [ "$RIT_INPUT_BOOLEAN" = "true" ]; then
-  #   echoColor "blue" "I've already created formulas using Ritchie."
-  # else
-  #   echoColor "red" "I'm excited in creating new formulas using Ritchie."
-  # fi
-
-  # echoColor "yellow" "Today, I want to automate $RIT_INPUT_LIST."
-  # echoColor "cyan"  "My secret is $RIT_INPUT_PASSWORD."
-} 
-
-installTool() {
-  toolName=$1
-  if [[ -f "$VKPR_HOME/bin/$toolName" ]]; then
-    echoColor "yellow" "Tool $toolName already installed. Skipping."
-  else
-    echoColor "green" "Installing $toolName using arkade..."
-    $VKPR_ARKADE get "$toolName" --stash=true
-    mv "$HOME/.arkade/bin/$toolName" $VKPR_HOME/bin
-  fi
 }
 
 installArkade() {
-  if [[ -f "$VKPR_ARKADE" ]]; then
-    echoColor "yellow" "Alex Ellis' arkade already installed. Skipping."
+  if [[ -f "$VKPR_HOME/bin/arkade" ]]; then
+    echoColor "yellow" "Alex Ellis' arkade already installed. Skipping..."
   else
-    echoColor "green" "Installing arkade..."
+    echoColor "blue" "Installing arkade..."
     # patches download script in order to change BINLOCATION
     curl -sLS https://get.arkade.dev > /tmp/arkinst0.sh
     sed "s/^export BINLOCATION=.*/export BINLOCATION=~\/\.vkpr\/bin/g" /tmp/arkinst0.sh > /tmp/arkinst.sh
     chmod +x /tmp/arkinst.sh
     rm /tmp/arkinst0.sh
-    /tmp/arkinst.sh
+    /tmp/arkinst.sh 2> /dev/null
+  fi
+}
+
+installTool() {
+  local toolName=$1
+  if [[ -f "$VKPR_HOME/bin/$toolName" ]]; then
+    echoColor "yellow" "Tool $toolName already installed. Skipping..."
+  else
+    echoColor "blue" "Installing $toolName using arkade..."
+    $VKPR_HOME/bin/arkade get "$toolName" --stash=true > /dev/null
+    mv "$HOME/.arkade/bin/$toolName" $VKPR_HOME/bin
+    echoColor "green" "$toolName installed!"
   fi
 }
 
 installGlab() {
-  if [[ -f "$VKPR_GLAB" ]]; then
-    echoColor "yellow" "Glab already installed. Skipping."
+  if [[ -f "$VKPR_HOME/bin/glab" ]]; then
+    echoColor "yellow" "Glab already installed. Skipping..."
   else
-    echoColor "green" "Installing Glab..."
+    echoColor "blue" "Installing Glab..."
     curl -sLS https://j.mp/glab-cli > /tmp/glab.sh
     chmod +x /tmp/glab.sh
     /tmp/glab.sh $VKPR_HOME/bin
@@ -84,14 +69,16 @@ installGlab() {
 }
 
 installGlobals() {
-  createPackagesFiles
+  touch $VKPR_HOME/global-values.yaml
+  ## --update: copy only when the SOURCE file is newer than the destination file or when the destination file is missing.
+  cp --update $(dirname "$0")/utils/*.sh $VKPR_SCRIPTS
 }
 
 installBats(){
   if [[ -f "$VKPR_HOME/bats/bin/bats" ]]; then
     echoColor "yellow" "Bats already installed. Skipping."
   else
-    echoColor "green" "intalling Bats..."
+    echoColor "blue" "intalling Bats..."
     mkdir -p /tmp/bats
     # bats-core
     curl -sL -o /tmp/bats-core.tar.gz https://github.com/bats-core/bats-core/archive/refs/tags/v1.4.1.tar.gz
@@ -100,7 +87,7 @@ installBats(){
     /tmp/bats-core/install.sh $VKPR_HOME/bats
     rm -r --force /tmp/bats-core
 
-    echoColor "green" "intalling bats add-ons..."
+    echoColor "blue" "intalling bats add-ons..."
     # bats-support
     #git clone https://github.com/bats-core/bats-support $VKPR_HOME/bats/bats-support
     curl -sL -o /tmp/bats-support.tar.gz https://github.com/bats-core/bats-support/archive/refs/tags/v0.3.0.tar.gz
@@ -114,12 +101,28 @@ installBats(){
     curl -sL -o /tmp/bats-file.tar.gz https://github.com/bats-core/bats-file/archive/refs/tags/v0.3.0.tar.gz
     tar -xzf /tmp/bats-file.tar.gz -C /tmp
     mv /tmp/bats-file-0.3.0 $VKPR_HOME/bats/bats-file
-    echo "Bats add-ons installed"
+    echoColor "green" "Bats add-ons installed"
   fi
 }
 
-createPackagesFiles() {
-  touch $VKPR_HOME/global-values.yaml
-  ## --update: copy only when the SOURCE file is newer than the destination file or when the destination file is missing.
-  cp --update $(dirname "$0")/utils/*.sh $VKPR_SCRIPTS
+echoColor() {
+  case $1 in
+    red)
+      echo "$(printf '\033[31m')$2$(printf '\033[0m')"
+      ;;
+    green)
+      echo "$(printf '\033[32m')$2$(printf '\033[0m')"
+      ;;
+    yellow)
+      echo "$(printf '\033[33m')$2$(printf '\033[0m')"
+      ;;
+    blue)
+      echo "$(printf '\033[34m')$2$(printf '\033[0m')"
+      ;;
+    cyan)
+      echo "$(printf '\033[36m')$2$(printf '\033[0m')"
+      ;;
+    bold)
+      echo "$(printf '\033[1m')$2$(printf '\033[0m')"
+    esac
 }

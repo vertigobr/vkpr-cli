@@ -20,6 +20,16 @@ checkGlobalConfig(){
   fi
 }
 
+checkGlobal() {
+  local VALUE_CONTENT=`$VKPR_YQ eval ".global.${1}" $VKPR_GLOBAL`
+  if [[ $3 != "" ]]; then
+    VALUE_CONTENT=`$VKPR_YQ eval '{"'$3'": .global.'$1'}' $VKPR_GLOBAL`
+  fi
+  if [[ $VALUE_CONTENT != "null" ]]; then
+    echo "$VALUE_CONTENT" >> $2
+  fi
+}
+
 # Create a new instance of DB in Postgres;
 # $1: Postgres User  /  $2: Postgres Password  /  $3: Name of DB to create
 createDatabase(){
