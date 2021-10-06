@@ -34,7 +34,7 @@ installExternalDNS() {
   else
     settingExternalDNS
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_EXTERNAL_DNS_VALUES" \
-    | $VKPR_HELM upgrade -i --version $VKPR_EXTERNAL_DNS_VERSION \
+    | $VKPR_HELM upgrade -i --version "$VKPR_EXTERNAL_DNS_VERSION" \
       --create-namespace -n vkpr \
       --wait -f - external-dns bitnami/external-dns
   fi
