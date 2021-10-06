@@ -9,7 +9,7 @@ setup_file() {
     else
         echo "setup: installing postgres...." >&3
         rit vkpr postgres install
-        $VKPR_KUBECTL wait --for=condition=ready --timeout=1m pod --all
+        $VKPR_HOME/bin/kubectl wait --for=condition=ready --timeout=1m pod --all
         sleep 2
     fi
 }
@@ -37,5 +37,5 @@ teardown_file() {
 }
 
 ping_db(){
-    $VKPR_KUBECTL run test-db --rm -it --restart='Never' --image docker.io/bitnami/postgresql:11.13.0-debian-10-r12 --env="PGUSER=postgres" --env="PGPASSWORD=123" --env="PGHOST=postgres-postgresql" --env="PGPORT=5432" --command -- pg_isready
+    $VKPR_HOME/bin/kubectl run test-db --rm -it --restart='Never' --image docker.io/bitnami/postgresql:11.13.0-debian-10-r12 --env="PGUSER=postgres" --env="PGPASSWORD=123" --env="PGHOST=postgres-postgresql" --env="PGPORT=5432" --command -- pg_isready
 }

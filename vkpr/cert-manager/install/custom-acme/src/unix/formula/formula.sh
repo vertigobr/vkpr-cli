@@ -20,13 +20,12 @@ addCertManager() {
 
 installCertManager() {
   echoColor "yellow" "Installing cert-manager..."
-  echoColor blue "https://github.com/jetstack/cert-manager/releases/download/$VKPR_CERT_VERSION/cert-manager.crds.yaml"
   local VKPR_CERT_MANAGER_VALUES=$(dirname "$0")/utils/cert-manager.yaml
   $VKPR_YQ eval $VKPR_CERT_MANAGER_VALUES \
   | $VKPR_HELM upgrade -i -f - \
-      --namespace cert-manager --create-namespace \
+      -n cert-manager --create-namespace \
       --version "$VKPR_CERT_VERSION" \
-      --wait --timeout 5m \
+      --wait \
       vkpr-cert-manager jetstack/cert-manager
 }
 

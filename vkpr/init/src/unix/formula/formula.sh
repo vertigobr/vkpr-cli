@@ -29,6 +29,7 @@ runFormula() {
 
   installGlobals 
   installBats
+<<<<<<< HEAD
 
   # if [ "$RIT_INPUT_BOOLEAN" = "true" ]; then
   #   echoColor "blue" "I've already created formulas using Ritchie."
@@ -49,11 +50,17 @@ installTool() {
     $VKPR_ARKADE get "$toolName" --stash=true
     mv "$HOME/.arkade/bin/$toolName" $VKPR_HOME/bin
   fi
+=======
+>>>>>>> origin/stage
 }
 
 installArkade() {
   if [[ -f "$VKPR_ARKADE" ]]; then
+<<<<<<< HEAD
     echoColor "yellow" "Alex Ellis' arkade already installed. Skipping."
+=======
+    echoColor "yellow" "Alex Ellis' arkade already installed. Skipping..."
+>>>>>>> origin/stage
   else
     echoColor "blue" "Installing arkade..."
     # patches download script in order to change BINLOCATION
@@ -78,7 +85,11 @@ installTool() {
 }
 
 installGlab() {
+<<<<<<< HEAD
   if [[ -f "$VKPR_HOME/bin/glab" ]]; then
+=======
+  if [[ -f "$VKPR_GLAB" ]]; then
+>>>>>>> origin/stage
     echoColor "yellow" "Glab already installed. Skipping..."
   else
     echoColor "blue" "Installing Glab..."
@@ -122,6 +133,7 @@ installBats(){
     mv /tmp/bats-file-0.3.0 $VKPR_HOME/bats/bats-file
     echoColor "green" "Bats add-ons installed"
   fi
+<<<<<<< HEAD
 }
 
 echoColor() {
@@ -145,3 +157,6 @@ echoColor() {
       echo "$(printf '\033[1m')$2$(printf '\033[0m')"
     esac
 }
+=======
+}
+>>>>>>> origin/stage

@@ -17,7 +17,19 @@ runFormula() {
   installWhoami
 }
 
+<<<<<<< HEAD
 addRepoWhoami(){
+=======
+startInfos() {
+  echo "=============================="
+  echoColor "bold" "$(echoColor "green" "VKPR Whoami Install Routine")"
+  echoColor "bold" "$(echoColor "blue" "Whoami Domain:") ${VKPR_ENV_WHOAMI_DOMAIN}"
+  echoColor "bold" "$(echoColor "blue" "Ingress Controller:") ${VKPR_ENV_WHOAMI_INGRESS}"
+  echo "=============================="
+}
+
+addRepoWhoami() {
+>>>>>>> origin/stage
   registerHelmRepository cowboysysop https://cowboysysop.github.io/charts/
 }
 
@@ -42,6 +54,6 @@ installWhoami() {
   settingWhoami
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_WHOAMI_VALUES" \
   | $VKPR_HELM upgrade -i --version "$VKPR_WHOAMI_VERSION" \
-    --create-namespace -n vkpr \
+    --create-namespace -n $VKPR_K8S_NAMESPACE \
     --wait -f - whoami cowboysysop/whoami
 }

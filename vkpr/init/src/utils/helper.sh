@@ -30,6 +30,16 @@ checkGlobal() {
   fi
 }
 
+checkPodName(){
+  for pod in $($VKPR_KUBECTL get pods -n vkpr --ignore-not-found  | awk 'NR>1{print $1}'); do
+    if [[ "$pod" == "$1"* ]]; then
+      echo true  # pod name found a match, then returns True
+      return
+    fi
+  done
+  echo false
+}
+
 # Create a new instance of DB in Postgres;
 # $1: Postgres User  /  $2: Postgres Password  /  $3: Name of DB to create
 createDatabase(){

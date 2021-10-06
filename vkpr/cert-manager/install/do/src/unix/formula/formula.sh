@@ -25,10 +25,10 @@ installCertManager() {
   local VKPR_ENV_CERT_ISSUER="$ISSUER"
   $VKPR_YQ eval $VKPR_CERT_MANAGER_VALUES \
   | $VKPR_HELM upgrade -i -f - \
-      --namespace cert-manager --create-namespace \
+      -n cert-manager --create-namespace \
       --set ingressShim.defaultIssuerName="$VKPR_ENV_CERT_ISSUER" \
       --version "$VKPR_CERT_VERSION" \
-      --wait --timeout 5m \
+      --wait \
       vkpr-cert-manager jetstack/cert-manager
 }
 

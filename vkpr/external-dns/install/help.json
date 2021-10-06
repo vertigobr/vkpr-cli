@@ -1,4 +1,4 @@
 {
-  "short": "Install external-DNS",
-  "long": "Install the external-DNS in the Kubernetes cluster."
+  "short": "Install external-dns",
+  "long": "Install the external-dns in the Kubernetes cluster configured against a PowerDNS server."
 }

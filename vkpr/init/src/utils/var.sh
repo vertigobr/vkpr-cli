@@ -16,3 +16,8 @@ VKPR_JQ=$VKPR_HOME/bin/jq
 VKPR_YQ=$VKPR_HOME/bin/yq
 
 export HELM_HOME=$VKPR_HOME/data/helm
+<<<<<<< HEAD
+=======
+VKPR_EXTERNAL_DNS_VERSION="0.9.0"
+VKPR_WHOAMI_VERSION="2.5.0"
+>>>>>>> origin/stage

@@ -15,13 +15,17 @@ setup_file() {
         echo "setup: starting powerdns..." >&3
         startPowerDNS
         echo "setup: installing externaldns...." >&3
-        rit vkpr external-dns install pdns --apiurl=http://host.k3d.internal
-        # expose test service
+        rit vkpr external-dns install --provider="powerDNS" --pdns_apiurl="http://host.k3d.internal"
         echo "setup: creating and exposing annotated service...." >&3
-        $VKPR_KUBECTL apply -f $BATS_TEST_DIRNAME/exposed-service.yml
-        # wait for all to be ready
-        $VKPR_KUBECTL wait --for=condition=ready --timeout=1m pod --all
-        #sleep 20
+        $VKPR_HOME/bin/kubectl apply -f $BATS_TEST_DIRNAME/exposed-service.yml
+        # wait to exposed service assign the external ip
+        local WAIT_IP=""
+        while [[ -z $WAIT_IP ]]; do
+            WAIT_IP=$($VKPR_HOME/bin/kubectl get svc nginx --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}")
+            if [[ -z $WAIT_IP ]]; then
+                sleep 10
+            fi
+        done
     fi
 }
 
@@ -31,40 +35,39 @@ setup() {
 }
 
 @test "tests name resolution of k3d host internal alias (host.k3d.internal)" {
-    run get_host_ip
+    run getHostIP
 }
 
 @test "dig test of powerdns container 'local.example.com'" {
     # ensures powerdns has been initialized correctly
-    run dig_local
-    assert_output '127.0.0.1'
-}
-
-dig_local(){
-    dig @localhost -4 -r -p 8553 local.example.com +short
+    run digLocal
+    assert_output "127.0.0.1"
 }
 
 @test "testing if external-dns dealt with exposed annotated service" {
-    # service
-    external_ip=$($VKPR_KUBECTL get svc nginx --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}")
-    trim "$external_ip"
-    external_ip="$TRIMMED"
-    echo "external_ip=$external_ip" >&3
+    external_ip="$($VKPR_HOME/bin/kubectl get svc nginx -o jsonpath="{.status.loadBalancer.ingress[1].ip}")
+$($VKPR_HOME/bin/kubectl get svc nginx -o jsonpath="{.status.loadBalancer.ingress[0].ip}")"
     refute [ -z "$external_ip" ]
-    run dig_exposed_service
+    run digExposedService
     assert_output "$external_ip"
 }
 
-dig_exposed_service(){
-    dig @localhost -4 -r -p 8553 nginx.example.com +short
+getHostIP() {
+    $VKPR_HOME/bin/kubectl run --rm=true -i busybox --image=busybox --restart=Never \
+        --command -- ping -c1 -n host.k3d.internal | head -n1 | sed 's/.*(\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\)).*/\1/g'
 }
 
-get_host_ip() {
-    $VKPR_KUBECTL run --rm=true -i busybox --image=busybox --restart=Never \
-        --command -- ping -c1 --namespace host.k3d.internal | head -n1 | sed 's/.*(\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\)).*/\1/g'
+digLocal(){
+    dig @localhost -4 -p 8553 local.example.com +short
+}
+
+digExposedService(){
+    dig @localhost -4 -p 8553 nginx.example.com +short
 }
 
 startPowerDNS() {
+    # creates rit powerdns credential
+    rit set credential --provider='powerdns' --fields="apikey" --values="mykey"
     # define log/cache cfg (IMPORTANTE zerar os tempos de cache)
     cp $BATS_TEST_DIRNAME/dnslog.j2 /tmp/dnslog.j2
     # start powerdns
@@ -80,14 +83,6 @@ startPowerDNS() {
     docker exec pdns pdnsutil set-meta example.com SOA-EDIT INCEPTION-INCREMENT
     docker exec pdns pdnsutil increase-serial example.com
     docker exec pdns pdnsutil add-record example.com local A 60 "127.0.0.1"
-
-    # creates rit powerdns credential
-    rit set credential --provider='powerdns' --fields="apikey" --values="mykey"
-}
-
-stopPowerDNS() {
-    docker stop pdns
-    docker rm pdns
 }
 
 teardown_file() {
@@ -95,20 +90,11 @@ teardown_file() {
         echo "teardown: skipping teardown due to VKPR_TEST_SKIP_TEARDOWN=true" >&3
     else
         echo "teardown: removing annotated service...." >&3
-        $VKPR_KUBECTL delete --ignore-not-found=true -f $BATS_TEST_DIRNAME/exposed-service.yml
+        $VKPR_HOME/bin/kubectl delete --ignore-not-found=true -f $BATS_TEST_DIRNAME/exposed-service.yml
         echo "teardown: stopping power-dns...." >&3
-        stopPowerDNS
+        docker rm -f pdns
         echo "teardown: uninstalling external-dns...." >&3
         rit vkpr external-dns remove
     fi
     _common_teardown
-}
-
-trim() {
-    local var="$*"
-    # remove leading whitespace characters
-    var="${var#"${var%%[![:space:]]*}"}"
-    # remove trailing whitespace characters
-    var="${var%"${var##*[![:space:]]}"}"   
-    TRIMMED="$var"
 }

@@ -53,7 +53,7 @@ settingKeycloak(){
   #fi
   
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_KEYCLOAK_VALUES" \
-  | $VKPR_HELM upgrade -i -f - vkpr-keycloak bitnami/keycloak \
+  | $VKPR_HELM upgrade -i -f - keycloak bitnami/keycloak \
     --namespace $VKPR_K8S_NAMESPACE --create-namespace \
     --wait --timeout 5m
 }

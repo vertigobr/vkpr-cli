@@ -1,0 +1,81 @@
+{
+  "inputs": [
+    {
+      "label": "Type your provider:",
+      "name": "provider",
+      "type": "text",
+      "default": "aws",
+      "required": true,
+      "items": [
+        "aws",
+        "digitalocean",
+        "powerDNS"
+      ]
+    },
+    {
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "aws"
+      },
+      "name": "aws_access_key",
+      "type": "CREDENTIAL_AWS_ACCESSKEYID"
+    },
+    {
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "aws"
+      },
+      "name": "aws_secret_key",
+      "type": "CREDENTIAL_AWS_SECRETACCESSKEY"
+    },
+    {
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "aws"
+      },
+      "name": "aws_region",
+      "type": "CREDENTIAL_AWS_REGION"
+    },
+    {
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "digitalocean"
+      },
+      "name": "do_token",
+      "required": false,
+      "type": "CREDENTIAL_DIGITALOCEAN_TOKEN"
+    },
+    {
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "powerDNS"
+      },
+      "name": "pdns_apikey",
+      "type": "CREDENTIAL_POWERDNS_APIKEY"
+    },
+    {
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "powerDNS"
+      },
+      "label": "What is the powerdns server apiurl endpoint?",
+      "name": "pdns_apiurl",
+      "default": "example.com",
+      "required": true,
+      "type": "text",
+      "cache": {
+        "active": true,
+        "qty": 3,
+        "newLabel": "Type another url:"
+      }
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease:": "2.16.2"
+}
