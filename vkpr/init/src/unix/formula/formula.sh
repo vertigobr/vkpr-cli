@@ -70,7 +70,8 @@ installGlab() {
 
 installGlobals() {
   touch $VKPR_HOME/global-values.yaml
-  cp $(dirname "$0")/utils/*.sh $VKPR_SCRIPTS
+  ## --update: copy only when the SOURCE file is newer than the destination file or when the destination file is missing.
+  cp --update $(dirname "$0")/utils/*.sh $VKPR_SCRIPTS
 }
 
 installBats(){

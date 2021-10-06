@@ -3,6 +3,7 @@
 
 runFormula() {
   echoColor "green" "Installing Nginx Ingress..."
+  
   configureRepository
   installIngress
 }
