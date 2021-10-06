@@ -5,7 +5,7 @@ Formula description
 ## Command
 
 ```bash
-rit vkpr external-dns install pdns
+rit vkpr external-dns install
 ```
 
 ## Requirements
