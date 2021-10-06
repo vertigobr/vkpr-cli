@@ -48,7 +48,7 @@ teardown_file() {
     else
         echo "teardown: uninstalling ingress...." >&3
         rit vkpr ingress remove
-        rit vkpr infra down
+        rit vkpr infra down --default
     fi
 }
 

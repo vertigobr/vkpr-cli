@@ -41,7 +41,7 @@ installWhoami() {
   local YQ_VALUES='.ingress.hosts[0].host = "'$VKPR_ENV_WHOAMI_DOMAIN'"'
   settingWhoami
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_WHOAMI_VALUES" \
-  $VKPR_HELM upgrade -i -f - vkpr-whoami cowboysysop/whoami \
-    --namespace $VKPR_K8S_NAMESPACE --create-namespace \
-    --wait --timeout 5m
+  | $VKPR_HELM upgrade -i --version "$VKPR_WHOAMI_VERSION" \
+    --create-namespace -n vkpr \
+    --wait -f - whoami cowboysysop/whoami
 }
