@@ -65,5 +65,13 @@ settingExternalDNS() {
           .pdns.apiPort = "8081"
         '
       ;;
-  esac 
+  esac
+  if [[ $(checkPodName "prometheus-prometheus-stack-kube-prom-prometheus") == "true" ]]; then
+    YQ_VALUES=''$YQ_VALUES' |
+      .metrics.enabled = true |
+      .metrics.serviceMonitor.enabled = true |
+      .metrics.serviceMonitor.namespace = "vkpr" |
+      .metrics.serviceMonitor.interval = "1m"
+    '
+  fi
 }
