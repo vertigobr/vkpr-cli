@@ -15,11 +15,5 @@ VKPR_HELM=$VKPR_HOME/bin/helm
 VKPR_JQ=$VKPR_HOME/bin/jq
 VKPR_YQ=$VKPR_HOME/bin/yq
 
-<<<<<<< HEAD
-export HELM_HOME=$VKPR_HOME/data/helm
-
-VKPR_WHOAMI_VERSION="2.5.0"
-=======
 VKPR_EXTERNAL_DNS_VERSION="0.9.0"
 VKPR_WHOAMI_VERSION="2.5.0"
->>>>>>> origin/VKPR-165-revisao-formula-external-dns
