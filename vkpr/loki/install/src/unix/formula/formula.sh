@@ -17,7 +17,7 @@ installLoki(){
   $VKPR_HELM upgrade --install \
     --namespace $VKPR_K8S_NAMESPACE --create-namespace \
     --wait --timeout 5m \
-    vkpr-loki-stack -f $VKPR_EXTERNAL_LOKI_VALUES grafana/loki-stack
+    loki-stack -f $VKPR_EXTERNAL_LOKI_VALUES grafana/loki-stack
 }
 
 existGrafana() {
@@ -37,14 +37,4 @@ existGrafana() {
         "editable": true
       }' http://127.0.0.1:8000/api/datasources
   fi
-}
-
-check_pod_name(){
-  for pod in $($VKPR_KUBECTL get pods --namespace $VKPR_K8S_NAMESPACE | awk 'NR>1{print $1}'); do
-    if [[ "$pod" == "$1"* ]]; then
-      POD_EXISTS=true  # pod name found a match, then returns True
-      return
-    fi
-  done
-  POD_EXISTS=false
 }

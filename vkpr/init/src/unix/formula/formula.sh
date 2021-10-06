@@ -32,7 +32,7 @@ runFormula() {
 }
 
 installArkade() {
-  if [[ -f "$VKPR_HOME/bin/arkade" ]]; then
+  if [[ -f "$VKPR_ARKADE" ]]; then
     echoColor "yellow" "Alex Ellis' arkade already installed. Skipping..."
   else
     echoColor "blue" "Installing arkade..."
@@ -103,10 +103,4 @@ installBats(){
     mv /tmp/bats-file-0.3.0 $VKPR_HOME/bats/bats-file
     echoColor "green" "Bats add-ons installed"
   fi
-}
-
-createPackagesFiles() {
-  touch $VKPR_HOME/global-values.yaml
-  ## --update: copy only when the SOURCE file is newer than the destination file or when the destination file is missing.
-  cp --update $(dirname "$0")/utils/*.sh $VKPR_SCRIPTS
 }
