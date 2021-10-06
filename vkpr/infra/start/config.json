@@ -1,27 +1,26 @@
 {
-  "dockerImageBuilder": "ritclizup/rit-shell-bat-builder",
   "inputs": [
     {
-      "default": "8000",
-      "label": "Type the HTTP listening port: ",
+      "label": "Type the HTTP listening port:",
       "name": "http_port",
-      "type": "text"
+      "type": "text",
+      "default": "8000"
     },
     {
-      "default": "8001",
-      "label": "Type the HTTP listening port: ",
+      "label": "Type the HTTP listening port:",
       "name": "https_port",
-      "type": "text"
+      "type": "text",
+      "default": "8001"
     },
     {
+      "label": "Enable Traefik ingress controller?",
+      "name": "enable_traefik",
+      "type": "bool",
       "default": "false",
       "items": [
         "false",
         "true"
-      ],
-      "label": "Enable Traefik ingress controller? ",
-      "name": "enable_traefik",
-      "type": "bool"
+      ]
     }
   ],
   "template": "shell-bat",
