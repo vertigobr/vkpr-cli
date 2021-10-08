@@ -25,7 +25,7 @@ installPrometheusStack() {
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_PROMETHEUS_VALUES" \
   | $VKPR_HELM upgrade \
     --namespace $VKPR_K8S_NAMESPACE --create-namespace \
-    -i -f - vkpr-prometheus-stack prometheus-community/kube-prometheus-stack \
+    -i -f - prometheus-stack prometheus-community/kube-prometheus-stack \
     --wait --timeout 5m
 }
 
