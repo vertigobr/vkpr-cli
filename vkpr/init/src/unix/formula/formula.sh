@@ -20,16 +20,26 @@ runFormula() {
 
   installArkade
   installGlab
-  installTool "kubectl"
-  installTool "helm"
-  installTool "k3d"
-  installTool "jq"
-  installTool "yq"
-  #installTool "k9s"
+  #Versions from ./utils/dependencies.sh or latest as default
+  installTool "kubectl" $VKPR_TOOLS_KUBECTL
+  installTool "helm" $VKPR_TOOLS_HELM
+  installTool "k3d" $VKPR_TOOLS_K3D
+  installTool "jq" $VKPR_TOOLS_JQ
+  installTool "yq" $VKPR_TOOLS_YQ
+  # installTool "k9s" $VKPR_TOOLS_K9S
 
   installGlobals 
   installBats
-}
+
+  # if [ "$RIT_INPUT_BOOLEAN" = "true" ]; then
+  #   echoColor "blue" "I've already created formulas using Ritchie."
+  # else
+  #   echoColor "red" "I'm excited in creating new formulas using Ritchie."
+  # fi
+
+  # echoColor "yellow" "Today, I want to automate $RIT_INPUT_LIST."
+  # echoColor "cyan"  "My secret is $RIT_INPUT_PASSWORD."
+} 
 
 installArkade() {
   if [[ -f "$VKPR_ARKADE" ]]; then
@@ -45,15 +55,17 @@ installArkade() {
   fi
 }
 
+##Install tool using arkade and get tools version from ./utils/dependencies.sh or latest as default
 installTool() {
   local toolName=$1
+  local toolVersion=$2
   if [[ -f "$VKPR_HOME/bin/$toolName" ]]; then
-    echoColor "yellow" "Tool $toolName already installed. Skipping..."
+    echoColor "yellow" "Tool $toolName already installed. Skipping."
   else
-    echoColor "blue" "Installing $toolName using arkade..."
-    $VKPR_HOME/bin/arkade get "$toolName" --stash=true > /dev/null
+    echoColor "green" "Installing $toolName@${toolVersion:-latest} using arkade..."
+    $VKPR_HOME/bin/arkade get "$toolName@$toolVersion" --stash=true > /dev/null
     mv "$HOME/.arkade/bin/$toolName" $VKPR_HOME/bin
-    echoColor "green" "$toolName installed!"
+    echoColor "green" "$toolName@${toolVersion:-latest} installed!"
   fi
 }
 
@@ -70,8 +82,12 @@ installGlab() {
 
 installGlobals() {
   touch $VKPR_HOME/global-values.yaml
+
+  ##Workaround to cp command with regex
+  #More details: https://www.oreilly.com/library/view/bash-quick-start/9781789538830/2609b05c-60fa-443d-bb5f-d5cd7626374f.xhtml
+  shopt -s extglob
   ## --update: copy only when the SOURCE file is newer than the destination file or when the destination file is missing.
-  cp --update $(dirname "$0")/utils/*.sh $VKPR_SCRIPTS
+  eval 'cp --update $(dirname "$0")/utils/!(dependencies.sh|!(*.sh)) $VKPR_SCRIPTS'
 }
 
 installBats(){
@@ -89,7 +105,14 @@ installBats(){
 
     echoColor "blue" "intalling bats add-ons..."
     # bats-support
-    #git clone https://github.com/bats-core/bats-support $VKPR_HOME/bats/bats-support
+    #git clone httpscreatePackagesFiles() {
+  cp $(dirname "$0")/utils/global-values.yaml $VKPR_HOME
+  ##Workaround to cp command with regex
+  #More details: https://www.oreilly.com/library/view/bash-quick-start/9781789538830/2609b05c-60fa-443d-bb5f-d5cd7626374f.xhtml
+  shopt -s extglob
+  eval 'cp --update $(dirname "$0")/utils/!(dependencies.sh|!(*.sh)) $VKPR_SCRIPTS'
+}
+://github.com/bats-core/bats-support $VKPR_HOME/bats/bats-support
     curl -sL -o /tmp/bats-support.tar.gz https://github.com/bats-core/bats-support/archive/refs/tags/v0.3.0.tar.gz
     tar -xzf /tmp/bats-support.tar.gz -C /tmp
     mv /tmp/bats-support-0.3.0 $VKPR_HOME/bats/bats-support
