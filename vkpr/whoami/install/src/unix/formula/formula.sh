@@ -17,9 +17,6 @@ runFormula() {
   installWhoami
 }
 
-<<<<<<< HEAD
-addRepoWhoami(){
-=======
 startInfos() {
   echo "=============================="
   echoColor "bold" "$(echoColor "green" "VKPR Whoami Install Routine")"
@@ -29,7 +26,6 @@ startInfos() {
 }
 
 addRepoWhoami() {
->>>>>>> origin/stage
   registerHelmRepository cowboysysop https://cowboysysop.github.io/charts/
 }
 

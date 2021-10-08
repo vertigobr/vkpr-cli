@@ -30,7 +30,7 @@ applyConfig(){
     installCertManagerDO
 
 #4
-    installExternalDNSDO
+    installExternalDNS
 
 #5
     installPostgres
@@ -62,6 +62,22 @@ installWhoami(){
   fi
 }
 
+installExternalDNS(){
+  PROVIDER_=$($VKPR_YQ eval .global.external-dns.provider $VKPR_GLOBAL_CONFIG)
+  case $PROVIDER_ in
+    digitalocean)
+      installExternalDNSDO
+      exit 0
+      ;;
+    aws)
+      installExternalDNSAWS
+      ;;
+    PowerDNS)
+      installExternalDNSPowerDNS
+      ;;
+    esac
+}
+
 installCertManagerDO(){
   CERTMANAGEREXISTS=$($VKPR_YQ eval .global.cert-manager.enabled $VKPR_GLOBAL_CONFIG)
   if [ "$CERTMANAGEREXISTS" = true ]; then
@@ -84,14 +100,14 @@ installCertManagerDO(){
 installExternalDNSDO(){
     EXTERNALDNSEXISTS=$($VKPR_YQ eval .global.external-dns.enabled $VKPR_GLOBAL_CONFIG)
     if [ "$EXTERNALDNSEXISTS" = true ]; then
-    DO_CREDENTIAL=$($VKPR_YQ eval .global.external-dns.provider.digitalocean.digitalocean_token $VKPR_GLOBAL_CONFIG)
+    DO_CREDENTIAL=$($VKPR_YQ eval .global.external-dns.provider_token $VKPR_GLOBAL_CONFIG)
     if [ ! -z $DO_CREDENTIAL ]; then
       echoColor "yellow"  "Setting Digital Ocean Credential..."
       rit set credential --provider digitalocean --fields=token --values=$DO_CREDENTIAL
     fi
     DO_TOKEN_EXISTS=$(rit list credential | grep digitalocean)
     if [ ! -z "$DO_TOKEN_EXISTS" ]; then
-      rit vkpr external-dns install do --default
+      rit vkpr external-dns install --provider digitalocean --default
     else
       echoColor "red" "Skipping EXTERNAL-DNS installing due the digitalocean token missing..."
       echoColor "red" "Run rit set credentials or fill up the config file properly ..."

@@ -23,14 +23,7 @@ installPrometheusStack() {
   local YQ_VALUES='.grafana.ingress.hosts[0] = "'$VKPR_ENV_GRAFANA_DOMAIN'" | .grafana.ingress.hosts style = "double" | .grafana.adminPassword = "'$GRAFANA_PASSWORD'"'
   settingStack
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_PROMETHEUS_VALUES" \
-<<<<<<< HEAD
-  | $VKPR_HELM upgrade \
-    --namespace $VKPR_K8S_NAMESPACE --create-namespace \
-    -i -f - vkpr-prometheus-stack prometheus-community/kube-prometheus-stack \
-    --wait --timeout 5m
-=======
   | $VKPR_HELM upgrade -i --create-namespace -n vkpr -f - prometheus-stack prometheus-community/kube-prometheus-stack
->>>>>>> stage
 }
 
 settingStack() {

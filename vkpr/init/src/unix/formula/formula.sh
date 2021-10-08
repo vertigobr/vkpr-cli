@@ -29,38 +29,11 @@ runFormula() {
 
   installGlobals 
   installBats
-<<<<<<< HEAD
-
-  # if [ "$RIT_INPUT_BOOLEAN" = "true" ]; then
-  #   echoColor "blue" "I've already created formulas using Ritchie."
-  # else
-  #   echoColor "red" "I'm excited in creating new formulas using Ritchie."
-  # fi
-
-  # echoColor "yellow" "Today, I want to automate $RIT_INPUT_LIST."
-  # echoColor "cyan"  "My secret is $RIT_INPUT_PASSWORD."
-} 
-
-installTool() {
-  toolName=$1
-  if [[ -f "$VKPR_HOME/bin/$toolName" ]]; then
-    echoColor "yellow" "Tool $toolName already installed. Skipping."
-  else
-    echoColor "green" "Installing $toolName using arkade..."
-    $VKPR_ARKADE get "$toolName" --stash=true
-    mv "$HOME/.arkade/bin/$toolName" $VKPR_HOME/bin
-  fi
-=======
->>>>>>> origin/stage
 }
 
 installArkade() {
   if [[ -f "$VKPR_ARKADE" ]]; then
-<<<<<<< HEAD
-    echoColor "yellow" "Alex Ellis' arkade already installed. Skipping."
-=======
     echoColor "yellow" "Alex Ellis' arkade already installed. Skipping..."
->>>>>>> origin/stage
   else
     echoColor "blue" "Installing arkade..."
     # patches download script in order to change BINLOCATION
@@ -85,11 +58,7 @@ installTool() {
 }
 
 installGlab() {
-<<<<<<< HEAD
-  if [[ -f "$VKPR_HOME/bin/glab" ]]; then
-=======
   if [[ -f "$VKPR_GLAB" ]]; then
->>>>>>> origin/stage
     echoColor "yellow" "Glab already installed. Skipping..."
   else
     echoColor "blue" "Installing Glab..."
@@ -133,30 +102,4 @@ installBats(){
     mv /tmp/bats-file-0.3.0 $VKPR_HOME/bats/bats-file
     echoColor "green" "Bats add-ons installed"
   fi
-<<<<<<< HEAD
 }
-
-echoColor() {
-  case $1 in
-    red)
-      echo "$(printf '\033[31m')$2$(printf '\033[0m')"
-      ;;
-    green)
-      echo "$(printf '\033[32m')$2$(printf '\033[0m')"
-      ;;
-    yellow)
-      echo "$(printf '\033[33m')$2$(printf '\033[0m')"
-      ;;
-    blue)
-      echo "$(printf '\033[34m')$2$(printf '\033[0m')"
-      ;;
-    cyan)
-      echo "$(printf '\033[36m')$2$(printf '\033[0m')"
-      ;;
-    bold)
-      echo "$(printf '\033[1m')$2$(printf '\033[0m')"
-    esac
-}
-=======
-}
->>>>>>> origin/stage
