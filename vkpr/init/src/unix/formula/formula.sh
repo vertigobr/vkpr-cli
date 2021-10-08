@@ -27,12 +27,13 @@ runFormula() {
 
   installArkade
   installGlab
-  installTool "kubectl"
-  installTool "helm"
-  installTool "k3d"
-  installTool "jq"
-  installTool "yq"
-  installTool "k9s"
+  #Versions from ./utils/dependencies.sh or latest as default
+  installTool "kubectl" $VKPR_TOOLS_KUBECTL
+  installTool "helm" $VKPR_TOOLS_HELM
+  installTool "k3d" $VKPR_TOOLS_K3D
+  installTool "jq" $VKPR_TOOLS_JQ
+  installTool "yq" $VKPR_TOOLS_YQ
+  installTool "k9s" $VKPR_TOOLS_K9S
 
   installGlobals 
   installBats
@@ -47,13 +48,15 @@ runFormula() {
   # echoColor "cyan"  "My secret is $RIT_INPUT_PASSWORD."
 } 
 
+##Install tool using arkade and get tools version from ./utils/dependencies.sh or latest as default
 installTool() {
-  toolName=$1
+  local toolName=$1
+  local toolVersion=$2
   if [[ -f "$VKPR_HOME/bin/$toolName" ]]; then
     echoColor "yellow" "Tool $toolName already installed. Skipping."
   else
-    echoColor "green" "Installing $toolName using arkade..."
-    $VKPR_HOME/bin/arkade get "$toolName" --stash=true
+    echoColor "green" "Installing $toolName@${toolVersion:-latest} using arkade..."
+    $VKPR_HOME/bin/arkade get "$toolName@$toolVersion" --stash=true
     mv "$HOME/.arkade/bin/$toolName" $VKPR_HOME/bin
   fi
 }
@@ -119,29 +122,9 @@ installBats(){
 }
 
 createPackagesFiles() {
-  touch $VKPR_HOME/global-values.yaml
-  cp $(dirname "$0")/utils/*.sh $VKPR_SCRIPTS
-}
-
-
-echoColor() {
-  case $1 in
-    red)
-      echo "$(printf '\033[31m')$2$(printf '\033[0m')"
-      ;;
-    green)
-      echo "$(printf '\033[32m')$2$(printf '\033[0m')"
-      ;;
-    yellow)
-      echo "$(printf '\033[33m')$2$(printf '\033[0m')"
-      ;;
-    blue)
-      echo "$(printf '\033[34m')$2$(printf '\033[0m')"
-      ;;
-    cyan)
-      echo "$(printf '\033[36m')$2$(printf '\033[0m')"
-      ;;
-    bold)
-      echo "$(printf '\033[1m')$2$(printf '\033[0m')"
-    esac
+  cp $(dirname "$0")/utils/global-values.yaml $VKPR_HOME
+  ##Workaround to cp command with regex
+  #More details: https://www.oreilly.com/library/view/bash-quick-start/9781789538830/2609b05c-60fa-443d-bb5f-d5cd7626374f.xhtml
+  shopt -s extglob
+  eval 'cp --update $(dirname "$0")/utils/!(dependencies.sh|!(*.sh)) $VKPR_SCRIPTS'
 }
