@@ -55,18 +55,18 @@ teardown_file() {
 }
 
 curlKeycloak(){
-  content=$(curl -s -H "Host: vkpr-keycloak.localhost" http://127.0.0.1:8000/auth/realms/master)
+  content=$(curl -s -H "Host: keycloak.localhost" http://127.0.0.1:8000/auth/realms/master)
   echo ${content:1:16}
 }
 
 curlKeycloakToken(){
-    content=$(curl -X POST -H "Host: vkpr-keycloak.localhost" -H "Content-Type: application/x-www-form-urlencoded" -d "grant_type=password&username=sample-admin&password=password&client_secret=3162d962-c3d1-498e-8cb3-a1ae0005c4d9&client_id=grafana&scope=openid" http://127.0.0.1:8000/auth/realms/grafana/protocol/openid-connect/token/)
+    content=$(curl -X POST -H "Host: keycloak.localhost" -H "Content-Type: application/x-www-form-urlencoded" -d "grant_type=password&username=sample-admin&password=password&client_secret=3162d962-c3d1-498e-8cb3-a1ae0005c4d9&client_id=grafana&scope=openid" http://127.0.0.1:8000/auth/realms/grafana/protocol/openid-connect/token/)
     echo ${content:1:14}
 }
 
 curlKeycloakUserinfo(){
-    TOKEN_VALUE=$(curl -X POST -H "Host: vkpr-keycloak.localhost" -H "Content-Type: application/x-www-form-urlencoded" -d "grant_type=password&username=sample-admin&password=password&client_secret=3162d962-c3d1-498e-8cb3-a1ae0005c4d9&client_id=grafana&scope=openid" http://127.0.0.1:8000/auth/realms/grafana/protocol/openid-connect/token/ | $VKPR_HOME/bin/yq -r '.access_token')
-    content=$(curl -X POST -H "Host: vkpr-keycloak.localhost" -H "Authorization: Bearer ${TOKEN_VALUE}" http://127.0.0.1:8000/auth/realms/grafana/protocol/openid-connect/userinfo | $VKPR_HOME/bin/yq -r '.name')
+    TOKEN_VALUE=$(curl -X POST -H "Host: keycloak.localhost" -H "Content-Type: application/x-www-form-urlencoded" -d "grant_type=password&username=sample-admin&password=password&client_secret=3162d962-c3d1-498e-8cb3-a1ae0005c4d9&client_id=grafana&scope=openid" http://127.0.0.1:8000/auth/realms/grafana/protocol/openid-connect/token/ | $VKPR_HOME/bin/yq e '.access_token' -)
+    content=$(curl -X POST -H "Host: keycloak.localhost" -H "Authorization: Bearer ${TOKEN_VALUE}" http://127.0.0.1:8000/auth/realms/grafana/protocol/openid-connect/userinfo | $VKPR_HOME/bin/yq e '.name' -)
     echo ${content}
 }
 
