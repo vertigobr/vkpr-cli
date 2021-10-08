@@ -67,13 +67,12 @@ installExternalDNS(){
   case $PROVIDER_ in
     digitalocean)
       installExternalDNSDO
-      exit 0
       ;;
     aws)
       installExternalDNSAWS
       ;;
     PowerDNS)
-      installExternalDNSPowerDNS
+      echoColor "red" "PowerDns in Apply fomula is a working in progress."
       ;;
     esac
 }
@@ -88,7 +87,6 @@ installCertManagerDO(){
     fi
     DO_TOKEN_EXISTS=$(rit list credential | grep digitalocean)
     if [ ! -z "$DO_TOKEN_EXISTS" ]; then
-      checkGlobalConfig $EMAIL "eu@aqui.com" "cert-manager.email" "EMAIL"
       rit vkpr cert-manager install do --default
     else
       echoColor "red" "Skipping CERT_MANAGER installing due the digitalocean token missing..."
@@ -115,8 +113,13 @@ installExternalDNSDO(){
   fi
 }
 
+installExternalDNSAWS(){
+  echoColor "red" "Cert-Manager with AWS is a work in progress."
+}
+
 installKeycloak(){
   KEYCLOAKEXISTS=$($VKPR_YQ eval .global.keycloak.enabled $VKPR_GLOBAL_CONFIG)
+  echoColor "yellow" "teste: $KEYCLOAKEXISTS"
   if [ "$KEYCLOAKEXISTS" = true ]; then
     rit vkpr keycloak install --default
   fi
