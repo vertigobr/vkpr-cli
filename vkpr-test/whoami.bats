@@ -48,7 +48,7 @@ teardown_file() {
 }
 
 podName(){
-  local pod=$($VKPR_HOME/bin/kubectl get po -o name -n vkpr | grep whoami | cut -d "/" -f 2)
+  local pod=$($VKPR_KUBECTL get po -o name -n $VKPR_K8S_NAMESPACE | grep whoami | cut -d "/" -f 2)
   echo "Hostname: ${pod}"
 }
 

@@ -50,6 +50,6 @@ installWhoami() {
   settingWhoami
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_WHOAMI_VALUES" \
   | $VKPR_HELM upgrade -i --version "$VKPR_WHOAMI_VERSION" \
-    --create-namespace -n $VKPR_K8S_NAMESPACE \
+    --create-namespace --namespace $VKPR_K8S_NAMESPACE \
     --wait -f - whoami cowboysysop/whoami
 }

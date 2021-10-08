@@ -26,7 +26,7 @@ setup_file() {
 
         echo "setup: initialising infra. Cluster running on port 80 , 443 is manadatory for this test." >&3
         rit vkpr infra start --http_port 80 --https_port 443 --default
-        kubectl wait --all-namespaces --for=condition=ready --timeout=20m pod --all
+        $VKPR_KUBECTL wait --all-namespaces --for=condition=ready --timeout=20m pod --all
         sleep 2
 
         echo "setup: Copying root_ca.crt to cert-manager namespace.." >&3
