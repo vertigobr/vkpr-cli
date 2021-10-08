@@ -14,11 +14,11 @@ addRepoPostgres(){
 installPostgres(){
   echoColor "yellow" "Installing postgres..."
 
-  $VKPR_HELM upgrade -i postgres bitnami/postgresql \
-    --namespace $VKPR_K8S_NAMESPACE --create-namespace \
+  $VKPR_HELM upgrade -i \
+    --create-namespace --namespace $VKPR_K8S_NAMESPACE \
     --set global.postgresql.postgresqlPassword=$PASSWORD \
     --set volumePermissions.enabled=true \
-    --wait --timeout 3m
+    --wait postgres bitnami/postgresql 
     
 }
 

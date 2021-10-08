@@ -9,11 +9,8 @@ setup_file() {
     else
         echo "setup: installing ingress...." >&3
         rit vkpr ingress install
-        $VKPR_HOME/bin/kubectl wait --for=condition=ready --timeout=1m pod --all
         echo "setup: installing keycloak...." >&3
         rit vkpr keycloak install --default
-        $VKPR_HOME/bin/kubectl wait --for=condition=ready --timeout=2m pod --all
-        sleep 60
         sleep 2
     fi
 }
@@ -53,10 +50,8 @@ teardown_file() {
         rit vkpr keycloak remove
         sleep 5
         rit vkpr ingress remove
-        sleep 5
-        rit vkpr infra down --default
-        sleep 5
     fi
+    _common_teardown
 }
 
 curlKeycloak(){
