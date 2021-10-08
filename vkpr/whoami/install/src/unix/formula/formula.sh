@@ -30,16 +30,14 @@ addRepoWhoami() {
 }
 
 settingWhoami() {
+  YQ_VALUES=''$YQ_VALUES' |
+    .ingress.annotations.["'kubernetes.io/ingress.class'"] = "'$VKPR_ENV_WHOAMI_INGRESS'"
+  '
   if [[ $VKPR_ENV_SECURE == true ]]; then
     YQ_VALUES=''$YQ_VALUES' |
       .ingress.annotations.["'kubernetes.io/tls-acme'"] = "'true'" |
       .ingress.tls[0].hosts[0] = "'$VKPR_ENV_WHOAMI_DOMAIN'" |
       .ingress.tls[0].secretName = "'whoami-cert'"
-    '
-  fi
-  if [[ $VKPR_ENV_WHOAMI_INGRESS != "nginx" ]]; then
-    YQ_VALUES=''$YQ_VALUES' |
-      .ingress.annotations.["'kubernetes.io/ingress.class'"] = "'$VKPR_ENV_WHOAMI_INGRESS'"
     '
   fi
 }
@@ -50,6 +48,6 @@ installWhoami() {
   settingWhoami
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_WHOAMI_VALUES" \
   | $VKPR_HELM upgrade -i --version "$VKPR_WHOAMI_VERSION" \
-    --create-namespace --namespace $VKPR_K8S_NAMESPACE \
+    --create-namespace -n $VKPR_K8S_NAMESPACE \
     --wait -f - whoami cowboysysop/whoami
 }

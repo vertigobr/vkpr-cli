@@ -7,7 +7,6 @@ runFormula() {
 
   checkGlobalConfig $PROVIDER "aws" "external-dns.provider" "EXTERNAL_DNS_PROVIDER"
   checkGlobalConfig $PDNS_APIURL "example.com" "external-dns.powerDNS.apiUrl" "EXTERNAL_DNS_PDNS_APIURL"
-
   checkGlobal "external-dns.resources" $VKPR_EXTERNAL_DNS_VALUES "resources"
   checkGlobal "external-dns.extraEnv" $VKPR_EXTERNAL_DNS_VALUES
 

@@ -15,11 +15,11 @@ postgresql:
   persistence:
     enabled: false
 extraVolumes: |
-  - name: vkpr-realm-secret
+  - name: keycloak-realm-secret
     secret:
-      secretName: vkpr-realm-secret
+      secretName: keycloak-realm-secret
 extraVolumeMounts: |
-  - name: vkpr-realm-secret
+  - name: keycloak-realm-secret
     mountPath: "/realm/"
     readOnly: true
 extraEnvVars:
