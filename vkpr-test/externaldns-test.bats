@@ -18,14 +18,6 @@ setup_file() {
         rit vkpr external-dns install --provider="powerDNS" --pdns_apiurl="http://host.k3d.internal"
         echo "setup: creating and exposing annotated service...." >&3
         $VKPR_HOME/bin/kubectl apply -f $BATS_TEST_DIRNAME/exposed-service.yml
-        # wait to exposed service assign the external ip
-        local WAIT_IP=""
-        while [[ -z $WAIT_IP ]]; do
-            WAIT_IP=$($VKPR_HOME/bin/kubectl get svc nginx --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}")
-            if [[ -z $WAIT_IP ]]; then
-                sleep 10
-            fi
-        done
     fi
 }
 

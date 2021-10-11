@@ -3,6 +3,9 @@
 runFormula() {
   local VKPR_CERT_VERSION="v1.5.3"
 
+  checkGlobalConfig $EMAIL "default@vkpr.com" "cert-manager.email" "EMAIL"
+
+  startInfos
   installCRDS
   addCertManager
   installCertManager
@@ -43,7 +46,7 @@ addTokenDNS() {
     echo "red" "No token available, skipping digitalocean-dns secret deployment."
   else
     echoColor "yellow" "Adding the Token..."
-    local VKPR_INPUT_ACCESS_TOKEN_BASE64=$(echo "$DO_TOKEN" | base64 $BASE64_ARGS) \
+    local VKPR_INPUT_ACCESS_TOKEN_BASE64=$(echo "$DO_TOKEN" | base64 $BASE64_ARGS) 
     $VKPR_YQ eval '.data.access-token = strenv(VKPR_INPUT_ACCESS_TOKEN_BASE64) | .data.access-token style = "double"' "$VKPR_CERT_TOKEN" \
     | $VKPR_KUBECTL apply -f -
   fi
@@ -52,7 +55,15 @@ addTokenDNS() {
 installIssuer() {
   echoColor "yellow" "Installing Issuers and/or ClusterIssuers..."
   local VKPR_ISSUER_VALUES=$(dirname "$0")/utils/issuers.yaml
-  local VKPR_ENV_CERT_EMAIL="$EMAIL"
+  local VKPR_ENV_INPUT_EMAIL="$VKPR_ENV_EMAIL"
   $VKPR_YQ eval '.spec.acme.email = "'$VKPR_ENV_INPUT_EMAIL'"' "$VKPR_ISSUER_VALUES" \
   | $VKPR_KUBECTL apply -f -
+}
+
+startInfos() {
+  echo "=============================="
+  echoColor "bold" "$(echoColor "green" "VKPR Cert-manager Install Routine")"
+  echoColor "bold" "$(echoColor "blue" "Provider:") digitalocean"
+    echoColor "bold" "$(echoColor "blue" "Email:") ${VKPR_ENV_EMAIL}"
+  echo "=============================="
 }

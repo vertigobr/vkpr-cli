@@ -2,6 +2,7 @@
   "inputs": [
     {
       "label": "Type your email to use to generate certificates:",
+      "default": "default@vkpr.com",
       "name": "email",
       "required": true,
       "tutorial": "<email>@<domain>",

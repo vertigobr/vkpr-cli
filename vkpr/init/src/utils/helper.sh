@@ -6,7 +6,7 @@ checkGlobalConfig(){
   VALUES_FILE=~/.vkpr/global-values.yaml
   FILE_LABEL=".global.$3"
   local NAME_ENV=VKPR_ENV_$4
-  if [ -f "$VALUES_FILE" ] && [ $1 == $2 ] && [ $($VKPR_YQ eval $FILE_LABEL $VALUES_FILE) != "null" ]; then
+  if [ -f "$VALUES_FILE" ] && [ $1 == $2 ] && [[ $($VKPR_YQ eval $FILE_LABEL $VALUES_FILE) != "null" ]]; then
       echoColor "yellow" "Setting value from config file"
       eval $NAME_ENV=$($VKPR_YQ eval $FILE_LABEL $VALUES_FILE)
   else
