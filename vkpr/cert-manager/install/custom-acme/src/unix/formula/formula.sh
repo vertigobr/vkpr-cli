@@ -1,8 +1,7 @@
 #!/bin/sh
 
 runFormula() {
-  local VKPR_CERT_VERSION="v1.5.3"
-
+  
   installCRDS
   addCertManager
   installCertManager
