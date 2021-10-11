@@ -1,9 +1,13 @@
 #!/bin/sh
 
 runFormula() {
+  local VKPR_PROMETHEUS_VALUES=$(dirname "$0")/utils/prometheus.yaml
+  local INGRESS_CONTROLLER="nginx"
+
   checkGlobalConfig $DOMAIN "localhost" "domain" "DOMAIN"
   checkGlobalConfig $SECURE "false" "secure" "SECURE"
-  checkGlobalConfig $ALERTMANAGER "false" "prometheusstack.alertmanager" "PROMETHEUS_ALERT_MANAGER"
+  checkGlobalConfig $ALERTMANAGER "false" "prometheus-stack.alertmanager" "PROMETHEUS_ALERT_MANAGER"
+  checkGlobalConfig $INGRESS_CONTROLLER "nginx" "prometheus-stack.ingressClassName" "PROMETHEUS_INGRESS"
   
   local VKPR_ENV_GRAFANA_DOMAIN="grafana.${VKPR_ENV_DOMAIN}"
   local VKPR_ENV_ALERT_MANAGER_DOMAIN="alertmanager.${VKPR_ENV_DOMAIN}"
@@ -12,21 +16,18 @@ runFormula() {
   installPrometheusStack
 }
 
-
 addRepoPrometheusStack() {
   registerHelmRepository prometheus-community https://prometheus-community.github.io/helm-charts
 }
 
 installPrometheusStack() {
   echoColor "yellow" "Installing prometheus stack..."
-  local VKPR_PROMETHEUS_VALUES=$(dirname "$0")/utils/prometheus.yaml
-  local YQ_VALUES='.grafana.ingress.hosts[0] = "'$VKPR_ENV_GRAFANA_DOMAIN'" | .grafana.ingress.hosts style = "double" | .grafana.adminPassword = "'$GRAFANA_PASSWORD'"'
+  local YQ_VALUES='.grafana.ingress.hosts[0] = "'$VKPR_ENV_GRAFANA_DOMAIN'" | .grafana.adminPassword = "'$GRAFANA_PASSWORD'"'
   settingStack
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_PROMETHEUS_VALUES" \
-  | $VKPR_HELM upgrade \
-    --namespace $VKPR_K8S_NAMESPACE --create-namespace \
-    -i -f - prometheus-stack prometheus-community/kube-prometheus-stack \
-    --wait --timeout 5m
+  | $VKPR_HELM upgrade -i --wait --version "$VKPR_PROMETHEUS_STACK_VERSION" \
+    --create-namespace --namespace $VKPR_K8S_NAMESPACE \
+    -f - prometheus-stack prometheus-community/kube-prometheus-stack
 }
 
 settingStack() {
@@ -37,11 +38,17 @@ settingStack() {
       .alertmanager.ingress.hosts[0] = "'$VKPR_ENV_ALERT_MANAGER_DOMAIN'"
     '
   fi
+  if [[ $VKPR_ENV_PROMETHEUS_INGRESS != "nginx" ]]; then
+    YQ_VALUES=''$YQ_VALUES' |
+      .alertmanager.ingress.ingressClassName = "traefik" |
+      .grafana.ingress.ingressClassName = "traefik"
+    ' 
+  fi
   if [[ $(checkExistingLoki) = "true" ]]; then
     YQ_VALUES=''$YQ_VALUES' |
       .grafana.additionalDataSources[0].name = "Loki" |
       .grafana.additionalDataSources[0].type = "loki" |
-      .grafana.additionalDataSources[0].url = "http://vkpr-loki-stack:3100" |
+      .grafana.additionalDataSources[0].url = "http://loki-stack:3100" |
       .grafana.additionalDataSources[0].access = "proxy" |
       .grafana.additionalDataSources[0].basicAuth = false |
       .grafana.additionalDataSources[0].editable = true
