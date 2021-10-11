@@ -31,14 +31,6 @@ runFormula() {
   installGlobals 
   installBats
 
-  # if [ "$RIT_INPUT_BOOLEAN" = "true" ]; then
-  #   echoColor "blue" "I've already created formulas using Ritchie."
-  # else
-  #   echoColor "red" "I'm excited in creating new formulas using Ritchie."
-  # fi
-
-  # echoColor "yellow" "Today, I want to automate $RIT_INPUT_LIST."
-  # echoColor "cyan"  "My secret is $RIT_INPUT_PASSWORD."
 } 
 
 installArkade() {
@@ -86,8 +78,7 @@ installGlobals() {
   ##Workaround to cp command with regex
   #More details: https://www.oreilly.com/library/view/bash-quick-start/9781789538830/2609b05c-60fa-443d-bb5f-d5cd7626374f.xhtml
   shopt -s extglob
-  ## --update: copy only when the SOURCE file is newer than the destination file or when the destination file is missing.
-  eval 'cp --update $(dirname "$0")/utils/!(dependencies.sh|!(*.sh)) $VKPR_SCRIPTS'
+  eval 'cp $(dirname "$0")/utils/!(dependencies.sh|!(*.sh)) $VKPR_SCRIPTS'
 }
 
 installBats(){
