@@ -1,4 +1,5 @@
 VKPR_HOME=~/.vkpr
+
 setup_file() {
     load 'common-setup'
     _common_setup
@@ -7,7 +8,6 @@ setup_file() {
     else
         echo "setup: installing loki...." >&3
         rit vkpr loki install
-        $VKPR_HOME/bin/kubectl wait --for=condition=ready --timeout=1m pod --all
         sleep 2
     fi
 }
@@ -18,13 +18,22 @@ setup() {
 }
 
 @test "curl to Loki must return ready" {
-    run echo "$($VKPR_HOME/bin/kubectl run --wait --timeout 1m curl-test --image=radial/busyboxplus:curl -i --rm --restart=Never --command -- curl -s  -H "Content-Type: application/json" http://vkpr-loki-stack:3100/ready)"
+    run echo "$($VKPR_HOME/bin/kubectl run --namespace vkpr --wait --rm -it --restart=Never --image=curlimages/curl curl --command -- curl -sH "Content-Type: application/json" http://loki-stack:3100/ready)"
     actual="${lines[0]}"
     trim "$actual"
     actual="$TRIMMED"
     expected="ready"
     assert_equal "$actual" "$expected"
-    
+}
+
+teardown_file() {
+    if [ "$VKPR_TEST_SKIP_TEARDOWN" == "true" ]; then
+        echo "teardown: skipping teardown due to VKPR_TEST_SKIP_TEARDOWN=true" >&3
+    else
+        echo "teardown: uninstalling loki..." >&3
+        rit vkpr loki remove
+    fi
+    _common_teardown
 }
 
 trim() {
