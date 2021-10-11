@@ -20,6 +20,8 @@ checkGlobalConfig(){
   fi
 }
 
+# Check wrappers in vkpr values and put on the tool values
+# $1: Wrapper location in vkpr values  /  $2: Values from the tool  / (OPTIONAL) $3: Name of the new wrapper in the Values of the tool 
 checkGlobal() {
   local VALUE_CONTENT=`$VKPR_YQ eval ".global.${1}" $VKPR_GLOBAL`
   if [[ $3 != "" ]]; then
@@ -30,6 +32,8 @@ checkGlobal() {
   fi
 }
 
+# Check if any Pod is already up to use and match with another tools
+# $1: name of the pod
 checkPodName(){
   for pod in $($VKPR_KUBECTL get pods -n vkpr --ignore-not-found  | awk 'NR>1{print $1}'); do
     if [[ "$pod" == "$1"* ]]; then
@@ -50,42 +54,6 @@ createDatabase(){
 # $1: Postgres User  /  $2: Postgres Password  /  $3: Name of DB to search
 checkExistingDatabase(){
   $VKPR_KUBECTL run check-db --rm -it --restart='Never' --namespace $VKPR_K8S_NAMESPACE --image docker.io/bitnami/postgresql:11.13.0-debian-10-r12 --env="PGUSER=$1" --env="PGPASSWORD=$2" --env="PGHOST=postgres-postgresql" --env="PGPORT=5432" --env="PGDATABASE=postgres" --command -- psql -lqt | cut -d \| -f 1 | grep $3 | sed -e 's/^[ \t]*//'
-}
-
-checkExistingPostgres(){
-  local EXISTING_POSTGRES=$($VKPR_KUBECTL get sts vkpr-postgres-postgresql --namespace $VKPR_K8S_NAMESPACE -o name --ignore-not-found | cut -d "/" -f2)
-  if [[ $EXISTING_POSTGRES = "vkpr-postgres-postgresql" ]]; then
-    echo "true"
-    return
-  fi
-  echo "false"
-}
-
-checkExistingLoki() {
-  local EXISTING_LOKI=$($VKPR_KUBECTL get sts vkpr-loki-stack --namespace $VKPR_K8S_NAMESPACE -o name --ignore-not-found | cut -d "/" -f 2)
-  if [[ $EXISTING_LOKI = "vkpr-loki-stack" ]]; then
-    echo "true"
-    return
-  fi
-  echo "false"
-}
-
-checkExistingGrafana() {
-  local EXISTING_GRAFANA=$($VKPR_KUBECTL get deploy vkpr-prometheus-stack-grafana --namespace $VKPR_K8S_NAMESPACE -o name --ignore-not-found | cut -d "/" -f 2)
-  if [[ $EXISTING_GRAFANA = "vkpr-prometheus-stack-grafana" ]]; then
-    echo "true"
-    return
-  fi
-  echo "false"
-}
-
-checkExistingKeycloak() {
-  local EXISTING_LOKI=$($VKPR_KUBECTL get sts vkpr-keycloak --namespace $VKPR_K8S_NAMESPACE -o name --ignore-not-found | cut -d "/" -f 2)
-  if [[ $EXISTING_LOKI = "vkpr-keycloak" ]]; then
-    echo "true"
-    return
-  fi
-  echo "false"
 }
 
 ##Register new repository when url does not exists in helm
