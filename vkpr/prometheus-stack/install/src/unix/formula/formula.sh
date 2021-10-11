@@ -11,9 +11,23 @@ runFormula() {
   
   local VKPR_ENV_GRAFANA_DOMAIN="grafana.${VKPR_ENV_DOMAIN}"
   local VKPR_ENV_ALERT_MANAGER_DOMAIN="alertmanager.${VKPR_ENV_DOMAIN}"
-
+  
+  startInfos
   addRepoPrometheusStack
   installPrometheusStack
+}
+
+startInfos() {
+  echo "=============================="
+  echoColor "bold" "$(echoColor "green" "VKPR Prometheus-Stack Install Routine")"
+  echoColor "bold" "$(echoColor "blue" "Prometheus AlertManager enabled:") ${VKPR_ENV_PROMETHEUS_ALERT_MANAGER}"
+  echoColor "bold" "$(echoColor "blue" "Ingress Controller:") ${VKPR_ENV_PROMETHEUS_INGRESS}"
+  echoColor "bold" "$(echoColor "blue" "Grafana domain:") ${VKPR_ENV_GRAFANA_DOMAIN}"
+  echoColor "bold" "$(echoColor "blue" "Grafana password:") ${GRAFANA_PASSWORD}"
+  if [[ $VKPR_ENV_PROMETHEUS_ALERT_MANAGER == true ]]; then
+    echoColor "bold" "$(echoColor "blue" "Prometheus AlertManager domain:") ${VKPR_ENV_ALERT_MANAGER_DOMAIN}"
+  fi
+  echo "=============================="
 }
 
 addRepoPrometheusStack() {
@@ -44,7 +58,7 @@ settingStack() {
       .grafana.ingress.ingressClassName = "traefik"
     ' 
   fi
-  if [[ $(checkExistingLoki) = "true" ]]; then
+  if [[ $(checkPodName "loki-stack") = "true" ]]; then
     YQ_VALUES=''$YQ_VALUES' |
       .grafana.additionalDataSources[0].name = "Loki" |
       .grafana.additionalDataSources[0].type = "loki" |
@@ -54,10 +68,10 @@ settingStack() {
       .grafana.additionalDataSources[0].editable = true
     '
   fi
-  if [[ $(checkExistingKeycloak) = "true" ]]; then
+  if [[ $(checkPodName "keycloak") = "true" ]]; then
     # addapt to use https (only find http)
     local K3D_PORTS=":$($VKPR_K3D cluster ls vkpr-local -o yaml | $VKPR_YQ eval '.[].cluster.nodes[0].portMappings.80/tcp[0].hostport' -)"
-    local KEYCLOAK_DOMAIN="vkpr-keycloak.$($VKPR_YQ eval .global.domain $VKPR_GLOBAL)${K3D_PORTS}/auth/realms/grafana/protocol/openid-connect"
+    local KEYCLOAK_DOMAIN="keycloak.$($VKPR_YQ eval .global.domain $VKPR_GLOBAL)${K3D_PORTS}/auth/realms/grafana/protocol/openid-connect"
     local ROLES="contains(roles[], 'admin') && 'Admin' || contains(roles[], 'editor') && 'Editor' || 'Viewer'"
     YQ_VALUES=''$YQ_VALUES' |
       .grafana.env.GF_SERVER_ROOT_URL = "http://'${VKPR_ENV_GRAFANA_DOMAIN}${K3D_PORTS}'/" |

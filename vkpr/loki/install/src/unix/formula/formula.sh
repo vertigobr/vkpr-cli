@@ -6,14 +6,20 @@ runFormula() {
 
   checkGlobalConfig $DOMAIN "localhost" "domain" "DOMAIN"
 
+  startInfos
   addRepLoki
   installLoki
   existGrafana
 }
 
+startInfos() {
+  echo "=============================="
+  echoColor "bold" "$(echoColor "green" "VKPR Loki Install Routine")"
+  echo "=============================="
+}
+
 addRepLoki(){
-    echoColor "green" "Installing Loki..."
-    registerHelmRepository grafana https://grafana.github.io/helm-charts
+  registerHelmRepository grafana https://grafana.github.io/helm-charts
 }
 
 installLoki(){
