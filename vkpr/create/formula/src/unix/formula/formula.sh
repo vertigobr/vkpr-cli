@@ -9,6 +9,9 @@ runFormula() {
   if [ -z "$VKPR_WORKSPACE_PATH" ]; then
     REAL_WORKSPACE_PATH="$CURRENT_PWD"
   fi
+  #echo "DEBUG VKPR_FORMULA_PATH='$VKPR_FORMULA_PATH'"
+  #echo "DEBUG VKPR_FORMULA='$VKPR_FORMULA'"
+
   if [ -z "$VKPR_FORMULA_PATH" ]; then
     REAL_FORMULA_PATH="$REAL_WORKSPACE_PATH/${VKPR_FORMULA// //}"
   fi
@@ -16,6 +19,7 @@ runFormula() {
   local REAL_WORKSPACE_NAME=$(getWorkspaceName "$REAL_WORKSPACE_PATH")
 
   startInfos
+
   cat << EOF |
   {
     "formulaCmd":"$REAL_FORMULA", 
@@ -34,7 +38,7 @@ startInfos() {
   echoColor "bold" "$(echoColor "blue" "Formula Name:") ${VKPR_FORMULA}"
   echoColor "bold" "$(echoColor "blue" "Formula Language:") ${VKPR_FORMULA_LANGUAGE}"
   echoColor "bold" "$(echoColor "blue" "Formula Workspace:") ${REAL_WORKSPACE_NAME}"
-  echoColor "bold" "$(echoColor "blue" "Formula Path:") ${REAL_WORKSPACE_PATH}"
+  echoColor "bold" "$(echoColor "blue" "Formula Path:") ${REAL_FORMULA_PATH}"
   echo "=============================="
 }
 
