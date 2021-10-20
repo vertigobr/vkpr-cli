@@ -1,5 +1,21 @@
 {
-  "inputs": [],
+  "inputs": [
+    {
+      "label": "Type the new database name: ",
+      "name": "dbname",
+      "type": "text"
+    },
+    {
+      "label": "Type the db user name: ",
+      "name": "dbuser",
+      "type": "text"
+    },
+    {
+      "label": "Type the db users' password: ",
+      "name": "dbpassword",
+      "type": "text"
+    }
+  ],
   "template": "shell-bat",
   "templateRelease:": "2.16.2"
 }
