@@ -14,6 +14,10 @@
       "label": "Type the db users' password: ",
       "name": "dbpassword",
       "type": "text"
+    },
+    {
+      "name": "password",
+      "type": "CREDENTIAL_POSTGRES_PASSWORD"
     }
   ],
   "template": "shell-bat",
