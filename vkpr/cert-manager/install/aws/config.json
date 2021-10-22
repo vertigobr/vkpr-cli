@@ -1,0 +1,59 @@
+{
+  "inputs": [
+    {
+      "label": "Type your email to use to generate certificates:",
+      "default": "default@vkpr.com",
+      "name": "email",
+      "required": true,
+      "tutorial": "<email>@<domain>",
+      "type": "text",
+      "cache": {
+        "active": true,
+        "qty": 2,
+        "newLabel": "Type other email: "
+      }
+    },
+    {
+      "default": "letsencrypt-staging",
+      "items": [
+        "letsencrypt-staging",
+        "letsencrypt-production"
+      ],
+      "label": "What is the default cluster issuer? ",
+      "name": "issuer",
+      "required": true,
+      "type": "text"
+    },
+    {
+      "name": "aws_access_key",
+      "type": "CREDENTIAL_AWS_ACCESSKEYID"
+    },
+    {
+      "name": "aws_secret_key",
+      "type": "CREDENTIAL_AWS_SECRETACCESSKEY"
+    },
+    {
+      "name": "aws_region",
+      "label": "Type your aws region: ",
+      "type": "text",
+      "default": "us-east-1",
+      "cache": {
+        "active": true,
+        "qty": 2,
+        "newLabel": "Type another region: "
+      }
+    },
+    {
+      "name": "aws_iam_role_arn",
+      "label": "Type your IAM Role ARN: ",
+      "type": "text",
+      "cache": {
+        "active": true,
+        "qty": 2,
+        "newLabel": "Type another IAM Role ARN: "
+      }
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease": "2.17.0"
+}
