@@ -26,6 +26,57 @@
     {
       "name": "gitlab_username",
       "type": "CREDENTIAL_GITLAB_USERNAME"
+    },
+    {
+      "name": "eks_cluster_name",
+      "label": "EKS cluster name: ",
+      "default": "eks-sample",
+      "required": true,
+      "type": "text",
+      "cache": {
+        "active": true,
+        "qty": 8,
+        "newLabel": "Type another EKS cluster name: "
+      }
+    },
+    {
+      "label": "K8s version",
+      "name": "eks_k8s_version",
+      "type": "text",
+      "required": true,
+      "items": [
+        "1.21",
+        "1.20",
+        "1.19",
+        "1.18",
+        "1.17"
+      ]
+
+    },
+    {
+      "label": "Choose nodes instance type: ",
+      "name": "eks_cluster_node_instance_type",
+      "type": "text",
+      "required": true,
+      "items": [
+        "t3.small (vCPU:2, Mem: 2Gib)",
+        "m5.large (vCPU:2, Mem: 8Gib)",
+        "m5.xlarge (vCPU:4, Mem: 16Gib)",
+        "t4g.small (vCPU:2, Mem: 2Gib)",
+        "m6g.large (vCPU:2, Mem: 8Gib)",
+        "m6g.xlarge (vCPU:4, Mem: 16Gib)"
+      ]
+    },
+    {
+      "name": "eks_cluster_size",
+      "label": "Desired number of nodes: ",
+      "required": true,
+      "type": "text",
+      "cache": {
+        "active": true,
+        "qty": 3,
+        "newLabel": "Type another EKS cluster name: "
+      }
     }
   ],
   "template": "shell-bat",
