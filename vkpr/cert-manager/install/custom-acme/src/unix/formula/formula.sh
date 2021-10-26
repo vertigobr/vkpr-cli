@@ -25,7 +25,7 @@ installCertManager() {
       -n cert-manager --create-namespace \
       --version "$VKPR_CERT_VERSION" \
       --wait \
-      vkpr-cert-manager jetstack/cert-manager
+      cert-manager jetstack/cert-manager
 }
 
 installIssuer() {
