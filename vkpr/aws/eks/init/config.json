@@ -44,6 +44,7 @@
       "name": "eks_k8s_version",
       "type": "text",
       "required": true,
+      "default": "1.20",
       "items": [
         "1.21",
         "1.20",
@@ -51,13 +52,13 @@
         "1.18",
         "1.17"
       ]
-
     },
     {
       "label": "Choose nodes instance type: ",
       "name": "eks_cluster_node_instance_type",
       "type": "text",
       "required": true,
+      "default": "t3.small (vCPU:2, Mem: 2Gib)",
       "items": [
         "t3.small (vCPU:2, Mem: 2Gib)",
         "m5.large (vCPU:2, Mem: 8Gib)",
@@ -72,11 +73,33 @@
       "label": "Desired number of nodes: ",
       "required": true,
       "type": "text",
+      "default": "1",
       "cache": {
         "active": true,
         "qty": 3,
         "newLabel": "Type another EKS cluster name: "
       }
+    },
+    {
+      "label": "Choose where to store the state of Terraform: ",
+      "name": "terraform_state",
+      "type": "text",
+      "required": false,
+      "default": "Gitlab",
+      "items": [
+        "Gitlab",
+        "Terraform Cloud"
+      ]
+    },
+    {
+      "condition": {
+        "variable": "terraform_state",
+        "operator": "==",
+        "value": "Terraform Cloud"
+      },
+      "label": "Inform the Terraform Cloud API-Token: ",
+      "name": "tf_cloud_token",
+      "type": "password"
     }
   ],
   "template": "shell-bat",

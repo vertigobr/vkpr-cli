@@ -27,6 +27,7 @@ runFormula() {
 
 ## Set all input into Gitlab environments
 setVariablesGLAB() {
+  [[ $TERRAFORM_STATE == "Terraform Cloud" ]] && createOrUpdateVariable "TF_CLOUD_TOKEN" $TF_CLOUD_TOKEN "yes"
   createOrUpdateVariable "AWS_ACCESS_KEY" $AWS_ACCESS_KEY "yes"
   createOrUpdateVariable "AWS_SECRET_KEY" $AWS_SECRET_KEY "yes"
   createOrUpdateVariable "AWS_REGION" $AWS_REGION "no"
