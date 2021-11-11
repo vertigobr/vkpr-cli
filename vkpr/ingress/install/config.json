@@ -1,5 +1,17 @@
 {
-  "inputs": [],
+  "inputs": [
+    {
+      "default": "Classic",
+      "label": "Which type of LoadBalancer do you prefer?",
+      "name": "lb_type",
+      "type": "text",
+      "required": false,
+      "items": [
+        "Classic",
+        "NLB"
+      ]
+    }
+  ],
   "template": "shell-bat",
   "templateRelease:": "2.16.2"
 }
