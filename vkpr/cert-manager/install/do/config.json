@@ -25,6 +25,22 @@
       "type": "text"
     },
     {
+      "default": "HTTP01",
+      "items": [
+        "HTTP01",
+        "DNS01"
+      ],
+      "label": "What solver do you want to use? ",
+      "name": "issuer_solver",
+      "required": true,
+      "type": "text"
+    },
+    {
+      "condition": {
+        "variable": "issuer_solver",
+        "operator": "==",
+        "value": "DNS01"
+      },
       "name": "do_token",
       "required": true,
       "type": "CREDENTIAL_DIGITALOCEAN_TOKEN"
