@@ -3,7 +3,7 @@
 # Create a variable by Global Scope
 # $1: Global variable  /  $2: Default value of the global variable  /  $3: Label from config file  /  $4: Name of env
 checkGlobalConfig(){
-  VALUES_FILE=~/.vkpr/global-values.yaml
+  VALUES_FILE=$CURRENT_PWD/vkpr.yaml
   FILE_LABEL=".global.$3"
   local NAME_ENV=VKPR_ENV_$4
   if [ -f "$VALUES_FILE" ] && [ $1 == $2 ] && [[ $($VKPR_YQ eval $FILE_LABEL $VALUES_FILE) != "null" ]]; then

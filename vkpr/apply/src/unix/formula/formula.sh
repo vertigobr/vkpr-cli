@@ -1,7 +1,7 @@
 #!/bin/sh
 
 runFormula() {
-  VKPR_GLOBAL_CONFIG=~/.vkpr/global-values.yaml
+  VKPR_GLOBAL_CONFIG=$CURRENT_PWD/vkpr.yaml
 
   checkIfFileExists $PATHTOFILE
   applyConfig

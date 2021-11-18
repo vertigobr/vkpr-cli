@@ -73,8 +73,6 @@ installGlab() {
 }
 
 installGlobals() {
-  touch $VKPR_HOME/global-values.yaml
-
   ##Workaround to cp command with regex
   #More details: https://www.oreilly.com/library/view/bash-quick-start/9781789538830/2609b05c-60fa-443d-bb5f-d5cd7626374f.xhtml
   shopt -s extglob
