@@ -1,15 +1,30 @@
 #!/bin/sh
 
 runFormula() {
+  local INGRESS_CONTROLLER="nginx"
+
+  local VKPR_ISSUER_VALUES=$(dirname "$0")/utils/issuers_dns01.yaml
+  local VKPR_CERT_MANAGER_VALUES=$(dirname "$0")/utils/cert-manager.yaml
+  local VKPR_CERT_TOKEN=$(dirname "$0")/utils/token-dns.yaml
+  local VKPR_ENV_CERT_ISSUER="$ISSUER"
 
   checkGlobalConfig $EMAIL "default@vkpr.com" "cert-manager.email" "EMAIL"
+  checkGlobalConfig $ISSUER_SOLVER "HTTP01" "cert-manager.solver" "ISSUER_SOLVER"
+  checkGlobalConfig $INGRESS_CONTROLLER "nginx" "cert-manager.ingress" "HTTP01_INGRESS"
 
   startInfos
   installCRDS
   addCertManager
   installCertManager
-  addTokenDNS
   installIssuer
+}
+
+startInfos() {
+  echo "=============================="
+  echoColor "bold" "$(echoColor "green" "VKPR Cert-manager Install Routine")"
+  echoColor "bold" "$(echoColor "blue" "Provider:") digitalocean"
+    echoColor "bold" "$(echoColor "blue" "Email:") ${VKPR_ENV_EMAIL}"
+  echo "=============================="
 }
 
 installCRDS() {
@@ -23,8 +38,6 @@ addCertManager() {
 
 installCertManager() {
   echoColor "yellow" "Installing cert-manager..."
-  local VKPR_CERT_MANAGER_VALUES=$(dirname "$0")/utils/cert-manager.yaml
-  local VKPR_ENV_CERT_ISSUER="$ISSUER"
   $VKPR_YQ eval $VKPR_CERT_MANAGER_VALUES \
   | $VKPR_HELM upgrade -i -f - \
       -n cert-manager --create-namespace \
@@ -34,9 +47,25 @@ installCertManager() {
       cert-manager jetstack/cert-manager
 }
 
+installIssuer() {
+  echoColor "yellow" "Installing Issuers and/or ClusterIssuers..."
+  local YQ_VALUES='.spec.acme.email = "'$VKPR_ENV_EMAIL'"'
+  case $VKPR_ENV_ISSUER_SOLVER in
+    DNS01)
+        addTokenDNS
+      ;;
+    HTTP01)
+        VKPR_ISSUER_VALUES=$(dirname "$0")/utils/issuers_http01.yaml
+        YQ_VALUES=''$YQ_VALUES' |
+          .spec.acme.solvers[0].http01.ingress.class = "'$VKPR_ENV_HTTP01_INGRESS'"
+        '
+      ;;
+  esac
+  $VKPR_YQ eval "$YQ_VALUES" "$VKPR_ISSUER_VALUES" \
+  | $VKPR_KUBECTL apply -f -
+}
 
 addTokenDNS() {
-  local VKPR_CERT_TOKEN=$(dirname "$0")/utils/token-dns.yaml
   local BASE64_ARGS=""  # detect OS for proper base64 args
   if [[ "$OSTYPE" != "darwin"* ]]; then
     BASE64_ARGS="-w0"
@@ -49,20 +78,4 @@ addTokenDNS() {
     $VKPR_YQ eval '.data.access-token = strenv(VKPR_INPUT_ACCESS_TOKEN_BASE64) | .data.access-token style = "double"' "$VKPR_CERT_TOKEN" \
     | $VKPR_KUBECTL apply -f -
   fi
-}
-
-installIssuer() {
-  echoColor "yellow" "Installing Issuers and/or ClusterIssuers..."
-  local VKPR_ISSUER_VALUES=$(dirname "$0")/utils/issuers.yaml
-  local VKPR_ENV_INPUT_EMAIL="$VKPR_ENV_EMAIL"
-  $VKPR_YQ eval '.spec.acme.email = "'$VKPR_ENV_INPUT_EMAIL'"' "$VKPR_ISSUER_VALUES" \
-  | $VKPR_KUBECTL apply -f -
-}
-
-startInfos() {
-  echo "=============================="
-  echoColor "bold" "$(echoColor "green" "VKPR Cert-manager Install Routine")"
-  echoColor "bold" "$(echoColor "blue" "Provider:") digitalocean"
-    echoColor "bold" "$(echoColor "blue" "Email:") ${VKPR_ENV_EMAIL}"
-  echo "=============================="
 }

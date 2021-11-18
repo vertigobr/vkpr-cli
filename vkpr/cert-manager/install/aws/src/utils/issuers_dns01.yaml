@@ -12,10 +12,13 @@ spec:
     solvers:
       - selector: {}
         dns01:
-          digitalocean:
-            tokenSecretRef:
-              name: digitalocean-dns
-              key: access-token
+          route53:
+            region: <region>
+            accessKeyID: <access-key>
+            secretAccessKeySecretRef:
+              name: route53-secret
+              key: secret-access-key
+            hostedZoneID: hostId
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
@@ -31,7 +34,10 @@ spec:
     solvers:
       - selector: {}
         dns01:
-          digitalocean:
-            tokenSecretRef:
-              name: digitalocean-dns
-              key: access-token
+          route53:
+            region: <region>
+            accessKeyID: <access-key>
+            secretAccessKeySecretRef:
+              name: route53-secret
+              key: secret-access-key
+            hostedZoneID: hostId

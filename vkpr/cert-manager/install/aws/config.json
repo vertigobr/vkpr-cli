@@ -25,14 +25,40 @@
       "type": "text"
     },
     {
+      "default": "HTTP01",
+      "items": [
+        "HTTP01",
+        "DNS01"
+      ],
+      "label": "What solver do you want to use? ",
+      "name": "issuer_solver",
+      "required": true,
+      "type": "text"
+    },
+    {
+      "condition": {
+        "variable": "issuer_solver",
+        "operator": "==",
+        "value": "DNS01"
+      },
       "name": "aws_access_key",
       "type": "CREDENTIAL_AWS_ACCESSKEYID"
     },
     {
+      "condition": {
+        "variable": "issuer_solver",
+        "operator": "==",
+        "value": "DNS01"
+      },
       "name": "aws_secret_key",
       "type": "CREDENTIAL_AWS_SECRETACCESSKEY"
     },
     {
+      "condition": {
+        "variable": "issuer_solver",
+        "operator": "==",
+        "value": "DNS01"
+      },
       "name": "aws_region",
       "label": "Type your aws region: ",
       "type": "text",
@@ -44,13 +70,18 @@
       }
     },
     {
-      "name": "aws_iam_role_arn",
-      "label": "Type your IAM Role ARN: ",
+      "condition": {
+        "variable": "issuer_solver",
+        "operator": "==",
+        "value": "DNS01"
+      },
+      "name": "aws_hostedzone_id",
+      "label": "Type your Hostedzone id from Route53: ",
       "type": "text",
       "cache": {
         "active": true,
         "qty": 2,
-        "newLabel": "Type another IAM Role ARN: "
+        "newLabel": "Type another Hostedzone id: "
       }
     }
   ],
