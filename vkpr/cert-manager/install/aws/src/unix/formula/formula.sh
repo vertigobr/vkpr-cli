@@ -11,7 +11,7 @@ runFormula() {
   checkGlobalConfig $EMAIL "default@vkpr.com" "cert-manager.email" "EMAIL"
   checkGlobalConfig $ISSUER_SOLVER "HTTP01" "cert-manager.solver" "ISSUER_SOLVER"
   checkGlobalConfig $INGRESS_CONTROLLER "nginx" "cert-manager.ingress" "HTTP01_INGRESS"
-
+  
   startInfos
   installCRDS
   addCertManager
@@ -57,7 +57,7 @@ installIssuer() {
         YQ_VALUES=''$YQ_VALUES' |
           .spec.acme.solvers[0].dns01.route53.region = "'$AWS_REGION'" |
           .spec.acme.solvers[0].dns01.route53.accessKeyID = "'$AWS_ACCESS_KEY'" |
-          .spec.acme.solvers[0].dns01.route53.role = "'$AWS_IAM_ROLE_ARN'"
+          .spec.acme.solvers[0].dns01.route53.hostedZoneID = "'$AWS_HOSTEDZONE_ID'"
         '
       ;;
     HTTP01)
@@ -78,7 +78,7 @@ addTokenDNS() {
   fi
   echoColor "yellow" "Adding the Token..."
   local VKPR_INPUT_SECRET_KEY_BASE64=$(echo "$AWS_SECRET_KEY" | base64 $BASE64_ARGS)
-  $VKPR_YQ eval '.data.secret-access-key = strenv(VKPR_INPUT_SECRET_KEY_BASE64) | 
-                  .data.secret-access-key style = "double"' "$VKPR_CERT_TOKEN" \
+  sed -i.tmp 's/<secret-access-key>/'"$VKPR_INPUT_SECRET_KEY_BASE64"'/g' $VKPR_CERT_TOKEN
+  $VKPR_YQ eval "$VKPR_CERT_TOKEN" \
   | $VKPR_KUBECTL apply -f -
 }

@@ -75,13 +75,13 @@
         "operator": "==",
         "value": "DNS01"
       },
-      "name": "aws_iam_role_arn",
-      "label": "Type your IAM Role ARN: ",
+      "name": "aws_hostedzone_id",
+      "label": "Type your Hostedzone id from Route53: ",
       "type": "text",
       "cache": {
         "active": true,
         "qty": 2,
-        "newLabel": "Type another IAM Role ARN: "
+        "newLabel": "Type another Hostedzone id: "
       }
     }
   ],
