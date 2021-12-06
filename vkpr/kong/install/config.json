@@ -28,7 +28,7 @@
       ]
     },
     {
-      "label": "Do you will use enterprise ? ",
+      "label": "Do you will use enterprise?",
       "name": "enterprise",
       "type": "bool",
       "required": true,
@@ -43,7 +43,7 @@
         "operator": "==",
         "value": "true"
       },
-      "label": "Type the full path to the license: ",
+      "label": "Type the full path to the license: (License file need to have any extension)",
       "name": "license",
       "required": true,
       "type": "text"

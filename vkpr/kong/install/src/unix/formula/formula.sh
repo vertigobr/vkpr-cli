@@ -45,18 +45,18 @@ addDependencies(){
 
 createKongSecrets() {
   echoColor "green" "Creating the Kong Secrets..."
-  kubectl create ns vkpr
-  kubectl create secret generic kong-enterprise-license --from-file=$LICENSE -n vkpr
+  $VKPR_KUBECTL create ns vkpr
+  $VKPR_KUBECTL create secret generic kong-enterprise-license --from-file=$LICENSE -n vkpr
   if [[ $VKPR_ENV_KONG_DEPLOY != "dbless" ]]; then
-    kubectl create secret generic kong-session-config \
+    $VKPR_KUBECTL create secret generic kong-session-config \
       --from-file=config/admin_gui_session_conf \
       --from-file=config/portal_session_conf -n vkpr
   fi
   if [[ $VKPR_ENV_KONG_DEPLOY = "hybrid" ]]; then
-    kubectl create ns kong
-    kubectl create secret tls kong-cluster-cert --cert=config/cluster.crt --key=config/cluster.key -n vkpr
-    kubectl create secret tls kong-cluster-cert --cert=config/cluster.crt --key=config/cluster.key -n kong
-    kubectl create secret generic kong-enterprise-license --from-file=$LICENSE -n kong
+    $VKPR_KUBECTL create ns kong
+    $VKPR_KUBECTL create secret tls kong-cluster-cert --cert=config/cluster.crt --key=config/cluster.key -n vkpr
+    $VKPR_KUBECTL create secret tls kong-cluster-cert --cert=config/cluster.crt --key=config/cluster.key -n kong
+    $VKPR_KUBECTL create secret generic kong-enterprise-license --from-file=$LICENSE -n kong
   fi
   rm -rf $(dirname "$0")/config/
 }
