@@ -1,0 +1,72 @@
+# -----------------------------------------------------------------------------
+# Kong parameters
+env:
+  database: "off"
+  log_level: notice
+  admin_gui_url: "http://manager.localhost:8000"
+  admin_api_uri: "http://admin.localhost:8000"
+image:
+  repository: kong
+  tag: "2.6"
+admin:
+  enabled: true
+  type: ClusterIP
+  http:
+    enabled: true
+    servicePort: 8001
+    containerPort: 8001
+  ingress:
+    enabled: true
+    hostname: admin.localhost
+    annotations:
+      kubernetes.io/ingress.class: "kong"
+    path: /
+  tls:
+    enabled: false
+proxy:
+  enabled: true
+  type: LoadBalancer
+  http:
+    enabled: true
+    servicePort: 80
+    containerPort: 8000
+  tls:
+    enabled: false
+# -----------------------------------------------------------------------------
+# Ingress Controller parameters
+# -----------------------------------------------------------------------------
+ingressController:
+  enabled: true
+  installCRDs: false
+  image:
+    repository: kong/kubernetes-ingress-controller
+    tag: "2.0"
+  env:
+    kong_admin_tls_skip_verify: true
+  ingressClass: kong
+  rbac:
+    create: true
+# -----------------------------------------------------------------------------
+# Kong Enterprise parameters
+# -----------------------------------------------------------------------------
+enterprise:
+  enabled: true
+manager:
+  enabled: true
+  type: ClusterIP
+  http:
+    enabled: true
+    servicePort: 8002
+    containerPort: 8002
+  ingress:
+    enabled: true
+    hostname: manager.localhost
+    annotations:
+      kubernetes.io/ingress.class: "kong"
+    path: /
+  tls:
+    enabled: false
+portal:
+  enabled: false
+portalapi:
+  enabled: false

@@ -1,0 +1,133 @@
+# -----------------------------------------------------------------------------
+# Kong parameters
+env:
+  database: postgres
+  pg_host: "postgres-postgresql"
+  pg_database: postgres
+  pg_user: postgres
+  pg_password:
+    valueFrom:
+      secretKeyRef:
+        name: postgres-postgresql
+        key: postgresql-password
+  pg_port: 5432
+  log_level: notice
+  portal: on
+  portal_auth: "basic-auth"
+  portal_auto_approve: on
+  admin_gui_url: "http://manager.localhost:8000"
+  admin_api_uri: "http://admin.localhost:8000"
+  admin_session_conf:
+    valueFrom:
+      secretKeyRef:
+        name: kong-session-config
+        key: admin_gui_session_conf
+  portal_session_conf:
+    valueFrom:
+      secretKeyRef:
+        name: kong-session-config
+        key: portal_session_conf
+image:
+  repository: kong
+  tag: "2.6"
+admin:
+  enabled: true
+  type: ClusterIP
+  http:
+    enabled: true
+    servicePort: 8001
+    containerPort: 8001
+  ingress:
+    enabled: true
+    hostname: admin.localhost
+    annotations:
+      kubernetes.io/ingress.class: "kong"
+    path: /
+  tls:
+    enabled: false
+proxy:
+  enabled: true
+  type: LoadBalancer
+  http:
+    enabled: true
+    servicePort: 80
+    containerPort: 8000
+  tls:
+    enabled: false
+# -----------------------------------------------------------------------------
+# Ingress Controller parameters
+# -----------------------------------------------------------------------------
+ingressController:
+  enabled: true
+  image:
+    repository: kong/kubernetes-ingress-controller
+    tag: "2.0"
+  env:
+    kong_admin_tls_skip_verify: true
+  ingressClass: kong
+  rbac:
+    create: true
+# -----------------------------------------------------------------------------
+# Postgres sub-chart parameters
+# -----------------------------------------------------------------------------
+postgresql:
+  enabled: false
+# -----------------------------------------------------------------------------
+# Kong Enterprise parameters
+# -----------------------------------------------------------------------------
+enterprise:
+  enabled: true
+  license_secret: kong-enterprise-license
+  vitals:
+    enabled: true
+  portal:
+    enabled: true
+  rbac:
+    enabled: false
+  smtp:
+    enabled: false
+manager:
+  enabled: true
+  type: ClusterIP
+  http:
+    enabled: true
+    servicePort: 8002
+    containerPort: 8002
+  ingress:
+    enabled: true
+    hostname: manager.localhost
+    annotations:
+      kubernetes.io/ingress.class: "kong"
+    path: /
+  tls:
+    enabled: false
+portal:
+  enabled: true
+  type: ClusterIP
+  http:
+    enabled: true
+    servicePort: 8003
+    containerPort: 8003
+  ingress:
+    enabled: true
+    hostname: portal.localhost
+    annotations:
+      kubernetes.io/ingress.class: "kong"
+    path: /
+  tls:
+    enabled: false
+portalapi:
+  enabled: true
+  type: ClusterIP
+  http:
+    enabled: true
+    servicePort: 8004
+    containerPort: 8004
+  ingress:
+    enabled: true
+    hostname: portalapi.localhost
+    annotations:
+      kubernetes.io/ingress.class: "kong"
+    path: /
+  tls:
+    enabled: false
