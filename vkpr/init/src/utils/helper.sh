@@ -3,7 +3,7 @@
 # Create a variable by Global Scope
 # $1: Global variable  /  $2: Default value of the global variable  /  $3: Label from config file  /  $4: Name of env
 checkGlobalConfig(){
-  VALUES_FILE=$CURRENT_PWD/vkpr.yaml
+  VALUES_FILE=$(dirname "$0")/vkpr.yaml
   FILE_LABEL=".global.$3"
   local NAME_ENV=VKPR_ENV_$4
   if [ -f "$VALUES_FILE" ] && [ $1 == $2 ] && [[ $($VKPR_YQ eval $FILE_LABEL $VALUES_FILE) != "null" ]]; then
@@ -23,6 +23,7 @@ checkGlobalConfig(){
 # Check wrappers in vkpr values and put on the tool values
 # $1: Wrapper location in vkpr values  /  $2: Values from the tool  / (OPTIONAL) $3: Name of the new wrapper in the Values of the tool 
 checkGlobal() {
+  [[ ! -f $VKPR_GLOBAL ]] && return
   local VALUE_CONTENT=`$VKPR_YQ eval ".global.${1}" $VKPR_GLOBAL`
   if [[ $3 != "" ]]; then
     VALUE_CONTENT=`$VKPR_YQ eval '{"'$3'": .global.'$1'}' $VKPR_GLOBAL`

@@ -1,0 +1,55 @@
+{
+  "inputs": [
+    {
+      "label": "Type the Kong domain:",
+      "name": "domain",
+      "type": "text",
+      "default": "localhost"
+    },
+    {
+      "label": "Secure?",
+      "name": "secure",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "true",
+        "false"
+      ]
+    },
+    {
+      "label": "Kong Mode: (Hybrid only available in Kong Enterprise)",
+      "name": "kong_mode",
+      "type": "text",
+      "default": "dbless",
+      "items": [
+        "standard",
+        "hybrid",
+        "dbless"
+      ]
+    },
+    {
+      "label": "Do you will use enterprise?",
+      "name": "enterprise",
+      "type": "bool",
+      "required": true,
+      "default": "true",
+      "items": [
+        "true",
+        "false"
+      ]
+    },
+    {
+      "condition": {
+        "variable": "enterprise",
+        "operator": "==",
+        "value": "true"
+      },
+      "label": "Type the full path to the license: (License file need to have any extension)",
+      "name": "license",
+      "default": " ",
+      "type": "text"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease:": "2.16.2"
+}
