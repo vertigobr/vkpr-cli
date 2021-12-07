@@ -20,7 +20,7 @@
       "label": "Kong Mode: (Hybrid only available in Kong Enterprise)",
       "name": "kong_mode",
       "type": "text",
-      "default": "standard",
+      "default": "dbless",
       "items": [
         "standard",
         "hybrid",
@@ -32,6 +32,7 @@
       "name": "enterprise",
       "type": "bool",
       "required": true,
+      "default": "true",
       "items": [
         "true",
         "false"
@@ -45,7 +46,7 @@
       },
       "label": "Type the full path to the license: (License file need to have any extension)",
       "name": "license",
-      "required": true,
+      "default": " ",
       "type": "text"
     }
   ],

@@ -3,7 +3,6 @@
 runFormula() {
   local VKPR_KONG_VALUES=$(dirname "$0")/utils/kong.yaml
   local VKPR_KONG_DP_VALUES=$(dirname "$0")/utils/kong-dp.yaml
-  local KONG_RBAC=$KONG_PASSWORD
   
   checkGlobalConfig $DOMAIN "localhost" "domain" "DOMAIN"
   checkGlobalConfig $SECURE "false" "secure" "SECURE"
