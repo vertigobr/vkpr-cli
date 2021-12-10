@@ -6,6 +6,8 @@ alertmanager:
     hosts:
       - paths: "/"
     pathType: ImplementationSpecific
+  alertmanagerSpec:
+    replicas: 3
 grafana:
   enabled: true
   ingress:
@@ -17,22 +19,22 @@ prometheusOperator:
 prometheus:
   enabled: true
 kubeApiServer:
-  enabled: false
+  enabled: true
 kubelet:
-  enabled: false
+  enabled: true
 kubeControllerManager:
-  enabled: false
+  enabled: true
 coreDns:
-  enabled: false
+  enabled: true
 kubeDns:
-  enabled: false
+  enabled: true
 kubeEtcd:
-  enabled: false
+  enabled: true
 kubeScheduler:
-  enabled: false
+  enabled: true
 kubeProxy:
-  enabled: false
+  enabled: true
 kubeStateMetrics:
-  enabled: false
+  enabled: true
 nodeExporter:
-  enabled: false
+  enabled: true
