@@ -1,5 +1,5 @@
 #!/bin/bash
 
 runFormula() {
-  echo "Hello World"
+  $VKPR_HELM uninstall consul -n $VKPR_K8S_NAMESPACE
 }
