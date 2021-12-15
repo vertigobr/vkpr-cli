@@ -6,6 +6,8 @@ alertmanager:
     hosts:
       - paths: "/"
     pathType: ImplementationSpecific
+  alertmanagerSpec:
+    replicas: 3
 grafana:
   enabled: true
   ingress:
