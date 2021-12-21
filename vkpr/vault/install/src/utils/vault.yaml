@@ -1,0 +1,38 @@
+global:
+  enabled: true
+  tlsDisable: true
+injector:
+  enabled: true
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 256Mi
+      cpu: 250m
+server:
+  extraVolumes:
+    - type: secret
+      name: vault-storage-config
+  extraArgs: "-config=/vault/userconfig/vault-storage-config/config.hcl"
+  ha:
+    enabled: true
+    replicas: 3
+    raft:
+      enabled: false
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    hosts:
+      - host: vault.localhost
+        path: /
+  dataStorage:
+    enabled: true
+    size: 1Gi
+  auditStorage:
+    enabled: true
+    size: 1Gi
+  standalone:
+    enabled: false
+ui:
+  enabled: true
