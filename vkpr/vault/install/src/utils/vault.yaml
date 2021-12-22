@@ -3,23 +3,31 @@ global:
   tlsDisable: true
 injector:
   enabled: true
-  resources:
-    requests:
-      memory: 256Mi
-      cpu: 250m
-    limits:
-      memory: 256Mi
-      cpu: 250m
 server:
-  extraVolumes:
-    - type: secret
-      name: vault-storage-config
+  volumes:
+    - name: vault-storage-config
+      secret:
+        secretName: vault-storage-config
+  volumeMounts:
+    - name: vault-storage-config
+      mountPath: /vault/userconfig/vault-storage-config
+      readOnly: true
   extraArgs: "-config=/vault/userconfig/vault-storage-config/config.hcl"
   ha:
     enabled: true
     replicas: 3
     raft:
-      enabled: false
+      enabled: true
+    config: |
+      ui = true
+
+      listener "tcp" {
+        tls_disable = 1
+        address = "[::]:8200"
+        cluster_address = "[::]:8201"
+      }
+
+      service_registration "kubernetes" {}
   ingress:
     enabled: true
     ingressClassName: nginx

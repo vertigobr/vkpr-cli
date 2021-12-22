@@ -38,17 +38,16 @@ settingVault() {
   YQ_VALUES=''$YQ_VALUES' |
     .server.ha.raft.enabled = true
   '
-    echo 'storage "raft" {
+    printf 'storage "raft" {
   path = "/vault/data"
   performance_multiplier = 1
 }' >> $VKPR_VAULT_CONFIG
     else
-    echo 'storage "consul" {
+    printf 'storage "consul" {
   path = "vault"
   address = "consul-consul-server.vkpr.svc.cluster.local:8500"
 }' >> $VKPR_VAULT_CONFIG
   fi
-  kubectl create secret generic vault-storage-config -n $VKPR_K8S_NAMESPACE --from-file=$VKPR_VAULT_CONFIG
 }
 
 installVault() {
@@ -58,6 +57,7 @@ installVault() {
   | $VKPR_HELM upgrade -i --version "$VKPR_VAULT_VERSION" \
       --namespace $VKPR_K8S_NAMESPACE --create-namespace \
       --wait -f - vault hashicorp/vault
+  $VKPR_KUBECTL create secret generic vault-storage-config -n $VKPR_K8S_NAMESPACE --from-file=$VKPR_VAULT_CONFIG
 }
 
 #unsealVault() {
