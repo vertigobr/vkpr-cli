@@ -2,7 +2,7 @@
   "inputs": [
     {
       "default": "localhost",
-      "label": "Type the Consul ui domain: ",
+      "label": "Type the Vault ui domain: ",
       "name": "domain",
       "type": "text"
     },
@@ -22,9 +22,65 @@
         "consul",
         "raft"
       ],
-      "label": "Vault mode:",
+      "label": "Vault storage mode:",
       "name": "vault_mode",
       "type": "text"
+    },
+    {
+      "label": "Use Auto Unseal?",
+      "name": "vault_auto_unseal",
+      "type": "text",
+      "default": "false",
+      "required": true,
+      "items": [
+        "false",
+        "aws"
+      ]
+    },
+    {
+      "condition": {
+        "variable": "vault_auto_unseal",
+        "operator": "==",
+        "value": "aws"
+      },
+      "name": "aws_access_key",
+      "type": "CREDENTIAL_AWS_ACCESSKEYID"
+    },
+    {
+      "condition": {
+        "variable": "vault_auto_unseal",
+        "operator": "==",
+        "value": "aws"
+      },
+      "name": "aws_secret_key",
+      "type": "CREDENTIAL_AWS_SECRETACCESSKEY"
+    },
+    {
+      "condition": {
+        "variable": "vault_auto_unseal",
+        "operator": "==",
+        "value": "aws"
+      },
+      "name": "aws_region",
+      "type": "CREDENTIAL_AWS_REGION"
+    },
+    {
+      "condition": {
+        "variable": "vault_auto_unseal",
+        "operator": "==",
+        "value": "aws"
+      },
+      "name": "aws_kms_key_id",
+      "type": "CREDENTIAL_AWS_KMSKEYID"
+    },
+    {
+      "condition": {
+        "variable": "vault_auto_unseal",
+        "operator": "==",
+        "value": "aws"
+      },
+      "name": "aws_kms_endpoint",
+      "type": "CREDENTIAL_AWS_KMSENDPOINT"
     }
   ],
   "template": "shell-bat",

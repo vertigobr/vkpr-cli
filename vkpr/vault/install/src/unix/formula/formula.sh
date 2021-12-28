@@ -3,13 +3,15 @@
 runFormula() {
   local VKPR_VAULT_VALUES=$(dirname "$0")/utils/vault.yaml
   local VKPR_VAULT_CONFIG=$(dirname "$0")/utils/config.hcl
+  local RIT_CREDENTIALS_PATH=~/.rit/credentials/default
   local INGRESS_CONTROLLER="nginx"
   echoColor "green" "Installing vault..."
 
   checkGlobalConfig $DOMAIN "localhost" "domain" "DOMAIN"
   checkGlobalConfig $SECURE "false" "secure" "SECURE"
-  checkGlobalConfig $VAULT_MODE "raft" "vault.mode" "VAULT_MODE"
+  checkGlobalConfig $VAULT_MODE "raft" "vault.storageMode" "VAULT_MODE"
   checkGlobalConfig $INGRESS_CONTROLLER "nginx" "vault.ingressClassName" "VAULT_INGRESS"
+  checkGlobalConfig $VAULT_AUTO_UNSEAL "false" "vault.autoUnseal" "VAULT_AUTO_UNSEAL"
 
   local VKPR_ENV_VAULT_DOMAIN="vault.${VKPR_ENV_DOMAIN}"
   
@@ -26,12 +28,75 @@ settingVault() {
     .server.ingress.ingressClassName = "'$VKPR_ENV_VAULT_INGRESS'" |
     .server.ingress.hosts[0].host = "'$VKPR_ENV_VAULT_DOMAIN'"
   '
+
   if [[ $VKPR_ENV_SECURE == true ]]; then
     YQ_VALUES=''$YQ_VALUES' |
       .server.ingress.annotations.["'kubernetes.io/tls-acme'"] = "'true'" |
       .server.ingress.tls[0].hosts[0] = "'$VKPR_ENV_VAULT_DOMAIN'" |
       .server.ingress.tls[0].secretName = "'vault-cert'"
     '
+  fi
+
+  if [[ $VKPR_ENV_VAULT_AUTO_UNSEAL != false ]]; then
+    YQ_VALUES=''$YQ_VALUES' |
+      .server.extraEnvironmentVars.VAULT_LOG_LEVEL = "debug"
+    '
+    case $VKPR_ENV_VAULT_AUTO_UNSEAL in
+      aws)
+        YQ_VALUES=''$YQ_VALUES' |
+          .server.extraEnvironmentVars.VAULT_SEAL_TYPE = "awskms" |
+          .server.extraSecretEnvironmentVars[0].envName = "AWS_REGION" |
+          .server.extraSecretEnvironmentVars[0].secretName = "aws-unseal-vault" |
+          .server.extraSecretEnvironmentVars[0].secretKey = "AWS_REGION" |
+          .server.extraSecretEnvironmentVars[1].envName = "AWS_ACCESS_KEY" |
+          .server.extraSecretEnvironmentVars[1].secretName = "aws-unseal-vault" |
+          .server.extraSecretEnvironmentVars[1].secretKey = "AWS_ACCESS_KEY" |
+          .server.extraSecretEnvironmentVars[2].envName = "AWS_SECRET_KEY" |
+          .server.extraSecretEnvironmentVars[2].secretName = "aws-unseal-vault" |
+          .server.extraSecretEnvironmentVars[2].secretKey = "AWS_SECRET_KEY" |
+          .server.extraSecretEnvironmentVars[3].envName = "AWS_KMS_KEY_ID" |
+          .server.extraSecretEnvironmentVars[3].secretName = "aws-unseal-vault" |
+          .server.extraSecretEnvironmentVars[3].secretKey = "AWS_KMS_KEY_ID" |
+          .server.extraSecretEnvironmentVars[4].envName = "AWS_KMS_ENDPOINT" |
+          .server.extraSecretEnvironmentVars[4].secretName = "aws-unseal-vault" |
+          .server.extraSecretEnvironmentVars[4].secretKey = "AWS_KMS_ENDPOINT"
+        '
+        $VKPR_YQ eval ' .metadata.name = "aws-unseal-vault" |
+          .data.AWS_REGION = "'$($VKPR_JQ -r .credential.accesskeyid $RIT_CREDENTIALS_PATH/aws | base64)'" |
+          .data.AWS_ACCESS_KEY = "'$($VKPR_JQ -r .credential.secretaccesskey $RIT_CREDENTIALS_PATH/aws | base64)'" |
+          .data.AWS_SECRET_KEY = "'$($VKPR_JQ -r .credential.awsregion $RIT_CREDENTIALS_PATH/aws | base64)'" |
+          .data.AWS_KMS_KEY_ID = "'$($VKPR_JQ -r .credential.kmskeyid $RIT_CREDENTIALS_PATH/aws | base64)'" |
+          .data.AWS_KMS_ENDPOINT = "'$($VKPR_JQ -r .credential.kmsendpoint $RIT_CREDENTIALS_PATH/aws | base64)'"
+        ' $(dirname "$0")/utils/auto-unseal.yaml
+        ;;
+      #azure)
+      #  YQ_VALUES=''$YQ_VALUES' |
+      #    .server.extraEnvironmentVars.VAULT_SEAL_TYPE = "azurekeyvault" |
+      #    .server.extraSecretEnvironmentVars[0].envName = "AZURE_TENANT_ID" |
+      #    .server.extraSecretEnvironmentVars[0].secretName = "azure-unseal-vault" |
+      #    .server.extraSecretEnvironmentVars[0].secretKey = "AZURE_TENANT_ID" |
+      #    .server.extraSecretEnvironmentVars[1].envName = "AZURE_CLIENT_ID" |
+      #    .server.extraSecretEnvironmentVars[1].secretName = "azure-unseal-vault" |
+      #    .server.extraSecretEnvironmentVars[1].secretKey = "AZURE_CLIENT_ID" |
+      #    .server.extraSecretEnvironmentVars[2].envName = "AZURE_CLIENT_SECRET" |
+      #    .server.extraSecretEnvironmentVars[2].secretName = "azure-unseal-vault" |
+      #    .server.extraSecretEnvironmentVars[2].secretKey = "AZURE_CLIENT_SECRET" |
+      #    .server.extraSecretEnvironmentVars[3].envName = "VAULT_AZUREKEYVAULT_VAULT_NAME" |
+      #    .server.extraSecretEnvironmentVars[3].secretName = "azure-unseal-vault" |
+      #    .server.extraSecretEnvironmentVars[3].secretKey = "VAULT_AZUREKEYVAULT_VAULT_NAME" |
+      #    .server.extraSecretEnvironmentVars[4].envName = "VAULT_AZUREKEYVAULT_KEY_NAME" |
+      #    .server.extraSecretEnvironmentVars[4].secretName = "azure-unseal-vault" |
+      #    .server.extraSecretEnvironmentVars[4].secretKey = "VAULT_AZUREKEYVAULT_KEY_NAME"
+      #  '
+      #  $VKPR_YQ eval ' .metadata.name = "azure-unseal-vault" |
+      #    .data.AZURE_TENANT_ID = "'$($VKPR_JQ -r .credential.azuretenantid $RIT_CREDENTIALS_PATH/azure | base64)'" |
+      #    .data.AZURE_CLIENT_ID = "'$($VKPR_JQ -r .credential.azureclientid $RIT_CREDENTIALS_PATH/azure | base64)'" |
+      #    .data.AZURE_CLIENT_SECRET = "'$($VKPR_JQ -r .credential.azureclientsecret $RIT_CREDENTIALS_PATH/azure | base64)'" |
+      #    .data.VAULT_AZUREKEYVAULT_VAULT_NAME = "'$($VKPR_JQ -r .credential.vaultazurekeyvaultvaultname $RIT_CREDENTIALS_PATH/azure | base64)'" |
+      #    .data.VAULT_AZUREKEYVAULT_KEY_NAME = "'$($VKPR_JQ -r .credential.vaultazurekeyvaultkeyname $RIT_CREDENTIALS_PATH/azure | base64)'"
+      #  ' $(dirname "$0")/utils/auto-unseal.yaml
+      #  ;;
+      esac
   fi
 
   if [[ $VKPR_ENV_VAULT_MODE == "raft" ]]; then
@@ -59,21 +124,3 @@ installVault() {
       --wait -f - vault hashicorp/vault
   $VKPR_KUBECTL create secret generic vault-storage-config -n $VKPR_K8S_NAMESPACE --from-file=$VKPR_VAULT_CONFIG
 }
-
-#unsealVault() {
-#  sleep 30
-#  for i in 0 1 2; do
-#    $VKPR_KUBECTL exec -it vault-${i} -n $VKPR_K8S_NAMESPACE -- vault operator init > keys-${i}.txt
-#    for j in 1 2 3 4 5; do
-#      local VAULT_UNSEAL_KEY=$(cat keys-${i}.txt | head -n${j} | awk 'END{print $NF}')
-#      if [[ $j -ge 4 ]]; then
-#        echoColor "red" "Keys from pod vault-${i}"
-#        cat keys-${i}.txt | head -n7
-#        sleep 5
-#        break
-#      fi
-#      $VKPR_KUBECTL exec -it vault-${i} -n $VKPR_K8S_NAMESPACE -- /bin/sh -c "vault operator unseal $VAULT_UNSEAL_KEY"
-#    done
-#  done
-#  rm -rf keys-*.txt
-#}
