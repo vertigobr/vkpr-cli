@@ -54,19 +54,19 @@ settingVault() {
           .server.extraSecretEnvironmentVars[2].envName = "AWS_SECRET_KEY" |
           .server.extraSecretEnvironmentVars[2].secretName = "aws-unseal-vault" |
           .server.extraSecretEnvironmentVars[2].secretKey = "AWS_SECRET_KEY" |
-          .server.extraSecretEnvironmentVars[3].envName = "AWS_KMS_KEY_ID" |
+          .server.extraSecretEnvironmentVars[3].envName = "VAULT_AWSKMS_SEAL_KEY_ID" |
           .server.extraSecretEnvironmentVars[3].secretName = "aws-unseal-vault" |
-          .server.extraSecretEnvironmentVars[3].secretKey = "AWS_KMS_KEY_ID" |
+          .server.extraSecretEnvironmentVars[3].secretKey = "VAULT_AWSKMS_SEAL_KEY_ID" |
           .server.extraSecretEnvironmentVars[4].envName = "AWS_KMS_ENDPOINT" |
           .server.extraSecretEnvironmentVars[4].secretName = "aws-unseal-vault" |
           .server.extraSecretEnvironmentVars[4].secretKey = "AWS_KMS_ENDPOINT"
         '
         $VKPR_YQ eval ' .metadata.name = "aws-unseal-vault" |
-          .data.AWS_REGION = "'$($VKPR_JQ -r .credential.accesskeyid $RIT_CREDENTIALS_PATH/aws | base64)'" |
-          .data.AWS_ACCESS_KEY = "'$($VKPR_JQ -r .credential.secretaccesskey $RIT_CREDENTIALS_PATH/aws | base64)'" |
-          .data.AWS_SECRET_KEY = "'$($VKPR_JQ -r .credential.awsregion $RIT_CREDENTIALS_PATH/aws | base64)'" |
-          .data.AWS_KMS_KEY_ID = "'$($VKPR_JQ -r .credential.kmskeyid $RIT_CREDENTIALS_PATH/aws | base64)'" |
-          .data.AWS_KMS_ENDPOINT = "'$($VKPR_JQ -r .credential.kmsendpoint $RIT_CREDENTIALS_PATH/aws | base64)'"
+          .data.AWS_REGION = "'$(echo -n $($VKPR_JQ -r .credential.accesskeyid $RIT_CREDENTIALS_PATH/aws) | base64)'" |
+          .data.AWS_ACCESS_KEY = "'$(echo -n $($VKPR_JQ -r .credential.secretaccesskey $RIT_CREDENTIALS_PATH/aws) | base64)'" |
+          .data.AWS_SECRET_KEY = "'$(echo -n $($VKPR_JQ -r .credential.awsregion $RIT_CREDENTIALS_PATH/aws) | base64)'" |
+          .data.AWS_KMS_KEY_ID = "'$(echo -n $($VKPR_JQ -r .credential.kmskeyid $RIT_CREDENTIALS_PATH/aws) | base64)'" |
+          .data.AWS_KMS_ENDPOINT = "'$(echo -n $($VKPR_JQ -r .credential.kmsendpoint $RIT_CREDENTIALS_PATH/aws) | base64)'"
         ' $(dirname "$0")/utils/auto-unseal.yaml
         ;;
       #azure)
@@ -89,11 +89,11 @@ settingVault() {
       #    .server.extraSecretEnvironmentVars[4].secretKey = "VAULT_AZUREKEYVAULT_KEY_NAME"
       #  '
       #  $VKPR_YQ eval ' .metadata.name = "azure-unseal-vault" |
-      #    .data.AZURE_TENANT_ID = "'$($VKPR_JQ -r .credential.azuretenantid $RIT_CREDENTIALS_PATH/azure | base64)'" |
-      #    .data.AZURE_CLIENT_ID = "'$($VKPR_JQ -r .credential.azureclientid $RIT_CREDENTIALS_PATH/azure | base64)'" |
-      #    .data.AZURE_CLIENT_SECRET = "'$($VKPR_JQ -r .credential.azureclientsecret $RIT_CREDENTIALS_PATH/azure | base64)'" |
-      #    .data.VAULT_AZUREKEYVAULT_VAULT_NAME = "'$($VKPR_JQ -r .credential.vaultazurekeyvaultvaultname $RIT_CREDENTIALS_PATH/azure | base64)'" |
-      #    .data.VAULT_AZUREKEYVAULT_KEY_NAME = "'$($VKPR_JQ -r .credential.vaultazurekeyvaultkeyname $RIT_CREDENTIALS_PATH/azure | base64)'"
+      #    .data.AZURE_TENANT_ID = "'$(echo -n $($VKPR_JQ -r .credential.azuretenantid $RIT_CREDENTIALS_PATH/azure) | base64)'" |
+      #    .data.AZURE_CLIENT_ID = "'$(echo -n $($VKPR_JQ -r .credential.azureclientid $RIT_CREDENTIALS_PATH/azure | base64)'" |
+      #    .data.AZURE_CLIENT_SECRET = "'$(echo -n $($VKPR_JQ -r .credential.azureclientsecret $RIT_CREDENTIALS_PATH/azure) | base64)'" |
+      #    .data.VAULT_AZUREKEYVAULT_VAULT_NAME = "'$(echo -n $($VKPR_JQ -r .credential.vaultazurekeyvaultvaultname $RIT_CREDENTIALS_PATH/azure) | base64)'" |
+      #    .data.VAULT_AZUREKEYVAULT_KEY_NAME = "'$(echo -n $($VKPR_JQ -r .credential.vaultazurekeyvaultkeyname $RIT_CREDENTIALS_PATH/azure) | base64)'"
       #  ' $(dirname "$0")/utils/auto-unseal.yaml
       #  ;;
       esac
