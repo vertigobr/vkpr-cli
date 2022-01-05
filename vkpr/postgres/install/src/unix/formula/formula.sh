@@ -57,6 +57,7 @@ settingPostgres() {
     YQ_VALUES=''$YQ_VALUES' |
       .global.postgresql.postgresqlPassword = "'$VKPR_ENV_POSTGRES_PASSWORD'"
     '
+    VKPR_POSTGRES_VERSION="10.12.3"
   fi
   
   if [[ $(checkPodName "prometheus-prometheus-stack-kube-prom-prometheus") == "true" ]]; then
