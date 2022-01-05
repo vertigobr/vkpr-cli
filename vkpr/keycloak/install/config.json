@@ -29,6 +29,16 @@
       "default": "vkpr123"
     },
     {
+      "default": "false",
+      "items": [
+        "true",
+        "false"
+      ],
+      "label": "HA? ",
+      "name": "HA",
+      "type": "bool"
+    },
+    {
       "name": "password",
       "type": "CREDENTIAL_POSTGRES_PASSWORD"
     }
