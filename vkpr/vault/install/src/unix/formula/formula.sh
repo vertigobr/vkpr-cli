@@ -1,4 +1,4 @@
-#!/bin/bash
+!/bin/bash
 
 runFormula() {
   local VKPR_VAULT_VALUES=$(dirname "$0")/utils/vault.yaml
@@ -69,33 +69,33 @@ settingVault() {
           .data.AWS_KMS_ENDPOINT = "'$(echo -n $($VKPR_JQ -r .credential.kmsendpoint $RIT_CREDENTIALS_PATH/aws) | base64)'"
         ' $(dirname "$0")/utils/auto-unseal.yaml
         ;;
-      #azure)
-      #  YQ_VALUES=''$YQ_VALUES' |
-      #    .server.extraEnvironmentVars.VAULT_SEAL_TYPE = "azurekeyvault" |
-      #    .server.extraSecretEnvironmentVars[0].envName = "AZURE_TENANT_ID" |
-      #    .server.extraSecretEnvironmentVars[0].secretName = "azure-unseal-vault" |
-      #    .server.extraSecretEnvironmentVars[0].secretKey = "AZURE_TENANT_ID" |
-      #    .server.extraSecretEnvironmentVars[1].envName = "AZURE_CLIENT_ID" |
-      #    .server.extraSecretEnvironmentVars[1].secretName = "azure-unseal-vault" |
-      #    .server.extraSecretEnvironmentVars[1].secretKey = "AZURE_CLIENT_ID" |
-      #    .server.extraSecretEnvironmentVars[2].envName = "AZURE_CLIENT_SECRET" |
-      #    .server.extraSecretEnvironmentVars[2].secretName = "azure-unseal-vault" |
-      #    .server.extraSecretEnvironmentVars[2].secretKey = "AZURE_CLIENT_SECRET" |
-      #    .server.extraSecretEnvironmentVars[3].envName = "VAULT_AZUREKEYVAULT_VAULT_NAME" |
-      #    .server.extraSecretEnvironmentVars[3].secretName = "azure-unseal-vault" |
-      #    .server.extraSecretEnvironmentVars[3].secretKey = "VAULT_AZUREKEYVAULT_VAULT_NAME" |
-      #    .server.extraSecretEnvironmentVars[4].envName = "VAULT_AZUREKEYVAULT_KEY_NAME" |
-      #    .server.extraSecretEnvironmentVars[4].secretName = "azure-unseal-vault" |
-      #    .server.extraSecretEnvironmentVars[4].secretKey = "VAULT_AZUREKEYVAULT_KEY_NAME"
-      #  '
-      #  $VKPR_YQ eval ' .metadata.name = "azure-unseal-vault" |
-      #    .data.AZURE_TENANT_ID = "'$(echo -n $($VKPR_JQ -r .credential.azuretenantid $RIT_CREDENTIALS_PATH/azure) | base64)'" |
-      #    .data.AZURE_CLIENT_ID = "'$(echo -n $($VKPR_JQ -r .credential.azureclientid $RIT_CREDENTIALS_PATH/azure | base64)'" |
-      #    .data.AZURE_CLIENT_SECRET = "'$(echo -n $($VKPR_JQ -r .credential.azureclientsecret $RIT_CREDENTIALS_PATH/azure) | base64)'" |
-      #    .data.VAULT_AZUREKEYVAULT_VAULT_NAME = "'$(echo -n $($VKPR_JQ -r .credential.vaultazurekeyvaultvaultname $RIT_CREDENTIALS_PATH/azure) | base64)'" |
-      #    .data.VAULT_AZUREKEYVAULT_KEY_NAME = "'$(echo -n $($VKPR_JQ -r .credential.vaultazurekeyvaultkeyname $RIT_CREDENTIALS_PATH/azure) | base64)'"
-      #  ' $(dirname "$0")/utils/auto-unseal.yaml
-      #  ;;
+      azure)
+        YQ_VALUES=''$YQ_VALUES' |
+          .server.extraEnvironmentVars.VAULT_SEAL_TYPE = "azurekeyvault" |
+          .server.extraSecretEnvironmentVars[0].envName = "AZURE_TENANT_ID" |
+          .server.extraSecretEnvironmentVars[0].secretName = "azure-unseal-vault" |
+          .server.extraSecretEnvironmentVars[0].secretKey = "AZURE_TENANT_ID" |
+          .server.extraSecretEnvironmentVars[1].envName = "AZURE_CLIENT_ID" |
+          .server.extraSecretEnvironmentVars[1].secretName = "azure-unseal-vault" |
+          .server.extraSecretEnvironmentVars[1].secretKey = "AZURE_CLIENT_ID" |
+          .server.extraSecretEnvironmentVars[2].envName = "AZURE_CLIENT_SECRET" |
+          .server.extraSecretEnvironmentVars[2].secretName = "azure-unseal-vault" |
+          .server.extraSecretEnvironmentVars[2].secretKey = "AZURE_CLIENT_SECRET" |
+          .server.extraSecretEnvironmentVars[3].envName = "VAULT_AZUREKEYVAULT_VAULT_NAME" |
+          .server.extraSecretEnvironmentVars[3].secretName = "azure-unseal-vault" |
+          .server.extraSecretEnvironmentVars[3].secretKey = "VAULT_AZUREKEYVAULT_VAULT_NAME" |
+          .server.extraSecretEnvironmentVars[4].envName = "VAULT_AZUREKEYVAULT_KEY_NAME" |
+          .server.extraSecretEnvironmentVars[4].secretName = "azure-unseal-vault" |
+          .server.extraSecretEnvironmentVars[4].secretKey = "VAULT_AZUREKEYVAULT_KEY_NAME"
+        '
+        $VKPR_YQ eval ' .metadata.name = "azure-unseal-vault" |
+          .data.AZURE_TENANT_ID = "'$(echo -n $($VKPR_JQ -r .credential.azuretenantid $RIT_CREDENTIALS_PATH/azure) | base64)'" |
+          .data.AZURE_CLIENT_ID = "'$(echo -n $($VKPR_JQ -r .credential.azureclientid $RIT_CREDENTIALS_PATH/azure | base64)'" |
+          .data.AZURE_CLIENT_SECRET = "'$(echo -n $($VKPR_JQ -r .credential.azureclientsecret $RIT_CREDENTIALS_PATH/azure) | base64)'" |
+          .data.VAULT_AZUREKEYVAULT_VAULT_NAME = "'$(echo -n $($VKPR_JQ -r .credential.vaultazurekeyvaultvaultname $RIT_CREDENTIALS_PATH/azure) | base64)'" |
+          .data.VAULT_AZUREKEYVAULT_KEY_NAME = "'$(echo -n $($VKPR_JQ -r .credential.vaultazurekeyvaultkeyname $RIT_CREDENTIALS_PATH/azure) | base64)'"
+        ' $(dirname "$0")/utils/auto-unseal.yaml
+        ;;
       esac
   fi
 
