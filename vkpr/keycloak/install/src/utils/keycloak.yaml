@@ -14,7 +14,3 @@ rbac:
 postgresql:
   persistence:
     enabled: false
-extraEnvVars:
-  - name: KEYCLOAK_EXTRA_ARGS
-    value: >-
-      -Dkeycloak.import=/realm/realm.json
