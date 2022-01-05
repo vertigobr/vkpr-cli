@@ -20,7 +20,7 @@ checkGlobalConfig(){
 }
 
 # Check wrappers in vkpr values and put on the tool values
-# $1: Wrapper location in vkpr values  /  $2: Values from the tool  / (OPTIONAL) $3: Name of the new wrapper in the Values of the tool 
+# $1: Wrapper location in vkpr values /  $2: Values from the tool  / (OPTIONAL) $3: Name of the new wrapper in the Values of the tool 
 checkGlobal() {
   [[ ! -f $VKPR_GLOBAL ]] && return
   local VALUE_CONTENT=`$VKPR_YQ eval ".global.${1}" $VKPR_GLOBAL`
@@ -47,13 +47,17 @@ checkPodName(){
 # Create a new instance of DB in Postgres;
 # $1: Postgres User  /  $2: Postgres Password  /  $3: Name of DB to create
 createDatabase(){
-  $VKPR_KUBECTL run init-db --rm -it --restart="Never" --namespace $VKPR_K8S_NAMESPACE --image docker.io/bitnami/postgresql:11.13.0-debian-10-r0 --env="PGUSER=$1" --env="PGPASSWORD=$2" --env="PGHOST=postgres-postgresql" --env="PGPORT=5432" --env="PGDATABASE=postgres" --command -- psql --command="CREATE DATABASE $3"
+  local PG_HOST="postgres-postgresql"
+  [[ ! -z $($VKPR_KUBECTL get pod -n $VKPR_K8S_NAMESPACE | grep pgpool) ]] && PG_HOST="postgres-postgresql-pgpool"
+  $VKPR_KUBECTL run init-db --rm -it --restart="Never" --namespace $VKPR_K8S_NAMESPACE --image docker.io/bitnami/postgresql-repmgr:11.14.0-debian-10-r12 --env="PGUSER=$1" --env="PGPASSWORD=$2" --env="PGHOST=${PG_HOST}" --env="PGPORT=5432" --env="PGDATABASE=postgres" --command -- psql --command="CREATE DATABASE $3"
 }
 
 # Check if exist some instace of DB with specified name in Postgres
 # $1: Postgres User  /  $2: Postgres Password  /  $3: Name of DB to search
 checkExistingDatabase(){
-  $VKPR_KUBECTL run check-db --rm -it --restart='Never' --namespace $VKPR_K8S_NAMESPACE --image docker.io/bitnami/postgresql:11.13.0-debian-10-r12 --env="PGUSER=$1" --env="PGPASSWORD=$2" --env="PGHOST=postgres-postgresql" --env="PGPORT=5432" --env="PGDATABASE=postgres" --command -- psql -lqt | cut -d \| -f 1 | grep $3 | sed -e 's/^[ \t]*//'
+  local PG_HOST="postgres-postgresql"
+  [[ ! -z $($VKPR_KUBECTL get pod -n $VKPR_K8S_NAMESPACE | grep pgpool) ]] && PG_HOST="postgres-postgresql-pgpool"
+  $VKPR_KUBECTL run check-db --rm -it --restart='Never' --namespace $VKPR_K8S_NAMESPACE --image docker.io/bitnami/postgresql-repmgr:11.14.0-debian-10-r12 --env="PGUSER=$1" --env="PGPASSWORD=$2" --env="PGHOST=${PG_HOST}" --env="PGPORT=5432" --env="PGDATABASE=postgres" --command -- psql -lqt | cut -d \| -f 1 | grep $3 | sed -e 's/^[ \t]*//'
 }
 
 ##Register new repository when url does not exists in helm
@@ -71,6 +75,37 @@ registerHelmRepository(){
     echoColor green "Repository ${REPO_NAME} already configured."
   fi
   
+}
+
+##Check if the node has the exact key and copy all keys:values of his to the values from VKPR
+#param1: path to node key
+#param2: check existing key
+#param3: path that will be created in yaml
+checkNode() {
+  if [[ $($VKPR_YQ eval ''$1' | has ("'$2'")' $CURRENT_PWD/vkpr.yaml) ]]; then
+    pivot=""
+    arr=0
+    IFS=$'\n'; for i in $($VKPR_YQ eval "${1}.${2}" $CURRENT_PWD/vkpr.yaml); do
+      local key=$(echo $i | awk '{print $1}' | cut -d ":" -f 1)
+      local value=$(echo $i | awk '{print $2}')
+      if [[ $value = "" ]]; then
+        pivot=$key
+        arr=0
+        continue
+      fi
+      if [[ $key = "-" ]]; then
+        key=$pivot
+        YQ_VALUES=''$YQ_VALUES' |
+          '${3}'.'${key}'['${arr}'] = "'${value}'"
+        '
+        let "arr=arr+1"
+        continue
+      fi
+      YQ_VALUES=''$YQ_VALUES' |
+        '${3}'.'${key}' = "'${value}'"
+      '
+    done
+  fi
 }
 
 ##Encode text
