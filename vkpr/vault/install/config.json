@@ -34,7 +34,8 @@
       "required": true,
       "items": [
         "false",
-        "aws"
+        "aws",
+        "azure"
       ]
     },
     {
@@ -81,6 +82,51 @@
       },
       "name": "aws_kms_endpoint",
       "type": "CREDENTIAL_AWS_KMSENDPOINT"
+    },
+    {
+      "condition": {
+        "variable": "vault_auto_unseal",
+        "operator": "==",
+        "value": "azure"
+      },
+      "name": "azure_tenant_id",
+      "type": "CREDENTIAL_AZURE_AZURETENANTID"
+    },
+    {
+      "condition": {
+        "variable": "vault_auto_unseal",
+        "operator": "==",
+        "value": "azure"
+      },
+      "name": "azure_client_id",
+      "type": "CREDENTIAL_AZURE_AZURECLIENTID"
+    },
+    {
+      "condition": {
+        "variable": "vault_auto_unseal",
+        "operator": "==",
+        "value": "azure"
+      },
+      "name": "azure_client_secret",
+      "type": "CREDENTIAL_AZURE_AZURECLIENTSECRET"
+    },
+    {
+      "condition": {
+        "variable": "vault_auto_unseal",
+        "operator": "==",
+        "value": "azure"
+      },
+      "name": "vault_azurekeyvault_vault_name",
+      "type": "CREDENTIAL_AZURE_VAULTAZUREKEYVAULTVAULTNAME"
+    },
+    {
+      "condition": {
+        "variable": "vault_auto_unseal",
+        "operator": "==",
+        "value": "azure"
+      },
+      "name": "vault_azurekeyvault_key_name",
+      "type": "CREDENTIAL_AZURE_VAULTAZUREKEYVAULTKEYNAME"
     }
   ],
   "template": "shell-bat",
