@@ -1,22 +1,32 @@
-!/bin/bash
+#!/bin/bash
 
 runFormula() {
   local VKPR_VAULT_VALUES=$(dirname "$0")/utils/vault.yaml
   local VKPR_VAULT_CONFIG=$(dirname "$0")/utils/config.hcl
   local RIT_CREDENTIALS_PATH=~/.rit/credentials/default
-  local INGRESS_CONTROLLER="nginx"
-  echoColor "green" "Installing vault..."
 
   checkGlobalConfig $DOMAIN "localhost" "domain" "DOMAIN"
   checkGlobalConfig $SECURE "false" "secure" "SECURE"
   checkGlobalConfig $VAULT_MODE "raft" "vault.storageMode" "VAULT_MODE"
-  checkGlobalConfig $INGRESS_CONTROLLER "nginx" "vault.ingressClassName" "VAULT_INGRESS"
   checkGlobalConfig $VAULT_AUTO_UNSEAL "false" "vault.autoUnseal" "VAULT_AUTO_UNSEAL"
+  checkGlobalConfig "nginx" "nginx" "vault.ingressClassName" "VAULT_INGRESS"
 
   local VKPR_ENV_VAULT_DOMAIN="vault.${VKPR_ENV_DOMAIN}"
   
+  startInfos
   configureRepository
-  installVault
+  #installVault
+}
+
+startInfos() {
+  echo "=============================="
+  echoColor "bold" "$(echoColor "green" "VKPR Vault Install Routine")"
+  echoColor "bold" "$(echoColor "blue" "Vault UI Domain:") ${VKPR_ENV_VAULT_DOMAIN}"
+  echoColor "bold" "$(echoColor "blue" "Vault UI HTTPS:") ${VKPR_ENV_SECURE}"
+  echoColor "bold" "$(echoColor "blue" "Ingress Controller:") ${VKPR_ENV_VAULT_INGRESS}"
+  echoColor "bold" "$(echoColor "blue" "Storage Mode:") ${VKPR_ENV_VAULT_MODE}"
+  echoColor "bold" "$(echoColor "blue" "Auto Unseal:") ${VKPR_ENV_VAULT_AUTO_UNSEAL}"
+  echo "=============================="
 }
 
 configureRepository() {
@@ -113,6 +123,8 @@ settingVault() {
   address = "consul-consul-server.vkpr.svc.cluster.local:8500"
 }' >> $VKPR_VAULT_CONFIG
   fi
+
+  mergeVkprValuesHelmArgs "vault" $VKPR_VAULT_VALUES
 }
 
 installVault() {
