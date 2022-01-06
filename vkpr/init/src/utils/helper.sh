@@ -77,33 +77,14 @@ registerHelmRepository(){
   
 }
 
-##Check if the node has the exact key and copy all keys:values of his to the values from VKPR
-#param1: path to node key
-#param2: check existing key
-#param3: path that will be created in yaml
-checkNode() {
-  if [[ $($VKPR_YQ eval ''$1' | has ("'$2'")' $CURRENT_PWD/vkpr.yaml) ]]; then
-    pivot=""
-    arr=0
-    IFS=$'\n'; for i in $($VKPR_YQ eval "${1}.${2}" $CURRENT_PWD/vkpr.yaml); do
-      local key=$(echo $i | awk '{print $1}' | cut -d ":" -f 1)
-      local value=$(echo $i | awk '{print $2}')
-      if [[ $value = "" ]]; then
-        pivot=$key
-        arr=0
-        continue
-      fi
-      if [[ $key = "-" ]]; then
-        key=$pivot
-        YQ_VALUES=''$YQ_VALUES' |
-          '${3}'.'${key}'['${arr}'] = "'${value}'"
-        '
-        let "arr=arr+1"
-        continue
-      fi
-      YQ_VALUES=''$YQ_VALUES' |
-        '${3}'.'${key}' = "'${value}'"
-      '
+## Merge KV helmArgs from VKPR with the indicated value application
+#param1: key value from the application in vkpr yaml
+#param2: value files from the application
+mergeVkprValuesHelmArgs() {
+  [[ ! -f $VKPR_GLOBAL ]] && return
+  if [[ $($VKPR_YQ eval '.global.'${1}' | has ("helmArgs")' $CURRENT_PWD/vkpr.yaml) == true ]]; then
+    for i in $($VKPR_YQ eval '.global.'${1}'.helmArgs | keys' $CURRENT_PWD/vkpr.yaml | cut -d " " -f2); do
+      $VKPR_YQ eval-all -i '. * {"'${i}'": select(fileIndex==1).global.'${1}'.helmArgs.'${i}'} | select(fileIndex==0)' $2 $CURRENT_PWD/vkpr.yaml
     done
   fi
 }
