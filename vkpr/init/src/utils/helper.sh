@@ -83,9 +83,11 @@ registerHelmRepository(){
 mergeVkprValuesHelmArgs() {
   [[ ! -f $VKPR_GLOBAL ]] && return
   if [[ $($VKPR_YQ eval '.global.'${1}' | has ("helmArgs")' $CURRENT_PWD/vkpr.yaml) == true ]]; then
+    cp $CURRENT_PWD/vkpr.yaml $(dirname "$0")/vkpr-cp.yaml
     for i in $($VKPR_YQ eval '.global.'${1}'.helmArgs | keys' $CURRENT_PWD/vkpr.yaml | cut -d " " -f2); do
-      $VKPR_YQ eval-all -i '. * {"'${i}'": select(fileIndex==1).global.'${1}'.helmArgs.'${i}'} | select(fileIndex==0)' $2 $CURRENT_PWD/vkpr.yaml
+      $VKPR_YQ eval-all -i '. * {"'${i}'": select(fileIndex==1).global.'${1}'.helmArgs.'${i}'} | select(fileIndex==0)' $2 $(dirname "$0")/vkpr-cp.yaml
     done
+    rm $(dirname "$0")/vkpr-cp.yaml
   fi
 }
 
