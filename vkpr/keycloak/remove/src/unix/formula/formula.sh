@@ -1,7 +1,6 @@
 #!/bin/sh
 
 runFormula() {
-  echoColor "green" "Removing keycloak..."
+  echoColor "bold" "$(echoColor "green" "Removing Keycloak...")"
   $VKPR_HELM uninstall --namespace $VKPR_K8S_NAMESPACE keycloak
-  $VKPR_KUBECTL delete secret --namespace $VKPR_K8S_NAMESPACE keycloak-realm-secret
 }
