@@ -1,4 +1,4 @@
 {
-	"short": "kong init formula",
-	"long": "kong init formula"
+	"short": "Install Kong",
+	"long": "Install the Kong in the Kubernetes cluster."
 }

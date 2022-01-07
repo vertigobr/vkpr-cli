@@ -6,9 +6,9 @@ runFormula() {
   
   checkGlobalConfig $DOMAIN "localhost" "domain" "DOMAIN"
   checkGlobalConfig $SECURE "false" "secure" "SECURE"
+  checkGlobalConfig "false" "false" "kong.HA" "HA"
+  checkGlobalConfig "false" "false" "kong.metrics" "METRICS"
   checkGlobalConfig $KONG_MODE "kong" "kong.mode" "KONG_DEPLOY"
-  checkGlobal "kong.resources" $VKPR_KONG_VALUES "resources"
-  checkGlobal "kong.extraEnv" $VKPR_KONG_VALUES
 
   startInfos
   addRepoKong
@@ -21,8 +21,9 @@ runFormula() {
 startInfos() {
   echo "=============================="
   echoColor "bold" "$(echoColor "green" "VKPR Kong Install Routine")"
-  echoColor "bold" "$(echoColor "blue" "HTTPS:") ${VKPR_ENV_SECURE}"
-  echoColor "bold" "$(echoColor "blue" "Domain:") ${VKPR_ENV_DOMAIN}"
+  echoColor "bold" "$(echoColor "blue" "Kong HTTPS:") ${VKPR_ENV_SECURE}"
+  echoColor "bold" "$(echoColor "blue" "Kong Domain:") ${VKPR_ENV_DOMAIN}"
+  echoColor "bold" "$(echoColor "blue" "Kong HA:") ${VKPR_ENV_HA}"
   echoColor "bold" "$(echoColor "blue" "Kong Mode:") ${VKPR_ENV_KONG_DEPLOY}"
   echo "=============================="
 }
@@ -44,7 +45,7 @@ addDependencies(){
 
 createKongSecrets() {
   echoColor "green" "Creating the Kong Secrets..."
-  $VKPR_KUBECTL create ns vkpr
+  $VKPR_KUBECTL create ns vkpr 2> /dev/null
   $VKPR_KUBECTL create secret generic kong-enterprise-license --from-file=$LICENSE -n vkpr
   if [[ $VKPR_ENV_KONG_DEPLOY != "dbless" ]]; then
     $VKPR_KUBECTL create secret generic kong-session-config \
@@ -61,10 +62,13 @@ createKongSecrets() {
 }
 
 installDB(){
-  if [[ $(checkPodName "postgres-postgresql") = "true" ]]; then
-    echoColor "green" "Initializing Kong with Postgres already created"
+  local PG_HA="false"
+  [[ $VKPR_ENV_HA == true ]] && PG_HA="true"
+  if [[ $(checkPodName "postgres-postgresql") != "true" ]]; then
+    echoColor "green" "Initializing postgresql to Kong"
+    rit vkpr postgres install --HA=$PG_HA --default
   else
-    rit vkpr postgres install --default
+    echoColor "green" "Initializing Kong with Postgres already created"
   fi
 }
 
@@ -72,7 +76,7 @@ installKong(){
   local YQ_VALUES=".proxy.enabled = true"
   settingKongEnterprise
   if [[ $VKPR_ENV_KONG_DEPLOY = "hybrid" ]]; then
-    echoColor "green" "Installing Kong DP in cluster..."
+    echoColor "bold" "$(echoColor "green" "Installing Kong DP in cluster...")"
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_KONG_DP_VALUES" \
     | $VKPR_HELM upgrade -i --wait -n kong \
         --version 2.6.0 -f - kong-dp kong/kong
@@ -87,13 +91,20 @@ installKong(){
       VKPR_KONG_VALUES=$(dirname "$0")/utils/kong-dbless.yaml
     ;;
   esac
-  
+
+  echoColor "bold" "$(echoColor "green" "Installing Kong...")"
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_KONG_VALUES" \
   | $VKPR_HELM upgrade -i --wait --create-namespace -n vkpr \
       --version 2.6.0 -f - kong kong/kong
 }
 
 settingKongDefaults() {
+  local PG_HOST="postgres-postgresql"
+  [[ ! -z $($VKPR_KUBECTL get pod -n $VKPR_K8S_NAMESPACE | grep pgpool) ]] && PG_HOST="postgres-postgresql-pgpool" YQ_VALUES=''$YQ_VALUES' | .env.pg_password.valueFrom.secretKeyRef.name = "postgres-postgresql-ha-postgresql"'
+  YQ_VALUES=''$YQ_VALUES' |
+    .env.pg_host = "'$PG_HOST'"
+  '
+
   if [[ $VKPR_ENV_DOMAIN != "localhost" ]]; then
     YQ_VALUES=''$YQ_VALUES' |
       .admin.ingress.hostname = "'admin.$VKPR_ENV_DOMAIN'" |
@@ -118,6 +129,25 @@ settingKongDefaults() {
       .portalapi.ingress.tls = "portalapi-kong-cert"
     '
   fi
+  if [[ $VKPR_ENV_METRICS == "true" ]]; then
+    YQ_VALUES=''$YQ_VALUES' |
+      .serviceMonitor.enabled = true |
+      .serviceMonitor.namespace = "vkpr" |
+      .serviceMonitor.interval = "30s" |
+      .serviceMonitor.scrapeTimeout = "30s" |
+      .serviceMonitor.labels.release = "prometheus-stack" |
+      .serviceMonitor.targetLabels[0] = "prometheus-stack" |
+      .plugins.configMaps[0].pluginName = "prometheus" |
+      .plugins.configMaps[0].name = "prometheus"
+    '
+    $VKPR_KUBECTL apply -f $(dirname "$0")/utils/prometheus-plugin.yaml
+  fi
+  if [[ $VKPR_ENV_HA == "true" ]]; then
+    YQ_VALUES=''$YQ_VALUES' |
+    '
+  fi
+
+  mergeVkprValuesHelmArgs "kong" $VKPR_KONG_VALUES
 }
 
 settingKongEnterprise() {
