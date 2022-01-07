@@ -5,6 +5,7 @@ runFormula() {
 
   checkGlobalConfig $HA "false" "postgresql.HA" "HA"
   checkGlobalConfig $PASSWORD "postgres" "postgresql.password" "POSTGRES_PASSWORD"
+  checkGlobalConfig "false" "false" "postgresql.metrics" "METRICS"
 
   startInfos
   addRepoPostgres
@@ -57,7 +58,7 @@ settingPostgres() {
     VKPR_POSTGRES_VERSION="10.12.3"
   fi
   
-  if [[ $(checkPodName "prometheus-prometheus-stack-kube-prom-prometheus") == "true" ]]; then
+  if [[ $VKPR_ENV_METRICS == "true" ]]; then
     YQ_VALUES=''$YQ_VALUES' |
       .metrics.enabled = true |
       .metrics.serviceMonitor.enabled = true |
