@@ -1,6 +1,7 @@
 #!/bin/bash
 
 runFormula() {
+  echoColor "bold" "$(echoColor "green" "Creating database $DBNAME in postgresql...")"
   local PG_PASSWORD=$($VKPR_JQ -r '.credential.password' ~/.rit/credentials/default/postgres)
   local PG_HOST="postgres-postgresql"
   if [[ $(checkPodName "postgres-postgresql") = "true" ]]; then
