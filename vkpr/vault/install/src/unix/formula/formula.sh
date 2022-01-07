@@ -15,7 +15,7 @@ runFormula() {
   
   startInfos
   configureRepository
-  #installVault
+  installVault
 }
 
 startInfos() {
@@ -128,11 +128,13 @@ settingVault() {
 }
 
 installVault() {
+  echoColor "bold" "$(echoColor "green" "Installing Vault...")"
   local YQ_VALUES='.global.enabled = true'
   settingVault
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_VAULT_VALUES" \
   | $VKPR_HELM upgrade -i --version "$VKPR_VAULT_VERSION" \
       --namespace $VKPR_K8S_NAMESPACE --create-namespace \
       --wait -f - vault hashicorp/vault
+  echoColor "bold" "$(echoColor "green" "Creating storage config...")"
   $VKPR_KUBECTL create secret generic vault-storage-config -n $VKPR_K8S_NAMESPACE --from-file=$VKPR_VAULT_CONFIG
 }
