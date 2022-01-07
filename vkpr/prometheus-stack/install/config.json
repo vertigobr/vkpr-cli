@@ -31,6 +31,21 @@
       "label": "Alert-Manager? ",
       "name": "alertmanager",
       "type": "bool"
+    },
+    {
+      "condition": {
+        "variable": "alertmanager",
+        "operator": "==",
+        "value": "true"
+      },
+      "default": "false",
+      "items": [
+        "true",
+        "false"
+      ],
+      "label": "HA? ",
+      "name": "HA",
+      "type": "bool"
     }
   ],
   "template": "shell-bat",

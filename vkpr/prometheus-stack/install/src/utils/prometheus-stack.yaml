@@ -1,0 +1,18 @@
+alertmanager:
+  enabled: false
+  ingress:
+    enabled: false
+    ingressClassName: nginx
+    hosts:
+      - paths: "/"
+    pathType: ImplementationSpecific
+grafana:
+  enabled: true
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    path: "/"
+prometheusOperator:
+  enabled: true
+prometheus:
+  enabled: true

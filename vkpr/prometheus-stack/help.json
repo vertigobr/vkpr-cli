@@ -1,0 +1,4 @@
+{
+  "short": "Manage Prometheus-stack",
+  "long": "Kube-prometheus-stack is a collection of Kubernetes Manifests, Grafana, Prometheus, Alert-Manager and node-exporters from Kubernetes to easy operate"
+}
