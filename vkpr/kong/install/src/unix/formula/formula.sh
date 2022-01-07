@@ -96,6 +96,7 @@ installKong(){
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_KONG_VALUES" \
   | $VKPR_HELM upgrade -i --wait --create-namespace -n vkpr \
       --version 2.6.0 -f - kong kong/kong
+  [[ $VKPR_ENV_METRICS == "true" ]] && $VKPR_KUBECTL apply -f $(dirname "$0")/utils/prometheus-plugin.yaml
 }
 
 settingKongDefaults() {
@@ -136,14 +137,13 @@ settingKongDefaults() {
       .serviceMonitor.interval = "30s" |
       .serviceMonitor.scrapeTimeout = "30s" |
       .serviceMonitor.labels.release = "prometheus-stack" |
-      .serviceMonitor.targetLabels[0] = "prometheus-stack" |
-      .plugins.configMaps[0].pluginName = "prometheus" |
-      .plugins.configMaps[0].name = "prometheus"
+      .serviceMonitor.targetLabels[0] = "prometheus-stack"
     '
-    $VKPR_KUBECTL apply -f $(dirname "$0")/utils/prometheus-plugin.yaml
   fi
   if [[ $VKPR_ENV_HA == "true" ]]; then
-    YQ_VALUES=''$YQ_VALUES' |
+    YQ_VALUES=''$YQ_VALUES'
+      .replicaCount = 3 |
+      .ingressController.env.leader_elect = "true"
     '
   fi
 

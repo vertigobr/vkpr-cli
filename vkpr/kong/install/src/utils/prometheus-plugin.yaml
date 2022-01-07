@@ -1,7 +1,11 @@
-apiVersion: v1
-kind: ConfigMap
+apiVersion: configuration.konghq.com/v1
+kind: KongClusterPlugin
 metadata:
-  name: prometheus
-  namespace: vkpr
-data:
-  enabled: "true"
+  name: global-prometheus
+  annotations:
+    kubernetes.io/ingress.class: kong
+  labels:
+    global: "true"
+config:
+  enabled: true
+plugin: prometheus
