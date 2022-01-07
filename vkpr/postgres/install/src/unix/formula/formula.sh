@@ -5,8 +5,6 @@ runFormula() {
 
   checkGlobalConfig $HA "false" "postgresql.HA" "HA"
   checkGlobalConfig $PASSWORD "postgres" "postgresql.password" "POSTGRES_PASSWORD"
-  #checkGlobal "postgresql.resources" $VKPR_POSTGRES_VALUES "resources"
-  #checkGlobal "postgresql.extraEnv" $VKPR_POSTGRES_VALUES
 
   startInfos
   addRepoPostgres
@@ -26,8 +24,7 @@ addRepoPostgres(){
 }
 
 installPostgres(){
-  echoColor "green" "Installing postgres..."
-
+  echoColor "bold" "$(echoColor "green" "Installing Postgresql...")"
   local YQ_VALUES='.fullnameOverride = "postgres-postgresql"'
   local POSTGRESQL_CHART="postgresql"
   settingPostgres
@@ -66,8 +63,11 @@ settingPostgres() {
       .metrics.serviceMonitor.enabled = true |
       .metrics.serviceMonitor.namespace = "vkpr" |
       .metrics.serviceMonitor.interval = "1m" |
-      .postgresqlDatabase = "grafana-metrics"
+      .metrics.serviceMonitor.scrapeTimeout = "30m"
     '
+    [[ $VKPR_ENV_HA = "true" ]] && YQ_VALUES=''$YQ_VALUES' | .metrics.serviceMonitor.selector.release = "prometheus-stack"' || YQ_VALUES=''$YQ_VALUES' | .metrics.serviceMonitor.additionalLabels.release = "prometheus-stack"'
   fi
+
+  mergeVkprValuesHelmArgs "postgresql" $VKPR_POSTGRES_VALUES
 }
 # $VKPR_KUBECTL patch cm --namespace vkpr tcp-services -p '{"data": {"5432": "default/postgres-postgresql:5432"}}'
