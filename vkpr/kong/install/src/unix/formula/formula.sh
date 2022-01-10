@@ -101,7 +101,7 @@ installKong(){
 
 settingKongDefaults() {
   local PG_HOST="postgres-postgresql"
-  [[ ! -z $($VKPR_KUBECTL get pod -n $VKPR_K8S_NAMESPACE | grep pgpool) ]] && PG_HOST="postgres-postgresql-pgpool" YQ_VALUES=''$YQ_VALUES' | .env.pg_password.valueFrom.secretKeyRef.name = "postgres-postgresql-ha-postgresql"'
+  [[ ! -z $($VKPR_KUBECTL get pod -n $VKPR_K8S_NAMESPACE | grep pgpool) ]] && PG_HOST="postgres-postgresql-pgpool" YQ_VALUES=''$YQ_VALUES' | .env.pg_password.valueFrom.secretKeyRef.name = "postgres-postgresql-postgresql"'
   YQ_VALUES=''$YQ_VALUES' |
     .env.pg_host = "'$PG_HOST'"
   '
@@ -141,7 +141,7 @@ settingKongDefaults() {
     '
   fi
   if [[ $VKPR_ENV_HA == "true" ]]; then
-    YQ_VALUES=''$YQ_VALUES'
+    YQ_VALUES=''$YQ_VALUES' |
       .replicaCount = 3 |
       .ingressController.env.leader_elect = "true"
     '
