@@ -1,5 +1,8 @@
 # Created by https://www.gitignore.io
 
+### VKPR ###
+vkpr.yaml
+
 ### Go ###
 # Binaries for programs and plugins
 *.dll
