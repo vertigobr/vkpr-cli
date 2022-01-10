@@ -6,7 +6,7 @@ runFormula() {
   
   checkGlobalConfig $DOMAIN "localhost" "domain" "DOMAIN"
   checkGlobalConfig $SECURE "false" "secure" "SECURE"
-  checkGlobalConfig "false" "false" "kong.HA" "HA"
+  checkGlobalConfig $HA "false" "kong.HA" "HA"
   checkGlobalConfig "false" "false" "kong.metrics" "METRICS"
   checkGlobalConfig $KONG_MODE "kong" "kong.mode" "KONG_DEPLOY"
 

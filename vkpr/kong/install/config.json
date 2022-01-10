@@ -57,6 +57,16 @@
         "regex": "license$",
         "mismatchText": "the file must not contain an extension"
       }
+    },
+    {
+      "default": "false",
+      "items": [
+        "true",
+        "false"
+      ],
+      "label": "HA? ",
+      "name": "HA",
+      "type": "bool"
     }
   ],
   "template": "shell-bat",
