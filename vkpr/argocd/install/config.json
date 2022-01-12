@@ -1,0 +1,38 @@
+{
+  "inputs": [
+    {
+      "label": "Type the ArgoCD domain:",
+      "name": "domain",
+      "type": "text",
+      "default": "localhost"
+    },
+    {
+      "label": "Secure?",
+      "name": "secure",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "true",
+        "false"
+      ]
+    },
+    {
+      "label": "Type the user Password:",
+      "name": "admin_password",
+      "type": "password",
+      "default": "vkpr123"
+    },
+    {
+      "default": "false",
+      "items": [
+        "true",
+        "false"
+      ],
+      "label": "HA? ",
+      "name": "HA",
+      "type": "bool"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease:": "2.16.2"
+}

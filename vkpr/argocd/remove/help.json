@@ -1,0 +1,4 @@
+{
+  "short": "Remove ArgoCD",
+  "long": "Remove the ArgoCD and its dependencies from the Kubernetes cluster"
+}

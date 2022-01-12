@@ -1,0 +1,25 @@
+{
+  "inputs": [
+    {
+      "label": "Type the git repository url:",
+      "name": "repo_url",
+      "type": "text",
+      "required": true,
+      "cache": {
+        "active": true,
+        "qty": 2,
+        "newLabel": "Type another git repository url: "
+      }
+    },
+    {
+      "name": "gitlab_token",
+      "type": "CREDENTIAL_GITLAB_USERNAME"
+    },
+    {
+      "name": "gitlab_token",
+      "type": "CREDENTIAL_GITLAB_TOKEN"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease": "2.17.0"
+}
