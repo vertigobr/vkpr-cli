@@ -22,8 +22,8 @@ startInfos() {
   echoColor "bold" "$(echoColor "blue" "Enabled Traefik Ingress Controller:") ${VKPR_ENV_TRAEFIK}"
   echoColor "bold" "$(echoColor "blue" "Ports Used:") :${VKPR_ENV_HTTP_PORT}/http :${VKPR_ENV_HTTPS_PORT}/https"
   echoColor "bold" "$(echoColor "blue" "Kubernetes API:") :6443"
-  echoColor "bold" "$(echoColor "blue" "Local Registry:") :5000"
-  echoColor "bold" "$(echoColor "blue" "Docker Hub Registry Mirror (cache):") :5001"
+  echoColor "bold" "$(echoColor "blue" "Local Registry:") :6000"
+  echoColor "bold" "$(echoColor "blue" "Docker Hub Registry Mirror (cache):") :6001"
   echoColor "bold" "$(echoColor "yellow" "Using two local unamed Docker Volumes")"
   echo "=============================="
 }
@@ -35,19 +35,19 @@ configRegistry() {
 mirrors:
   "docker.io":
     endpoint:
-      - "http://$HOST_IP:5001"
+      - "http://$HOST_IP:6001"
 EOF
 }
 
 # Create the local registry and Docker Hub Mirror
 startRegistry() {
   if ! $(${VKPR_K3D} registry list | grep -q "k3d-registry\.localhost"); then
-    ${VKPR_K3D} registry create registry.localhost -p 5000
+    ${VKPR_K3D} registry create registry.localhost -p 6000
   else
     echoColor "yellow" "Registry already started, skipping..."
   fi
   if ! $(${VKPR_K3D} registry list | grep -q "k3d-mirror\.localhost"); then
-    ${VKPR_K3D} registry create mirror.localhost -i vertigo/registry-mirror -p 5001
+    ${VKPR_K3D} registry create mirror.localhost -i vertigo/registry-mirror -p 6001
   else
     echoColor "yellow" "Mirror already started, skipping..."
   fi
