@@ -1,0 +1,4 @@
+{
+  "short": "Remove Kong",
+  "long": "Remove the Kong and his dependencies from the Kubernetes cluster"
+}

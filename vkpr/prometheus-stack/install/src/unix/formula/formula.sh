@@ -1,13 +1,15 @@
 #!/bin/sh
 
 runFormula() {
-  local VKPR_PROMETHEUS_VALUES=$(dirname "$0")/utils/prometheus.yaml
-  local INGRESS_CONTROLLER="nginx"
+  local VKPR_PROMETHEUS_VALUES=$(dirname "$0")/utils/prometheus-stack.yaml
 
   checkGlobalConfig $DOMAIN "localhost" "domain" "DOMAIN"
   checkGlobalConfig $SECURE "false" "secure" "SECURE"
-  checkGlobalConfig $ALERTMANAGER "false" "prometheus-stack.alertmanager" "PROMETHEUS_ALERT_MANAGER"
-  checkGlobalConfig $INGRESS_CONTROLLER "nginx" "prometheus-stack.ingressClassName" "PROMETHEUS_INGRESS"
+  checkGlobalConfig $ALERTMANAGER "false" "prometheus-stack.alertmanager.enabled" "PROMETHEUS_ALERT_MANAGER"
+  checkGlobalConfig $HA "false" "prometheus-stack.alertmanager.HA" "PROMETHEUS_ALERT_MANAGER_HA"
+  checkGlobalConfig $GRAFANA_PASSWORD "vkpr123" "prometheus-stack.grafana.admin-password" "GRAFANA_PASSWORD"
+  checkGlobalConfig "nginx" "nginx" "prometheus-stack.ingressClassName" "PROMETHEUS_INGRESS"
+  checkGlobalConfig "true" "true" "prometheus-stack.grafana.k8s-exporters" "K8S_EXPORTERS"
   
   local VKPR_ENV_GRAFANA_DOMAIN="grafana.${VKPR_ENV_DOMAIN}"
   local VKPR_ENV_ALERT_MANAGER_DOMAIN="alertmanager.${VKPR_ENV_DOMAIN}"
@@ -20,13 +22,11 @@ runFormula() {
 startInfos() {
   echo "=============================="
   echoColor "bold" "$(echoColor "green" "VKPR Prometheus-Stack Install Routine")"
-  echoColor "bold" "$(echoColor "blue" "Prometheus AlertManager enabled:") ${VKPR_ENV_PROMETHEUS_ALERT_MANAGER}"
-  echoColor "bold" "$(echoColor "blue" "Ingress Controller:") ${VKPR_ENV_PROMETHEUS_INGRESS}"
   echoColor "bold" "$(echoColor "blue" "Grafana domain:") ${VKPR_ENV_GRAFANA_DOMAIN}"
   echoColor "bold" "$(echoColor "blue" "Grafana password:") ${GRAFANA_PASSWORD}"
-  if [[ $VKPR_ENV_PROMETHEUS_ALERT_MANAGER == true ]]; then
-    echoColor "bold" "$(echoColor "blue" "Prometheus AlertManager domain:") ${VKPR_ENV_ALERT_MANAGER_DOMAIN}"
-  fi
+  echoColor "bold" "$(echoColor "blue" "Prometheus AlertManager enabled:") ${VKPR_ENV_PROMETHEUS_ALERT_MANAGER}"
+  [[ $VKPR_ENV_PROMETHEUS_ALERT_MANAGER == true ]] && echoColor "bold" "$(echoColor "blue" "Prometheus AlertManager domain:") ${VKPR_ENV_ALERT_MANAGER_DOMAIN}"
+  echoColor "bold" "$(echoColor "blue" "Ingress Controller:") ${VKPR_ENV_PROMETHEUS_INGRESS}"
   echo "=============================="
 }
 
@@ -35,8 +35,8 @@ addRepoPrometheusStack() {
 }
 
 installPrometheusStack() {
-  echoColor "yellow" "Installing prometheus stack..."
-  local YQ_VALUES='.grafana.ingress.hosts[0] = "'$VKPR_ENV_GRAFANA_DOMAIN'" | .grafana.adminPassword = "'$GRAFANA_PASSWORD'"'
+  echoColor "bold" "$(echoColor "green" "Installing prometheus-stack...")"
+  local YQ_VALUES='.grafana.ingress.hosts[0] = "'$VKPR_ENV_GRAFANA_DOMAIN'" | .grafana.adminPassword = "'$VKPR_ENV_GRAFANA_PASSWORD'"'
   settingStack
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_PROMETHEUS_VALUES" \
   | $VKPR_HELM upgrade -i --wait --version "$VKPR_PROMETHEUS_STACK_VERSION" \
@@ -45,17 +45,51 @@ installPrometheusStack() {
 }
 
 settingStack() {
+  if [[ $VKPR_ENV_SECURE = true ]]; then
+    YQ_VALUES=''$YQ_VALUES' |
+      .grafana.ingress.annotations.["'kubernetes.io/tls-acme'"] = "'true'" |
+      .grafana.ingress.tls[0].hosts[0] = "'$VKPR_ENV_GRAFANA_DOMAIN'" |
+      .grafana.ingress.tls[0].secretName = "'grafana-cert'"
+    '
+    if [[ $VKPR_ENV_PROMETHEUS_ALERT_MANAGER = true ]]; then
+      YQ_VALUES=''$YQ_VALUES' |
+        .alertmanager.ingress.annotations.["'kubernetes.io/tls-acme'"] = "'true'" |
+        .alertmanager.ingress.tls[0].hosts[0] = "'$VKPR_ENV_ALERT_MANAGER_DOMAIN'" |
+        .alertmanager.ingress.tls[0].secretName = "'alertmanager-cert'"
+      '
+    fi
+  fi
   if [[ $VKPR_ENV_PROMETHEUS_ALERT_MANAGER = true ]]; then
     YQ_VALUES=''$YQ_VALUES' |
       .alertmanager.enabled = true |
       .alertmanager.ingress.enabled = true |
       .alertmanager.ingress.hosts[0] = "'$VKPR_ENV_ALERT_MANAGER_DOMAIN'"
     '
+    if [[ $PROMETHEUS_ALERT_MANAGER_HA = true ]]; then
+      YQ_VALUES=''$YQ_VALUES' |
+        .alertmanager.alertmanagerSpec.replicas = 3 |
+        .prometheus.prometheusSpec.replicas = 3
+      '
+    fi
   fi
   if [[ $VKPR_ENV_PROMETHEUS_INGRESS != "nginx" ]]; then
     YQ_VALUES=''$YQ_VALUES' |
       .alertmanager.ingress.ingressClassName = "traefik" |
       .grafana.ingress.ingressClassName = "traefik"
+    ' 
+  fi
+  if [[ $VKPR_ENV_K8S_EXPORTERS = "true" ]]; then
+    YQ_VALUES=''$YQ_VALUES' |      
+      .kubeApiServer.enabled = true |
+      .kubelet.enabled = true |
+      .kubeControllerManager.enabled = true |
+      .coreDns.enabled = true |
+      .kubeDns.enabled = false |
+      .kubeEtcd.enabled = true |
+      .kubeScheduler.enabled = true |
+      .kubeProxy.enabled = true |
+      .kubeStateMetrics.enabled = true |
+      .nodeExporter.enabled = true
     ' 
   fi
   if [[ $(checkPodName "loki-stack") = "true" ]]; then
@@ -92,18 +126,6 @@ settingStack() {
       .grafana.env.GF_AUTH_SIGNOUT_REDIRECT_URL = "http://'${KEYCLOAK_DOMAIN}'/logout?redirect_uri=http%3A%2F%2F'${VKPR_ENV_GRAFANA_DOMAIN}${K3D_PORTS}'%2Flogin"
     '
   fi
-  if [[ $VKPR_ENV_SECURE = true ]]; then
-    YQ_VALUES=''$YQ_VALUES' |
-      .grafana.ingress.annotations.["'kubernetes.io/tls-acme'"] = "'true'" |
-      .grafana.ingress.tls[0].hosts[0] = "'$VKPR_ENV_GRAFANA_DOMAIN'" |
-      .grafana.ingress.tls[0].secretName = "'grafana-cert'"
-    '
-    if [[ $VKPR_ENV_PROMETHEUS_ALERT_MANAGER = true ]]; then
-      YQ_VALUES=''$YQ_VALUES' |
-        .alertmanager.ingress.annotations.["'kubernetes.io/tls-acme'"] = "'true'" |
-        .alertmanager.ingress.tls[0].hosts[0] = "'$VKPR_ENV_ALERT_MANAGER_DOMAIN'" |
-        .alertmanager.ingress.tls[0].secretName = "'alertmanager-cert'"
-      '
-    fi
-  fi
+
+  mergeVkprValuesHelmArgs "prometheus-stack" $VKPR_PROMETHEUS_VALUES
 }

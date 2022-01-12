@@ -3,6 +3,16 @@
     {
       "name": "password",
       "type": "CREDENTIAL_POSTGRES_PASSWORD"
+    },
+    {
+      "default": "false",
+      "items": [
+        "true",
+        "false"
+      ],
+      "label": "HA? ",
+      "name": "HA",
+      "type": "bool"
     }
   ],
   "template": "shell-bat",

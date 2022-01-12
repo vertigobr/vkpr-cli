@@ -1,4 +1,4 @@
 {
-	"short": "kong commands",
-	"long": "kong commands"
+	"short": "Manage Kong",
+	"long": "Kong is a high performance API Gateway."
 }

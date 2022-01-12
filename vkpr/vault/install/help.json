@@ -1,0 +1,4 @@
+{
+  "short": "Install Vault",
+  "long": "Install the Vault in the Kubernetes cluster."
+}

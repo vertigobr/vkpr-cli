@@ -3,12 +3,11 @@
 # Create a variable by Global Scope
 # $1: Global variable  /  $2: Default value of the global variable  /  $3: Label from config file  /  $4: Name of env
 checkGlobalConfig(){
-  VALUES_FILE=$(dirname "$0")/vkpr.yaml
   FILE_LABEL=".global.$3"
   local NAME_ENV=VKPR_ENV_$4
-  if [ -f "$VALUES_FILE" ] && [ $1 == $2 ] && [[ $($VKPR_YQ eval $FILE_LABEL $VALUES_FILE) != "null" ]]; then
+  if [ -f "$VKPR_GLOBAL" ] && [ $1 == $2 ] && [[ $($VKPR_YQ eval $FILE_LABEL $VKPR_GLOBAL) != "null" ]]; then
       echoColor "yellow" "Setting value from config file"
-      eval $NAME_ENV=$($VKPR_YQ eval $FILE_LABEL $VALUES_FILE)
+      eval $NAME_ENV=$($VKPR_YQ eval $FILE_LABEL $VKPR_GLOBAL)
   else
     if [ $1 == $2 ]; then
       echoColor "yellow" "Setting value from default value"
@@ -21,7 +20,7 @@ checkGlobalConfig(){
 }
 
 # Check wrappers in vkpr values and put on the tool values
-# $1: Wrapper location in vkpr values  /  $2: Values from the tool  / (OPTIONAL) $3: Name of the new wrapper in the Values of the tool 
+# $1: Wrapper location in vkpr values /  $2: Values from the tool  / (OPTIONAL) $3: Name of the new wrapper in the Values of the tool 
 checkGlobal() {
   [[ ! -f $VKPR_GLOBAL ]] && return
   local VALUE_CONTENT=`$VKPR_YQ eval ".global.${1}" $VKPR_GLOBAL`
@@ -48,13 +47,17 @@ checkPodName(){
 # Create a new instance of DB in Postgres;
 # $1: Postgres User  /  $2: Postgres Password  /  $3: Name of DB to create
 createDatabase(){
-  $VKPR_KUBECTL run init-db --rm -it --restart="Never" --namespace $VKPR_K8S_NAMESPACE --image docker.io/bitnami/postgresql:11.13.0-debian-10-r0 --env="PGUSER=$1" --env="PGPASSWORD=$2" --env="PGHOST=postgres-postgresql" --env="PGPORT=5432" --env="PGDATABASE=postgres" --command -- psql --command="CREATE DATABASE $3"
+  local PG_HOST="postgres-postgresql"
+  [[ ! -z $($VKPR_KUBECTL get pod -n $VKPR_K8S_NAMESPACE | grep pgpool) ]] && PG_HOST="postgres-postgresql-pgpool"
+  $VKPR_KUBECTL run init-db --rm -it --restart="Never" --namespace $VKPR_K8S_NAMESPACE --image docker.io/bitnami/postgresql-repmgr:11.14.0-debian-10-r12 --env="PGUSER=$1" --env="PGPASSWORD=$2" --env="PGHOST=${PG_HOST}" --env="PGPORT=5432" --env="PGDATABASE=postgres" --command -- psql --command="CREATE DATABASE $3"
 }
 
 # Check if exist some instace of DB with specified name in Postgres
 # $1: Postgres User  /  $2: Postgres Password  /  $3: Name of DB to search
 checkExistingDatabase(){
-  $VKPR_KUBECTL run check-db --rm -it --restart='Never' --namespace $VKPR_K8S_NAMESPACE --image docker.io/bitnami/postgresql:11.13.0-debian-10-r12 --env="PGUSER=$1" --env="PGPASSWORD=$2" --env="PGHOST=postgres-postgresql" --env="PGPORT=5432" --env="PGDATABASE=postgres" --command -- psql -lqt | cut -d \| -f 1 | grep $3 | sed -e 's/^[ \t]*//'
+  local PG_HOST="postgres-postgresql"
+  [[ ! -z $($VKPR_KUBECTL get pod -n $VKPR_K8S_NAMESPACE | grep pgpool) ]] && PG_HOST="postgres-postgresql-pgpool"
+  $VKPR_KUBECTL run check-db --rm -it --restart='Never' --namespace $VKPR_K8S_NAMESPACE --image docker.io/bitnami/postgresql-repmgr:11.14.0-debian-10-r12 --env="PGUSER=$1" --env="PGPASSWORD=$2" --env="PGHOST=${PG_HOST}" --env="PGPORT=5432" --env="PGDATABASE=postgres" --command -- psql -lqt | cut -d \| -f 1 | grep $3 | sed -e 's/^[ \t]*//'
 }
 
 ##Register new repository when url does not exists in helm
@@ -72,6 +75,20 @@ registerHelmRepository(){
     echoColor green "Repository ${REPO_NAME} already configured."
   fi
   
+}
+
+## Merge KV helmArgs from VKPR with the indicated value application
+#param1: key value from the application in vkpr yaml
+#param2: value files from the application
+mergeVkprValuesHelmArgs() {
+  [[ ! -f $VKPR_GLOBAL ]] && return
+  if [[ $($VKPR_YQ eval '.global.'${1}' | has ("helmArgs")' $CURRENT_PWD/vkpr.yaml) == true ]]; then
+    cp $CURRENT_PWD/vkpr.yaml $(dirname "$0")/vkpr-cp.yaml
+    for i in $($VKPR_YQ eval '.global.'${1}'.helmArgs | keys' $CURRENT_PWD/vkpr.yaml | cut -d " " -f2); do
+      $VKPR_YQ eval-all -i '. * {"'${i}'": select(fileIndex==1).global.'${1}'.helmArgs.'${i}'} | select(fileIndex==0)' $2 $(dirname "$0")/vkpr-cp.yaml
+    done
+    rm $(dirname "$0")/vkpr-cp.yaml
+  fi
 }
 
 ##Encode text

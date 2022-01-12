@@ -1,0 +1,4 @@
+{
+  "short": "Remove Prometheus-stack",
+  "long": "Remove the Prometheus-stack in the Kubernetes cluster"
+}

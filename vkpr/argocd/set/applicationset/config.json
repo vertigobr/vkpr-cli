@@ -1,0 +1,17 @@
+{
+  "inputs": [
+    {
+      "label": "Type the git repository url:",
+      "name": "repo_url",
+      "type": "text",
+      "required": true,
+      "cache": {
+        "active": true,
+        "qty": 2,
+        "newLabel": "Type another git repository url: "
+      }
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease": "2.17.0"
+}

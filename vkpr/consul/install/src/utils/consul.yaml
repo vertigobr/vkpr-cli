@@ -1,0 +1,20 @@
+global:
+  datacenter: vkpr-dc1
+  gossipEncryption:
+    autoGenerate: true
+server:
+  replicas: 3
+  extraConfig: |
+    {
+      "performance": {
+        "raft_multiplier": 1
+      }
+    }
+ui:
+  enabled: true
+  ingress:
+    enabled: true
+    hosts:
+      - path: "/"
+    tls:
+      - secretName: consul.localhost

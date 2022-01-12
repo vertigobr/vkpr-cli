@@ -1,0 +1,4 @@
+{
+  "short": "Install Prometheus-stack",
+  "long": "Install the Prometheus-stack in the Kubernetes cluster"
+}

@@ -1,0 +1,42 @@
+#!/bin/bash
+
+runFormula() {
+  local VKPR_CONSUL_VALUES=$(dirname "$0")/utils/consul.yaml
+  local INGRESS_CONTROLLER="nginx"
+  echoColor "green" "Installing Consul..."
+
+  checkGlobalConfig $DOMAIN "localhost" "domain" "DOMAIN"
+  checkGlobalConfig $SECURE "false" "secure" "SECURE"
+  checkGlobalConfig $INGRESS_CONTROLLER "nginx" "consul.ingressClassName" "CONSUL_INGRESS"
+
+  local VKPR_ENV_CONSUL_DOMAIN="consul.${VKPR_ENV_DOMAIN}"
+  
+  configureRepository
+  installConsul
+}
+
+configureRepository() {
+  registerHelmRepository hashicorp https://helm.releases.hashicorp.com
+}
+
+settingConsul() {
+  YQ_VALUES=''$YQ_VALUES' |
+    .ui.ingress.ingressClassName = "'$VKPR_ENV_CONSUL_INGRESS'"
+  '
+  if [[ $VKPR_ENV_SECURE == true ]]; then
+    YQ_VALUES=''$YQ_VALUES' |
+      .ui.ingress.annotations.["'kubernetes.io/tls-acme'"] = "'true'" |
+      .ui.ingress.tls[0].hosts[0] = "'$VKPR_ENV_CONSUL_DOMAIN'" |
+      .ui.ingress.tls[0].secretName = "'consul-cert'"
+    '
+  fi
+}
+
+installConsul() {
+  local YQ_VALUES='.ui.ingress.hosts[0].host = "'$VKPR_ENV_CONSUL_DOMAIN'"'
+  settingConsul
+  $VKPR_YQ eval "$YQ_VALUES" "$VKPR_CONSUL_VALUES" \
+  | $VKPR_HELM upgrade -i --version "$VKPR_CONSUL_VERSION" \
+      --namespace $VKPR_K8S_NAMESPACE --create-namespace \
+      --wait -f - consul hashicorp/consul
+}

@@ -39,15 +39,34 @@
       ]
     },
     {
+      "cache": {
+        "active": true,
+        "qty": 2,
+        "newLabel": "Type another license path: "
+      },
       "condition": {
         "variable": "enterprise",
         "operator": "==",
         "value": "true"
       },
-      "label": "Type the full path to the license: (License file need to have any extension)",
+      "label": "Type the full path to the license:",
       "name": "license",
       "default": " ",
-      "type": "text"
+      "type": "text",
+      "pattern": {
+        "regex": "license$",
+        "mismatchText": "the file must not contain an extension"
+      }
+    },
+    {
+      "default": "false",
+      "items": [
+        "true",
+        "false"
+      ],
+      "label": "HA? ",
+      "name": "HA",
+      "type": "bool"
     }
   ],
   "template": "shell-bat",

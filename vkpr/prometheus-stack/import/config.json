@@ -1,0 +1,22 @@
+{
+  "inputs": [
+    {
+      "label": "Type the name of the dashboard: ",
+      "name": "dashboard_name",
+      "type": "text",
+      "required": true
+    },
+    {
+      "label": "Type the full path from the dashboard file: ",
+      "name": "dashboard_path",
+      "type": "text",
+      "required": true,
+      "pattern": {
+        "regex": ".json$",
+        "mismatchText": "the file must have the extension .json"
+      }
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease": "2.17.0"
+}

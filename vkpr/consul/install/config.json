@@ -1,0 +1,22 @@
+{
+  "inputs": [
+    {
+      "default": "localhost",
+      "label": "Type the Consul ui domain: ",
+      "name": "domain",
+      "type": "text"
+    },
+    {
+      "default": "false",
+      "items": [
+        "true",
+        "false"
+      ],
+      "label": "Secure? ",
+      "name": "secure",
+      "type": "bool"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease": "2.17.0"
+}
