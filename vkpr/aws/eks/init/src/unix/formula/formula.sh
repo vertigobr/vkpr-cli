@@ -12,6 +12,7 @@ runFormula() {
   checkGlobalConfig $EKS_CLUSTER_NODE_INSTANCE_TYPE "t3.small" "aws.eks.nodes.instace_type" "EKS_CLUSTER_NODE_INSTANCE_TYPE"
   checkGlobalConfig $EKS_K8S_VERSION "1.21" "aws.eks.version" "EKS_K8S_VERSION"
   checkGlobalConfig $EKS_CLUSTER_SIZE "1" "aws.eks.nodes.size" "EKS_CLUSTER_SIZE"
+  checkGlobalConfig $EKS_CAPACITY_TYPE "ON_DEMAND" "aws.eks.nodes.type" "EKS_CAPACITY_TYPE"
 
   local FORK_RESPONSE_CODE=$(curl -s -i -X POST --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://gitlab.com/api/v4/projects/$(rawUrlEncode "vkpr/aws-eks")/fork" | head -n 1 | awk -F' ' '{print $2}')
   # echo "FORK_RESPONSE_CODE= $FORK_RESPONSE_CODE"
@@ -35,6 +36,7 @@ setVariablesGLAB() {
   createOrUpdateVariable "EKS_CLUSTER_NODE_INSTANCE_TYPE" $EKS_CLUSTER_NODE_INSTANCE_TYPE "no"
   createOrUpdateVariable "EKS_K8S_VERSION" "$EKS_K8S_VERSION" "no"
   createOrUpdateVariable "EKS_CLUSTER_SIZE" "$EKS_CLUSTER_SIZE" "no"
+  createOrUpdateVariable "EKS_CAPACITY_TYPE" "$EKS_CAPACITY_TYPE" "no"
 }
 
 ## Create a new variable setting cluster-name as environment

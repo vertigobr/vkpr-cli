@@ -81,6 +81,17 @@
       }
     },
     {
+      "name": "eks_capacity_type",
+      "label": "Choose the capacity type from the nodes: ",
+      "required": true,
+      "type": "text",
+      "default": "ON_DEMAND",
+      "items": [
+        "ON_DEMAND",
+        "SPOT"
+      ]
+    },
+    {
       "label": "Choose where to store the state of Terraform: ",
       "name": "terraform_state",
       "type": "text",
