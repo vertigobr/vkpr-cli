@@ -7,8 +7,7 @@ runFormula() {
 
   checkGlobalConfig $PROVIDER "aws" "external-dns.provider" "EXTERNAL_DNS_PROVIDER"
   checkGlobalConfig $PDNS_APIURL "example.com" "external-dns.powerDNS.apiUrl" "EXTERNAL_DNS_PDNS_APIURL"
-  checkGlobal "external-dns.resources" $VKPR_EXTERNAL_DNS_VALUES "resources"
-  checkGlobal "external-dns.extraEnv" $VKPR_EXTERNAL_DNS_VALUES
+  checkGlobalConfig "false" "false" "external-dns.metrics" "METRICS"
 
   startInfos
   addRepoExternalDNS
@@ -31,6 +30,7 @@ installExternalDNS() {
   if [[ ! -f $RIT_CREDENTIALS_PATH/$VKPR_ENV_EXTERNAL_DNS_PROVIDER ]]; then
     echoColor "red" "Doesn't exists credential $VKPR_ENV_EXTERNAL_DNS_PROVIDER to use in formula, create her or use the provider flag."
   else
+    echoColor "bold" "$(echoColor "green" "Installing External-DNS...")"
     settingExternalDNS
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_EXTERNAL_DNS_VALUES" \
     | $VKPR_HELM upgrade -i --version "$VKPR_EXTERNAL_DNS_VERSION" \
@@ -65,7 +65,7 @@ settingExternalDNS() {
         '
       ;;
   esac
-  if [[ $(checkPodName "prometheus-prometheus-stack-kube-prom-prometheus") == "true" ]]; then
+  if [[ $VKPR_ENV_METRICS == "true" ]]; then
     YQ_VALUES=''$YQ_VALUES' |
       .metrics.enabled = true |
       .metrics.serviceMonitor.enabled = true |
@@ -73,4 +73,6 @@ settingExternalDNS() {
       .metrics.serviceMonitor.interval = "1m"
     '
   fi
+
+  mergeVkprValuesHelmArgs "external-dns" $VKPR_INGRESS_VALUES
 }

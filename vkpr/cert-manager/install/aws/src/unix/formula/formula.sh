@@ -37,19 +37,20 @@ addCertManager() {
 }
 
 installCertManager() {
-  echoColor "yellow" "Installing cert-manager..."
-  $VKPR_YQ eval $VKPR_CERT_MANAGER_VALUES \
+  echoColor "bold" "$(echoColor "green" "Installing cert-manager...")"
+  local YQ_VALUES='.ingressShim.defaultIssuerName = "'$VKPR_ENV_CERT_ISSUER'"'
+  settingCertmanager
+  $VKPR_YQ eval "$YQ_VALUES" "$VKPR_CERT_MANAGER_VALUES" \
   | $VKPR_HELM upgrade -i -f - \
       -n cert-manager --create-namespace \
-      --set ingressShim.defaultIssuerName="$VKPR_ENV_CERT_ISSUER" \
       --version "$VKPR_CERT_VERSION" \
       --wait \
       cert-manager jetstack/cert-manager
 }
 
 installIssuer() {
-  echoColor "yellow" "Installing Issuers and/or ClusterIssuers..."
-  local YQ_VALUES='.spec.acme.email = "'$VKPR_ENV_EMAIL'"'
+  echoColor "bold" "$(echoColor "green" "Installing Issuers and/or ClusterIssuers...")"
+  YQ_VALUES='.spec.acme.email = "'$VKPR_ENV_EMAIL'"'
   case $VKPR_ENV_ISSUER_SOLVER in
     DNS01)
         echoColor "red" "DNS01 maybe will fail, this formula is in WIP"
@@ -81,4 +82,8 @@ addTokenDNS() {
   sed -i.tmp 's/<secret-access-key>/'"$VKPR_INPUT_SECRET_KEY_BASE64"'/g' $VKPR_CERT_TOKEN
   $VKPR_YQ eval "$VKPR_CERT_TOKEN" \
   | $VKPR_KUBECTL apply -f -
+}
+
+settingCertmanager() {
+  mergeVkprValuesHelmArgs "cert-manager" $VKPR_INGRESS_VALUES
 }

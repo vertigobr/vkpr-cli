@@ -3,14 +3,19 @@
 
 runFormula() {
   local VKPR_INGRESS_VALUES=$(dirname "$0")/utils/ingress.yaml
-  echoColor "green" "Installing Nginx Ingress..."
   
   checkGlobalConfig $LB_TYPE "ingress.lb_type" "Classic" "LB_TYPE"
-  checkGlobal "ingress.resources" $VKPR_INGRESS_VALUES "resources"
-  checkGlobal "ingress.extraEnv" $VKPR_INGRESS_VALUES
+  checkGlobalConfig "false" "false" "ingress.metrics" "METRICS"
   
+  startInfos
   configureRepository
   installIngress
+}
+
+startInfos() {
+  echo "=============================="
+  echoColor "bold" "$(echoColor "green" "VKPR Ingress Install Routine")"
+  echo "=============================="
 }
 
 configureRepository() {
@@ -18,11 +23,12 @@ configureRepository() {
 }
 
 installIngress() {
+  echoColor "bold" "$(echoColor "green" "Installing ngnix ingress...")"
   settingIngress
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_INGRESS_VALUES" \
   | $VKPR_HELM upgrade -i --version "$VKPR_INGRESS_NGINX_VERSION" \
       --namespace $VKPR_K8S_NAMESPACE --create-namespace \
-      --wait --timeout 60s -f - ingress-nginx nginx-stable/nginx-ingress
+      --wait --timeout 5m0s -f - ingress-nginx nginx-stable/nginx-ingress
 }
 
 settingIngress() {
@@ -33,4 +39,13 @@ settingIngress() {
       .controller.service.annotations.["'service.beta.kubernetes.io/aws-load-balancer-type'"] = "nlb"
     '
   fi
+
+  if [[ $VKPR_ENV_METRICS = "true" ]]; then
+    YQ_VALUES=''$YQ_VALUES' |      
+      .controller.enableLatencyMetrics = "true" |
+      .prometheus.create = "true"
+    ' 
+  fi
+
+  mergeVkprValuesHelmArgs "ingress" $VKPR_INGRESS_VALUES
 }

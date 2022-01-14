@@ -2,13 +2,10 @@
 
 runFormula() {
   local VKPR_WHOAMI_VALUES=$(dirname "$0")/utils/whoami.yaml
-  local INGRESS_CONTROLLER="nginx"
 
   checkGlobalConfig $DOMAIN "localhost" "domain" "DOMAIN"
   checkGlobalConfig $SECURE "false" "secure" "SECURE"
-  checkGlobalConfig $INGRESS_CONTROLLER "nginx" "whoami.ingressClassName" "WHOAMI_INGRESS"
-  checkGlobal "whoami.resources" $VKPR_WHOAMI_VALUES "resources"
-  checkGlobal "whoami.extraEnv" $VKPR_WHOAMI_VALUES
+  checkGlobalConfig "nginx" "nginx" "whoami.ingressClassName" "WHOAMI_INGRESS"
 
   local VKPR_ENV_WHOAMI_DOMAIN="whoami.${VKPR_ENV_DOMAIN}"
 
@@ -40,10 +37,12 @@ settingWhoami() {
       .ingress.tls[0].secretName = "'whoami-cert'"
     '
   fi
+
+  mergeVkprValuesHelmArgs "whoami" $VKPR_WHOAMI_VALUES
 }
 
 installWhoami() {
-  echoColor "green" "Installing whoami..."
+  echoColor "bold" "$(echoColor "green" "Installing whoami...")"
   local YQ_VALUES='.ingress.hosts[0].host = "'$VKPR_ENV_WHOAMI_DOMAIN'"'
   settingWhoami
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_WHOAMI_VALUES" \

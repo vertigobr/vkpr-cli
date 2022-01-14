@@ -3,7 +3,6 @@
 runFormula() {
   local VKPR_CONSUL_VALUES=$(dirname "$0")/utils/consul.yaml
   local INGRESS_CONTROLLER="nginx"
-  echoColor "green" "Installing Consul..."
 
   checkGlobalConfig $DOMAIN "localhost" "domain" "DOMAIN"
   checkGlobalConfig $SECURE "false" "secure" "SECURE"
@@ -13,6 +12,15 @@ runFormula() {
   
   configureRepository
   installConsul
+}
+
+startInfos() {
+  echo "=============================="
+  echoColor "bold" "$(echoColor "green" "VKPR Consul Install Routine")"
+  echoColor "bold" "$(echoColor "blue" "Consul UI Domain:") ${VKPR_ENV_CONSUL_DOMAIN}"
+  echoColor "bold" "$(echoColor "blue" "Consul UI HTTPS:") ${VKPR_ENV_SECURE}"
+  echoColor "bold" "$(echoColor "blue" "Ingress Controller:") ${VKPR_ENV_CONSUL_INGRESS}"
+  echo "=============================="
 }
 
 configureRepository() {
@@ -30,9 +38,12 @@ settingConsul() {
       .ui.ingress.tls[0].secretName = "'consul-cert'"
     '
   fi
+
+  mergeVkprValuesHelmArgs "consul" $VKPR_CONSUL_VALUES
 }
 
 installConsul() {
+  echoColor "bold" "$(echoColor "green" "Installing Consul...")"
   local YQ_VALUES='.ui.ingress.hosts[0].host = "'$VKPR_ENV_CONSUL_DOMAIN'"'
   settingConsul
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_CONSUL_VALUES" \

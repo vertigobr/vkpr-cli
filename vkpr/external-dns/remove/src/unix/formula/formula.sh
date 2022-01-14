@@ -1,6 +1,6 @@
 #!/bin/sh
 
 runFormula() {
-  echoColor "green" "Removendo external-dns..."
+  echoColor "bold" "$(echoColor "green" "Removing External-DNS...")"
   $VKPR_HELM uninstall -n vkpr external-dns
 }

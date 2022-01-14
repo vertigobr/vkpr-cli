@@ -2,9 +2,9 @@
 
 runFormula() {
   local VKPR_LOKI_VALUES=$(dirname "$0")/utils/loki.yaml
-  local DOMAIN="localhost"
 
-  checkGlobalConfig $DOMAIN "localhost" "domain" "DOMAIN"
+  checkGlobalConfig "localhost" "localhost" "domain" "DOMAIN"
+  checkGlobalConfig "false" "false" "loki.metrics" "METRICS"
 
   startInfos
   addRepLoki
@@ -23,6 +23,9 @@ addRepLoki(){
 }
 
 installLoki(){
+  local YQ_VALUES="grafana.enabled = false"
+  echoColor "bold" "$(echoColor "green" "Installing Loki...")"
+  settingLoki
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_LOKI_VALUES" \
   | $VKPR_HELM upgrade -i --version "$VKPR_LOKI_VERSION" \
     --create-namespace --namespace $VKPR_K8S_NAMESPACE\
@@ -54,4 +57,17 @@ existGrafana() {
           "editable": true
         }' http://127.0.0.1:8000/api/datasources
   fi
+}
+
+settingLoki() {
+  if [[ $VKPR_ENV_METRICS = "true" ]]; then
+    YQ_VALUES=''$YQ_VALUES' |      
+      .loki.serviceMonitor.enabled = true |
+      .loki.serviceMonitor.interval = "30s" |
+      .loki.serviceMonitor.additionalLabels.release = "prometheus-stack" |
+      .loki.serviceMonitor.scrapeTimeout = "30s"
+    ' 
+  fi
+
+  mergeVkprValuesHelmArgs "loki" $VKPR_LOKI_VALUES
 }
