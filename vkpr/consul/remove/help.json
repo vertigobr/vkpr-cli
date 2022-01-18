@@ -1,4 +1,4 @@
 {
-  "short": "",
-  "long": ""
+  "short": "Remove Consul",
+  "long": "Remove the Consul and its dependencies from the Kubernetes cluster"
 }

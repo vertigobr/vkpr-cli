@@ -18,7 +18,7 @@ addCertManager() {
 }
 
 installCertManager() {
-  echoColor "yellow" "Installing cert-manager..."
+  echoColor "bold" "$(echoColor "green" "Installing cert-manager...")"
   local VKPR_CERT_MANAGER_VALUES=$(dirname "$0")/utils/cert-manager.yaml
   $VKPR_YQ eval $VKPR_CERT_MANAGER_VALUES \
   | $VKPR_HELM upgrade -i -f - \
@@ -29,7 +29,7 @@ installCertManager() {
 }
 
 installIssuer() {
-  echoColor "yellow" "Installing Issuers and/or ClusterIssuers..."
+  echoColor "bold" "$(echoColor "green" "Installing Issuers and/or ClusterIssuers...")"
   local VKPR_ISSUER_VALUES=$(dirname "$0")/utils/issuers.yaml
   local VKPR_ENV_CERT_EMAIL="$EMAIL"
   $VKPR_YQ eval '.spec.acme.email = "'$VKPR_ENV_CERT_EMAIL'"' "$VKPR_ISSUER_VALUES" \

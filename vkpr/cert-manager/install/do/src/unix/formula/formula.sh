@@ -23,7 +23,7 @@ startInfos() {
   echo "=============================="
   echoColor "bold" "$(echoColor "green" "VKPR Cert-manager Install Routine")"
   echoColor "bold" "$(echoColor "blue" "Provider:") digitalocean"
-    echoColor "bold" "$(echoColor "blue" "Email:") ${VKPR_ENV_EMAIL}"
+  echoColor "bold" "$(echoColor "blue" "Email:") ${VKPR_ENV_EMAIL}"
   echo "=============================="
 }
 
@@ -37,19 +37,20 @@ addCertManager() {
 }
 
 installCertManager() {
-  echoColor "yellow" "Installing cert-manager..."
-  $VKPR_YQ eval $VKPR_CERT_MANAGER_VALUES \
+  echoColor "bold" "$(echoColor "green" "Installing cert-manager...")"
+  local YQ_VALUES='.ingressShim.defaultIssuerName = "'$VKPR_ENV_CERT_ISSUER'"'
+  settingCertmanager
+  $VKPR_YQ eval "$YQ_VALUES" "$VKPR_CERT_MANAGER_VALUES" \
   | $VKPR_HELM upgrade -i -f - \
       -n cert-manager --create-namespace \
-      --set ingressShim.defaultIssuerName="$VKPR_ENV_CERT_ISSUER" \
       --version "$VKPR_CERT_VERSION" \
       --wait \
       cert-manager jetstack/cert-manager
 }
 
 installIssuer() {
-  echoColor "yellow" "Installing Issuers and/or ClusterIssuers..."
-  local YQ_VALUES='.spec.acme.email = "'$VKPR_ENV_EMAIL'"'
+  echoColor "bold" "$(echoColor "green" "Installing Issuers and/or ClusterIssuers...")"
+  YQ_VALUES='.spec.acme.email = "'$VKPR_ENV_EMAIL'"'
   case $VKPR_ENV_ISSUER_SOLVER in
     DNS01)
         addTokenDNS
@@ -78,4 +79,8 @@ addTokenDNS() {
     $VKPR_YQ eval '.data.access-token = strenv(VKPR_INPUT_ACCESS_TOKEN_BASE64) | .data.access-token style = "double"' "$VKPR_CERT_TOKEN" \
     | $VKPR_KUBECTL apply -f -
   fi
+}
+
+settingCertmanager() {
+  mergeVkprValuesHelmArgs "cert-manager" $VKPR_INGRESS_VALUES
 }

@@ -59,16 +59,18 @@ settingArgoCD(){
       .server.ingress.annotations.["'kubernetes.io/tls-acme'"] = "true" |
       .server.ingress.tls[0].secretName = "argocd-cert" |
       .server.ingress.tls[0].hosts[0] = "'$VKPR_ENV_ARGOCD_DOMAIN'" |
-      .ingress.https = "true"
+      .server.ingress.https = "true"
     '
   fi
   if [[ $VKPR_ENV_HA = true ]]; then
     YQ_VALUES=''$YQ_VALUES' |
-      .controller.replicas = 3 |
       .controller.enableStatefulSet = "true" |
-      .redis.enabled = "false" |
+      .redis.enabled = "true" |
       .redis-ha.enabled = "true" |
       .redis-ha.exporter.enabled = "false" |
+      .repoServer.replicas = 2 |
+      .server.env[0].name = "ARGOCD_API_SERVER_REPLICAS" |
+      .server.env[0].value = 3 |
       .server.replicas = 3
     '
   fi

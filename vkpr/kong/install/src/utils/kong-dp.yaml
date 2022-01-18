@@ -13,7 +13,7 @@ env:
   log_level: notice
 image:
   repository: kong
-  tag: "2.6"
+  tag: "2.7"
 admin:
   enabled: true
   http:

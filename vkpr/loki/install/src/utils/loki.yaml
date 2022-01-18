@@ -1,4 +1,2 @@
 loki:
   enabled: true
-grafana:
-  enabled: false

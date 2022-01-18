@@ -52,11 +52,18 @@
       "label": "Type the full path to the license:",
       "name": "license",
       "default": " ",
-      "type": "text",
-      "pattern": {
-        "regex": "license$",
-        "mismatchText": "the file must not contain an extension"
-      }
+      "type": "text"
+    },
+    {
+      "condition": {
+        "variable": "enterprise",
+        "operator": "==",
+        "value": "true"
+      },
+      "label": "Type the RBAC Admin Password:",
+      "name": "rbac_password",
+      "default": "vkpr123",
+      "type": "text"
     },
     {
       "default": "false",
