@@ -19,19 +19,6 @@ checkGlobalConfig(){
   fi
 }
 
-# Check wrappers in vkpr values and put on the tool values
-# $1: Wrapper location in vkpr values /  $2: Values from the tool  / (OPTIONAL) $3: Name of the new wrapper in the Values of the tool 
-checkGlobal() {
-  [[ ! -f $VKPR_GLOBAL ]] && return
-  local VALUE_CONTENT=`$VKPR_YQ eval ".global.${1}" $VKPR_GLOBAL`
-  if [[ $3 != "" ]]; then
-    VALUE_CONTENT=`$VKPR_YQ eval '{"'$3'": .global.'$1'}' $VKPR_GLOBAL`
-  fi
-  if [[ $VALUE_CONTENT != "null" ]]; then
-    echo "$VALUE_CONTENT" >> $2
-  fi
-}
-
 # Check if any Pod is already up to use and match with another tools
 # $1: name of the pod
 checkPodName(){

@@ -4,10 +4,10 @@ env:
   database: "off"
   log_level: notice
   admin_gui_url: "http://manager.localhost:8000"
-  admin_api_uri: "http://admin.localhost:8000"
+  admin_api_uri: "http://api.manager.localhost:8000"
 image:
   repository: kong
-  tag: "2.6"
+  tag: "2.7"
 admin:
   enabled: true
   type: ClusterIP
@@ -17,7 +17,7 @@ admin:
     containerPort: 8001
   ingress:
     enabled: true
-    hostname: admin.localhost
+    hostname: api.manager.localhost
     annotations:
       kubernetes.io/ingress.class: "kong"
     path: /
@@ -40,7 +40,7 @@ ingressController:
   installCRDs: false
   image:
     repository: kong/kubernetes-ingress-controller
-    tag: "2.0"
+    tag: "2.1"
   env:
     kong_admin_tls_skip_verify: true
   ingressClass: kong

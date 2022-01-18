@@ -9,6 +9,7 @@ runFormula() {
   checkGlobalConfig $HA "false" "kong.HA" "HA"
   checkGlobalConfig "false" "false" "kong.metrics" "METRICS"
   checkGlobalConfig $KONG_MODE "kong" "kong.mode" "KONG_DEPLOY"
+  checkGlobalConfig $RBAC_PASSWORD "vkpr123" "kong.rbac.password" "KONG_RBAC"
 
   startInfos
   addRepoKong
@@ -34,8 +35,8 @@ addRepoKong(){
 
 addDependencies(){
   mkdir -p config/
-  echo '{"cookie_name":"admin_session","cookie_samesite":"off","secret":"manager12345","cookie_secure":false,"storage":"kong"}' > config/admin_gui_session_conf
-  echo '{"cookie_name":"portal_session","cookie_samesite":"off","secret":"portal12345","cookie_secure":false,"storage":"kong"}' > config/portal_session_conf
+  echo '{"cookie_name":"admin_session","cookie_samesite":"Strict","secret":"admin-cookie-secret","cookie_secure":false,"storage":"kong","cookie_domain":"manager.'$VKPR_ENV_DOMAIN'"}' > config/admin_gui_session_conf
+  echo '{"cookie_name":"portal_session","cookie_samesite":"Strict","secret":"portal-cookie-secret","cookie_secure":false,"storage":"kong","cookie_domain":"portal.'$VKPR_ENV_DOMAIN'"}' > config/portal_session_conf
   if [[ $VKPR_ENV_KONG_DEPLOY = "hybrid" ]]; then
     openssl req -new -x509 -nodes -newkey ec:<(openssl ecparam -name secp384r1) \
                 -keyout config/cluster.key -out config/cluster.crt \
@@ -44,17 +45,18 @@ addDependencies(){
 }
 
 createKongSecrets() {
+  local LICENSE_CONTENT=$(cat $LICENSE)
   echoColor "green" "Creating the Kong Secrets..."
   $VKPR_KUBECTL create ns vkpr 2> /dev/null
-  $VKPR_KUBECTL create secret generic kong-enterprise-license --from-file=$LICENSE -n vkpr
+  $VKPR_KUBECTL create secret generic kong-enterprise-license --from-literal="license=$LICENSE_CONTENT" -n $VKPR_K8S_NAMESPACE
   if [[ $VKPR_ENV_KONG_DEPLOY != "dbless" ]]; then
     $VKPR_KUBECTL create secret generic kong-session-config \
       --from-file=config/admin_gui_session_conf \
-      --from-file=config/portal_session_conf -n vkpr
+      --from-file=config/portal_session_conf -n $VKPR_K8S_NAMESPACE
   fi
   if [[ $VKPR_ENV_KONG_DEPLOY = "hybrid" ]]; then
     $VKPR_KUBECTL create ns kong
-    $VKPR_KUBECTL create secret tls kong-cluster-cert --cert=config/cluster.crt --key=config/cluster.key -n vkpr
+    $VKPR_KUBECTL create secret tls kong-cluster-cert --cert=config/cluster.crt --key=config/cluster.key -n $VKPR_K8S_NAMESPACE
     $VKPR_KUBECTL create secret tls kong-cluster-cert --cert=config/cluster.crt --key=config/cluster.key -n kong
     $VKPR_KUBECTL create secret generic kong-enterprise-license --from-file=$LICENSE -n kong
   fi
@@ -79,7 +81,7 @@ installKong(){
     echoColor "bold" "$(echoColor "green" "Installing Kong DP in cluster...")"
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_KONG_DP_VALUES" \
     | $VKPR_HELM upgrade -i --wait -n kong \
-        --version 2.6.0 -f - kong-dp kong/kong
+        --version $VKPR_KONG_VERSION -f - kong-dp kong/kong
   fi
 
   settingKongDefaults
@@ -94,8 +96,8 @@ installKong(){
 
   echoColor "bold" "$(echoColor "green" "Installing Kong...")"
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_KONG_VALUES" \
-  | $VKPR_HELM upgrade -i --wait --create-namespace -n vkpr \
-      --version 2.6.0 -f - kong kong/kong
+  | $VKPR_HELM upgrade -i --wait --create-namespace -n $VKPR_K8S_NAMESPACE \
+      --version $VKPR_KONG_VERSION -f - kong kong/kong
   [[ $VKPR_ENV_METRICS == "true" ]] && $VKPR_KUBECTL apply -f $(dirname "$0")/utils/prometheus-plugin.yaml
 }
 
@@ -108,19 +110,26 @@ settingKongDefaults() {
 
   if [[ $VKPR_ENV_DOMAIN != "localhost" ]]; then
     YQ_VALUES=''$YQ_VALUES' |
-      .admin.ingress.hostname = "'admin.$VKPR_ENV_DOMAIN'" |
+      .admin.ingress.hostname = "'api.manager.$VKPR_ENV_DOMAIN'" |
       .manager.ingress.hostname = "'manager.$VKPR_ENV_DOMAIN'" |
       .env.admin_gui_url="'http://manager.$VKPR_ENV_DOMAIN'" |
-      .env.admin_api_uri="'http://admin.$VKPR_ENV_DOMAIN'"
+      .env.admin_api_uri="'http://api.manager.$VKPR_ENV_DOMAIN'"|
+      .env.portal_gui_host="'http://portal.$VKPR_ENV_DOMAIN'" |
+      .env.portal_api_url="'http://api.portal.$VKPR_ENV_DOMAIN'"
     '
-  fi
-  if [[ $VKPR_ENV_SECURE = true ]]; then
-    YQ_VALUES=''$YQ_VALUES' |
-      .admin.ingress.annotations.["'kubernetes.io/tls-acme'"] = "'true'" |
-      .admin.ingress.tls = "admin-kong-cert" |
-      .manager.ingress.annotations.["'kubernetes.io/tls-acme'"] = "'true'" |
-      .manager.ingress.tls = "manager-kong-cert"
-    '
+    if [[ $VKPR_ENV_SECURE = true ]]; then
+      YQ_VALUES=''$YQ_VALUES' |
+        .admin.ingress.annotations.["'kubernetes.io/tls-acme'"] = "'true'" |
+        .admin.ingress.tls = "admin-kong-cert" |
+        .manager.ingress.annotations.["'kubernetes.io/tls-acme'"] = "'true'" |
+        .manager.ingress.tls = "manager-kong-cert" |
+        .env.portal_gui_protocol = "https" |
+        .env.admin_gui_url="'https://manager.$VKPR_ENV_DOMAIN'" |
+        .env.admin_api_uri="'https://api.manager.$VKPR_ENV_DOMAIN'"|
+        .env.portal_gui_host="'https://portal.$VKPR_ENV_DOMAIN'" |
+        .env.portal_api_url="'https://api.portal.$VKPR_ENV_DOMAIN'"
+      '
+    fi
   fi
   if [[ $VKPR_ENV_KONG_DEPLOY != "dbless" ]]; then
     YQ_VALUES=''$YQ_VALUES' |
@@ -146,18 +155,38 @@ settingKongDefaults() {
       .ingressController.env.leader_elect = "true"
     '
   fi
-
+  if [[ $ENTERPRISE = true ]]; then
+    YQ_VALUES=''$YQ_VALUES' |
+      .env.enforce_rbac = "on" |
+      .env.password.valueFrom.secretKeyRef.name = "kong-enterprise-superuser-password" |
+      .env.password.valueFrom.secretKeyRef.key = "password" |
+      .ingressController.env.kong_admin_token.valueFrom.secretKeyRef.name = "kong-enterprise-superuser-password" |
+      .ingressController.env.kong_admin_token.valueFrom.secretKeyRef.key = "password" |
+      .enteprise.rbac.enabled = "true" |
+      .enteprise.rbac.admin_gui_auth = "basic-auth" |
+      .enteprise.rbac.session_conf_secret = "kong-session-config"
+    '
+  fi
   mergeVkprValuesHelmArgs "kong" $VKPR_KONG_VALUES
 }
 
 settingKongEnterprise() {
+  $VKPR_KUBECTL create secret generic kong-enterprise-superuser-password -n $VKPR_K8S_NAMESPACE --from-literal="password=$VKPR_ENV_KONG_RBAC"
   if [[ $ENTERPRISE = true ]]; then
     YQ_VALUES=''$YQ_VALUES' |
       .image.repository = "kong/kong-gateway" |
-      .image.tag = "2.6.0.0-alpine" |
+      .image.tag = "2.7.0.0-alpine" |
       .enterprise.enabled = true |
       .enterprise.vitals.enabled = true |
-      .enterprise.portal.enabled = true
+      .enterprise.portal.enabled = true |
+      .env.enforce_rbac = "on" |
+      .env.password.valueFrom.secretKeyRef.name = "kong-enterprise-superuser-password" |
+      .env.password.valueFrom.secretKeyRef.key = "password" |
+      .ingressController.env.kong_admin_token.valueFrom.secretKeyRef.name = "kong-enterprise-superuser-password" |
+      .ingressController.env.kong_admin_token.valueFrom.secretKeyRef.key = "password" |
+      .enteprise.rbac.enabled = "true" |
+      .enteprise.rbac.admin_gui_auth = "basic-auth" |
+      .enteprise.rbac.session_conf_secret = "kong-session-config"
     '
   fi
 }

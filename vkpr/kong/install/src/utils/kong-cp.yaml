@@ -20,8 +20,11 @@ env:
   portal: on
   portal_auth: "basic-auth"
   portal_auto_approve: on
+  portal_gui_host: "portal.localhost:8000"
+  portal_api_url: "http://api.portal.localhost:8000"
+  portal_gui_protocol: "http"
   admin_gui_url: "http://manager.localhost:8000"
-  admin_api_uri: "http://admin.localhost:8000"
+  admin_api_uri: "http://api.manager.localhost:8000"
   admin_session_conf:
     valueFrom:
       secretKeyRef:
@@ -34,7 +37,7 @@ env:
         key: portal_session_conf
 image:
   repository: kong
-  tag: "2.6"
+  tag: "2.7"
 admin:
   enabled: true
   type: ClusterIP
@@ -44,7 +47,7 @@ admin:
     containerPort: 8001
   ingress:
     enabled: true
-    hostname: admin.localhost
+    hostname: api.manager.localhost
     annotations:
       kubernetes.io/ingress.class: "kong"
     path: /
@@ -67,7 +70,7 @@ ingressController:
   installCRDs: false
   image:
     repository: kong/kubernetes-ingress-controller
-    tag: "2.0"
+    tag: "2.1"
   env:
     kong_admin_tls_skip_verify: true
   ingressClass: kong
@@ -84,12 +87,14 @@ postgresql:
 enterprise:
   enabled: true
   license_secret: kong-enterprise-license
+  rbac:
+    enabled: true
+    admin_gui_auth: basic-auth
+    session_conf_secret: kong-session-config
   vitals:
     enabled: true
   portal:
     enabled: true
-  rbac:
-    enabled: false
   smtp:
     enabled: false
 manager:
@@ -131,7 +136,7 @@ portalapi:
     containerPort: 8004
   ingress:
     enabled: true
-    hostname: portalapi.localhost
+    hostname: api.portal.localhost
     annotations:
       kubernetes.io/ingress.class: "kong"
     path: /
