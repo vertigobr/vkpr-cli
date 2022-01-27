@@ -112,6 +112,8 @@ settingKongDefaults() {
     YQ_VALUES=''$YQ_VALUES' |
       .admin.ingress.hostname = "'api.manager.$VKPR_ENV_DOMAIN'" |
       .manager.ingress.hostname = "'manager.$VKPR_ENV_DOMAIN'" |
+      .portal.ingress.hostname = "'portal.$VKPR_ENV_DOMAIN'" |
+      .portalapi.ingress.hostname = "'api.portal.$VKPR_ENV_DOMAIN'" |
       .env.admin_gui_url="'http://manager.$VKPR_ENV_DOMAIN'" |
       .env.admin_api_uri="'http://api.manager.$VKPR_ENV_DOMAIN'"|
       .env.portal_gui_host="'http://portal.$VKPR_ENV_DOMAIN'" |
@@ -157,14 +159,15 @@ settingKongDefaults() {
   fi
   if [[ $ENTERPRISE = true ]]; then
     YQ_VALUES=''$YQ_VALUES' |
-      .env.enforce_rbac = "on" |
       .env.password.valueFrom.secretKeyRef.name = "kong-enterprise-superuser-password" |
       .env.password.valueFrom.secretKeyRef.key = "password" |
       .ingressController.env.kong_admin_token.valueFrom.secretKeyRef.name = "kong-enterprise-superuser-password" |
       .ingressController.env.kong_admin_token.valueFrom.secretKeyRef.key = "password" |
-      .enteprise.rbac.enabled = "true" |
-      .enteprise.rbac.admin_gui_auth = "basic-auth" |
-      .enteprise.rbac.session_conf_secret = "kong-session-config"
+      .enterprise.rbac.enabled = "true" |
+      .enterprise.rbac.admin_gui_auth = "basic-auth" |
+      .enterprise.rbac.session_conf_secret = "kong-session-config" |
+      .env.enforce_rbac = "on" |
+      .env.enforce_rbac style="double"
     '
   fi
   mergeVkprValuesHelmArgs "kong" $VKPR_KONG_VALUES
@@ -178,15 +181,7 @@ settingKongEnterprise() {
       .image.tag = "2.7.0.0-alpine" |
       .enterprise.enabled = true |
       .enterprise.vitals.enabled = true |
-      .enterprise.portal.enabled = true |
-      .env.enforce_rbac = "on" |
-      .env.password.valueFrom.secretKeyRef.name = "kong-enterprise-superuser-password" |
-      .env.password.valueFrom.secretKeyRef.key = "password" |
-      .ingressController.env.kong_admin_token.valueFrom.secretKeyRef.name = "kong-enterprise-superuser-password" |
-      .ingressController.env.kong_admin_token.valueFrom.secretKeyRef.key = "password" |
-      .enteprise.rbac.enabled = "true" |
-      .enteprise.rbac.admin_gui_auth = "basic-auth" |
-      .enteprise.rbac.session_conf_secret = "kong-session-config"
+      .enterprise.portal.enabled = true
     '
   fi
 }
