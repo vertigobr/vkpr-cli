@@ -22,7 +22,7 @@ startInfos() {
 }
 
 addRepoExternalDNS() {
-  $VKPR_HELM repo add bitnami https://charts.bitnami.com/bitnami --force-update
+  registerHelmRepository bitnami https://charts.bitnami.com/bitnami
 }
 
 installExternalDNS() {
@@ -43,6 +43,9 @@ installExternalDNS() {
 settingExternalDNS() {
   case $VKPR_ENV_EXTERNAL_DNS_PROVIDER in
     aws)
+        validateAwsSecretKey $AWS_SECRET_KEY
+        validateAwsAccessKey $AWS_ACCESS_KEY
+        validateAwsRegion $AWS_REGION
         YQ_VALUES=''$YQ_VALUES' |
           .provider = "aws" |
           .aws.credentials.accessKey = "'$($VKPR_JQ -r .credential.accesskeyid $RIT_CREDENTIALS_PATH/aws)'" |
@@ -51,6 +54,7 @@ settingExternalDNS() {
         '
       ;;
     digitalocean)
+        validateDigitalOceanApiToken $DO_TOKEN
         YQ_VALUES=''$YQ_VALUES' |
           .provider = "digitalocean" |
           .digitalocean.apiToken = "'$($VKPR_JQ -r .credential.token $RIT_CREDENTIALS_PATH/digitalocean)'"

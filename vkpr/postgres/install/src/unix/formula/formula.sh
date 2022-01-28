@@ -4,8 +4,9 @@ runFormula() {
   local VKPR_POSTGRES_VALUES=$(dirname "$0")/utils/postgres.yaml
 
   checkGlobalConfig $HA "false" "postgresql.HA" "HA"
-  checkGlobalConfig $PASSWORD "postgres" "postgresql.password" "POSTGRES_PASSWORD"
   checkGlobalConfig "false" "false" "postgresql.metrics" "METRICS"
+
+  validatePostgresqlPassword $PASSWORD
 
   startInfos
   addRepoPostgres
@@ -15,7 +16,7 @@ runFormula() {
 startInfos() {
   echo "=============================="
   echoColor "bold" "$(echoColor "green" "VKPR Postgresql Install Routine")"
-  echoColor "bold" "$(echoColor "blue" "Postgresql Password:") ${VKPR_ENV_POSTGRES_PASSWORD}"
+  echoColor "bold" "$(echoColor "blue" "Postgresql Password:") ${PASSWORD}"
   echoColor "bold" "$(echoColor "blue" "HA:") ${VKPR_ENV_HA}"
   echo "=============================="
 }
@@ -40,20 +41,20 @@ settingPostgres() {
     YQ_VALUES=''$YQ_VALUES' |
       .postgresql.username = "postgres" |
       .postgresql.database = "postgres" |
-      .postgresql.password = "'$VKPR_ENV_POSTGRES_PASSWORD'" |
+      .postgresql.password = "'$PASSWORD'" |
       .postgresql.repmgrUsername = "postgres" |
-      .postgresql.repmgrPassword = "'$VKPR_ENV_POSTGRES_PASSWORD'" |
+      .postgresql.repmgrPassword = "'$PASSWORD'" |
       .postgresql.repmgrDatabase = "postgres" |
-      .postgresql.postgresPassword = "'$VKPR_ENV_POSTGRES_PASSWORD'" |
+      .postgresql.postgresPassword = "'$PASSWORD'" |
       .postgresql.replicaCount = 3 |
       .pgpool.adminUsername = "postgres" |
-      .pgpool.adminPassword = "'$VKPR_ENV_POSTGRES_PASSWORD'" |
+      .pgpool.adminPassword = "'$PASSWORD'" |
       .pgpool.replicaCount = 3
     '
     POSTGRESQL_CHART="postgresql-ha"
     else
     YQ_VALUES=''$YQ_VALUES' |
-      .global.postgresql.postgresqlPassword = "'$VKPR_ENV_POSTGRES_PASSWORD'"
+      .global.postgresql.postgresqlPassword = "'$PASSWORD'"
     '
     VKPR_POSTGRES_VERSION="10.12.3"
   fi

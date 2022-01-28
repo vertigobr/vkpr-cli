@@ -9,8 +9,8 @@ runFormula() {
   checkGlobalConfig $DOMAIN "localhost" "domain" "DOMAIN"
   checkGlobalConfig $SECURE "false" "secure" "SECURE"
   checkGlobalConfig $HA "false" "keycloak.HA" "HA"
-  checkGlobalConfig $ADMIN_USER "admin" "keycloak.admin_user" "KEYCLOAK_ADMIN_USER"
-  checkGlobalConfig $ADMIN_PASSWORD "vkpr123" "keycloak.admin_password" "KEYCLOAK_ADMIN_PASSWORD"
+  checkGlobalConfig $ADMIN_USER "admin" "keycloak.adminUser" "KEYCLOAK_ADMIN_USER"
+  checkGlobalConfig $ADMIN_PASSWORD "vkpr123" "keycloak.adminPassword" "KEYCLOAK_ADMIN_PASSWORD"
   checkGlobalConfig "nginx" "nginx" "keycloak.ingressClassName" "KEYCLOAK_INGRESS"
   checkGlobalConfig "false" "false" "keycloak.metrics" "METRICS"
 
@@ -67,7 +67,7 @@ settingKeycloak(){
       .serviceDiscovery.enabled = "true" |
       .serviceDiscovery.protocol = "dns.DNS_PING" |
       .serviceDiscovery.properties[0] = "dns_query=\"keycloak-headless.vkpr.svc.cluster.local\"" |
-      .proxyAddressForward = "true" |
+      .proxyAddressForwarding = "true" |
       .cache.ownersCount = 3 |
       .cache.authOwnersCount = 3
     '
@@ -83,15 +83,17 @@ settingKeycloak(){
     '
   fi
 
-  mergeVkprValuesHelmArgs "keycloak" $VKPR_VAULT_VALUES
+  mergeVkprValuesHelmArgs "keycloak" $VKPR_KEYCLOAK_VALUES
 }
 
 configureKeycloakDB(){
   local PG_HA="false"
+  validatePostgresqlPassword $PASSWORD
   [[ $VKPR_ENV_HA == true ]] && PG_HA="true"
   if [[ $(checkPodName "postgres-postgresql") != "true" ]]; then
     echoColor "green" "Initializing postgresql to Keycloak"
-    rit vkpr postgres install --HA=$PG_HA --default
+    cp $CURRENT_PWD/vkpr.yaml "$(dirname "$0")"
+    rit vkpr postgres install --HA=$PG_HA --password=$PASSWORD --default
   fi
   if [[ $(checkExistingDatabase $PG_USER $PG_PASSWORD $PG_DATABASE_NAME) != "keycloak" ]]; then
     echoColor "green" "Creating Database Instance in postgresql..."

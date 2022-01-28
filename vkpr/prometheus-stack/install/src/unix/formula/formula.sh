@@ -5,11 +5,11 @@ runFormula() {
 
   checkGlobalConfig $DOMAIN "localhost" "domain" "DOMAIN"
   checkGlobalConfig $SECURE "false" "secure" "SECURE"
-  checkGlobalConfig $ALERTMANAGER "false" "prometheus-stack.alertmanager.enabled" "PROMETHEUS_ALERT_MANAGER"
+  checkGlobalConfig $ALERTMANAGER "false" "prometheus-stack.alertManager.enabled" "PROMETHEUS_ALERT_MANAGER"
   checkGlobalConfig $HA "false" "prometheus-stack.alertmanager.HA" "PROMETHEUS_ALERT_MANAGER_HA"
-  checkGlobalConfig $GRAFANA_PASSWORD "vkpr123" "prometheus-stack.grafana.admin-password" "GRAFANA_PASSWORD"
+  checkGlobalConfig $GRAFANA_PASSWORD "vkpr123" "prometheus-stack.grafana.adminPassword" "GRAFANA_PASSWORD"
   checkGlobalConfig "nginx" "nginx" "prometheus-stack.ingressClassName" "PROMETHEUS_INGRESS"
-  checkGlobalConfig "true" "true" "prometheus-stack.grafana.k8s-exporters" "K8S_EXPORTERS"
+  checkGlobalConfig "true" "true" "prometheus-stack.grafana.k8sExporters" "K8S_EXPORTERS"
   
   local VKPR_ENV_GRAFANA_DOMAIN="grafana.${VKPR_ENV_DOMAIN}"
   local VKPR_ENV_ALERT_MANAGER_DOMAIN="alertmanager.${VKPR_ENV_DOMAIN}"
