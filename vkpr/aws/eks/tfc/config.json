@@ -1,11 +1,13 @@
 {
   "inputs": [
     {
-      "name": "api_terraform_email",
+      "tutorial": "Specifies your Terraform Cloud email.",
+      "name": "terraformcloud_email",
       "type": "CREDENTIAL_TERRAFORMCLOUD_EMAIL"
     },
     {
-      "name": "api_terraform_token",
+      "tutorial": "Specifies your Terraform Cloud Token.",
+      "name": "terraformcloud_api_token",
       "type": "CREDENTIAL_TERRAFORMCLOUD_TOKEN"
     }
   ],

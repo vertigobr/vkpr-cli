@@ -4,8 +4,8 @@ runFormula() {
   local SERVERS=1
   local AGENTS=1
 
-  checkGlobalConfig $HTTP_PORT "8000" "infra.http_port" "HTTP_PORT"
-  checkGlobalConfig $HTTPS_PORT "8001" "infra.https_port" "HTTPS_PORT"
+  checkGlobalConfig $HTTP_PORT "8000" "infra.httpPort" "HTTP_PORT"
+  checkGlobalConfig $HTTPS_PORT "8001" "infra.httpsPort" "HTTPS_PORT"
   checkGlobalConfig $ENABLE_TRAEFIK "false" "infra.traefik.enabled" "TRAEFIK"
   checkGlobalConfig $SERVERS "1" "infra.resources.servers" "K3D_SERVERS"
   checkGlobalConfig $AGENTS "1" "infra.resources.agents" "K3D_AGENTS"
