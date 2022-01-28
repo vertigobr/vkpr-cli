@@ -71,6 +71,9 @@ settingVault() {
           .server.extraSecretEnvironmentVars[4].secretName = "aws-unseal-vault" |
           .server.extraSecretEnvironmentVars[4].secretKey = "AWS_KMS_ENDPOINT"
         '
+        validateAwsSecretKey $AWS_SECRET_KEY
+        validateAwsAccessKey $AWS_ACCESS_KEY
+        validateAwsRegion $AWS_REGION
         $VKPR_YQ eval '.metadata.name = "aws-unseal-vault" |
           .data.AWS_REGION = "'$(echo -n $($VKPR_JQ -r .credential.accesskeyid $RIT_CREDENTIALS_PATH/aws) | base64)'" |
           .data.AWS_ACCESS_KEY = "'$(echo -n $($VKPR_JQ -r .credential.secretaccesskey $RIT_CREDENTIALS_PATH/aws) | base64)'" |

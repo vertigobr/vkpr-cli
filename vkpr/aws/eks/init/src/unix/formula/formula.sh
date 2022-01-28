@@ -7,12 +7,18 @@ runFormula() {
   EKS_CLUSTER_NODE_INSTANCE_TYPE=${EKS_CLUSTER_NODE_INSTANCE_TYPE// ([^)]*)/}
   EKS_CLUSTER_NODE_INSTANCE_TYPE=${EKS_CLUSTER_NODE_INSTANCE_TYPE// /}
 
-  checkGlobalConfig $AWS_REGION "us-east-1" "aws.eks.region" "AWS_REGION"
-  checkGlobalConfig $EKS_CLUSTER_NAME "eks-sample" "aws.eks.cluster_name" "EKS_CLUSTER_NAME"
-  checkGlobalConfig $EKS_CLUSTER_NODE_INSTANCE_TYPE "t3.small" "aws.eks.nodes.instace_type" "EKS_CLUSTER_NODE_INSTANCE_TYPE"
+  checkGlobalConfig $EKS_CLUSTER_NAME "eks-sample" "aws.eks.clusterName" "EKS_CLUSTER_NAME"
   checkGlobalConfig $EKS_K8S_VERSION "1.21" "aws.eks.version" "EKS_K8S_VERSION"
-  checkGlobalConfig $EKS_CLUSTER_SIZE "1" "aws.eks.nodes.size" "EKS_CLUSTER_SIZE"
-  checkGlobalConfig $EKS_CAPACITY_TYPE "ON_DEMAND" "aws.eks.nodes.type" "EKS_CAPACITY_TYPE"
+  checkGlobalConfig $EKS_CLUSTER_NODE_INSTANCE_TYPE "t3.small" "aws.eks.nodes.instaceType" "EKS_CLUSTER_NODE_INSTANCE_TYPE"
+  checkGlobalConfig $EKS_CLUSTER_SIZE "1" "aws.eks.nodes.quantitySize" "EKS_CLUSTER_SIZE"
+  checkGlobalConfig $EKS_CAPACITY_TYPE "ON_DEMAND" "aws.eks.nodes.capacityType" "EKS_CAPACITY_TYPE"
+
+  validateAwsSecretKey $AWS_SECRET_KEY
+  validateAwsAccessKey $AWS_ACCESS_KEY
+  validateAwsRegion $AWS_REGION
+  validateGitlabUsername $GITLAB_USERNAME
+  validateGitlabToken $GITLAB_TOKEN
+  [[ $TERRAFORM_STATE == "Terraform Cloud" ]] && validateTFCloudToken $TERRAFORMCLOUD_API_TOKEN
 
   local FORK_RESPONSE_CODE=$(curl -s -i -X POST --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://gitlab.com/api/v4/projects/$(rawUrlEncode "vkpr/aws-eks")/fork" | head -n 1 | awk -F' ' '{print $2}')
   # echo "FORK_RESPONSE_CODE= $FORK_RESPONSE_CODE"

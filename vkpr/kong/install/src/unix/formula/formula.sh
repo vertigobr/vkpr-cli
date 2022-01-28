@@ -9,7 +9,7 @@ runFormula() {
   checkGlobalConfig $HA "false" "kong.HA" "HA"
   checkGlobalConfig "false" "false" "kong.metrics" "METRICS"
   checkGlobalConfig $KONG_MODE "kong" "kong.mode" "KONG_DEPLOY"
-  checkGlobalConfig $RBAC_PASSWORD "vkpr123" "kong.rbac.password" "KONG_RBAC"
+  checkGlobalConfig $RBAC_PASSWORD "vkpr123" "kong.rbac.adminPassword" "KONG_RBAC"
 
   startInfos
   addRepoKong
