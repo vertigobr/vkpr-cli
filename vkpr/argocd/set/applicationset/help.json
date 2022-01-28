@@ -1,4 +1,4 @@
 {
-  "short": "",
-  "long": ""
+  "short": "Apply an Applicationset manifest",
+  "long": "Applies an Applicationset that will deploy all the applications manifests from a repository"
 }

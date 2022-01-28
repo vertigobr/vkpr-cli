@@ -1,32 +1,36 @@
 {
   "inputs": [
     {
-      "default": "localhost",
-      "label": "Type the Vault ui domain: ",
+      "tutorial": "Specifies the domain to use in the application.",
+      "label": "Type the Vault ui domain:",
       "name": "domain",
-      "type": "text"
+      "type": "text",
+      "default": "localhost"
     },
     {
+      "tutorial": "Specifies if the application will have HTTPS.",
+      "label": "Secure ?",
+      "name": "secure",
+      "type": "bool",
       "default": "false",
       "items": [
         "true",
         "false"
-      ],
-      "label": "Secure? ",
-      "name": "secure",
-      "type": "bool"
+      ]
     },
     {
+      "tutorial": "Specifies the Vault storage mode.",
+      "label": "Vault storage mode:",
+      "name": "vault_mode",
+      "type": "text",
       "default": "raft",
       "items": [
         "consul",
         "raft"
-      ],
-      "label": "Vault storage mode:",
-      "name": "vault_mode",
-      "type": "text"
+      ]
     },
     {
+      "tutorial": "Enable to Auto Unseal the Vault with a Cloud provider.",
       "label": "Use Auto Unseal?",
       "name": "vault_auto_unseal",
       "type": "text",
@@ -39,6 +43,7 @@
       ]
     },
     {
+      "tutorial": "Specifies the AWS Access Key Credential.",
       "condition": {
         "variable": "vault_auto_unseal",
         "operator": "==",
@@ -48,6 +53,7 @@
       "type": "CREDENTIAL_AWS_ACCESSKEYID"
     },
     {
+      "tutorial": "Specifies the AWS Secret Key Credential.",
       "condition": {
         "variable": "vault_auto_unseal",
         "operator": "==",
@@ -57,6 +63,7 @@
       "type": "CREDENTIAL_AWS_SECRETACCESSKEY"
     },
     {
+      "tutorial": "Specifies the AWS Region to set the environment.",
       "condition": {
         "variable": "vault_auto_unseal",
         "operator": "==",
@@ -66,6 +73,7 @@
       "type": "CREDENTIAL_AWS_REGION"
     },
     {
+      "tutorial": "Specifies the AWS KMS ID.",
       "condition": {
         "variable": "vault_auto_unseal",
         "operator": "==",
@@ -75,6 +83,7 @@
       "type": "CREDENTIAL_AWS_KMSKEYID"
     },
     {
+      "tutorial": "Specifies the AWS KMS Endpoint.",
       "condition": {
         "variable": "vault_auto_unseal",
         "operator": "==",
@@ -84,6 +93,7 @@
       "type": "CREDENTIAL_AWS_KMSENDPOINT"
     },
     {
+      "tutorial": "Specifies the Azure Tenant ID.",
       "condition": {
         "variable": "vault_auto_unseal",
         "operator": "==",
@@ -93,6 +103,7 @@
       "type": "CREDENTIAL_AZURE_AZURETENANTID"
     },
     {
+      "tutorial": "Specifies the Azure Client ID.",
       "condition": {
         "variable": "vault_auto_unseal",
         "operator": "==",
@@ -102,6 +113,7 @@
       "type": "CREDENTIAL_AZURE_AZURECLIENTID"
     },
     {
+      "tutorial": "Specifies the Azure Client Secret.",
       "condition": {
         "variable": "vault_auto_unseal",
         "operator": "==",
@@ -111,6 +123,7 @@
       "type": "CREDENTIAL_AZURE_AZURECLIENTSECRET"
     },
     {
+      "tutorial": "Specifies the Azure Key Vault Name.",
       "condition": {
         "variable": "vault_auto_unseal",
         "operator": "==",
@@ -120,6 +133,7 @@
       "type": "CREDENTIAL_AZURE_VAULTAZUREKEYVAULTVAULTNAME"
     },
     {
+      "tutorial": "Specifies the Azure Key Vault Key Name.",
       "condition": {
         "variable": "vault_auto_unseal",
         "operator": "==",

@@ -3,7 +3,6 @@
 runFormula() {
   local VKPR_LOKI_VALUES=$(dirname "$0")/utils/loki.yaml
 
-  checkGlobalConfig "localhost" "localhost" "domain" "DOMAIN"
   checkGlobalConfig "false" "false" "loki.metrics" "METRICS"
 
   startInfos

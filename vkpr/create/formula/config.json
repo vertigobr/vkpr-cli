@@ -1,29 +1,29 @@
 {
   "inputs": [
     {
+      "tutorial": "Specifies the VKPR Formula form, must have the form 'vkpr + object + verb + name'.",
       "label": "Enter the New Formula Command:",
       "name": "vkpr_formula",
-      "required": true,
-      "tutorial": "Formula must have the form 'vkpr + object + verb + name'",
       "type": "text",
+      "required": true,
       "pattern": {
         "regex": "vkpr .*",
         "mismatchText": "must begin with 'vkpr '"
       }
     },
     {
+      "tutorial": "Specifies the path from your workspace with the VKPR formulas.",
       "label": "Enter workspace path (Leave empty for current Working dir):",
       "name": "vkpr_workspace_path",
-      "required": false,
-      "tutorial": "You can list available workspaces with `rit list workspace`",
-      "type": "text"
+      "type": "text",
+      "required": false
     },
     {
+      "tutorial": "Specifies the formula path. If formula is 'vkpr object verb' then its path is '/vkpr/object/verb'",
       "label": "Enter formula path (Leave empty for best guess):",
       "name": "vkpr_formula_path",
-      "required": false,
-      "tutorial": "If formula is 'vkpr object verb' then its path is '/vkpr/object/verb'",
       "type": "text",
+      "required": false,
       "pattern": {
         "regex": "^$|\/vkpr\/.*",
         "mismatchText": "must begin with '/vkpr/'"

@@ -1,3 +1,4 @@
 {
-  "short": "Sync a repository with the ArgoCD"
+  "short": "Sync a repository with the ArgoCD",
+  "long": "Sync a repository with the ArgoCD"
 }

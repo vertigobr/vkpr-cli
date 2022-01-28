@@ -1,18 +1,20 @@
 {
   "inputs": [
     {
-      "name": "password",
-      "type": "CREDENTIAL_POSTGRES_PASSWORD"
-    },
-    {
+      "tutorial": "Specifies if the application will have High Availability.",
+      "label": "HA ?",
+      "name": "HA",
+      "type": "bool",
       "default": "false",
       "items": [
         "true",
         "false"
-      ],
-      "label": "HA? ",
-      "name": "HA",
-      "type": "bool"
+      ]
+    },
+    {
+      "tutorial": "Specifies the Postgresql password.",
+      "name": "password",
+      "type": "CREDENTIAL_POSTGRES_PASSWORD"
     }
   ],
   "template": "shell-bat",

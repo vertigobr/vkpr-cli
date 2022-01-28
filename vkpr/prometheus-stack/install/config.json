@@ -1,51 +1,60 @@
 {
   "inputs": [
     {
-      "default": "localhost",
-      "label": "Type the stack domain: ",
+      "tutorial": "Specifies the domain to use in the application.",
+      "label": "Type the stack domain:",
       "name": "domain",
-      "type": "text"
+      "type": "text",
+      "default": "localhost"
     },
     {
-      "default": "vkpr123",
-      "label": "Type the Grafana admin password: ",
-      "name": "grafana_password",
-      "type": "text"
-    },
-    {
-      "default": "false",
-      "items": [
-        "true",
-        "false"
-      ],
-      "label": "Secure? ",
+      "tutorial": "Specifies if the application will have HTTPS.",
+      "label": "Secure ?",
       "name": "secure",
-      "type": "bool"
-    },
-    {
+      "type": "bool",
       "default": "false",
       "items": [
         "true",
         "false"
-      ],
-      "label": "Alert-Manager? ",
-      "name": "alertmanager",
-      "type": "bool"
+      ]
     },
     {
+      "tutorial": "Specifies the Super Admin password.",
+      "label": "Type the Grafana Admin password:",
+      "name": "grafana_password",
+      "type": "text",
+      "default": "vkpr123",
+      "pattern": {
+        "regex": "^([A-Za-z0-9-]{7,})$",
+        "mismatchText": "Password too weak"
+      }
+    },
+    {
+      "tutorial": "Enable Alert-manager to be installed.",
+      "label": "Install Alert-Manager ?",
+      "name": "alertmanager",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "true",
+        "false"
+      ]
+    },
+    {
+      "tutorial": "Specifies if the application will have High Availability.",
       "condition": {
         "variable": "alertmanager",
         "operator": "==",
         "value": "true"
       },
+      "label": "HA ?",
+      "name": "HA",
+      "type": "bool",
       "default": "false",
       "items": [
         "true",
         "false"
-      ],
-      "label": "HA? ",
-      "name": "HA",
-      "type": "bool"
+      ]
     }
   ],
   "template": "shell-bat",

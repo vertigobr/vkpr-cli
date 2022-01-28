@@ -1,6 +1,7 @@
 {
   "inputs": [
     {
+      "tutorial": "Specifies the Git repository URL to ArgoCD fetch the applications.",
       "label": "Type the git repository url:",
       "name": "repo_url",
       "type": "text",
@@ -8,7 +9,7 @@
       "cache": {
         "active": true,
         "qty": 2,
-        "newLabel": "Type another git repository url: "
+        "newLabel": "Type another git repository url"
       }
     }
   ],

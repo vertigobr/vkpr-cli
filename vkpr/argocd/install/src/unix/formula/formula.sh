@@ -6,7 +6,7 @@ runFormula() {
   checkGlobalConfig $DOMAIN "localhost" "domain" "DOMAIN"
   checkGlobalConfig $SECURE "false" "secure" "SECURE"
   checkGlobalConfig $HA "false" "argocd.HA" "HA"
-  checkGlobalConfig $ADMIN_PASSWORD "vkpr123" "argocd.admin_password" "ARGOCD_ADMIN_PASSWORD"
+  checkGlobalConfig $ADMIN_PASSWORD "vkpr123" "argocd.adminPassword" "ARGOCD_ADMIN_PASSWORD"
   checkGlobalConfig "nginx" "nginx" "argocd.ingressClassName" "ARGOCD_INGRESS"
   checkGlobalConfig "false" "false" "argocd.metrics" "METRICS"
   checkGlobalConfig "false" "false" "argocd.addons.applicationset" "ARGO_ADDONS_APPLICATIONSET"
