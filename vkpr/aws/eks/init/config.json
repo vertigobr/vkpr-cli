@@ -1,50 +1,44 @@
 {
   "inputs": [
     {
+      "tutorial": "Specifies the AWS Access Key Credential.",
       "name": "aws_access_key",
       "type": "CREDENTIAL_AWS_ACCESSKEYID"
     },
     {
+      "tutorial": "Specifies the AWS Secret Key Credential.",
       "name": "aws_secret_key",
       "type": "CREDENTIAL_AWS_SECRETACCESSKEY"
     },
     {
+      "tutorial": "Specifies the AWS Region to set the environment.",
       "name": "aws_region",
-      "label": "Type your aws region: ",
+      "type": "CREDENTIAL_AWS_REGION"
+    },
+    {
+      "tutorial": "Specifies the EKS Cluster name.",
+      "label": "EKS cluster name:",
+      "name": "eks_cluster_name",
       "type": "text",
-      "default": "us-east-1",
+      "default": "eks-sample",
+      "required": true,
       "cache": {
         "active": true,
         "qty": 2,
-        "newLabel": "Type another region: "
+        "newLabel": "Type another EKS cluster name"
+      },
+      "pattern": {
+        "regex": "^([A-Za-z0-9-]+)$",
+        "mismatchText": "Invalid Cluster name"
       }
     },
     {
-      "name": "gitlab_token",
-      "type": "CREDENTIAL_GITLAB_TOKEN"
-    },
-    {
-      "name": "gitlab_username",
-      "type": "CREDENTIAL_GITLAB_USERNAME"
-    },
-    {
-      "name": "eks_cluster_name",
-      "label": "EKS cluster name: ",
-      "default": "eks-sample",
-      "required": true,
-      "type": "text",
-      "cache": {
-        "active": true,
-        "qty": 8,
-        "newLabel": "Type another EKS cluster name: "
-      }
-    },
-    {
+      "tutorial": "Specifies the EKS Kubernetes Version.",
       "label": "K8s version",
       "name": "eks_k8s_version",
       "type": "text",
-      "required": true,
       "default": "1.20",
+      "required": true,
       "items": [
         "1.21",
         "1.20",
@@ -54,11 +48,12 @@
       ]
     },
     {
-      "label": "Choose nodes instance type: ",
+      "tutorial": "Specifies the EKS Node instance type.",
+      "label": "Choose nodes instance type:",
       "name": "eks_cluster_node_instance_type",
       "type": "text",
-      "required": true,
       "default": "t3.small (vCPU:2, Mem: 2Gib)",
+      "required": true,
       "items": [
         "t3.small (vCPU:2, Mem: 2Gib)",
         "m5.large (vCPU:2, Mem: 8Gib)",
@@ -69,48 +64,71 @@
       ]
     },
     {
+      "tutorial": "Specifies the number of Nodes.",
+      "label": "Desired number of nodes:",
       "name": "eks_cluster_size",
-      "label": "Desired number of nodes: ",
-      "required": true,
       "type": "text",
       "default": "1",
-      "cache": {
-        "active": true,
-        "qty": 3,
-        "newLabel": "Type another EKS cluster name: "
+      "required": true,
+      "pattern": {
+        "regex": "^([0-9])$",
+        "mismatchText": "Invalid number of nodes."
       }
     },
     {
+      "tutorial": "Specifies the Node Group capacity type.",
+      "label": "Choose the capacity type from the nodes:",
       "name": "eks_capacity_type",
-      "label": "Choose the capacity type from the nodes: ",
-      "required": true,
       "type": "text",
       "default": "ON_DEMAND",
+      "required": true,
       "items": [
         "ON_DEMAND",
         "SPOT"
       ]
     },
     {
-      "label": "Choose where to store the state of Terraform: ",
+      "tutorial": "Specifies where you want to store the TF state.",
+      "label": "Choose where to store the state of Terraform:",
       "name": "terraform_state",
       "type": "text",
-      "required": false,
       "default": "Gitlab",
+      "required": false,
       "items": [
         "Gitlab",
         "Terraform Cloud"
       ]
     },
     {
+      "tutorial": "Specifies your Terraform Cloud Token.",
       "condition": {
         "variable": "terraform_state",
         "operator": "==",
         "value": "Terraform Cloud"
       },
-      "label": "Inform the Terraform Cloud API-Token: ",
-      "name": "tf_cloud_token",
-      "type": "password"
+      "name": "terraformcloud_api_token",
+      "type": "CREDENTIAL_TERRAFORMCLOUD_TOKEN",
+      "required": false
+    },
+    {
+      "tutorial": "Specifies your Gitlab Username.",
+      "condition": {
+        "variable": "terraform_state",
+        "operator": "==",
+        "value": "Gitlab"
+      },
+      "name": "gitlab_username",
+      "type": "CREDENTIAL_GITLAB_USERNAME"
+    },
+    {
+      "tutorial": "Specifies your Gitlab Access-Token.",
+      "condition": {
+        "variable": "terraform_state",
+        "operator": "==",
+        "value": "Gitlab"
+      },
+      "name": "gitlab_token",
+      "type": "CREDENTIAL_GITLAB_TOKEN"
     }
   ],
   "template": "shell-bat",

@@ -1,13 +1,15 @@
 {
   "inputs": [
     {
+      "tutorial": "Specifies the domain to use in the application.",
       "label": "Type the Kong domain:",
       "name": "domain",
       "type": "text",
       "default": "localhost"
     },
     {
-      "label": "Secure?",
+      "tutorial": "Specifies if the application will have HTTPS.",
+      "label": "Secure ?",
       "name": "secure",
       "type": "bool",
       "default": "false",
@@ -17,6 +19,7 @@
       ]
     },
     {
+      "tutorial": "Specifies the type of Kong Deployment.",
       "label": "Kong Mode: (Hybrid only available in Kong Enterprise)",
       "name": "kong_mode",
       "type": "text",
@@ -28,22 +31,19 @@
       ]
     },
     {
+      "tutorial": "Specifies if the Kong will be using Enterprise License.",
       "label": "Do you will use enterprise?",
       "name": "enterprise",
       "type": "bool",
-      "required": true,
       "default": "true",
+      "required": true,
       "items": [
         "true",
         "false"
       ]
     },
     {
-      "cache": {
-        "active": true,
-        "qty": 2,
-        "newLabel": "Type another license path: "
-      },
+      "tutorial": "Specifies the Kong Enterprise License path.",
       "condition": {
         "variable": "enterprise",
         "operator": "==",
@@ -51,10 +51,16 @@
       },
       "label": "Type the full path to the license:",
       "name": "license",
+      "type": "text",
       "default": " ",
-      "type": "text"
+      "cache": {
+        "active": true,
+        "qty": 2,
+        "newLabel": "Type another license path: "
+      }
     },
     {
+      "tutorial": "Specifies the RBAC Super Admin Password.",
       "condition": {
         "variable": "enterprise",
         "operator": "==",
@@ -62,18 +68,23 @@
       },
       "label": "Type the RBAC Admin Password:",
       "name": "rbac_password",
+      "type": "text",
       "default": "vkpr123",
-      "type": "text"
+      "pattern": {
+        "regex": "^([A-Za-z0-9-]{7,})$",
+        "mismatchText": "Password too weak"
+      }
     },
     {
+      "tutorial": "Specifies if the application will have High Availability.",
+      "label": "HA ?",
+      "name": "HA",
+      "type": "bool",
       "default": "false",
       "items": [
         "true",
         "false"
-      ],
-      "label": "HA? ",
-      "name": "HA",
-      "type": "bool"
+      ]
     }
   ],
   "template": "shell-bat",
