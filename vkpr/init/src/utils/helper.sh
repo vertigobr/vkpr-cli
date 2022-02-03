@@ -22,7 +22,7 @@ checkGlobalConfig(){
 # Check if any Pod is already up to use and match with another tools
 # $1: name of the pod
 checkPodName(){
-  for pod in $($VKPR_KUBECTL get pods -n vkpr --ignore-not-found  | awk 'NR>1{print $1}'); do
+  for pod in $($VKPR_KUBECTL get pods -n $VKPR_K8S_NAMESPACE --ignore-not-found  | awk 'NR>1{print $1}'); do
     if [[ "$pod" == "$1"* ]]; then
       echo true  # pod name found a match, then returns True
       return
