@@ -1,0 +1,18 @@
+{
+  "inputs": [
+    {
+      "tutorial": "Specifies the name of the new database.",
+      "label": "Type the realm path:",
+      "name": "realm_path",
+      "type": "text"
+    },
+    {
+      "tutorial": "Specifies the username of the database owner.",
+      "label": "Type the keycloak super admin password:",
+      "name": "keycloak_password",
+      "type": "password"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease": "2.17.0"
+}
