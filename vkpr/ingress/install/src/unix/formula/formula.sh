@@ -4,9 +4,9 @@
 runFormula() {
   local VKPR_INGRESS_VALUES=$(dirname "$0")/utils/ingress.yaml
   
-  checkGlobalConfig $LB_TYPE "ingress.loadBalancerType" "Classic" "LB_TYPE"
+  checkGlobalConfig $LB_TYPE "Classic" "ingress.loadBalancerType" "LB_TYPE"
   checkGlobalConfig "false" "false" "ingress.metrics" "METRICS"
-  
+
   startInfos
   configureRepository
   installIngress
@@ -19,7 +19,7 @@ startInfos() {
 }
 
 configureRepository() {
-  registerHelmRepository nginx-stable https://helm.nginx.com/stable
+  registerHelmRepository ingress-nginx https://kubernetes.github.io/ingress-nginx
 }
 
 installIngress() {
@@ -28,7 +28,7 @@ installIngress() {
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_INGRESS_VALUES" \
   | $VKPR_HELM upgrade -i --version "$VKPR_INGRESS_NGINX_VERSION" \
       --namespace $VKPR_K8S_NAMESPACE --create-namespace \
-      --wait --timeout 5m0s -f - ingress-nginx nginx-stable/nginx-ingress
+      --wait --timeout 5m0s -f - ingress-nginx ingress-nginx/ingress-nginx
 }
 
 settingIngress() {
@@ -41,11 +41,14 @@ settingIngress() {
   fi
 
   if [[ $VKPR_ENV_METRICS = "true" ]]; then
-    YQ_VALUES=''$YQ_VALUES' |      
-      .controller.enableLatencyMetrics = "true" |
-      .prometheus.create = "true"
+    YQ_VALUES=''$YQ_VALUES' |
+      .controller.metrics.enabled = "true" |
+      .controller.metrics.service.annotations.["'prometheus.io/scrape'"] = "true" |
+      .controller.metrics.service.annotations.["'prometheus.io/port'"] = "10254" |
+      .controller.metrics.serviceMonitor.enabled = "true" |
+      .controller.metrics.serviceMonitor.namespace = "vkpr" |
+      .controller.metrics.serviceMonitor.additionalLabels.release = "prometheus-stack"
     ' 
   fi
-
   mergeVkprValuesHelmArgs "ingress" $VKPR_INGRESS_VALUES
 }

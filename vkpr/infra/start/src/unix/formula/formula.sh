@@ -57,14 +57,14 @@ startRegistry() {
 startCluster() {
   local TRAEFIK_FLAG=""
   if [ "${ENABLE_TRAEFIK}" == "false" ]; then
-    TRAEFIK_FLAG="--no-deploy=traefik"
+    TRAEFIK_FLAG="--disable=traefik@server:0"
   fi
   if ! $(${VKPR_K3D} cluster list | grep -q "vkpr-local"); then
     ${VKPR_K3D} cluster create vkpr-local \
       -s ${VKPR_ENV_K3D_SERVERS} -a ${VKPR_ENV_K3D_AGENTS} \
       -p "${VKPR_ENV_HTTP_PORT}:80@loadbalancer" \
       -p "${VKPR_ENV_HTTPS_PORT}:443@loadbalancer" \
-      --k3s-server-arg "${TRAEFIK_FLAG}" \
+      --k3s-arg "${TRAEFIK_FLAG}" \
       --registry-use k3d-registry.localhost \
       --registry-config ${VKPR_CONFIG}/registry.yaml
   ${VKPR_KUBECTL} config use-context k3d-vkpr-local

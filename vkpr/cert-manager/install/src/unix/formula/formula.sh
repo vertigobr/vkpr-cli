@@ -28,7 +28,7 @@ startInfos() {
 
 installCRDS() {
   echoColor "yellow" "Installing cert-manager CRDS beforehand..."
-  $VKPR_KUBECTL apply -f "https://github.com/jetstack/cert-manager/releases/download/$VKPR_CERT_CRDS_VERSION/cert-manager.crds.yaml"
+  $VKPR_KUBECTL apply -f "https://github.com/jetstack/cert-manager/releases/download/$VKPR_CERT_VERSION/cert-manager.crds.yaml"
 }
 
 addCertManager() {

@@ -57,7 +57,7 @@ settingKeycloak(){
   '
   if [[ $VKPR_ENV_SECURE = true ]]; then
     YQ_VALUES=''$YQ_VALUES' |
-      .ingress.certManager = true |
+      .ingress.annotations.["'kubernetes.io/tls-acme'"] = "true" |
       .ingress.tls = true
     '
   fi
@@ -67,7 +67,7 @@ settingKeycloak(){
       .serviceDiscovery.enabled = "true" |
       .serviceDiscovery.protocol = "dns.DNS_PING" |
       .serviceDiscovery.properties[0] = "dns_query=\"keycloak-headless.vkpr.svc.cluster.local\"" |
-      .proxyAddressForwarding = "true" |
+      .proxyAddressForwarding = true |
       .cache.ownersCount = 3 |
       .cache.authOwnersCount = 3
     '
