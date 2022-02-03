@@ -4,9 +4,9 @@
 runFormula() {
   local VKPR_INGRESS_VALUES=$(dirname "$0")/utils/ingress.yaml
   
-  checkGlobalConfig $LB_TYPE "ingress.loadBalancerType" "Classic" "LB_TYPE"
+  checkGlobalConfig $LB_TYPE "Classic" "ingress.loadBalancerType" "LB_TYPE"
   checkGlobalConfig "false" "false" "ingress.metrics" "METRICS"
-  
+
   startInfos
   configureRepository
   installIngress
