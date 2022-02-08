@@ -6,7 +6,6 @@ runFormula() {
   checkGlobalConfig $DOMAIN "localhost" "domain" "DOMAIN"
   checkGlobalConfig $SECURE "false" "secure" "SECURE"
   checkGlobalConfig $HA "false" "argocd.HA" "HA"
-  checkGlobalConfig $ADMIN_PASSWORD "vkpr123" "argocd.adminPassword" "ARGOCD_ADMIN_PASSWORD"
   checkGlobalConfig "nginx" "nginx" "argocd.ingressClassName" "ARGOCD_INGRESS"
   checkGlobalConfig "false" "false" "argocd.metrics" "METRICS"
   checkGlobalConfig "false" "false" "argocd.addons.applicationset" "ARGO_ADDONS_APPLICATIONSET"
@@ -25,7 +24,6 @@ startInfos() {
   echoColor "bold" "$(echoColor "blue" "ArgoCD HTTPS:") ${VKPR_ENV_SECURE}"
   echoColor "bold" "$(echoColor "blue" "HA:") ${VKPR_ENV_HA}"
   echoColor "bold" "$(echoColor "blue" "ArgoCD Admin Username:") admin"
-  echoColor "bold" "$(echoColor "blue" "ArgoCD Admin Password:") ${VKPR_ENV_ARGOCD_ADMIN_PASSWORD}"
   echoColor "bold" "$(echoColor "blue" "Ingress Controller:") ${VKPR_ENV_ARGOCD_INGRESS}"
   echo "=============================="
 }
@@ -43,16 +41,19 @@ installArgoCD(){
     --create-namespace -n argocd \
     --wait --timeout 10m -f - argocd argo/argo-cd
   settingArgoAddons
+  printArgoPassword
+}
+
+printArgoPassword(){
+  PASSWORD=$($VKPR_KUBECTL -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
+  echoColor "blue" "Your ArgoCD Super Admin password is $PASSWORD, we recommend that it be changed after the first login"
 }
 
 settingArgoCD(){
-  local ARGO_PASSWORD=$(htpasswd -nbBC 10 "" $VKPR_ENV_ARGOCD_ADMIN_PASSWORD | tr -d ':\n' | sed 's/$2y/$2a/')
   YQ_VALUES=''$YQ_VALUES' |
     .server.ingress.hosts[0] = "'$VKPR_ENV_ARGOCD_DOMAIN'" |
     .server.config.url = "'$VKPR_ENV_ARGOCD_DOMAIN'" |
-    .server.ingress.annotations.["'kubernetes.io/ingress.class'"] = "'$VKPR_ENV_ARGOCD_INGRESS'" |
-    .configs.secret.createSecret = "false" |
-    .configs.secret.argocdServerAdminPassword = "'$ARGO_PASSWORD'"
+    .server.ingress.annotations.["'kubernetes.io/ingress.class'"] = "'$VKPR_ENV_ARGOCD_INGRESS'"
   '
   if [[ $VKPR_ENV_SECURE = true ]]; then
     YQ_VALUES=''$YQ_VALUES' |

@@ -36,7 +36,7 @@
       "label": "What solver do you want to use ?",
       "name": "issuer_solver",
       "type": "text",
-      "default": "HTTP01",
+      "default": "DNS01",
       "required": true,
       "items": [
         "HTTP01",

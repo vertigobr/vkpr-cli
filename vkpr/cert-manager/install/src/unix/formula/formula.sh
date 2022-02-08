@@ -3,11 +3,10 @@
 runFormula() {
   local VKPR_ISSUER_VALUES=$(dirname "$0")/utils/issuer.yaml
   local VKPR_CERT_MANAGER_VALUES=$(dirname "$0")/utils/cert-manager.yaml
-  local VKPR_ENV_CERT_ISSUER="$ISSUER"
 
   checkGlobalConfig $EMAIL "default@vkpr.com" "cert-manager.email" "EMAIL"
-  checkGlobalConfig $ISSUER_SOLVER "HTTP01" "cert-manager.solver" "ISSUER_SOLVER"
-  checkGlobalConfig $CLOUD_PROVIDER "aws" "cert-manager.provider" "CLOUD_PROVIDER"
+  checkGlobalConfig $ISSUER "staging" "cert-manager.issuer" "CERT_ISSUER"
+  checkGlobalConfig $ISSUER_SOLVER "DNS01" "cert-manager.solver" "ISSUER_SOLVER"
   checkGlobalConfig "nginx" "nginx" "cert-manager.ingress" "HTTP01_INGRESS"
 
   startInfos
@@ -20,9 +19,9 @@ runFormula() {
 startInfos() {
   echo "=============================="
   echoColor "bold" "$(echoColor "green" "VKPR Cert-manager Install Routine")"
-  echoColor "bold" "$(echoColor "blue" "Provider:") ${VKPR_ENV_CLOUD_PROVIDER}"
-  echoColor "bold" "$(echoColor "blue" "Issuer Solver:") ${VKPR_ENV_ISSUER_SOLVER}"
   echoColor "bold" "$(echoColor "blue" "Email:") ${VKPR_ENV_EMAIL}"
+  echoColor "bold" "$(echoColor "blue" "Issuer Solver:") ${VKPR_ENV_ISSUER_SOLVER}"
+  echoColor "bold" "$(echoColor "blue" "Provider:") ${CLOUD_PROVIDER}"
   echo "=============================="
 }
 
@@ -50,11 +49,11 @@ installCertManager() {
 settingCertmanager() {
   if [[ $VKPR_ENV_CERT_ISSUER = "custom-acme" ]]; then
     YQ_VALUES=''$YQ_VALUES' |
-      volumes[0].name = "custom-ca" |
-      volumes[0].secret.secretName = "custom-ca-secret" |
-      volumeMounts[0].name: "custom-ca" |
-      volumeMounts[0].mountPath: "/etc/ssl/certs" |
-      volumeMounts[0].readOnly: "true"
+      .volumes[0].name = "custom-ca" |
+      .volumes[0].secret.secretName = "custom-ca-secret" |
+      .volumeMounts[0].name = "custom-ca" |
+      .volumeMounts[0].mountPath = "/etc/ssl/certs" |
+      .volumeMounts[0].readOnly = "true"
     '
   fi
 
@@ -104,14 +103,14 @@ settingIssuer() {
 }
 
 configureDNS01() {
-  case $VKPR_ENV_CLOUD_PROVIDER in
+  case $CLOUD_PROVIDER in
     aws)
-        validateAwsSecretKey $AWS_SECRET_KEY
-        validateAwsAccessKey $AWS_ACCESS_KEY
-        validateAwsRegion $AWS_REGION
         AWS_REGION=$(cat ~/.rit/credentials/default/aws | $VKPR_JQ -r .credential.region)
         AWS_ACCESS_KEY=$(cat ~/.rit/credentials/default/aws | $VKPR_JQ -r .credential.accesskeyid)
         AWS_SECRET_KEY=$(cat ~/.rit/credentials/default/aws | $VKPR_JQ -r .credential.secretaccesskey)
+        validateAwsAccessKey $AWS_ACCESS_KEY
+        validateAwsSecretKey $AWS_SECRET_KEY
+        validateAwsRegion $AWS_REGION
         $VKPR_KUBECTL create secret generic route53-secret -n cert-manager --from-literal="secret-access-key=$AWS_SECRET_KEY"
         YQ_ISSUER_VALUES=''$YQ_ISSUER_VALUES' |
           .spec.acme.solvers[0].dns01.route53.region = "'$AWS_REGION'" |
@@ -122,8 +121,8 @@ configureDNS01() {
         '
       ;;
     digitalocean)
-        validateDigitalOceanApiToken $DO_TOKEN
         DO_TOKEN=$(cat ~/.rit/credentials/default/digitalocean | $VKPR_JQ -r .credential.token)
+        validateDigitalOceanApiToken $DO_TOKEN
         $VKPR_KUBECTL create secret generic digitalocean-secret -n cert-manager --from-literal="access-token=$DO_TOKEN"
         YQ_ISSUER_VALUES=''$YQ_ISSUER_VALUES' |
           .spec.acme.solvers[0].dns01.digitalocean.tokenSecretRef.name = "digitalocean-secret" |

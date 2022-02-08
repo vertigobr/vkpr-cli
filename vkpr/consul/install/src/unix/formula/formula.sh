@@ -10,6 +10,7 @@ runFormula() {
 
   local VKPR_ENV_CONSUL_DOMAIN="consul.${VKPR_ENV_DOMAIN}"
   
+  startInfos
   configureRepository
   installConsul
 }

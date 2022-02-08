@@ -5,7 +5,6 @@ runFormula() {
   local RIT_CREDENTIALS_PATH=~/.rit/credentials/default
   [[ $PDNS_APIURL == "" ]] && PDNS_APIURL="example.com"
 
-  checkGlobalConfig $PROVIDER "aws" "external-dns.provider" "EXTERNAL_DNS_PROVIDER"
   checkGlobalConfig $PDNS_APIURL "example.com" "external-dns.powerDNS.apiUrl" "EXTERNAL_DNS_PDNS_APIURL"
   checkGlobalConfig "false" "false" "external-dns.metrics" "METRICS"
 
@@ -17,7 +16,7 @@ runFormula() {
 startInfos() {
   echo "=============================="
   echoColor "bold" "$(echoColor "green" "VKPR External-DNS Install Routine")"
-  echoColor "bold" "$(echoColor "blue" "Provider:") ${VKPR_ENV_EXTERNAL_DNS_PROVIDER}"
+  echoColor "bold" "$(echoColor "blue" "Provider:") ${PROVIDER}"
   echo "=============================="
 }
 
@@ -27,8 +26,8 @@ addRepoExternalDNS() {
 
 installExternalDNS() {
   local YQ_VALUES='.rbac.create = true'
-  if [[ ! -f $RIT_CREDENTIALS_PATH/$VKPR_ENV_EXTERNAL_DNS_PROVIDER ]]; then
-    echoColor "red" "Doesn't exists credential $VKPR_ENV_EXTERNAL_DNS_PROVIDER to use in formula, create her or use the provider flag."
+  if [[ ! -f $RIT_CREDENTIALS_PATH/$PROVIDER ]]; then
+    echoColor "red" "Doesn't exists credential $PROVIDER to use in formula, create her or use the provider flag."
   else
     echoColor "bold" "$(echoColor "green" "Installing External-DNS...")"
     settingExternalDNS
@@ -41,23 +40,27 @@ installExternalDNS() {
 
 
 settingExternalDNS() {
-  case $VKPR_ENV_EXTERNAL_DNS_PROVIDER in
+  case $PROVIDER in
     aws)
-        validateAwsSecretKey $AWS_SECRET_KEY
+        AWS_REGION=$(cat ~/.rit/credentials/default/aws | $VKPR_JQ -r .credential.region)
+        AWS_ACCESS_KEY=$(cat ~/.rit/credentials/default/aws | $VKPR_JQ -r .credential.accesskeyid)
+        AWS_SECRET_KEY=$(cat ~/.rit/credentials/default/aws | $VKPR_JQ -r .credential.secretaccesskey)
         validateAwsAccessKey $AWS_ACCESS_KEY
+        validateAwsSecretKey $AWS_SECRET_KEY
         validateAwsRegion $AWS_REGION
         YQ_VALUES=''$YQ_VALUES' |
           .provider = "aws" |
-          .aws.credentials.accessKey = "'$($VKPR_JQ -r .credential.accesskeyid $RIT_CREDENTIALS_PATH/aws)'" |
-          .aws.credentials.secretKey = "'$($VKPR_JQ -r .credential.secretaccesskey $RIT_CREDENTIALS_PATH/aws)'" |
-          .aws.region = "'$($VKPR_JQ -r .credential.region $RIT_CREDENTIALS_PATH/aws)'"
+          .aws.credentials.accessKey = "'$AWS_ACCESS_KEY'" |
+          .aws.credentials.secretKey = "'$AWS_SECRET_KEY'" |
+          .aws.region = "'$AWS_REGION'"
         '
       ;;
     digitalocean)
+        DO_TOKEN=$(cat ~/.rit/credentials/default/digitalocean | $VKPR_JQ -r .credential.token)
         validateDigitalOceanApiToken $DO_TOKEN
         YQ_VALUES=''$YQ_VALUES' |
           .provider = "digitalocean" |
-          .digitalocean.apiToken = "'$($VKPR_JQ -r .credential.token $RIT_CREDENTIALS_PATH/digitalocean)'"
+          .digitalocean.apiToken = "'$DO_TOKEN'"
         '
       ;;
     powerDNS)
@@ -78,5 +81,5 @@ settingExternalDNS() {
     '
   fi
 
-  mergeVkprValuesHelmArgs "external-dns" $VKPR_INGRESS_VALUES
+  mergeVkprValuesHelmArgs "external-dns" $VKPR_EXTERNAL_DNS_VALUES
 }

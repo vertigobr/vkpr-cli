@@ -22,7 +22,7 @@ addRepLoki(){
 }
 
 installLoki(){
-  local YQ_VALUES="grafana.enabled = false"
+  local YQ_VALUES=".grafana.enabled = false"
   echoColor "bold" "$(echoColor "green" "Installing Loki...")"
   settingLoki
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_LOKI_VALUES" \
@@ -60,7 +60,7 @@ existGrafana() {
 
 settingLoki() {
   if [[ $VKPR_ENV_METRICS = "true" ]]; then
-    YQ_VALUES=''$YQ_VALUES' |      
+    YQ_VALUES=''$YQ_VALUES' |
       .loki.serviceMonitor.enabled = true |
       .loki.serviceMonitor.interval = "30s" |
       .loki.serviceMonitor.additionalLabels.release = "prometheus-stack" |

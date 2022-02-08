@@ -1,7 +1,7 @@
 #!/bin/bash
 
 runFormula() {
-  cp $CURRENT_PWD/vkpr.yaml "$(dirname "$0")"
+  [[ -f $CURRENT_PWD/vkpr.yaml ]] && cp $CURRENT_PWD/vkpr.yaml "$(dirname "$0")"
   rit vkpr aws eks init --terraform_state="Terraform Cloud" --terraformcloud_api_token="$TERRAFORMCLOUD_API_TOKEN" --default
 
   createOrganizationInTFCloud

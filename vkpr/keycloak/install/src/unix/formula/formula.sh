@@ -92,7 +92,7 @@ configureKeycloakDB(){
   [[ $VKPR_ENV_HA == true ]] && PG_HA="true"
   if [[ $(checkPodName "postgres-postgresql") != "true" ]]; then
     echoColor "green" "Initializing postgresql to Keycloak"
-    cp $CURRENT_PWD/vkpr.yaml "$(dirname "$0")"
+    [[ -f $CURRENT_PWD/vkpr.yaml ]] && cp $CURRENT_PWD/vkpr.yaml "$(dirname "$0")"
     rit vkpr postgres install --HA=$PG_HA --password=$PASSWORD --default
   fi
   if [[ $(checkExistingDatabase $PG_USER $PG_PASSWORD $PG_DATABASE_NAME) != "keycloak" ]]; then
