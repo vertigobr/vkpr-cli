@@ -5,6 +5,7 @@ runFormula() {
 
   checkGlobalConfig $HA "false" "postgresql.HA" "HA"
   checkGlobalConfig "false" "false" "postgresql.metrics" "METRICS"
+  checkGlobalConfig $VKPR_K8S_NAMESPACE "vkpr" "postgresql.namespace" "NAMESPACE"
 
   validatePostgresqlPassword $PASSWORD
 
@@ -32,7 +33,7 @@ installPostgres(){
   settingPostgres
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_POSTGRES_VALUES" \
   | $VKPR_HELM upgrade -i --version "$VKPR_POSTGRES_VERSION" \
-      --create-namespace --namespace $VKPR_K8S_NAMESPACE \
+      --create-namespace --namespace $VKPR_ENV_NAMESPACE \
       --wait -f - postgresql bitnami/$POSTGRESQL_CHART
 }
 
@@ -47,9 +48,11 @@ settingPostgres() {
       .postgresql.repmgrDatabase = "postgres" |
       .postgresql.postgresPassword = "'$PASSWORD'" |
       .postgresql.replicaCount = 3 |
+      .postgresql.podLabels.vkpr = "true" |
       .pgpool.adminUsername = "postgres" |
       .pgpool.adminPassword = "'$PASSWORD'" |
-      .pgpool.replicaCount = 3
+      .pgpool.replicaCount = 3 |
+      .primary = {}
     '
     POSTGRESQL_CHART="postgresql-ha"
     else
@@ -63,7 +66,7 @@ settingPostgres() {
     YQ_VALUES=''$YQ_VALUES' |
       .metrics.enabled = true |
       .metrics.serviceMonitor.enabled = true |
-      .metrics.serviceMonitor.namespace = "vkpr" |
+      .metrics.serviceMonitor.namespace = "'$VKPR_ENV_NAMESPACE'" |
       .metrics.serviceMonitor.interval = "1m" |
       .metrics.serviceMonitor.scrapeTimeout = "30m"
     '

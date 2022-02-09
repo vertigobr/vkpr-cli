@@ -3,7 +3,7 @@ kind: ApplicationSet
 metadata:
   namespace: argocd
   labels:
-    argo-setup: vkpr
+    vkpr: "true"
 spec:
   generators:
     - git:

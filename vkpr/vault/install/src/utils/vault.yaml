@@ -4,6 +4,8 @@ global:
 injector:
   enabled: true
 server:
+  extraLabels:
+    vkpr: "true"
   volumes:
     - name: vault-storage-config
       secret:

@@ -1,3 +1,5 @@
+commonLabels:
+  vkpr: "true"
 alertmanager:
   enabled: false
   ingress:

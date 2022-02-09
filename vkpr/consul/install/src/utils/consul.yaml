@@ -3,6 +3,7 @@ global:
   gossipEncryption:
     autoGenerate: true
 server:
+  enabled: true
   replicas: 3
   extraConfig: |
     {
@@ -10,11 +11,16 @@ server:
         "raft_multiplier": 1
       }
     }
+  extraLabels:
+    vkpr: "true"
 ui:
   enabled: true
+  service:
+    type: ClusterIP
   ingress:
     enabled: true
+    annotations: |
+      kubernetes.io/tls-acme: true
     hosts:
-      - path: "/"
-    tls:
-      - secretName: consul.localhost
+      - paths:
+          - /

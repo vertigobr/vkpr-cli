@@ -6,6 +6,7 @@ runFormula() {
   checkGlobalConfig $DOMAIN "localhost" "domain" "DOMAIN"
   checkGlobalConfig $SECURE "false" "secure" "SECURE"
   checkGlobalConfig $HA "false" "argocd.HA" "HA"
+  checkGlobalConfig "argocd" "argocd" "argocd.namespace" "NAMESPACE"
   checkGlobalConfig "nginx" "nginx" "argocd.ingressClassName" "ARGOCD_INGRESS"
   checkGlobalConfig "false" "false" "argocd.metrics" "METRICS"
   checkGlobalConfig "false" "false" "argocd.addons.applicationset" "ARGO_ADDONS_APPLICATIONSET"
@@ -38,14 +39,14 @@ installArgoCD(){
   echoColor "bold" "$(echoColor "green" "Installing ArgoCD...")"
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_ARGOCD_VALUES" \
   | $VKPR_HELM upgrade -i --version "$VKPR_ARGOCD_VERSION" \
-    --create-namespace -n argocd \
+    --create-namespace -n $VKPR_ENV_NAMESPACE \
     --wait --timeout 10m -f - argocd argo/argo-cd
   settingArgoAddons
   printArgoPassword
 }
 
 printArgoPassword(){
-  PASSWORD=$($VKPR_KUBECTL -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
+  PASSWORD=$($VKPR_KUBECTL -n $VKPR_ENV_NAMESPACE get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
   echoColor "blue" "Your ArgoCD Super Admin password is $PASSWORD, we recommend that it be changed after the first login"
 }
 
@@ -79,13 +80,13 @@ settingArgoCD(){
     YQ_VALUES=''$YQ_VALUES' |
       .controller.metrics.enabled = true |
       .controller.metrics.serviceMonitor.enabled = true |
-      .controller.metrics.serviceMonitor.namespace = "vkpr" |
+      .controller.metrics.serviceMonitor.namespace = "'$VKPR_ENV_NAMESPACE'" |
       .controller.metrics.serviceMonitor.interval = "30s" |
       .controller.metrics.serviceMonitor.scrapeTimeout = "30s" |
       .controller.metrics.serviceMonitor.additionalLabels.release = "prometheus-stack" |
       .server.metrics.enabled = true |
       .server.metrics.serviceMonitor.enabled = true |
-      .server.metrics.serviceMonitor.namespace = "vkpr" |
+      .server.metrics.serviceMonitor.namespace = "'$VKPR_ENV_NAMESPACE'" |
       .server.metrics.serviceMonitor.interval = "30s" |
       .server.metrics.serviceMonitor.scrapeTimeout = "30s" |
       .server.metrics.serviceMonitor.additionalLabels.release = "prometheus-stack" 
@@ -97,8 +98,13 @@ settingArgoCD(){
 
 settingArgoAddons(){
   if [[ $VKPR_ENV_ARGO_ADDONS_APPLICATIONSET = true ]]; then
+    local VKPR_ARGOCD_APPLICATIONSET_VALUES=$(dirname "$0")/utils/argocd-applicationset.yaml
+    local YQ_APPLICATIONSET_VALUES='.args.namespace = "'$VKPR_ENV_NAMESPACE'"'
+
     echoColor "bold" "$(echoColor "green" "Installing ArgoCD Addon Applicationset...")"
-    $VKPR_KUBECTL apply -n argocd \
-      -f https://raw.githubusercontent.com/argoproj-labs/applicationset/$VKPR_ARGOCD_ADDON_APPLICATIONSET_VERSION/manifests/install.yaml
+    $VKPR_YQ eval "$YQ_APPLICATIONSET_VALUES" "$VKPR_ARGOCD_APPLICATIONSET_VALUES" \
+    | $VKPR_HELM upgrade -i --version "$VKPR_ARGOCD_ADDON_APPLICATIONSET_VERSION" \
+      -n $VKPR_ENV_NAMESPACE \
+      --wait --timeout 10m -f - argocd-applicationset argo/argocd-applicationset
   fi
 }

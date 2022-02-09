@@ -6,6 +6,7 @@ runFormula() {
   [[ $PDNS_APIURL == "" ]] && PDNS_APIURL="example.com"
 
   checkGlobalConfig $PDNS_APIURL "example.com" "external-dns.powerDNS.apiUrl" "EXTERNAL_DNS_PDNS_APIURL"
+  checkGlobalConfig $VKPR_K8S_NAMESPACE "vkpr" "external-dns.namespace" "NAMESPACE"
   checkGlobalConfig "false" "false" "external-dns.metrics" "METRICS"
 
   startInfos
@@ -33,7 +34,7 @@ installExternalDNS() {
     settingExternalDNS
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_EXTERNAL_DNS_VALUES" \
     | $VKPR_HELM upgrade -i --version "$VKPR_EXTERNAL_DNS_VERSION" \
-      --create-namespace --namespace "$VKPR_K8S_NAMESPACE" \
+      --create-namespace --namespace "$VKPR_ENV_NAMESPACE" \
       --wait -f - external-dns bitnami/external-dns
   fi
 }
@@ -76,7 +77,7 @@ settingExternalDNS() {
     YQ_VALUES=''$YQ_VALUES' |
       .metrics.enabled = true |
       .metrics.serviceMonitor.enabled = true |
-      .metrics.serviceMonitor.namespace = "vkpr" |
+      .metrics.serviceMonitor.namespace = "'$VKPR_ENV_NAMESPACE'" |
       .metrics.serviceMonitor.interval = "1m"
     '
   fi

@@ -1,0 +1,5 @@
+controller:
+  labels:
+    vkpr: "true"
+rbac:
+  create: true

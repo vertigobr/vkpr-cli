@@ -8,6 +8,10 @@ runFormula() {
   checkGlobalConfig $ISSUER "staging" "cert-manager.issuer" "CERT_ISSUER"
   checkGlobalConfig $ISSUER_SOLVER "DNS01" "cert-manager.solver" "ISSUER_SOLVER"
   checkGlobalConfig "nginx" "nginx" "cert-manager.ingress" "HTTP01_INGRESS"
+  checkGlobalConfig "cert-manager" "cert-manager" "cert-manager.namespace" "NAMESPACE"
+
+  # Todo: find why cert-manager doesnt work in another namespace
+  VKPR_ENV_NAMESPACE="cert-manager"
 
   startInfos
   installCRDS
@@ -36,11 +40,11 @@ addCertManager() {
 
 installCertManager() {
   echoColor "bold" "$(echoColor "green" "Installing cert-manager...")"
-  local YQ_VALUES='.ingressShim.defaultIssuerName = "certmanager-issuer"'
+  local YQ_VALUES='.ingressShim.defaultIssuerName = "certmanager-issuer" | .clusterResourceNamespace = "'$VKPR_ENV_NAMESPACE'"'
   settingCertmanager
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_CERT_MANAGER_VALUES" \
   | $VKPR_HELM upgrade -i -f - \
-      -n cert-manager --create-namespace \
+      -n $VKPR_ENV_NAMESPACE --create-namespace \
       --version "$VKPR_CERT_VERSION" \
       --wait \
       cert-manager jetstack/cert-manager
@@ -62,7 +66,7 @@ settingCertmanager() {
 
 installIssuer() {
   echoColor "bold" "$(echoColor "green" "Installing Issuers and/or ClusterIssuers...")"
-  local YQ_ISSUER_VALUES='.spec.acme.email = "'$VKPR_ENV_EMAIL'"'
+  local YQ_ISSUER_VALUES='.spec.acme.email = "'$VKPR_ENV_EMAIL'" | .metadata.namespace = "'$VKPR_ENV_NAMESPACE'"'
   case $VKPR_ENV_CERT_ISSUER in
     staging)
         YQ_ISSUER_VALUES=''$YQ_ISSUER_VALUES' |
@@ -111,7 +115,8 @@ configureDNS01() {
         validateAwsAccessKey $AWS_ACCESS_KEY
         validateAwsSecretKey $AWS_SECRET_KEY
         validateAwsRegion $AWS_REGION
-        $VKPR_KUBECTL create secret generic route53-secret -n cert-manager --from-literal="secret-access-key=$AWS_SECRET_KEY"
+        $VKPR_KUBECTL create secret generic route53-secret -n $VKPR_ENV_NAMESPACE --from-literal="secret-access-key=$AWS_SECRET_KEY"
+        $VKPR_KUBECTL label secret route53-secret -n $VKPR_ENV_NAMESPACE vkpr=true app.kubernetes.io/instance=cert-manager
         YQ_ISSUER_VALUES=''$YQ_ISSUER_VALUES' |
           .spec.acme.solvers[0].dns01.route53.region = "'$AWS_REGION'" |
           .spec.acme.solvers[0].dns01.route53.accessKeyID = "'$AWS_ACCESS_KEY'" |
@@ -123,7 +128,8 @@ configureDNS01() {
     digitalocean)
         DO_TOKEN=$(cat ~/.rit/credentials/default/digitalocean | $VKPR_JQ -r .credential.token)
         validateDigitalOceanApiToken $DO_TOKEN
-        $VKPR_KUBECTL create secret generic digitalocean-secret -n cert-manager --from-literal="access-token=$DO_TOKEN"
+        $VKPR_KUBECTL create secret generic digitalocean-secret -n $VKPR_ENV_NAMESPACE --from-literal="access-token=$DO_TOKEN"
+        $VKPR_KUBECTL label secret digitalocean-secret -n $VKPR_ENV_NAMESPACE vkpr=true app.kubernetes.io/instance=cert-manager
         YQ_ISSUER_VALUES=''$YQ_ISSUER_VALUES' |
           .spec.acme.solvers[0].dns01.digitalocean.tokenSecretRef.name = "digitalocean-secret" |
           .spec.acme.solvers[0].dns01.digitalocean.tokenSecretRef.key = "access-token"

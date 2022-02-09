@@ -10,7 +10,11 @@ runFormula() {
   checkGlobalConfig $GRAFANA_PASSWORD "vkpr123" "prometheus-stack.grafana.adminPassword" "GRAFANA_PASSWORD"
   checkGlobalConfig "nginx" "nginx" "prometheus-stack.ingressClassName" "PROMETHEUS_INGRESS"
   checkGlobalConfig "true" "true" "prometheus-stack.grafana.k8sExporters" "K8S_EXPORTERS"
+  checkGlobalConfig $VKPR_K8S_NAMESPACE "vkpr" "prometheus-stack.namespace" "NAMESPACE"
   
+  # External app values
+  checkGlobalConfig $VKPR_K8S_NAMESPACE "vkpr" "loki.namespace" "LOKI_NAMESPACE"
+
   local VKPR_ENV_GRAFANA_DOMAIN="grafana.${VKPR_ENV_DOMAIN}"
   local VKPR_ENV_ALERT_MANAGER_DOMAIN="alertmanager.${VKPR_ENV_DOMAIN}"
   
@@ -40,7 +44,7 @@ installPrometheusStack() {
   settingStack
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_PROMETHEUS_VALUES" \
   | $VKPR_HELM upgrade -i --wait --version "$VKPR_PROMETHEUS_STACK_VERSION" \
-    --create-namespace --namespace $VKPR_K8S_NAMESPACE \
+    --create-namespace --namespace $VKPR_ENV_NAMESPACE \
     -f - prometheus-stack prometheus-community/kube-prometheus-stack
 }
 
@@ -92,11 +96,11 @@ settingStack() {
       .nodeExporter.enabled = true
     ' 
   fi
-  if [[ $(checkPodName "loki-stack") = "true" ]]; then
+  if [[ $(checkPodName $VKPR_ENV_LOKI_NAMESPACE "loki-stack") = "true" ]]; then
     YQ_VALUES=''$YQ_VALUES' |
       .grafana.additionalDataSources[0].name = "Loki" |
       .grafana.additionalDataSources[0].type = "loki" |
-      .grafana.additionalDataSources[0].url = "http://loki-stack:3100" |
+      .grafana.additionalDataSources[0].url = "http://loki-stack.'$VKPR_ENV_LOKI_NAMESPACE':3100" |
       .grafana.additionalDataSources[0].access = "proxy" |
       .grafana.additionalDataSources[0].basicAuth = false |
       .grafana.additionalDataSources[0].editable = true

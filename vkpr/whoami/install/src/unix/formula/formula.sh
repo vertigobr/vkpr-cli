@@ -6,6 +6,7 @@ runFormula() {
   checkGlobalConfig $DOMAIN "localhost" "domain" "DOMAIN"
   checkGlobalConfig $SECURE "false" "secure" "SECURE"
   checkGlobalConfig "nginx" "nginx" "whoami.ingressClassName" "WHOAMI_INGRESS"
+  checkGlobalConfig $VKPR_K8S_NAMESPACE "vkpr" "whoami.namespace" "NAMESPACE"
 
   local VKPR_ENV_WHOAMI_DOMAIN="whoami.${VKPR_ENV_DOMAIN}"
 
@@ -47,6 +48,6 @@ installWhoami() {
   settingWhoami
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_WHOAMI_VALUES" \
   | $VKPR_HELM upgrade -i --version "$VKPR_WHOAMI_VERSION" \
-    --create-namespace -n $VKPR_K8S_NAMESPACE \
+    --create-namespace -n $VKPR_ENV_NAMESPACE \
     --wait -f - whoami cowboysysop/whoami
 }
