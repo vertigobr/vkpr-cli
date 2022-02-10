@@ -21,7 +21,7 @@ jobs:
         if: contains(steps.changed-files.outputs.all_changed_files, 'blank.yml')
         run: |
           WORKFLOW_FILE="$(${{steps.changed-files.outputs.all_changed_files}} | grep blank.yml)"
-          echo "alterando workflow"
+          echo $WORKFLOW_FILE
       - name: List changes in whoami
         if: contains(steps.changed-files.outputs.all_changed_files, 'whoami')
         run: |
