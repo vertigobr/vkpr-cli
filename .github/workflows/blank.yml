@@ -1,4 +1,5 @@
 name: Lint code
+
 on:
   push:
     branches: [ main ]
