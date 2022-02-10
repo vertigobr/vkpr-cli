@@ -1,0 +1,25 @@
+name: Lint code
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: koalaman/shellcheck-alpine
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run a one-line script
+        run: echo Hello, world!
+      - name: Changed files
+        uses: tj-actions/changed-files@v14.5
+        with:
+          token: ${{ github.token }}
+      - name: Run a multi-line script
+        run: |
+          pwd
+          ls
