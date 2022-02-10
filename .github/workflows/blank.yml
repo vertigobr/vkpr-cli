@@ -35,8 +35,4 @@ jobs:
       - name: Lint existing shell files
         if: contains(steps.changed-files.outputs.all_changed_files, '.sh')
         run: |
-          FILES=""
-          for file in ${{steps.changed-files.outputs.all_changed_files}}; do
-            FILES+=" $FILE"
-          done
-          shellcheck $FILES
+          shellcheck ${{steps.changed-files.outputs.all_changed_files}}
