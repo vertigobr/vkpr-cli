@@ -24,6 +24,7 @@ jobs:
         uses: tj-actions/changed-files@v14.5
         with: 
           files: |
+            *.sh
             **/*.sh
 
       - name: Lint new shell files
@@ -36,6 +37,5 @@ jobs:
           done
 
       - name: Lint existing shell files
-        if: steps.changed-files.outputs.modified_files == true
         run: |
           shellcheck ${{steps.changed-files.outputs.all_changed_files}}
