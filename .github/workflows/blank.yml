@@ -16,6 +16,11 @@ jobs:
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v14.5
+      - name: List changes in workflow
+        if: contains(steps.changed-files.outputs.all_changed_files, 'blank.yml')
+        run: |
+          WORKFLOW_FILE="$(${{steps.changed-files.outputs.all_changed_files}} | grep blank.yml)"
+          echo "$WORKFLOW_FILE"
       - name: List changes in whoami
         if: contains(steps.changed-files.outputs.all_changed_files, 'whoami')
         run: |
@@ -24,8 +29,3 @@ jobs:
               shellcheck $file
             fi
           done
-      - name: List changes in workflow
-        if: contains(steps.changed-files.outputs.all_changed_files, 'blank.yml')
-        run: |
-          WORKFLOW_FILE="$(${{steps.changed-files.outputs.all_changed_files}} | grep blank.yml)"
-          echo "$WORKFLOW_FILE"
