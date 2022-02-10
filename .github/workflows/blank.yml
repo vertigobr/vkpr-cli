@@ -27,7 +27,7 @@ jobs:
             **/*.sh
 
       - name: Lint new shell files
-        if: contains(steps.changed-files.outputs.added_files)
+        if: steps.changed-files.outputs.added_files == true
         run: |
           for file in ${{steps.changed-files.outputs.added_files}}; do
             if [[ $(echo $file | grep .sh) ]]; then
@@ -36,6 +36,6 @@ jobs:
           done
 
       - name: Lint existing shell files
-        if: contains(steps.changed-files.outputs.all_changed_files)
+        if: steps.changed-files.outputs.modified_files == true
         run: |
           shellcheck ${{steps.changed-files.outputs.all_changed_files}}
