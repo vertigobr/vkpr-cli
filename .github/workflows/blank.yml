@@ -11,5 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: test
-        run: git ls-files | grep .sh
+      - name: Get existing Files
+        id: existing-files
+        run: |
+          echo "::set-output name=get-changed-files::$(git ls-files | grep .sh)\n"
+      - name: Whoami Files
+        if: contains(steps.existing-files.outputs.get-changed-files, 'whoami')
+        run: |
+          for file in ${{ steps.existing-files.outputs.get-changed-files }}; do
+            echo "$file exists"
+          done
