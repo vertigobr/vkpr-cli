@@ -9,14 +9,17 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    name: Test changed-files
     steps:
       - uses: actions/checkout@v2
-      - name: Get existing Files
-        id: existing-files
+        with:
+          fetch-depth: 0
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v14.5
+
+      - name: List all changed files
         run: |
-          echo "::set-output name=get-changed-files::$(git ls-files | grep .sh)\n"
-      - name: Files
-        run: |
-          for file in ${{ steps.existing-files.outputs.get-changed-files }}; do
-            echo "$file exists"
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            echo "$file was changed"
           done
