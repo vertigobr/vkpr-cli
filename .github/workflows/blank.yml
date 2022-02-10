@@ -11,13 +11,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: ShellCheck
-        uses: ludeeus/action-shellcheck@1.1.0
-        with:
-          additional_files: .
-          ignore: /
-          severity: error
-          check_together: false
-          scandir: .
-          disable_matcher: false
-          format: gcc
+      - name: test
+        run: git ls-files | grep .sh
