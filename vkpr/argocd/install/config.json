@@ -1,5 +1,5 @@
 {
-  "inputs": [ 
+  "inputs": [
     {
       "tutorial": "Specifies the domain to use in the application.",
       "label": "Type the ArgoCD domain:",

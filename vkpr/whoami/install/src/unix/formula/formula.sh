@@ -1,6 +1,6 @@
 #!/bin/sh
 
-runFormula() {  
+runFormula() { 
   local VKPR_WHOAMI_VALUES=$(dirname "$0")/utils/whoami.yaml
 
   checkGlobalConfig $DOMAIN "localhost" "domain" "DOMAIN"
