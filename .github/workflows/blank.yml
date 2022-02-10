@@ -4,11 +4,11 @@ on:
   push:
     branches: [ main ]
     paths:
-      - vkpr/**
+      - vkpr/**/*.sh
   pull_request:
     branches: [ main ]
     paths:
-      - vkpr/**
+      - vkpr/**/*.sh
 
 jobs:
   lint:
