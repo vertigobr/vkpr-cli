@@ -1,6 +1,6 @@
 #!/bin/bash
 
-runFormula() { 
+runFormula() {  
   local VKPR_ARGOCD_VALUES=$(dirname "$0")/utils/argocd.yaml
 
   checkGlobalConfig $DOMAIN "localhost" "domain" "DOMAIN"

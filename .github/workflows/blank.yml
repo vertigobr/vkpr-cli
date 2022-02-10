@@ -35,5 +35,5 @@ jobs:
       - name: Lint existing shell files
         if: contains(steps.changed-files.outputs.all_changed_files, '.sh')
         run: |
-          SHELL_FILES=${{steps.changed-files.outputs.all_changed_files}}
+          SHELL_FILES="${{steps.changed-files.outputs.all_changed_files}}"
           shellcheck $(echo $SHELL_FILES | grep .sh)
