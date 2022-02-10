@@ -2,8 +2,12 @@ name: Lint code
 on:
   push:
     branches: [ main ]
+    paths:
+      - vkpr/**
   pull_request:
     branches: [ main ]
+    paths:
+      - vkpr/**
 
 jobs:
   build:
