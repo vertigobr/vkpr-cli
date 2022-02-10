@@ -22,9 +22,11 @@ jobs:
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v14.5
+        with: |
+          **/*.sh
 
       - name: Lint new shell files
-        if: contains(steps.changed-files.outputs.added_files, '.sh')
+        if: contains(steps.changed-files.outputs.added_files)
         run: |
           for file in ${{steps.changed-files.outputs.added_files}}; do
             if [[ $(echo $file | grep .sh) ]]; then
@@ -33,7 +35,6 @@ jobs:
           done
 
       - name: Lint existing shell files
-        if: contains(steps.changed-files.outputs.all_changed_files, '.sh')
+        if: contains(steps.changed-files.outputs.all_changed_files)
         run: |
-          SHELL_FILES="${{steps.changed-files.outputs.all_changed_files}}"
-          shellcheck $(echo $SHELL_FILES | grep .sh)
+          shellcheck ${{steps.changed-files.outputs.all_changed_files}}
