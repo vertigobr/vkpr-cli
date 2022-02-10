@@ -35,7 +35,7 @@ jobs:
       - name: Lint existing shell files
         if: contains(steps.changed-files.outputs.all_changed_files, '.sh')
         run: |
-          declare FILES
+          FILES=""
           for file in ${{steps.changed-files.outputs.all_changed_files}}; do
             FILES+=" $FILE"
           done
