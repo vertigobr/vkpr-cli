@@ -23,7 +23,7 @@ jobs:
         id: changed-files
         uses: tj-actions/changed-files@v14.5
         with: |
-          **/*.sh
+          *.sh
 
       - name: Lint new shell files
         if: contains(steps.changed-files.outputs.added_files)

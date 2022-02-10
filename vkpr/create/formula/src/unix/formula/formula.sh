@@ -1,6 +1,6 @@
 #!/bin/sh
 
-runFormula() {    
+runFormula() {     
   local REAL_FORMULA="rit $VKPR_FORMULA" 
   local VKPR_FORMULA_LANGUAGE="shell-bat" # Possible to use another languages in future
   local REAL_WORKSPACE_PATH="$VKPR_WORKSPACE_PATH"
