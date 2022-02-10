@@ -20,11 +20,10 @@ jobs:
       - name: List changes in workflow
         if: contains(steps.changed-files.outputs.all_changed_files, 'blank.yml')
         run: |
+          WORKFLOW_FILE="$(${{steps.changed-files.outputs.all_changed_files}} | grep blank.yml)"
           echo "alterando workflow"
       - name: List changes in whoami
         if: contains(steps.changed-files.outputs.all_changed_files, 'whoami')
-        env:
-          WHOAMI_FILES: ${{ contains(steps.changed-files.outputs.all_changed_files, 'whoami') }}
         run: |
           for file in $WHOAMI_FILES; do
             shellcheck $file
