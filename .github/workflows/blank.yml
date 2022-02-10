@@ -11,8 +11,8 @@ on:
       - vkpr/**
 
 jobs:
-  build:
-    name: Lint changed shell files
+  lint:
+    name: Lint shell files
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
