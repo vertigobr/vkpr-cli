@@ -9,8 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: koalaman/shellcheck
     steps:
       - uses: actions/checkout@v2
       - name: Get changed files
@@ -21,3 +19,13 @@ jobs:
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             echo "$file was changed"
           done
+      - name: ShellCheck
+        uses: ludeeus/action-shellcheck@1.1.0
+        with:
+          additional_files: .
+          ignore: /
+          severity: error
+          check_together: false
+          scandir: .
+          disable_matcher: false
+          format: gcc
