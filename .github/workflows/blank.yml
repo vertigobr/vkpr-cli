@@ -23,8 +23,9 @@ jobs:
           echo "alterando workflow"
       - name: List changes in whoami
         if: contains(steps.changed-files.outputs.all_changed_files, 'whoami')
+        env:
+          WHOAMI_FILES: ${{ contains(steps.changed-files.outputs.all_changed_files, 'whoami') }}
         run: |
-          echo "alterando workflow"
-          for file in ${{ contains(steps.changed-files.outputs.all_changed_files, 'whoami') }}; do
+          for file in $WHOAMI_FILES; do
             shellcheck $file
           done
