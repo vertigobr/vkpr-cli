@@ -14,9 +14,9 @@ VKPR-CLI also helps the local development by using k3d to fully provision a Kube
   - [Usage](#usage)
     - [Initializate](#init)
     - [Create a cluster](#create-a-cluster)
-    - [Provisioning](#provisioning)
+    - [Running the scripts](#running-the-scripts)
     - [Uninstalling the objects](#uninstalling-the-objects)
-  - [Deploying a web service](#deploying-a-web-service)
+  - [Tools](#apps)
   - [Documentation](#docs)
   - [License](#license)
 
@@ -44,16 +44,6 @@ VKPR was built on top of Ritchie, but he abstracts most of his interaction with 
 curl -fsSL https://get.vkpr.net/ | bash
 echo 'alias vkpr="rit vkpr"' >> ~/.bashrc # If you use another Unix Shell, specify your specific source
 ```
-
-### info!
-
-Optionally you can use VKPR internal tools by changing PATH:
-
-
-```
-export PATH=$PATH:~/.vkpr/bin
-```
-
 
 ## Usage
 
@@ -113,7 +103,7 @@ curl whoami.localhost:8000
 curl -H "Host: whoami.localhost" localhost:8000
 ```
 
-### WARN!
+## WARN!
 
 Use the second form if ```whoami.localhost``` does not resolve to ```127.0.0.1```
 
@@ -125,109 +115,20 @@ After all tests, if you want to destroy the created cluster, you may discard his
 vkpr infra down
 ```
 
-## Provisioning
+### Running the scripts
 
-## Deploying a web service
+After you have started VKPR and connected to an environment with the Kubernetes cluster, you may be running the scripts.
+Scripts follow a standard order of `vkpr + object + verb`.
 
-Let's assume that we already have a working Kubernetes cluster in AWS and we need to be uploading such applications:
-* nginx-ingress: A LoadBalancer to expose the application outside the cluster.
-* whoami: A simple web server.
-* external-DNS: Will be responsible for replicating the address in the internet used by the application.
-* cert-manager: You will be responsible for generating the certificates used to use the application in HTTPS.
+To start a simple web application, you can run the command:
 
-With Kubeconfig already associated with your context, you will run the following command:
-
-## Installing nginx-ingress
-```
-➜ vkpr ingress install
-Formula was successfully built!
-
-? Which type of LoadBalancer do you prefer ?  [Use arrows to move, type to filter, ? for more help]
-> Classic
-  NLB
-
-==============================
-VKPR Ingress Install Routine
-==============================
-....
+```sh
+vkpr whoami install
 ```
 
-## Installing whoami
+In certain commands, there is a quiz on how you want the application to go up. It can be configured, for example, access domains, HTTPS communication and others. After that, this command will create the objects needed to use whoami.
 
-```
-➜ vkpr whoami install
-Formula was successfully built!
-
-? Type the Whoami domain: [? for help] (localhost) test.vkpr.net
-
-? Secure ?  [Use arrows to move, type to filter, ? for more help]
-> true
-  false
-
-==============================
-VKPR Whoami Install Routine
-Whoami Domain: whoami.test.vkpr.net
-Ingress Controller: nginx
-==============================
-....
-```
-
-## Installing external-dns
-
-```
-➜ vkpr external-dns install
-Formula was successfully built!
-
-? Type your provider:  [Use arrows to move, type to filter, ? for more help]
-> aws
-  digitalocean
-  powerDNS
-
-? Provider key not found, please provide a value for aws accesskeyid:
-? Provider key not found, please provide a value for aws secretaccesskey:
-? Provider key not found, please provide a value for aws region:
-
-==============================
-VKPR External-DNS Install Routine
-Provider: aws
-==============================
-....
-```
-
-## Installing cert-manager
-
-```
-➜ vkpr cert-manager install
-Formula was successfully built!
-
-? Type your email to use to generate certificates:  [Use arrows to move, type to filter, ? for more help]
-> default@vkpr.com
-  Type other email
-
-? What is the default cluster issuer ?  [Use arrows to move, type to filter, ? for more help]
-  staging
-> production
-  custom-acme
-
-? What solver do you want to use ?  [Use arrows to move, type to filter, ? for more help]
-  HTTP01
-> DNS01
-
-? What cloud dns provider do you will use ?  [Use arrows to move, type to filter, ? for more help]
-> aws
-  digitalocean
-  custom-acme
-
-? Type your Hostedzone id from Route53: [? for more help]
-
-==============================
-VKPR Cert-manager Install Routine
-Provider: aws
-Issuer Solver: DNS01
-Email: default@vkpr.com
-==============================
-....
-```
+If you don't want to have to be configuring the application, you may be using the `--default` flag to follow the default values
 
 ### Uninstalling the objects
 
@@ -237,9 +138,23 @@ To be deleting all dependencies of the installed script, it is necessary to run 
 vkpr whoami remove
 ```
 
+## Apps
+
+
+| Tools                    | Description                                                   |
+| ------------------------ | ------------------------------------------------------------- |
+| ingress                  | Install nginx-ingress-controller                                          |
+| whoami                   | Install whoami                                                |
+| cert-manager             | Install cert-manager to manage your certificates              |
+| external-dns             | Install external-dns                                          |
+| loki                     | Install Loki for monitoring and tracing                       |
+| keycloak                 | Install Keycloak to manage the identity and access management |
+
+
+
 ## Docs
 
-The Documentation can be viewed in the following [link](https://github.com/vertigobr/vkpr-cli).
+The Documentation can be viewed in the following [link](https://docs.vkpr.net/).
 
 ## License
 
