@@ -2,11 +2,11 @@ name: Lint code
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
       - vkpr/**/*.sh
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
       - vkpr/**/*.sh
 
@@ -26,12 +26,10 @@ jobs:
           files: |
             *.sh
             **/*.sh
-
       - name: Lint new shell files
         if: contains(steps.changed-files.outputs.added_files, '.sh')
         run: |
           shellcheck ${{steps.changed-files.outputs.added_files}}
-
       - name: Lint existing shell files
         if: contains(steps.changed-files.outputs.all_changed_files, '.sh')
         run: |
