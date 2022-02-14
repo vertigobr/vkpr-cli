@@ -8,7 +8,7 @@ setup_file() {
         echo "setup: skipping setup due to VKPR_TEST_SKIP_SETUP=true" >&3
     else
         echo "setup: installing ingress..." >&3
-        rit vkpr ingress install
+        rit vkpr ingress install --default
         echo "setup: installing whoami..." >&3
         rit vkpr whoami install --default
         sleep 2
