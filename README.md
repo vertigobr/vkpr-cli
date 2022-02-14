@@ -7,18 +7,18 @@ VKPR-CLI is Tool build with Shell that has the objetive to make it easier for th
 
 VKPR-CLI also helps the local development by using k3d to fully provision a Kubernetes cluster instance for testing purposes.
 
-- [VKPR-CLI](#vkpr-cli-tool)
-  - [Why Ritchie](##Why-Ritchie?)
-  - [Minimum Required](##Minimum-required)
-  - [Get VKPR](##Get-VKPR)
-  - [Usage](##Usage)
-    - [Initializate](###Init)
-    - [Create a cluster](###Create-a-cluster)
-    - [Running the scripts](###Running-the-scripts)
-    - [Uninstalling the objects](###Uninstalling-the-objects)
-  - [Tools](##Apps)
-  - [Documentation](##Docs)
-  - [License](##License)
+- [VKPR-CLI](#vkpr-cli)
+  - [Why Ritchie](#why-ritchie)
+  - [Minimum Required](#minimum-required)
+  - [Setup VKPR](#setup-vkpr)
+  - [Usage](#usage)
+    - [Initializate](#init)
+    - [Create a cluster](#create-a-cluster)
+    - [Running the scripts](#running-the-scripts)
+    - [Uninstalling the objects](#uninstalling-the-objects)
+  - [Tools](#apps)
+  - [Documentation](#docs)
+  - [License](#license)
 
 ## Why Ritchie?
 
@@ -35,15 +35,14 @@ VKPR-CLI was made to run on Linux / MacOS. It's pre-requisites are:
 - [Docker](https://docs.docker.com/get-docker/)
 - [Git](https://git-scm.com/downloads)
 
-## Get VKPR
+## Setup VKPR
 
-The VKPR CLI tool will do its best to hide its internals (including Ritchie).
+VKPR was built on top of Ritchie, but he abstracts most of his interaction with him. To install it, you must run the following command.
 
+### Installing VKPR CLI
 ```sh
-# Install the VKPR
 curl -fsSL https://get.vkpr.net/ | bash
-# Create alias
-alias vkpr="rit vkpr"
+echo 'alias vkpr="rit vkpr"' >> ~/.bashrc # If you use another Unix Shell, specify your specific source
 ```
 
 ## Usage
@@ -76,8 +75,42 @@ To do that, you can run the command:
 ```sh
 vkpr infra up
 ```
+You can peek into it using ```k9s```:
+
+```
+~/.vkpr/bin/k9s
+```
+
+### Discard cluster
+
+After all tests, if you want to destroy the created cluster, you may discard his with a single command:
+
+```sh
+vkpr infra down
+```
 
 You can now test your scripts and create your own environments with VKPR commands.
+
+### Deploy a sample app
+
+To test some application using VKPR, we will use whoami as an example.
+
+For this, we will implement an ingress controller and the whoami itself:
+
+
+```
+vkpr ingress install
+vkpr whoami install --default
+```
+Now you can test this sample application with a simple curl command:
+
+```
+curl whoami.localhost:8000
+# OR 
+curl -H "Host: whoami.localhost" localhost:8000
+```
+
+> WARNING: Use the second form if ```whoami.localhost``` does not resolve to ```127.0.0.1```
 
 ### Running the scripts
 
@@ -106,16 +139,21 @@ vkpr whoami remove
 
 | Tools                    | Description                                                   |
 | ------------------------ | ------------------------------------------------------------- |
-| nginx-ingress-controller | Install ingress-nginx                                         |
+| ingress                  | Install nginx-ingress-controller                              |
 | whoami                   | Install whoami                                                |
 | cert-manager             | Install cert-manager to manage your certificates              |
 | external-dns             | Install external-dns                                          |
 | loki                     | Install Loki for monitoring and tracing                       |
 | keycloak                 | Install Keycloak to manage the identity and access management |
+| consul                   | Install consul to service identities and traditional networking practices to securely connect applications|
+| kong                     | Install kong to manage, configure, and route requests to your APIs.|
+| postgres                 | Install postgres to manage the Database                       |
+| prometheus-stack         | Installs the kube-prometheus stack, a collection of Kubernetes manifests |
+| vault                    | Install vault to Manage Secrets & Protect Sensitive Data      |
 
 ## Docs
 
-The Documentation can be viewed in the following [link](https://github.com/vertigobr/vkpr-cli).
+The Documentation can be viewed in the following [link](https://docs.vkpr.net/).
 
 ## License
 
