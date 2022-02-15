@@ -1,7 +1,7 @@
 {
   "inputs": [
     {
-      "label": "Gitlab Project Name:",
+      "label": "Gitlab Project Name:(account/project)",
       "name": "project_name",
       "type": "text",
       "cache": {
@@ -34,14 +34,14 @@
       "required": true
     },
     {
-      "label": "Environment Scope:",
-      "name": "environment_scope",
+      "label": "Parameter Scope:",
+      "name": "parameter_scope",
       "type": "text",
-      "required": true,
+      "required": false,
       "cache": {
         "active": true,
         "qty": 4,
-        "newLabel": "Type another environment scope: "
+        "newLabel": "Type another parameter scope: "
       }
     },
     {
