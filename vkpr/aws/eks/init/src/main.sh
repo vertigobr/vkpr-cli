@@ -1,14 +1,13 @@
 #!/bin/bash
 
-VKPR_SCRIPTS=~/.vkpr/src
-
-source $VKPR_SCRIPTS/log.sh
-source $VKPR_SCRIPTS/var.sh
-source $VKPR_SCRIPTS/helper.sh
-source $VKPR_SCRIPTS/gitlab-operations.sh
-source $VKPR_SCRIPTS/validate.sh
-
 # shellcheck source=/dev/null
+source src/log.sh
+source src/var.sh
+source src/helper.sh
+source src/validate.sh
+source src/versions.sh
+source src/gitlab-operations.sh
+
 . "$(dirname "$0")"/unix/formula/formula.sh --source-only
 
 runFormula
