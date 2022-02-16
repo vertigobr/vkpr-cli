@@ -16,7 +16,6 @@ runFormula() {
   mkdir -p $VKPR_HOME/bin
   mkdir -p $VKPR_HOME/config
   mkdir -p $VKPR_HOME/bats
-  mkdir -p $VKPR_HOME/src
 
   installArkade
   installGlab
@@ -34,10 +33,8 @@ runFormula() {
   # validateK9SVersion
   # installTool "k9s" $VKPR_TOOLS_K9S
 
-  installGlobals 
   installBats
-
-} 
+}
 
 installArkade() {
   if [[ -f "$VKPR_ARKADE" ]]; then
@@ -76,13 +73,6 @@ installGlab() {
     chmod +x /tmp/glab.sh
     /tmp/glab.sh $VKPR_HOME/bin
   fi
-}
-
-installGlobals() {
-  ##Workaround to cp command with regex
-  #More details: https://www.oreilly.com/library/view/bash-quick-start/9781789538830/2609b05c-60fa-443d-bb5f-d5cd7626374f.xhtml
-  shopt -s extglob
-  eval 'cp $(dirname "$0")/utils/!(dependencies.sh|!(*.sh)) $VKPR_SCRIPTS'
 }
 
 installBats(){

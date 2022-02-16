@@ -77,12 +77,6 @@ EOF
   rm -f "${formulaPath}/src/main.bat"
   rm -Rf "${formulaPath}/src/windows"
 
-  # Change Files
-  sed -i.tmp '/BINARY_NAME_WINDOWS/d' "${formulaPath}/build.sh"
-  sed -i.tmp '/ENTRY_POINT_WINDOWS/d' "${formulaPath}/build.sh"
-  echo "$(head -n 11 ${formulaPath}/build.sh)" > "${formulaPath}/build.sh"
-  rm ${formulaPath}/build.sh.tmp
-
   # No inputs in config.json
   cp "${formulaPath}/config.json" "${formulaPath}/config.json.tmp"
   $VKPR_JQ '.inputs=[] | del(.dockerImageBuilder)' ${formulaPath}/config.json.tmp > ${formulaPath}/config.json
@@ -97,6 +91,7 @@ EOF
 
   # Change entire file
   changeMainFile
+  changeBuildFile
   changeFormula
 }
 
@@ -114,11 +109,12 @@ changeMainFile() {
   cat > ${formulaPath}/src/main.sh.tmp <<EOF
 #!/bin/bash
 
-VKPR_SCRIPTS=~/.vkpr/src
-
-source $\VKPR_SCRIPTS/log.sh
-source $\VKPR_SCRIPTS/var.sh
-source $\VKPR_SCRIPTS/helper.sh
+# shellcheck source=/dev/null
+source src/log.sh
+source src/var.sh
+source src/helper.sh
+source src/validate.sh
+source src/versions.sh
 
 . "$\(dirname "$\0")"/unix/formula/formula.sh --source-only
 
@@ -127,4 +123,31 @@ EOF
 
   sed 's/\\//g' ${formulaPath}/src/main.sh.tmp > ${formulaPath}/src/main.sh
   rm ${formulaPath}/src/main.sh.tmp
+}
+
+changeBuildFile() {
+  FORMULA_SIZE=$(echo ${VKPR_FORMULA} | awk -F " " '{print NF}')
+  path=""
+  for i in $(seq $FORMULA_SIZE); do
+    path+="../" 
+  done
+
+  cat > ${formulaPath}/build.sh.tmp <<EOF
+#!/bin/bash
+
+BIN_FOLDER=bin
+BINARY_NAME_UNIX=run.sh
+ENTRY_POINT_UNIX=main.sh
+LIB_RESOURCES="${path}lib/functions/*"
+
+#bash-build:
+	mkdir -p $\BIN_FOLDER/src
+	cp $\LIB_RESOURCES $\BIN_FOLDER/src
+	cp -r src/* $\BIN_FOLDER
+	mv $\BIN_FOLDER/$\ENTRY_POINT_UNIX $\BIN_FOLDER/$\BINARY_NAME_UNIX
+	chmod +x $\BIN_FOLDER/$\BINARY_NAME_UNIX
+EOF
+
+  sed 's/\\//g' ${formulaPath}/build.sh.tmp > ${formulaPath}/build.sh
+  rm ${formulaPath}/build.sh.tmp
 }
