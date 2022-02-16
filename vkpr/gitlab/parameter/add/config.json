@@ -1,0 +1,58 @@
+{
+  "inputs": [
+    {
+      "label": "Gitlab Project Name:(account/project)",
+      "name": "project_name",
+      "type": "text",
+      "cache": {
+        "active": true,
+        "qty": 10,
+        "newLabel": "Type another gitlab project name: "
+      }
+    },
+    {
+      "label": "Parameter Name:",
+      "name": "parameter_name",
+      "type": "text",
+      "required": true
+    },
+    {
+      "label": "Parameter Value:",
+      "name": "parameter_value",
+      "type": "text",
+      "required": true
+    },
+    {
+      "label": "Parameter Masked:",
+      "name": "parameter_masked",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "true",
+        "false"
+      ],
+      "required": true
+    },
+    {
+      "label": "Parameter Scope:",
+      "name": "parameter_scope",
+      "type": "text",
+      "required": false,
+      "cache": {
+        "active": true,
+        "qty": 4,
+        "newLabel": "Type another parameter scope: "
+      }
+    },
+    {
+      "name": "gitlab_username",
+      "type": "CREDENTIAL_GITLAB_USERNAME"
+    },
+    {
+      "name": "gitlab_token",
+      "type": "CREDENTIAL_GITLAB_TOKEN"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease": "{tag}"
+}
