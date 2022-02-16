@@ -1,6 +1,9 @@
 #!/bin/sh
 
 runFormula() {
+  validateGitlabUsername $GITLAB_USERNAME
+  validateGitlabToken $GITLAB_TOKEN
+
   PROJECT_ID=$(curl https://gitlab.com/api/v4/users/$GITLAB_USERNAME/projects | $VKPR_JQ '.[0] | .id')
   destroyEKS
 }

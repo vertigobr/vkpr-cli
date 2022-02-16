@@ -1,13 +1,15 @@
 {
   "inputs": [
     {
+      "tutorial": "Specifies the domain to use in the application.",
       "label": "Type the Keycloak domain:",
       "name": "domain",
       "type": "text",
       "default": "localhost"
     },
     {
-      "label": "Secure?",
+      "tutorial": "Specifies if the application will have HTTPS.",
+      "label": "Secure ?",
       "name": "secure",
       "type": "bool",
       "default": "false",
@@ -17,28 +19,36 @@
       ]
     },
     {
-      "label": "Type the Admin user:",
+      "tutorial": "Specifies the Super Admin username.",
+      "label": "Type the Admin username:",
       "name": "admin_user",
       "type": "text",
       "default": "admin"
     },
     {
-      "label": "Type the user Password:",
+      "tutorial": "Specifies the Super Admin password.",
+      "label": "Type the Admin password:",
       "name": "admin_password",
       "type": "password",
-      "default": "vkpr123"
+      "default": "vkpr123",
+      "pattern": {
+        "regex": "^([A-Za-z0-9-]{7,})$",
+        "mismatchText": "Password too weak"
+      }
     },
     {
+      "tutorial": "Specifies if the application will have High Availability.",
+      "label": "HA ?",
+      "name": "HA",
+      "type": "bool",
       "default": "false",
       "items": [
         "true",
         "false"
-      ],
-      "label": "HA? ",
-      "name": "HA",
-      "type": "bool"
+      ]
     },
     {
+      "tutorial": "Specifies the Postgresql password.",
       "name": "password",
       "type": "CREDENTIAL_POSTGRES_PASSWORD"
     }

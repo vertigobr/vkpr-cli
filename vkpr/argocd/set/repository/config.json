@@ -1,6 +1,7 @@
 {
   "inputs": [
     {
+      "tutorial": "Specifies the Git repository URL to ArgoCD sync the repository.",
       "label": "Type the git repository url:",
       "name": "repo_url",
       "type": "text",
@@ -12,10 +13,12 @@
       }
     },
     {
-      "name": "gitlab_token",
+      "tutorial": "Specifies your Gitlab Access-Token.",
+      "name": "gitlab_username",
       "type": "CREDENTIAL_GITLAB_USERNAME"
     },
     {
+      "tutorial": "Specifies your Gitlab Username.",
       "name": "gitlab_token",
       "type": "CREDENTIAL_GITLAB_TOKEN"
     }

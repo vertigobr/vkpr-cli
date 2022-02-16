@@ -21,11 +21,17 @@ runFormula() {
   installArkade
   installGlab
   #Versions from ./utils/dependencies.sh or latest as default
+  validateKubectlVersion
   installTool "kubectl" $VKPR_TOOLS_KUBECTL
+  validateHelmVersion
   installTool "helm" $VKPR_TOOLS_HELM
+  validateK3DVersion
   installTool "k3d" $VKPR_TOOLS_K3D
+  validateJQVersion
   installTool "jq" $VKPR_TOOLS_JQ
+  validateYQVersion
   installTool "yq" $VKPR_TOOLS_YQ
+  # validateK9SVersion
   # installTool "k9s" $VKPR_TOOLS_K9S
 
   installGlobals 

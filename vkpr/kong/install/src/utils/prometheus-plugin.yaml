@@ -6,6 +6,5 @@ metadata:
     kubernetes.io/ingress.class: kong
   labels:
     global: "true"
-config:
-  enabled: true
+    vkpr: "true"
 plugin: prometheus

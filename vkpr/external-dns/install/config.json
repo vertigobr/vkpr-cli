@@ -1,10 +1,10 @@
 {
   "inputs": [
     {
+      "tutorial": "Specifies the cloud provider to create the records DNS.",
       "label": "Type your provider:",
       "name": "provider",
       "type": "text",
-      "default": "aws",
       "required": true,
       "items": [
         "aws",
@@ -13,6 +13,7 @@
       ]
     },
     {
+      "tutorial": "Specifies the AWS Access Key Credential.",
       "condition": {
         "variable": "provider",
         "operator": "==",
@@ -22,6 +23,7 @@
       "type": "CREDENTIAL_AWS_ACCESSKEYID"
     },
     {
+      "tutorial": "Specifies the AWS Secret Key Credential.",
       "condition": {
         "variable": "provider",
         "operator": "==",
@@ -31,6 +33,7 @@
       "type": "CREDENTIAL_AWS_SECRETACCESSKEY"
     },
     {
+      "tutorial": "Specifies the AWS Region to set the environment.",
       "condition": {
         "variable": "provider",
         "operator": "==",
@@ -40,16 +43,17 @@
       "type": "CREDENTIAL_AWS_REGION"
     },
     {
+      "tutorial": "Specifies the Digital Ocean API Token.",
       "condition": {
         "variable": "provider",
         "operator": "==",
         "value": "digitalocean"
       },
       "name": "do_token",
-      "required": false,
       "type": "CREDENTIAL_DIGITALOCEAN_TOKEN"
     },
     {
+      "tutorial": "Specifies the PowerDNS API Key.",
       "condition": {
         "variable": "provider",
         "operator": "==",
@@ -59,20 +63,21 @@
       "type": "CREDENTIAL_POWERDNS_APIKEY"
     },
     {
+      "tutorial": "Specifies the PowerDNS server URL Endpoint.",
       "condition": {
         "variable": "provider",
         "operator": "==",
         "value": "powerDNS"
       },
-      "label": "What is the powerdns server apiurl endpoint?",
+      "label": "What is the PowerDNS server API url endpoint ?",
       "name": "pdns_apiurl",
+      "type": "text",
       "default": "example.com",
       "required": true,
-      "type": "text",
       "cache": {
         "active": true,
         "qty": 3,
-        "newLabel": "Type another url:"
+        "newLabel": "Type another url"
       }
     }
   ],

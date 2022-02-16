@@ -2,3 +2,6 @@ sources:
   - ingress
   - service
 interval: "1m"
+policy: sync
+podLabels:
+  vkpr: "true"

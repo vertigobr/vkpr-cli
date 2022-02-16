@@ -4,8 +4,10 @@ runFormula() {
   local VKPR_POSTGRES_VALUES=$(dirname "$0")/utils/postgres.yaml
 
   checkGlobalConfig $HA "false" "postgresql.HA" "HA"
-  checkGlobalConfig $PASSWORD "postgres" "postgresql.password" "POSTGRES_PASSWORD"
   checkGlobalConfig "false" "false" "postgresql.metrics" "METRICS"
+  checkGlobalConfig $VKPR_K8S_NAMESPACE "vkpr" "postgresql.namespace" "NAMESPACE"
+
+  validatePostgresqlPassword $PASSWORD
 
   startInfos
   addRepoPostgres
@@ -15,7 +17,7 @@ runFormula() {
 startInfos() {
   echo "=============================="
   echoColor "bold" "$(echoColor "green" "VKPR Postgresql Install Routine")"
-  echoColor "bold" "$(echoColor "blue" "Postgresql Password:") ${VKPR_ENV_POSTGRES_PASSWORD}"
+  echoColor "bold" "$(echoColor "blue" "Postgresql Password:") ${PASSWORD}"
   echoColor "bold" "$(echoColor "blue" "HA:") ${VKPR_ENV_HA}"
   echo "=============================="
 }
@@ -31,7 +33,7 @@ installPostgres(){
   settingPostgres
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_POSTGRES_VALUES" \
   | $VKPR_HELM upgrade -i --version "$VKPR_POSTGRES_VERSION" \
-      --create-namespace --namespace $VKPR_K8S_NAMESPACE \
+      --create-namespace --namespace $VKPR_ENV_NAMESPACE \
       --wait -f - postgresql bitnami/$POSTGRESQL_CHART
 }
 
@@ -40,20 +42,22 @@ settingPostgres() {
     YQ_VALUES=''$YQ_VALUES' |
       .postgresql.username = "postgres" |
       .postgresql.database = "postgres" |
-      .postgresql.password = "'$VKPR_ENV_POSTGRES_PASSWORD'" |
+      .postgresql.password = "'$PASSWORD'" |
       .postgresql.repmgrUsername = "postgres" |
-      .postgresql.repmgrPassword = "'$VKPR_ENV_POSTGRES_PASSWORD'" |
+      .postgresql.repmgrPassword = "'$PASSWORD'" |
       .postgresql.repmgrDatabase = "postgres" |
-      .postgresql.postgresPassword = "'$VKPR_ENV_POSTGRES_PASSWORD'" |
+      .postgresql.postgresPassword = "'$PASSWORD'" |
       .postgresql.replicaCount = 3 |
+      .postgresql.podLabels.vkpr = "true" |
       .pgpool.adminUsername = "postgres" |
-      .pgpool.adminPassword = "'$VKPR_ENV_POSTGRES_PASSWORD'" |
-      .pgpool.replicaCount = 3
+      .pgpool.adminPassword = "'$PASSWORD'" |
+      .pgpool.replicaCount = 3 |
+      .primary = {}
     '
     POSTGRESQL_CHART="postgresql-ha"
     else
     YQ_VALUES=''$YQ_VALUES' |
-      .global.postgresql.postgresqlPassword = "'$VKPR_ENV_POSTGRES_PASSWORD'"
+      .global.postgresql.postgresqlPassword = "'$PASSWORD'"
     '
     VKPR_POSTGRES_VERSION="10.12.3"
   fi
@@ -62,7 +66,7 @@ settingPostgres() {
     YQ_VALUES=''$YQ_VALUES' |
       .metrics.enabled = true |
       .metrics.serviceMonitor.enabled = true |
-      .metrics.serviceMonitor.namespace = "vkpr" |
+      .metrics.serviceMonitor.namespace = "'$VKPR_ENV_NAMESPACE'" |
       .metrics.serviceMonitor.interval = "1m" |
       .metrics.serviceMonitor.scrapeTimeout = "30m"
     '

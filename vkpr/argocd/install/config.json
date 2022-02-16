@@ -1,13 +1,15 @@
 {
   "inputs": [
     {
+      "tutorial": "Specifies the domain to use in the application.",
       "label": "Type the ArgoCD domain:",
       "name": "domain",
       "type": "text",
       "default": "localhost"
     },
     {
-      "label": "Secure?",
+      "tutorial": "Specifies if the application will have HTTPS.",
+      "label": "Secure ?",
       "name": "secure",
       "type": "bool",
       "default": "false",
@@ -17,20 +19,15 @@
       ]
     },
     {
-      "label": "Type the user Password:",
-      "name": "admin_password",
-      "type": "password",
-      "default": "vkpr123"
-    },
-    {
+      "tutorial": "Specifies if the application will have High Availability.",
+      "label": "HA ?",
+      "name": "HA",
+      "type": "bool",
       "default": "false",
       "items": [
         "true",
         "false"
-      ],
-      "label": "HA? ",
-      "name": "HA",
-      "type": "bool"
+      ]
     }
   ],
   "template": "shell-bat",

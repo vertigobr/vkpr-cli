@@ -1,5 +1,7 @@
 # -----------------------------------------------------------------------------
 # Kong parameters
+podLabels:
+  vkpr: "true"
 secretVolumes:
   - kong-cluster-cert
 env:

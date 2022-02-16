@@ -1,20 +1,22 @@
 {
   "inputs": [
     {
-      "default": "localhost",
-      "label": "Type the Whoami domain: ",
+      "tutorial": "Specifies the domain to use in the application.",
+      "label": "Type the Whoami domain:",
       "name": "domain",
-      "type": "text"
+      "type": "text",
+      "default": "localhost"
     },
     {
+      "tutorial": "Specifies if the application will have HTTPS.",
+      "label": "Secure ?",
+      "name": "secure",
+      "type": "bool",
       "default": "false",
       "items": [
         "true",
         "false"
-      ],
-      "label": "Secure? ",
-      "name": "secure",
-      "type": "bool"
+      ]
     }
   ],
   "template": "shell-bat",

@@ -5,12 +5,16 @@ runFormula() {
 
   checkGlobalConfig $DOMAIN "localhost" "domain" "DOMAIN"
   checkGlobalConfig $SECURE "false" "secure" "SECURE"
-  checkGlobalConfig $ALERTMANAGER "false" "prometheus-stack.alertmanager.enabled" "PROMETHEUS_ALERT_MANAGER"
+  checkGlobalConfig $ALERTMANAGER "false" "prometheus-stack.alertManager.enabled" "PROMETHEUS_ALERT_MANAGER"
   checkGlobalConfig $HA "false" "prometheus-stack.alertmanager.HA" "PROMETHEUS_ALERT_MANAGER_HA"
-  checkGlobalConfig $GRAFANA_PASSWORD "vkpr123" "prometheus-stack.grafana.admin-password" "GRAFANA_PASSWORD"
+  checkGlobalConfig $GRAFANA_PASSWORD "vkpr123" "prometheus-stack.grafana.adminPassword" "GRAFANA_PASSWORD"
   checkGlobalConfig "nginx" "nginx" "prometheus-stack.ingressClassName" "PROMETHEUS_INGRESS"
-  checkGlobalConfig "true" "true" "prometheus-stack.grafana.k8s-exporters" "K8S_EXPORTERS"
+  checkGlobalConfig "true" "true" "prometheus-stack.grafana.k8sExporters" "K8S_EXPORTERS"
+  checkGlobalConfig $VKPR_K8S_NAMESPACE "vkpr" "prometheus-stack.namespace" "NAMESPACE"
   
+  # External app values
+  checkGlobalConfig $VKPR_K8S_NAMESPACE "vkpr" "loki.namespace" "LOKI_NAMESPACE"
+
   local VKPR_ENV_GRAFANA_DOMAIN="grafana.${VKPR_ENV_DOMAIN}"
   local VKPR_ENV_ALERT_MANAGER_DOMAIN="alertmanager.${VKPR_ENV_DOMAIN}"
   
@@ -40,7 +44,7 @@ installPrometheusStack() {
   settingStack
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_PROMETHEUS_VALUES" \
   | $VKPR_HELM upgrade -i --wait --version "$VKPR_PROMETHEUS_STACK_VERSION" \
-    --create-namespace --namespace $VKPR_K8S_NAMESPACE \
+    --create-namespace --namespace $VKPR_ENV_NAMESPACE \
     -f - prometheus-stack prometheus-community/kube-prometheus-stack
 }
 
@@ -74,8 +78,8 @@ settingStack() {
   fi
   if [[ $VKPR_ENV_PROMETHEUS_INGRESS != "nginx" ]]; then
     YQ_VALUES=''$YQ_VALUES' |
-      .alertmanager.ingress.ingressClassName = "traefik" |
-      .grafana.ingress.ingressClassName = "traefik"
+      .alertmanager.ingress.ingressClassName = "'$VKPR_ENV_PROMETHEUS_INGRESS'" |
+      .grafana.ingress.ingressClassName = "'$VKPR_ENV_PROMETHEUS_INGRESS'"
     ' 
   fi
   if [[ $VKPR_ENV_K8S_EXPORTERS = "true" ]]; then
@@ -92,38 +96,14 @@ settingStack() {
       .nodeExporter.enabled = true
     ' 
   fi
-  if [[ $(checkPodName "loki-stack") = "true" ]]; then
+  if [[ $(checkPodName $VKPR_ENV_LOKI_NAMESPACE "loki-stack") = "true" ]]; then
     YQ_VALUES=''$YQ_VALUES' |
       .grafana.additionalDataSources[0].name = "Loki" |
       .grafana.additionalDataSources[0].type = "loki" |
-      .grafana.additionalDataSources[0].url = "http://loki-stack:3100" |
+      .grafana.additionalDataSources[0].url = "http://loki-stack.'$VKPR_ENV_LOKI_NAMESPACE':3100" |
       .grafana.additionalDataSources[0].access = "proxy" |
       .grafana.additionalDataSources[0].basicAuth = false |
       .grafana.additionalDataSources[0].editable = true
-    '
-  fi
-  if [[ $(checkPodName "keycloak") = "true" ]]; then
-    # addapt to use https (only find http)
-    local K3D_PORTS=":$($VKPR_K3D cluster ls vkpr-local -o yaml | $VKPR_YQ eval '.[].cluster.nodes[0].portMappings.80/tcp[0].hostport' -)"
-    local KEYCLOAK_DOMAIN="keycloak.$($VKPR_YQ eval .global.domain $VKPR_GLOBAL)${K3D_PORTS}/auth/realms/grafana/protocol/openid-connect"
-    local ROLES="contains(roles[], 'admin') && 'Admin' || contains(roles[], 'editor') && 'Editor' || 'Viewer'"
-    YQ_VALUES=''$YQ_VALUES' |
-      .grafana.env.GF_SERVER_ROOT_URL = "http://'${VKPR_ENV_GRAFANA_DOMAIN}${K3D_PORTS}'/" |
-      .grafana.env.GF_AUTH_GENERIC_OAUTH_ENABLED = true |
-      .grafana.env.GF_AUTH_DISABLE_LOGIN_FORM = true |
-      .grafana.env.GF_AUTH_GENERIC_OAUTH_NAME = "Keycloak" |
-      .grafana.env.GF_AUTH_GENERIC_OAUTH_CLIENT_ID = "grafana" |
-      .grafana.env.GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET = "3162d962-c3d1-498e-8cb3-a1ae0005c4d9" |
-      .grafana.env.GF_AUTH_GENERIC_OAUTH_SCOPES = "openid profile email" |
-      .grafana.env.GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP = true |
-      .grafana.env.GF_AUTH_GENERIC_OAUTH_AUTO_LOGIN = false |
-      .grafana.env.GF_AUTH_GENERIC_OAUTH_TLS_SKIP_VERIFY_INSECURE = true |
-      .grafana.env.GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH = "'${ROLES}'" |
-      .grafana.env.GF_SERVER_ROOT_URL = "http://'${VKPR_ENV_GRAFANA_DOMAIN}'/" |
-      .grafana.env.GF_AUTH_GENERIC_OAUTH_AUTH_URL = "http://'${KEYCLOAK_DOMAIN}'/auth" |
-      .grafana.env.GF_AUTH_GENERIC_OAUTH_TOKEN_URL = "http://'${KEYCLOAK_DOMAIN}'/token" |
-      .grafana.env.GF_AUTH_GENERIC_OAUTH_API_URL = "http://'${KEYCLOAK_DOMAIN}'/usernfo" |
-      .grafana.env.GF_AUTH_SIGNOUT_REDIRECT_URL = "http://'${KEYCLOAK_DOMAIN}'/logout?redirect_uri=http%3A%2F%2F'${VKPR_ENV_GRAFANA_DOMAIN}${K3D_PORTS}'%2Flogin"
     '
   fi
 

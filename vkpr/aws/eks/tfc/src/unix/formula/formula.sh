@@ -1,7 +1,9 @@
 #!/bin/bash
 
 runFormula() {
-  rit vkpr aws eks init --terraform_state="Terraform Cloud" --tf_cloud_token="$API_TERRAFORM_TOKEN" --default
+  [[ -f $CURRENT_PWD/vkpr.yaml ]] && cp $CURRENT_PWD/vkpr.yaml "$(dirname "$0")"
+  rit vkpr aws eks init --terraform_state="Terraform Cloud" --terraformcloud_api_token="$TERRAFORMCLOUD_API_TOKEN" --default
+
   createOrganizationInTFCloud
   updateRepoFiles
 }
@@ -9,14 +11,14 @@ runFormula() {
 createOrganizationInTFCloud() {
   # create organization vkpr
   local TF_CLOUD_RESPONSE_ORGANIZATION=$(curl -si -X POST \
-  -H "Authorization: Bearer $API_TERRAFORM_TOKEN" \
+  -H "Authorization: Bearer $TERRAFORMCLOUD_API_TOKEN" \
   -H "Content-Type: application/vnd.api+json" \
   -d '{
         "data": {
           "type": "organizations",
           "attributes": {
             "name": "vkpr",
-            "email": "'$API_TERRAFORM_EMAIL'"
+            "email": "'$TERRAFORMCLOUD_EMAIL'"
           }
         }
       }' https://app.terraform.io/api/v2/organizations | head -n 1 | awk -F' ' '{print $2}')
@@ -28,7 +30,7 @@ createOrganizationInTFCloud() {
 
   # create workspace aws-eks
   local TF_CLOUD_RESPONSE_WORKSPACE=$(curl -si -X POST \
-  -H "Authorization: Bearer $API_TERRAFORM_TOKEN" \
+  -H "Authorization: Bearer $TERRAFORMCLOUD_API_TOKEN" \
   -H "Content-Type: application/vnd.api+json" \
   -d '{
         "data": {
@@ -44,7 +46,7 @@ createOrganizationInTFCloud() {
 
   # create api-token organization vkpr
   local TERRAFORM_ORGANIZATION_TOKEN=$(curl -s -X POST \
-  -H "Authorization: Bearer $API_TERRAFORM_TOKEN" \
+  -H "Authorization: Bearer $TERRAFORMCLOUD_API_TOKEN" \
   -H "Content-Type: application/vnd.api+json" \
     https://app.terraform.io/api/v2/organizations/vkpr/authentication-token | $VKPR_JQ -r '.data.attributes.token')
   

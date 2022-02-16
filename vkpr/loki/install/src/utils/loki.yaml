@@ -1,2 +1,4 @@
 loki:
   enabled: true
+  podLabels:
+    vkpr: "true"

@@ -20,10 +20,11 @@ checkGlobalConfig(){
 }
 
 # Check if any Pod is already up to use and match with another tools
-# $1: name of the pod
+# $1: pod namespace
+# $2: name of the pod
 checkPodName(){
-  for pod in $($VKPR_KUBECTL get pods -n vkpr --ignore-not-found  | awk 'NR>1{print $1}'); do
-    if [[ "$pod" == "$1"* ]]; then
+  for pod in $($VKPR_KUBECTL get pods -n $1 --ignore-not-found  | awk 'NR>1{print $1}'); do
+    if [[ "$pod" == "$2"* ]]; then
       echo true  # pod name found a match, then returns True
       return
     fi
@@ -32,7 +33,7 @@ checkPodName(){
 }
 
 # Create a new instance of DB in Postgres;
-# $1: Postgres User  /  $2: Postgres Password  /  $3: Name of DB to create
+# $1: Postgres User  /  $2: Postgres Password  /  $3: Name of DB to create  / $4: Namespace
 createDatabase(){
   local PG_HOST="postgres-postgresql"
   [[ ! -z $($VKPR_KUBECTL get pod -n $VKPR_K8S_NAMESPACE | grep pgpool) ]] && PG_HOST="postgres-postgresql-pgpool"
@@ -40,7 +41,7 @@ createDatabase(){
 }
 
 # Check if exist some instace of DB with specified name in Postgres
-# $1: Postgres User  /  $2: Postgres Password  /  $3: Name of DB to search
+# $1: Postgres User  /  $2: Postgres Password  /  $3: Name of DB to search  / $4: Namespace
 checkExistingDatabase(){
   local PG_HOST="postgres-postgresql"
   [[ ! -z $($VKPR_KUBECTL get pod -n $VKPR_K8S_NAMESPACE | grep pgpool) ]] && PG_HOST="postgres-postgresql-pgpool"

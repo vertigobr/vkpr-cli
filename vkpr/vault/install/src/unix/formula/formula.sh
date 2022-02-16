@@ -10,6 +10,10 @@ runFormula() {
   checkGlobalConfig $VAULT_MODE "raft" "vault.storageMode" "VAULT_MODE"
   checkGlobalConfig $VAULT_AUTO_UNSEAL "false" "vault.autoUnseal" "VAULT_AUTO_UNSEAL"
   checkGlobalConfig "nginx" "nginx" "vault.ingressClassName" "VAULT_INGRESS"
+  checkGlobalConfig $VKPR_K8S_NAMESPACE "vkpr" "vault.namespace" "NAMESPACE"
+
+  # External app values
+  checkGlobalConfig $VKPR_K8S_NAMESPACE "vkpr" "consul.namespace" "CONSUL_NAMESPACE"
 
   local VKPR_ENV_VAULT_DOMAIN="vault.${VKPR_ENV_DOMAIN}"
   
@@ -48,6 +52,7 @@ settingVault() {
   fi
 
   if [[ $VKPR_ENV_VAULT_AUTO_UNSEAL != false ]]; then
+    $VKPR_KUBECTL create ns $VKPR_ENV_NAMESPACE 2> /dev/null
     YQ_VALUES=''$YQ_VALUES' |
       .server.extraEnvironmentVars.VAULT_LOG_LEVEL = "debug"
     '
@@ -71,13 +76,17 @@ settingVault() {
           .server.extraSecretEnvironmentVars[4].secretName = "aws-unseal-vault" |
           .server.extraSecretEnvironmentVars[4].secretKey = "AWS_KMS_ENDPOINT"
         '
+        validateAwsSecretKey $AWS_SECRET_KEY
+        validateAwsAccessKey $AWS_ACCESS_KEY
+        validateAwsRegion $AWS_REGION
         $VKPR_YQ eval '.metadata.name = "aws-unseal-vault" |
+          .metadata.namespace = "'$VKPR_ENV_NAMESPACE'" |
           .data.AWS_REGION = "'$(echo -n $($VKPR_JQ -r .credential.accesskeyid $RIT_CREDENTIALS_PATH/aws) | base64)'" |
           .data.AWS_ACCESS_KEY = "'$(echo -n $($VKPR_JQ -r .credential.secretaccesskey $RIT_CREDENTIALS_PATH/aws) | base64)'" |
           .data.AWS_SECRET_KEY = "'$(echo -n $($VKPR_JQ -r .credential.awsregion $RIT_CREDENTIALS_PATH/aws) | base64)'" |
           .data.AWS_KMS_KEY_ID = "'$(echo -n $($VKPR_JQ -r .credential.kmskeyid $RIT_CREDENTIALS_PATH/aws) | base64)'" |
           .data.AWS_KMS_ENDPOINT = "'$(echo -n $($VKPR_JQ -r .credential.kmsendpoint $RIT_CREDENTIALS_PATH/aws) | base64)'"
-        ' $(dirname "$0")/utils/auto-unseal.yaml
+        ' $(dirname "$0")/utils/auto-unseal.yaml | $VKPR_KUBECTL apply -f -
         ;;
       azure)
         YQ_VALUES=''$YQ_VALUES' |
@@ -99,12 +108,13 @@ settingVault() {
           .server.extraSecretEnvironmentVars[4].secretKey = "VAULT_AZUREKEYVAULT_KEY_NAME"
         '
         $VKPR_YQ eval '.metadata.name = "azure-unseal-vault" |
+          .metadata.namespace = "'$VKPR_ENV_NAMESPACE'" |
           .data.AZURE_TENANT_ID = "'$(echo -n $($VKPR_JQ -r .credential.azuretenantid $RIT_CREDENTIALS_PATH/azure) | base64)'" |
           .data.AZURE_CLIENT_ID = "'$(echo -n $($VKPR_JQ -r .credential.azureclientid $RIT_CREDENTIALS_PATH/azure) | base64)'" |
           .data.AZURE_CLIENT_SECRET = "'$(echo -n $($VKPR_JQ -r .credential.azureclientsecret $RIT_CREDENTIALS_PATH/azure) | base64)'" |
           .data.VAULT_AZUREKEYVAULT_VAULT_NAME = "'$(echo -n $($VKPR_JQ -r .credential.vaultazurekeyvaultvaultname $RIT_CREDENTIALS_PATH/azure) | base64)'" |
           .data.VAULT_AZUREKEYVAULT_KEY_NAME = "'$(echo -n $($VKPR_JQ -r .credential.vaultazurekeyvaultkeyname $RIT_CREDENTIALS_PATH/azure) | base64)'"
-        ' $(dirname "$0")/utils/auto-unseal.yaml
+        ' $(dirname "$0")/utils/auto-unseal.yaml | $VKPR_KUBECTL apply -f -
         ;;
       esac
   fi
@@ -120,7 +130,7 @@ settingVault() {
     else
     printf 'storage "consul" {
   path = "vault"
-  address = "consul-consul-server.vkpr.svc.cluster.local:8500"
+  address = "consul-consul-server.'$VKPR_ENV_CONSUL_NAMESPACE'.svc.cluster.local:8500"
 }' >> $VKPR_VAULT_CONFIG
   fi
 
@@ -133,8 +143,10 @@ installVault() {
   settingVault
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_VAULT_VALUES" \
   | $VKPR_HELM upgrade -i --version "$VKPR_VAULT_VERSION" \
-      --namespace $VKPR_K8S_NAMESPACE --create-namespace \
+      --namespace $VKPR_ENV_NAMESPACE --create-namespace \
       --wait -f - vault hashicorp/vault
+      
   echoColor "bold" "$(echoColor "green" "Creating storage config...")"
-  $VKPR_KUBECTL create secret generic vault-storage-config -n $VKPR_K8S_NAMESPACE --from-file=$VKPR_VAULT_CONFIG
+  $VKPR_KUBECTL create secret generic vault-storage-config -n $VKPR_ENV_NAMESPACE --from-file=$VKPR_VAULT_CONFIG
+  $VKPR_KUBECTL label secret vault-storage-config vkpr=true app.kubernetes.io/instance=vault -n $VKPR_ENV_NAMESPACE
 }
