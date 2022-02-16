@@ -1,3 +1,6 @@
+global:
+  podLabels:
+    vkpr: "true"
 server:
   extraArgs:
     - --insecure

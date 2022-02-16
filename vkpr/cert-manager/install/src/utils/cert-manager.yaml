@@ -5,3 +5,6 @@ ingressShim:
   defaultIssuerGroup: cert-manager.io
 prometheus:
   enabled: false
+podLabels:
+  vkpr: "true"
+clusterResourceNamespace: cert

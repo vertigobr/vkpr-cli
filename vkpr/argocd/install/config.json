@@ -19,17 +19,6 @@
       ]
     },
     {
-      "tutorial": "Specifies the Super Admin password.",
-      "label": "Type the user Password:",
-      "name": "admin_password",
-      "type": "password",
-      "default": "vkpr123",
-      "pattern": {
-        "regex": "^([A-Za-z0-9-]{7,})$",
-        "mismatchText": "Password too weak"
-      }
-    },
-    {
       "tutorial": "Specifies if the application will have High Availability.",
       "label": "HA ?",
       "name": "HA",

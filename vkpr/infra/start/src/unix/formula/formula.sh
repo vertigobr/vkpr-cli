@@ -7,8 +7,8 @@ runFormula() {
   checkGlobalConfig $HTTP_PORT "8000" "infra.httpPort" "HTTP_PORT"
   checkGlobalConfig $HTTPS_PORT "8001" "infra.httpsPort" "HTTPS_PORT"
   checkGlobalConfig $ENABLE_TRAEFIK "false" "infra.traefik.enabled" "TRAEFIK"
-  checkGlobalConfig $SERVERS "1" "infra.resources.servers" "K3D_SERVERS"
-  checkGlobalConfig $AGENTS "1" "infra.resources.agents" "K3D_AGENTS"
+  checkGlobalConfig $SERVERS "1" "infra.resources.masters" "K3D_SERVERS"
+  checkGlobalConfig $AGENTS "1" "infra.resources.workers" "K3D_AGENTS"
 
   startInfos
   configRegistry

@@ -5,3 +5,4 @@ metadata:
   labels:
     app: name-grafana
     grafana_dashboard: "true"
+    vkpr: "true"

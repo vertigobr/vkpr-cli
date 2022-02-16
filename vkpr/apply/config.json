@@ -1,8 +1,8 @@
 {
   "inputs": [
     {
-      "label": "Path to config file: ",
-      "name": "pathtofile",
+      "label": "Path to config file:",
+      "name": "path_to_file",
       "required": true,
       "type": "text"
     }

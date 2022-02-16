@@ -7,9 +7,11 @@ runFormula() {
   checkGlobalConfig $DOMAIN "localhost" "domain" "DOMAIN"
   checkGlobalConfig $SECURE "false" "secure" "SECURE"
   checkGlobalConfig $INGRESS_CONTROLLER "nginx" "consul.ingressClassName" "CONSUL_INGRESS"
+  checkGlobalConfig $VKPR_K8S_NAMESPACE "vkpr" "consul.namespace" "NAMESPACE"
 
   local VKPR_ENV_CONSUL_DOMAIN="consul.${VKPR_ENV_DOMAIN}"
   
+  startInfos
   configureRepository
   installConsul
 }
@@ -28,14 +30,14 @@ configureRepository() {
 }
 
 settingConsul() {
-  YQ_VALUES=''$YQ_VALUES' |
-    .ui.ingress.ingressClassName = "'$VKPR_ENV_CONSUL_INGRESS'"
-  '
   if [[ $VKPR_ENV_SECURE == true ]]; then
     YQ_VALUES=''$YQ_VALUES' |
-      .ui.ingress.annotations.["'kubernetes.io/tls-acme'"] = "'true'" |
       .ui.ingress.tls[0].hosts[0] = "'$VKPR_ENV_CONSUL_DOMAIN'" |
       .ui.ingress.tls[0].secretName = "'consul-cert'"
+    '
+    else
+    YQ_VALUES=''$YQ_VALUES' |
+      .ui.ingress.annotations = ""
     '
   fi
 
@@ -43,11 +45,11 @@ settingConsul() {
 }
 
 installConsul() {
-  echoColor "bold" "$(echoColor "green" "Installing Consul...")"
-  local YQ_VALUES='.ui.ingress.hosts[0].host = "'$VKPR_ENV_CONSUL_DOMAIN'"'
+  echoColor "bold" "$(echoColor "green" "Installing Consul...")" 
+  local YQ_VALUES='.ui.ingress.hosts[0].host = "'$VKPR_ENV_CONSUL_DOMAIN'" | .ui.ingress.ingressClassName = "'$VKPR_ENV_CONSUL_INGRESS'"'
   settingConsul
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_CONSUL_VALUES" \
   | $VKPR_HELM upgrade -i --version "$VKPR_CONSUL_VERSION" \
-      --namespace $VKPR_K8S_NAMESPACE --create-namespace \
+      --namespace $VKPR_ENV_NAMESPACE --create-namespace \
       --wait -f - consul hashicorp/consul
 }

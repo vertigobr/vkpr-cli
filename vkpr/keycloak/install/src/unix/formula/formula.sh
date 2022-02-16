@@ -13,6 +13,10 @@ runFormula() {
   checkGlobalConfig $ADMIN_PASSWORD "vkpr123" "keycloak.adminPassword" "KEYCLOAK_ADMIN_PASSWORD"
   checkGlobalConfig "nginx" "nginx" "keycloak.ingressClassName" "KEYCLOAK_INGRESS"
   checkGlobalConfig "false" "false" "keycloak.metrics" "METRICS"
+  checkGlobalConfig $VKPR_K8S_NAMESPACE "vkpr" "keycloak.namespace" "NAMESPACE"
+
+  # External apps values
+  checkGlobalConfig $VKPR_K8S_NAMESPACE "vkpr" "postgresql.namespace" "POSTGRESQL_NAMESPACE"
 
   local VKPR_ENV_KEYCLOAK_DOMAIN="keycloak.${VKPR_ENV_DOMAIN}"
 
@@ -44,7 +48,7 @@ installKeycloak(){
   echoColor "bold" "$(echoColor "green" "Installing Keycloak...")"
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_KEYCLOAK_VALUES" \
   | $VKPR_HELM upgrade -i --version "$VKPR_KEYCLOAK_VERSION" \
-    --create-namespace -n $VKPR_K8S_NAMESPACE \
+    --create-namespace -n $VKPR_ENV_NAMESPACE \
     --wait --timeout 10m -f - keycloak bitnami/keycloak
 }
 
@@ -66,7 +70,7 @@ settingKeycloak(){
       .replicaCount = 3 |
       .serviceDiscovery.enabled = "true" |
       .serviceDiscovery.protocol = "dns.DNS_PING" |
-      .serviceDiscovery.properties[0] = "dns_query=\"keycloak-headless.vkpr.svc.cluster.local\"" |
+      .serviceDiscovery.properties[0] = "dns_query=\"keycloak-headless.'$VKPR_ENV_NAMESPACE'.svc.cluster.local\"" |
       .proxyAddressForwarding = true |
       .cache.ownersCount = 3 |
       .cache.authOwnersCount = 3
@@ -76,7 +80,7 @@ settingKeycloak(){
     YQ_VALUES=''$YQ_VALUES' |
       .metrics.enabled = true |
       .metrics.serviceMonitor.enabled = true |
-      .metrics.serviceMonitor.namespace = "vkpr" |
+      .metrics.serviceMonitor.namespace = "'$VKPR_ENV_NAMESPACE'" |
       .metrics.serviceMonitor.interval = "30s" |
       .metrics.serviceMonitor.scrapeTimeout = "30s" |
       .metrics.serviceMonitor.additionalLabels.release = "prometheus-stack" 
@@ -90,18 +94,18 @@ configureKeycloakDB(){
   local PG_HA="false"
   validatePostgresqlPassword $PASSWORD
   [[ $VKPR_ENV_HA == true ]] && PG_HA="true"
-  if [[ $(checkPodName "postgres-postgresql") != "true" ]]; then
+  if [[ $(checkPodName $VKPR_ENV_POSTGRESQL_NAMESPACE "postgres-postgresql") != "true" ]]; then
     echoColor "green" "Initializing postgresql to Keycloak"
-    cp $CURRENT_PWD/vkpr.yaml "$(dirname "$0")"
+    [[ -f $CURRENT_PWD/vkpr.yaml ]] && cp $CURRENT_PWD/vkpr.yaml "$(dirname "$0")"
     rit vkpr postgres install --HA=$PG_HA --password=$PASSWORD --default
   fi
-  if [[ $(checkExistingDatabase $PG_USER $PG_PASSWORD $PG_DATABASE_NAME) != "keycloak" ]]; then
+  if [[ $(checkExistingDatabase $PG_USER $PG_PASSWORD $PG_DATABASE_NAME $VKPR_ENV_POSTGRESQL_NAMESPACE) != "keycloak" ]]; then
     echoColor "green" "Creating Database Instance in postgresql..."
-    createDatabase $PG_USER $PG_PASSWORD $PG_DATABASE_NAME
+    createDatabase $PG_USER $PG_PASSWORD $PG_DATABASE_NAME $VKPR_ENV_POSTGRESQL_NAMESPACE
   fi
 
-  local PG_HOST="postgres-postgresql"
-  [[ ! -z $($VKPR_KUBECTL get pod -n $VKPR_K8S_NAMESPACE | grep pgpool) ]] && PG_HOST="postgres-postgresql-pgpool"
+  local PG_HOST="postgres-postgresql.$VKPR_ENV_POSTGRESQL_NAMESPACE"
+  [[ ! -z $($VKPR_KUBECTL get pod -n $VKPR_ENV_POSTGRESQL_NAMESPACE | grep pgpool) ]] && PG_HOST="postgres-postgresql-pgpool.$VKPR_ENV_POSTGRESQL_NAMESPACE"
   YQ_VALUES=''$YQ_VALUES' |
     .externalDatabase.host = "'$PG_HOST'" |
     .externalDatabase.port = "5432" |

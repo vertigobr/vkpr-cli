@@ -1,5 +1,7 @@
 # -----------------------------------------------------------------------------
 # Kong parameters
+podLabels:
+  vkpr: "true"
 env:
   database: "off"
   log_level: notice

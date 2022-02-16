@@ -6,6 +6,7 @@ runFormula() {
   
   checkGlobalConfig $LB_TYPE "Classic" "ingress.loadBalancerType" "LB_TYPE"
   checkGlobalConfig "false" "false" "ingress.metrics" "METRICS"
+  checkGlobalConfig $VKPR_K8S_NAMESPACE "vkpr" "ingress.namespace" "NAMESPACE"
 
   startInfos
   configureRepository
@@ -24,10 +25,11 @@ configureRepository() {
 
 installIngress() {
   echoColor "bold" "$(echoColor "green" "Installing ngnix ingress...")"
+  local YQ_VALUES=".rbac.create = true"
   settingIngress
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_INGRESS_VALUES" \
   | $VKPR_HELM upgrade -i --version "$VKPR_INGRESS_NGINX_VERSION" \
-      --namespace $VKPR_K8S_NAMESPACE --create-namespace \
+      --namespace $VKPR_ENV_NAMESPACE --create-namespace \
       --wait --timeout 5m0s -f - ingress-nginx ingress-nginx/ingress-nginx
 }
 
@@ -46,9 +48,10 @@ settingIngress() {
       .controller.metrics.service.annotations.["'prometheus.io/scrape'"] = "true" |
       .controller.metrics.service.annotations.["'prometheus.io/port'"] = "10254" |
       .controller.metrics.serviceMonitor.enabled = "true" |
-      .controller.metrics.serviceMonitor.namespace = "vkpr" |
+      .controller.metrics.serviceMonitor.namespace = "'$VKPR_ENV_NAMESPACE'" |
       .controller.metrics.serviceMonitor.additionalLabels.release = "prometheus-stack"
     ' 
   fi
+
   mergeVkprValuesHelmArgs "ingress" $VKPR_INGRESS_VALUES
 }
