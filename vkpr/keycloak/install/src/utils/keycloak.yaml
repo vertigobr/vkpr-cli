@@ -14,5 +14,5 @@ rbac:
 postgresql:
   persistence:
     enabled: false
-commonLabels:
+podLabels:
   vkpr: "true"
