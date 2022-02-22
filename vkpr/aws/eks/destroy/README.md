@@ -1,11 +1,27 @@
-# Description
+# VKPR aws eks destroy
 
-Destroy the EKS in AWS.
+## Description
 
-## Commands
+Destroy the EKS cluster created by the GitOps pipeline.
+Commands#
 
 Non-interactive:
 
-```bash
-vkpr aws eks destroy
+```
+  vkpr aws eks destroy [flags]
+```
+
+## Parameters
+
+```
+  --gitlab_token         Specifies your Gitlab Access-Token
+  --gitlab_username      Specifies your Gitlab Username
+```
+
+## Setting Credentials manually
+
+### Gitlab
+
+```
+  rit set credential --provider="gitlab" --fields="token,username" --values="your-token,your-username"
 ```
