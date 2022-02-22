@@ -1,6 +1,6 @@
 # VKPR aws eks tfc
 
-## Description#
+## Description
 
 Fork and setup the GitOps Repo in your Gitlab, using Terraform Cloud as Backend to save the Terraform state.
 Commands#
