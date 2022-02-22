@@ -1,49 +1,62 @@
-# Description
+# VKPR cert-manager install
 
-Install external-dns into cluster. Uses [external-dns](https://artifacthub.io/packages/helm/bitnami/external-dns) Helm chart.
+## Description
+
+Install cert-manager into cluster. For more information about cert-manager, click here.
 
 ## Commands
 
 Interactive inputs:
 
-```bash
-vkpr external-dns install
+```
+  vkpr cert-manager install [flags]
 ```
 
-Non-interactive:
+Non-interactive without setting values or using ```VKPR Values```:
 
-```bash
-rit set credential --provider="digitalocean" --fields="token" --values="<your-digitalocean-token>"
-vkpr external-dns install --provider="digitalocean"
+```
+  vkpr cert-manager install --default
+```
+# Parameters
+
+```
+  --default                Set all values with default
+  --email                  Inform your email to be used as a contact with the CA
+  --issuer                 Specify the issuer to create the certificates. In general, is used Lets Encrypted as CA    Default: "staging"    Allowed values: "staging", "production", "custom-acme"
+  --issuer_solver          Specify the type of Challenge used to validate the URL    Default: "HTTP01"    Allowed values: "HTTP01", "DNS01"
+    --cloud_provider       Specify which cloud-provider will be used to record the DNS TXT record if issuer_solver be `DNS01`   Allowed values: "aws", "digitalocean", "custom-acme"
+      --aws_access_key          Specifies the AWS Access Key Credential
+      --aws_secret_key          Specifies the AWS Secret Key Credential
+      --aws_region              Specifies the AWS Region to set the env
+      --aws_hostedzone_id       Specifies the Hostedzone ID from the domain in Route53
+      --do_token                Specifies the Digital Ocean API Token
 ```
 
-Non-interactive without setting values:
-
-```bash
-vkpr external-dns install --default
-```
-
-## Parameters
-
-```bash
-  --provider= Define the provider from external-dns. Default: digitalocean
-  --default= Set all values with default.
-```
-
-## Globals File Parameters
+Values File Parameters
 
 ```yaml
+vkpr.yaml
+```
+```yaml
 global:
-  external-dns:
-    provider: <String>
+  cert-manager:
+    email:         <String>
+    solver:        <String>
+    provider:      <String>
+    ingress:       <String>
+    helmArgs:      <Object>
 ```
 
-### Content installed on the Cluster
+## Setting Cloud Providers credentials manually
 
-- Deployment
-- Service
-- Secret (certificate)
-- Job
-- ServiceAccount
-- ClusterRole
-- ClusterRoleBinding
+## AWS
+
+```
+  rit set credential --provider="aws" --fields="accesskeyid,secretaccesskey,region" --values="your-accesskey,your-secretaccess,your-region"
+```
+
+## Digital Ocean
+
+```
+  rit set credential --provider="digitalocean" --fields="token" --values="your-api-token"
+```
