@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #
 # Downloads tools and other CLIs used transparently
@@ -11,7 +11,6 @@ runFormula() {
   echoColor "green" "VKPR initialization"
   echo "=============================="
   local VKPR_HOME=~/.vkpr
-  local VKPR_SCRIPTS=$VKPR_HOME/src
   
   mkdir -p $VKPR_HOME/bin
   mkdir -p $VKPR_HOME/config
@@ -21,15 +20,15 @@ runFormula() {
   installGlab
   #Versions from ./utils/dependencies.sh or latest as default
   validateKubectlVersion
-  installTool "kubectl" $VKPR_TOOLS_KUBECTL
+  installTool "kubectl" "$VKPR_TOOLS_KUBECTL"
   validateHelmVersion
-  installTool "helm" $VKPR_TOOLS_HELM
+  installTool "helm" "$VKPR_TOOLS_HELM"
   validateK3DVersion
-  installTool "k3d" $VKPR_TOOLS_K3D
+  installTool "k3d" "$VKPR_TOOLS_K3D"
   validateJQVersion
-  installTool "jq" $VKPR_TOOLS_JQ
+  installTool "jq" "$VKPR_TOOLS_JQ"
   validateYQVersion
-  installTool "yq" $VKPR_TOOLS_YQ
+  installTool "yq" "$VKPR_TOOLS_YQ"
   # validateK9SVersion
   # installTool "k9s" $VKPR_TOOLS_K9S
 
