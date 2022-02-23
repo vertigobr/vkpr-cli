@@ -14,8 +14,13 @@ init:
 sync-release:
 	@rit add repo --provider="Github" --name="vkpr-cli" --repoUrl="https://github.com/vertigobr/vkpr-cli"
 
+.PHONY: reload-workspace
+reload-workspace:
+	@rit delete workspace --name="Vkpr-Formulas"
+	@rit add workspace --name vkpr-formulas --path ${current_dir}
+
 .PHONY: lint
-application_files = $(shell find ${current_dir}/vkpr/$(app) -name '*.sh' -type f 2> /dev/null)
+application_files = $(shell find ${current_dir}/vkpr/$(app) -name 'formula.sh' -type f 2> /dev/null)
 lint:
 	@shellcheck ${application_files} 2> /dev/null || (echo "Invalid application name"; exit 1)
 
@@ -39,6 +44,7 @@ help:
 	@echo '   make                                Runs rules specified under all     							'
 	@echo '   make init         		       Initializes VKPR so that it syncs with the local repository   '
 	@echo '   make sync-release                   Sync VKPR with repository releases       					  	'
+	@echo '   make reload-workspace               Reload the workspace (Recommended when updating/creating functions)'
 	@echo '   make test app=value                 Test formula scripts   										'
 	@echo '   make lint app=value                 Lint formula scripts         									'
 	@echo '   make clean                          Clean all VKPR content locally                 				'
