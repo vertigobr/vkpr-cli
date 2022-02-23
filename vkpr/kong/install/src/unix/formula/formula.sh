@@ -46,7 +46,7 @@ addDependencies(){
   \"storage\": \"kong\",
   \"cookie_domain\": \"manager.%s\"
 }" "$VKPR_ENV_DOMAIN" > config/admin_gui_session_conf
-  
+
   printf "{
   \"cookie_name\": \"portal_session\",
   \"cookie_samesite\": \"Strict\",
@@ -55,7 +55,7 @@ addDependencies(){
   \"storage\": \"kong\",
   \"cookie_domain\": \"portal.%s\"
 }" "$VKPR_ENV_DOMAIN" > config/portal_session_conf
-  
+
   if [[ "$VKPR_ENV_KONG_DEPLOY" == "hybrid" ]]; then
     openssl req -new -x509 -nodes -newkey ec:<(openssl ecparam -name secp384r1) \
                 -keyout config/cluster.key -out config/cluster.crt \
@@ -132,7 +132,7 @@ installKong(){
 
   if [[ "$VKPR_ENV_KONG_METRICS" == true ]]; then
     $VKPR_KUBECTL apply -f "$(dirname "$0")"/utils/prometheus-plugin.yaml
-  fi  
+  fi
 }
 
 installKongDP() {
@@ -246,7 +246,7 @@ settingKongEnterprise() {
   if [[ "$ENTERPRISE" == true ]]; then
     YQ_VALUES="$YQ_VALUES |
       .image.repository = \"kong/kong-gateway\" |
-      .image.tag = \"2.7.0.0-alpine\" |
+      .image.tag = \"2.7.1.2-alpine\" |
       .enterprise.enabled = \"true\" |
       .enterprise.vitals.enabled = \"true\" |
       .enterprise.portal.enabled = \"true\"
