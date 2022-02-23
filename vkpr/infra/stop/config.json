@@ -1,0 +1,17 @@
+{
+  "inputs": [
+    {
+      "tutorial": "Specifies if you want to delete the builtin registries",
+      "label": "Want to delete the registries ?",
+      "name": "delete_registry",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "false",
+        "true"
+      ]
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease:": "2.16.2"
+}
