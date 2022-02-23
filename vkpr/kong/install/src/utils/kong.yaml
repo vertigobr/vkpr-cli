@@ -58,7 +58,9 @@ proxy:
     servicePort: 80
     containerPort: 8000
   tls:
-    enabled: false
+    enabled: true
+    servicePort: 443
+    containerPort: 8443
 # -----------------------------------------------------------------------------
 # Ingress Controller parameters
 # -----------------------------------------------------------------------------
