@@ -2,8 +2,9 @@
 
 runFormula() {
   echoColor "bold" "$(echoColor "green" "Removing cert-manager...")"
-  uninstallCertManager
+  
   $VKPR_KUBECTL get crd | grep -q clusterissuer && uninstallResources
+  uninstallCertManager
 }
 
 uninstallCertManager() {
