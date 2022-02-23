@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 runFormula() {
   local REAL_FORMULA="rit $VKPR_FORMULA"
@@ -16,7 +16,7 @@ runFormula() {
     REAL_FORMULA_PATH="$REAL_WORKSPACE_PATH/${VKPR_FORMULA// //}"
   fi
 
-  local REAL_WORKSPACE_NAME=$(getWorkspaceName "$REAL_WORKSPACE_PATH")
+  local REAL_WORKSPACE_NAME; REAL_WORKSPACE_NAME=$(getWorkspaceName "$REAL_WORKSPACE_PATH")
 
   startInfos
 
@@ -48,7 +48,7 @@ getWorkspaceName() {
     echo >&2 "getWorkspaceName: workspace path cannot be empty."
     exit 1
   fi
-  local result=$(rit list workspace | grep "$REAL_WORKSPACE_PATH" | awk '{print $1}')
+  local result; result=$(rit list workspace | grep "$REAL_WORKSPACE_PATH" | awk '{print $1}')
   echo "$result"
 }
 
@@ -61,13 +61,13 @@ cleanupFormula() {
   fi
 
   # Create Files
-  cat > ${formulaPath}/help.json <<EOF
+  cat > "${formulaPath}"/help.json <<EOF
 {
   "short": "",
   "long": ""
 }
 EOF
-  mkdir -p ${formulaPath}/src/utils
+  mkdir -p "${formulaPath}"/src/utils
 
   # Delete Files
   rm -f "${formulaPath}/Dockerfile"
@@ -79,15 +79,15 @@ EOF
 
   # No inputs in config.json
   cp "${formulaPath}/config.json" "${formulaPath}/config.json.tmp"
-  $VKPR_JQ '.inputs=[] | del(.dockerImageBuilder)' ${formulaPath}/config.json.tmp > ${formulaPath}/config.json
-  rm ${formulaPath}/config.json.tmp
+  $VKPR_JQ '.inputs=[] | del(.dockerImageBuilder)' "${formulaPath}"/config.json.tmp > "${formulaPath}"/config.json
+  rm "${formulaPath}"/config.json.tmp
 
   # Only local executing
   cp "${formulaPath}/metadata.json" "${formulaPath}/metadata.json.tmp"
-  $VKPR_JQ '.execution=["local"]' "${formulaPath}/metadata.json.tmp" > ${formulaPath}/metadata.json
-  rm ${formulaPath}/metadata.json.tmp
+  $VKPR_JQ '.execution=["local"]' "${formulaPath}/metadata.json.tmp" > "${formulaPath}"/metadata.json
+  rm "${formulaPath}"/metadata.json.tmp
 
-  echo "" > ${formulaPath}/README.md
+  echo "" > "${formulaPath}"/README.md
 
   # Change entire file
   changeMainFile
@@ -96,7 +96,7 @@ EOF
 }
 
 changeFormula() {
-  cat > ${formulaPath}/src/unix/formula/formula.sh <<EOF
+  cat > "${formulaPath}"/src/unix/formula/formula.sh <<EOF
 #!/bin/bash
 
 runFormula() {
@@ -106,7 +106,7 @@ EOF
 }
 
 changeMainFile() {
-  cat > ${formulaPath}/src/main.sh.tmp <<EOF
+  cat > "${formulaPath}"/src/main.sh.tmp <<EOF
 #!/bin/bash
 
 # shellcheck source=/dev/null
@@ -121,18 +121,20 @@ source src/versions.sh
 runFormula
 EOF
 
-  sed 's/\\//g' ${formulaPath}/src/main.sh.tmp > ${formulaPath}/src/main.sh
-  rm ${formulaPath}/src/main.sh.tmp
+  sed 's/\\//g' "${formulaPath}"/src/main.sh.tmp > "${formulaPath}"/src/main.sh
+  rm "${formulaPath}"/src/main.sh.tmp
 }
 
 changeBuildFile() {
-  FORMULA_SIZE=$(echo ${VKPR_FORMULA} | awk -F " " '{print NF}')
+  FORMULA_SIZE=$(echo "${VKPR_FORMULA}" | awk -F " " '{print NF}')
+  FORMULA_NUMBER=$(seq "$FORMULA_SIZE" | tail -n1)
   path=""
-  for i in $(seq $FORMULA_SIZE); do
-    path+="../" 
+  while [ "$FORMULA_NUMBER" -gt 0 ]; do
+    path+="../"
+    FORMULA_NUMBER=$(( FORMULA_NUMBER - 1 ))
   done
 
-  cat > ${formulaPath}/build.sh.tmp <<EOF
+  cat > "${formulaPath}"/build.sh.tmp <<EOF
 #!/bin/bash
 
 BIN_FOLDER=bin
@@ -148,6 +150,6 @@ LIB_RESOURCES="${path}lib/functions/*"
 	chmod +x $\BIN_FOLDER/$\BINARY_NAME_UNIX
 EOF
 
-  sed 's/\\//g' ${formulaPath}/build.sh.tmp > ${formulaPath}/build.sh
-  rm ${formulaPath}/build.sh.tmp
+  sed 's/\\//g' "${formulaPath}"/build.sh.tmp > "${formulaPath}"/build.sh
+  rm "${formulaPath}"/build.sh.tmp
 }

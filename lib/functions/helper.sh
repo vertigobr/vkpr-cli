@@ -1,30 +1,50 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Create a variable by Global Scope
-# $1: Global variable  /  $2: Default value of the global variable  /  $3: Label from config file  /  $4: Name of env
+## Creates a variable with the value that follows the stipulated precedence
+## formula input -> values file -> env -> default values
+# Parameters:
+# 1 - INPUT_VALUE
+# 2 - DEFAULT_INPUT_VALUE
+# 3 - VALUES_LABEL_PATH
+# 4 - ENV_NAME
 checkGlobalConfig(){
-  FILE_LABEL=".global.$3"
-  local NAME_ENV=VKPR_ENV_$4
-  if [ -f "$VKPR_GLOBAL" ] && [ $1 == $2 ] && [[ $($VKPR_YQ eval $FILE_LABEL $VKPR_GLOBAL) != "null" ]]; then
-      echoColor "yellow" "Setting value from config file"
-      eval $NAME_ENV=$($VKPR_YQ eval $FILE_LABEL $VKPR_GLOBAL)
-  else
-    if [ $1 == $2 ]; then
-      echoColor "yellow" "Setting value from default value"
-      eval $NAME_ENV=$1
-    else
-      echoColor "yellow" "Setting value from user input"
-      eval $NAME_ENV=$1
-    fi
+  local INPUT_VALUE="$1" DEFAULT_INPUT_VALUE="$2" \
+        VALUES_LABEL_PATH=".global.$3" ENV_NAME="VKPR_ENV_$4"
+
+  if [ "$INPUT_VALUE" != "$DEFAULT_INPUT_VALUE" ]; then
+    echoColor "yellow" "Setting value from input value"
+    eval "$ENV_NAME"="$INPUT_VALUE"
+    return
+  fi
+
+  if [ -f "$VKPR_GLOBAL" ] && [ "$($VKPR_YQ eval "$VALUES_LABEL_PATH" "$VKPR_GLOBAL")" != "null" ]; then
+    echoColor "yellow" "Setting value from config file"
+    eval "$ENV_NAME"="$($VKPR_YQ eval "$VALUES_LABEL_PATH" "$VKPR_GLOBAL")"
+    return
+  fi
+
+  if printenv | grep -q "$ENV_NAME"; then
+    echoColor "yellow" "Setting value from env"
+    eval "$ENV_NAME"="$(printf '%s\n' "${!ENV_NAME}")"
+    return
+  fi
+
+  if [ "$INPUT_VALUE" == "$DEFAULT_INPUT_VALUE" ]; then
+    echoColor "yellow" "Setting value from default value"
+    eval "$ENV_NAME"="$INPUT_VALUE"
+    return
   fi
 }
 
-# Check if any Pod is already up to use and match with another tools
-# $1: pod namespace
-# $2: name of the pod
+## Check if any Pod is already up to use and match with another tools
+# Parameters:
+# 1 - POD_NAMESPACE
+# 2 - POD_NAME
 checkPodName(){
-  for pod in $($VKPR_KUBECTL get pods -n $1 --ignore-not-found  | awk 'NR>1{print $1}'); do
-    if [[ "$pod" == "$2"* ]]; then
+  local POD_NAMESPACE="$1" POD_NAME="$2"
+
+  for pod in $($VKPR_KUBECTL get pods -n "$POD_NAMESPACE" --ignore-not-found  | awk 'NR>1{print $1}'); do
+    if [[ "$pod" == "$POD_NAME"* ]]; then
       echo true  # pod name found a match, then returns True
       return
     fi
@@ -32,59 +52,101 @@ checkPodName(){
   echo false
 }
 
-# Create a new instance of DB in Postgres;
-# $1: Postgres User  /  $2: Postgres Password  /  $3: Name of DB to create  / $4: Namespace
+## Create a new Postgresql database
+# Parameters:
+# 1 - POSTGRESQL_USER
+# 2 - POSTGRESQL_PASSWORD
+# 3 - DATABASE_NAME
+# 4 - POSTGRESQL_POD_NAMESPACE
 createDatabase(){
+  local PG_USER="$1" PG_PASSWORD="$2" \
+        DATABASE_NAME="$3" NAMESPACE="$4"
+
   local PG_HOST="postgres-postgresql"
-  [[ ! -z $($VKPR_KUBECTL get pod -n $VKPR_K8S_NAMESPACE | grep pgpool) ]] && PG_HOST="postgres-postgresql-pgpool"
-  $VKPR_KUBECTL run init-db --rm -it --restart="Never" --namespace $VKPR_K8S_NAMESPACE --image docker.io/bitnami/postgresql-repmgr:11.14.0-debian-10-r12 --env="PGUSER=$1" --env="PGPASSWORD=$2" --env="PGHOST=${PG_HOST}" --env="PGPORT=5432" --env="PGDATABASE=postgres" --command -- psql --command="CREATE DATABASE $3"
+
+  if $VKPR_KUBECTL get pod -n "$NAMESPACE" | grep -q pgpool; then
+    PG_HOST="postgres-postgresql-pgpool"
+  fi
+
+  $VKPR_KUBECTL run init-db --rm -it --restart="Never" --namespace "$NAMESPACE" \
+    --image docker.io/bitnami/postgresql-repmgr:11.14.0-debian-10-r12 \
+    --env="PGUSER=$PG_USER" --env="PGPASSWORD=$PG_PASSWORD" --env="PGHOST=${PG_HOST}" --env="PGPORT=5432" --env="PGDATABASE=postgres" \
+    --command -- psql --command="CREATE DATABASE $DATABASE_NAME"
 }
 
-# Check if exist some instace of DB with specified name in Postgres
-# $1: Postgres User  /  $2: Postgres Password  /  $3: Name of DB to search  / $4: Namespace
-checkExistingDatabase(){
+## Check if there is any database with specific name in Postgres
+# Parameters:
+# 1 - POSTGRESQL_USER
+# 2 - POSTGRESQL_PASSWORD
+# 3 - DATABASE_NAME
+# 4 - POSTGRESQL_POD_NAMESPACE
+checkExistingDatabase() {
+  local PG_USER="$1" PG_PASSWORD="$2" \
+        DATABASE_NAME="$3" NAMESPACE="$4"
+
   local PG_HOST="postgres-postgresql"
-  [[ ! -z $($VKPR_KUBECTL get pod -n $VKPR_K8S_NAMESPACE | grep pgpool) ]] && PG_HOST="postgres-postgresql-pgpool"
-  $VKPR_KUBECTL run check-db --rm -it --restart='Never' --namespace $VKPR_K8S_NAMESPACE --image docker.io/bitnami/postgresql-repmgr:11.14.0-debian-10-r12 --env="PGUSER=$1" --env="PGPASSWORD=$2" --env="PGHOST=${PG_HOST}" --env="PGPORT=5432" --env="PGDATABASE=postgres" --command -- psql -lqt | cut -d \| -f 1 | grep $3 | sed -e 's/^[ \t]*//'
+  
+  if $VKPR_KUBECTL get pod -n "$NAMESPACE" | grep -q "pgpool"; then
+    PG_HOST="postgres-postgresql-pgpool"
+  fi
+
+  $VKPR_KUBECTL run check-db --rm -it --restart='Never' --namespace "$NAMESPACE" \
+    --image docker.io/bitnami/postgresql-repmgr:11.14.0-debian-10-r12 \
+    --env="PGUSER=$PG_USER" --env="PGPASSWORD=$PG_PASSWORD" --env="PGHOST=${PG_HOST}" --env="PGPORT=5432" --env="PGDATABASE=postgres" \
+    --command -- psql -lqt | cut -d \| -f 1 | grep "$DATABASE_NAME" | sed -e 's/^[ \t]*//'
 }
 
-##Register new repository when url does not exists in helm
-#param1: repository name
-#param2: repository url
+## Register new repository when url does not exists in helm
+# Parameters:
+# 1 - REPO_NAME
+# 2 - REPO_URL
 registerHelmRepository(){
-  local REPO_NAME=$1; REPO_URL=$2
+  local REPO_NAME="$1" \
+        REPO_URL="$2"
+
+  local RESULT
   
   #Checking by url because is not an unique column
-  local RESULT=$(${VKPR_HELM} repo list -o json | ${VKPR_JQ} -r '.[] | select(.url == "'${REPO_URL}'").name')
-  if [[ -z "${RESULT}" ]];then
-    echo "Adding repository ${REPO_NAME}"
-    ${VKPR_HELM} repo add ${REPO_NAME} ${REPO_URL} --force-update
+  RESULT=$($VKPR_HELM repo list -o json | $VKPR_JQ -r ".[] | select(.url == \"$REPO_URL\").name")
+
+  if [[ -z "$RESULT" ]];then
+    echo "Adding repository $REPO_NAME"
+    $VKPR_HELM repo add "$REPO_NAME" "$REPO_URL" --force-update
   else
-    echoColor green "Repository ${REPO_NAME} already configured."
+    echoColor green "Repository $REPO_NAME already configured."
   fi
   
 }
 
-## Merge KV helmArgs from VKPR with the indicated value application
-#param1: key value from the application in vkpr yaml
-#param2: value files from the application
+## Merge KV from the helmArgs key by the VKPR values into application values
+# Parameters:
+# 1 - APP_NAME
+# 2 - APP_VALUES
 mergeVkprValuesHelmArgs() {
-  [[ ! -f $VKPR_GLOBAL ]] && return
-  if [[ $($VKPR_YQ eval '.global.'${1}' | has ("helmArgs")' $CURRENT_PWD/vkpr.yaml) == true ]]; then
-    cp $CURRENT_PWD/vkpr.yaml $(dirname "$0")/vkpr-cp.yaml
-    for i in $($VKPR_YQ eval '.global.'${1}'.helmArgs | keys' $CURRENT_PWD/vkpr.yaml | cut -d " " -f2); do
-      $VKPR_YQ eval-all -i '. * {"'${i}'": select(fileIndex==1).global.'${1}'.helmArgs.'${i}'} | select(fileIndex==0)' $2 $(dirname "$0")/vkpr-cp.yaml
+  local APP_NAME="$1" APP_VALUES="$2"
+
+  [[ ! -f "$VKPR_GLOBAL" ]] && return
+
+  if [[ $($VKPR_YQ eval ".global.${APP_NAME} | has (\"helmArgs\")" "$CURRENT_PWD"/vkpr.yaml) == true ]]; then
+    cp "$CURRENT_PWD"/vkpr.yaml "$(dirname "$0")"/vkpr-cp.yaml
+
+    # foreach key in helmargs, merge the values into application value
+    for i in $($VKPR_YQ eval ".global.${APP_NAME}.helmArgs | keys" "$CURRENT_PWD"/vkpr.yaml | cut -d " " -f2); do
+      $VKPR_YQ eval-all -i \
+        ". * {\"${i}\": select(fileIndex==1).global.${APP_NAME}.helmArgs.${i}} | select(fileIndex==0)" \
+        "$APP_VALUES" "$(dirname "$0")"/vkpr-cp.yaml
     done
-    rm $(dirname "$0")/vkpr-cp.yaml
+    rm "$(dirname "$0")"/vkpr-cp.yaml
+    
   fi
 }
 
-##Encode text
+## Encode text
+# Parameters:
+# 1 - STRING
 rawUrlEncode() {
-  local string="${1}"
-  local strlen=${#string}
-  local encoded=""
-  local pos c o
+  local string="$1" strlen=${#string} \
+      encoded="" pos c o
 
   for (( pos=0 ; pos<strlen ; pos++ )); do
      c=${string:$pos:1}
