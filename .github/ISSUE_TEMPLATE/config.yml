@@ -1,0 +1,7 @@
+contact_links:
+  - name: 📃 Documentation Issue
+    url: https://github.com/vertigobr/vkpr-docs/issues/new
+    about: This issue tracker is not for documentation issues. Please file documentation issues here.
+  - name: 🤔 Questions and Help
+    url: https://vertigo.com.br/contact/?lang=en
+    about: This issue tracker is not for support questions. Please get in touch with our contact channels.

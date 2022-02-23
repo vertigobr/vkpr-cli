@@ -1,63 +1,74 @@
-# Contribute to VKPR CLI
+# Contributing
 
-## Creating Formulas
+We are grateful that you would like to contribute to the VKPR-CLI. But before you start, check the existing issues to see if the bug or feature request has not been submitted yet.
 
-1. Clone the repository (or fork if you don't have write access)
-2. Create a branch: `git checkout -b <branch_name>`
-3. To create your formula, you need to run the command `vkpr create formula`
-4. Add your formulas to the repository and commit your implementation: `git commit -s -m '<commit_message>'`
-5. Push your branch: `git push origin <project_name>/<location>`
-6. Open a pull request on the repository for analysis.
+When opening an issue, open it for the following cases:
+- Something isn't working the way it should
+- Suggestions of what can be added or changed
+- New formulas to be created
 
-Ex:
+Please avoid:
+- Opening pull request for issues marked `blocked`, `needs-investigation` or `needs-design`
 
+## Building the Project
+
+Pre requisites:
+- Unix environment
+- [Ritchie CLI](https://ritchiecli.io/)
+- OpenSSL
+
+Build with: `make init`
+
+Run tests with: `make test <application>`
+
+## Submitting a PR
+
+1. Create a new branch: `git checkout -b my-branch-name`
+2. Make your change, create tests and ensure tests pass
+3. Submit a pull request
+
+## Commit message
+
+Commit message example: 
+```md
+<type>: <description>
+```
+
+`<type>`
+This describes the kind of change that this commit is providing
+
+- feat (feature)
+- fix (bug fix)
+- docs (documentation)
+- style (formatting code)
+- refactor(restructuring codebase)
+- test (when adding missing tests)
+
+`<description>`
+This is a short description about the change
+
+- use imperative
+- don't capitalize the message
+- no dot (.) at the end
+
+Message final example:
+```txt
+feat(keycloak): create new import formula
+```
+
+## Creating / Updating Formulas
+
+- Clone the repository (or fork if you don't have write access)
+- Create a branch following the instructions above
+  - To create your formula, you need to run the command `vkpr create formula`
+- Commit and Push your branch with the changes: `git push origin <project_name>/<location>`
+- Open a pull request on the repository for analysis.
+
+Example to create new formulas:
 ```sh
 vkpr create formula --vkpr_formula="<name-of-formula>"
 ```
 
-## Updating Formulas
-
-1. Clone the repository (or fork if you don't have write access)
-2. Create a branch: `git checkout -b <branch_name>`
-3. Add the cloned repository to your workspaces (`rit add workspace`) with a highest priority (for example: 1).
-4. Check the step by step of [how to implement formulas on Ritchie](https://docs.ritchiecli.io/tutorials/formulas/how-to-implement-a-formula)
-   and commit your implementation: `git commit -m '<commit_message>`
-5. Push your branch: `git push origin <project_name>/<location>`
-6. Open a pull request on the repository for analysis.
-
-Ex:
-
-```
-rit add workspace --name vkpr-formulas --path $(pwd)
-```
-
-## Setting your Credentials
-
-1. Run the Command `rit set credential`
-2. This command will ask some few questions, such as:
-   - Provider
-     - Will be the github
-   - username
-     - vertigobr
-   - email
-     - Your Github Email
-   - token
-     - A Personal Token Access where you can generate [here](https://github.com/settings/tokens)
-3. This will allow you to publish your formulas in the project.
-
-## Publishing Formulas
-
-1. Finish creating or updating formulas (see above)
-2. Make sure you have Github credentials in Ritchie (`rit set credential`)
-3. Run the command (`rit publish repo`) and you will need to inform some inputs:
-   - Provider
-     - Github
-   - Repository Privacy
-     - false
-   - Repository Name
-     - vkpr-cli
-   - Local Repository Path
-     - Path from the project
-   - Release Version
-     - Ex: v1.0.1
-4. If you dont want to use the command, you still can merge your current branch to the main and commit
+>WARNING: When creating a new formula, pay attention to the pattern used to create them.
+>
+>`vkpr + application + method`
