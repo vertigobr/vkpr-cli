@@ -192,16 +192,15 @@ settingKongDefaults() {
         .env.portal_gui_host = \"https://portal.$VKPR_ENV_DOMAIN\" |
         .env.portal_api_url = \"https://api.portal.$VKPR_ENV_DOMAIN\"
       "
+      if [[ "$VKPR_ENV_KONG_DEPLOY" != "dbless" ]]; then
+        YQ_VALUES="$YQ_VALUES |
+          .portal.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
+          .portal.ingress.tls = \"portal-kong-cert\" |
+          .portalapi.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
+          .portalapi.ingress.tls = \"portalapi-kong-cert\"
+        "
+      fi
     fi
-  fi
-
-  if [[ "$VKPR_ENV_KONG_DEPLOY" != "dbless" ]]; then
-    YQ_VALUES="$YQ_VALUES |
-      .portal.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
-      .portal.ingress.tls = \"portal-kong-cert\" |
-      .portalapi.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
-      .portalapi.ingress.tls = \"portalapi-kong-cert\"
-    "
   fi
 
   if [[ "$VKPR_ENV_KONG_METRICS" == "true" ]]; then
