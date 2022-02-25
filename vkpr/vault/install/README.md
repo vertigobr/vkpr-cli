@@ -37,3 +37,33 @@ Non-interactive without setting values or using ```VKPR Values```:
     --vault_azurekeyvault_key_name      Specifies the Azure Key Vault Key Name.
     --vault_azurekeyvault_vault_name    Specifies the Azure Key Vault Name.
 ```
+## Setting Provider credentials manually
+
+### AWS
+
+```
+  rit set credential --provider="aws" --fields="accesskeyid,secretaccesskey,region,kmskeyid,kmsendpoint" --values="your-accesskey,your-secretaccess,your-region,your-kmskeyid,your-kmsendpoint"
+```
+
+## Azure
+
+```
+  rit set credential --provider="azure" --fields="azuretenantid,azureclientid,azureclientsecret,vaultazurekeyvaultvaultname,vaultazurekeyvaultkeyname" --values="your-azuretenantid,your-azureclientid,your-azureclientsecret,your-vaultazurekeyvaultvaultname,your-vaultazurekeyvaultkeyname,"
+```
+
+## Values File Parameters
+
+```yaml
+vkpr.yaml
+```
+```yaml
+global:
+  domain:               <String>
+  secure:               <Boolean>
+  vault:
+    namespace:          <String>
+    ingressClassName:   <String>
+    storageMode:        <String>
+    autoUnseal:         <Boolean>
+    helmArgs:           <Object>
+```
