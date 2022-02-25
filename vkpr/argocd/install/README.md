@@ -27,6 +27,8 @@ vkpr argocd install --default
   --HA                Specifies if the application will have High Availability   Default: "false"
 ```
 
+## Values File Parameters
+
 ```yaml
 vkpr.yaml
 ```
