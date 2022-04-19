@@ -1,9 +1,13 @@
 #!/bin/bash
 
 runFormula() {
+  # Global values
+  checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "global.namespace" "GLOBAL_NAMESPACE"
+  
+  # App values
   checkGlobalConfig "$HA" "false" "postgresql.HA" "POSTGRESQL_HA"
   checkGlobalConfig "false" "false" "postgresql.metrics" "POSTGRESQL_METRICS"
-  checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "postgresql.namespace" "POSTGRESQL_NAMESPACE"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "postgresql.namespace" "POSTGRESQL_NAMESPACE"
 
   validatePostgresqlPassword "$PASSWORD"
 

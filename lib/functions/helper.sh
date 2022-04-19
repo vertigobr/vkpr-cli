@@ -9,7 +9,7 @@
 # 4 - ENV_NAME
 checkGlobalConfig(){
   local INPUT_VALUE="$1" DEFAULT_INPUT_VALUE="$2" \
-        VALUES_LABEL_PATH=".global.$3" ENV_NAME="VKPR_ENV_$4"
+        VALUES_LABEL_PATH=".$3" ENV_NAME="VKPR_ENV_$4"
 
   if [ "$INPUT_VALUE" != "$DEFAULT_INPUT_VALUE" ]; then
     echoColor "yellow" "Setting value from input value"
@@ -17,9 +17,9 @@ checkGlobalConfig(){
     return
   fi
 
-  if [ -f "$VKPR_GLOBAL" ] && [ "$($VKPR_YQ eval "$VALUES_LABEL_PATH" "$VKPR_GLOBAL")" != "null" ]; then
+  if [ -f "$VKPR_FILE" ] && [ "$($VKPR_YQ eval "$VALUES_LABEL_PATH" "$VKPR_FILE")" != "null" ]; then
     echoColor "yellow" "Setting value from config file"
-    eval "$ENV_NAME"="$($VKPR_YQ eval "$VALUES_LABEL_PATH" "$VKPR_GLOBAL")"
+    eval "$ENV_NAME"="$($VKPR_YQ eval "$VALUES_LABEL_PATH" "$VKPR_FILE")"
     return
   fi
 
@@ -125,15 +125,15 @@ registerHelmRepository(){
 mergeVkprValuesHelmArgs() {
   local APP_NAME="$1" APP_VALUES="$2"
 
-  [[ ! -f "$VKPR_GLOBAL" ]] && return
+  [[ ! -f "$VKPR_FILE" ]] && return
 
-  if [[ $($VKPR_YQ eval ".global.${APP_NAME} | has (\"helmArgs\")" "$CURRENT_PWD"/vkpr.yaml) == true ]]; then
+  if [[ $($VKPR_YQ eval ".${APP_NAME} | has (\"helmArgs\")" "$CURRENT_PWD"/vkpr.yaml) == true ]]; then
     cp "$CURRENT_PWD"/vkpr.yaml "$(dirname "$0")"/vkpr-cp.yaml
 
     # foreach key in helmargs, merge the values into application value
-    for i in $($VKPR_YQ eval ".global.${APP_NAME}.helmArgs | keys" "$CURRENT_PWD"/vkpr.yaml | cut -d " " -f2); do
+    for i in $($VKPR_YQ eval ".${APP_NAME}.helmArgs | keys" "$CURRENT_PWD"/vkpr.yaml | cut -d " " -f2); do
       $VKPR_YQ eval-all -i \
-        ". * {\"${i}\": select(fileIndex==1).global.${APP_NAME}.helmArgs.${i}} | select(fileIndex==0)" \
+        ". * {\"${i}\": select(fileIndex==1).${APP_NAME}.helmArgs.${i}} | select(fileIndex==0)" \
         "$APP_VALUES" "$(dirname "$0")"/vkpr-cp.yaml
     done
     rm "$(dirname "$0")"/vkpr-cp.yaml
@@ -145,8 +145,10 @@ mergeVkprValuesHelmArgs() {
 # Parameters:
 # 1 - STRING
 rawUrlEncode() {
-  local string="$1" strlen=${#string} \
-      encoded="" pos c o
+  local string="${1}"
+  local strlen=${#string}
+  local encoded=""
+  local pos c o
 
   for (( pos=0 ; pos<strlen ; pos++ )); do
      c=${string:$pos:1}

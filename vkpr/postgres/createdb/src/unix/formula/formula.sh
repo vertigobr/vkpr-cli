@@ -1,8 +1,14 @@
 #!/bin/bash
 
 runFormula() {
+  # Global values
+  checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "global.namespace" "GLOBAL_NAMESPACE"
+
+  # App values
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "postgresql.namespace" "POSTGRESQL_NAMESPACE"
+
+
   echoColor "bold" "$(echoColor "green" "Creating database $DBNAME in postgresql...")"
-  checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "postgresql.namespace" "POSTGRESQL_NAMESPACE"
 
   local PG_PASSWORD; PG_PASSWORD=$($VKPR_JQ -r '.credential.password' ~/.rit/credentials/default/postgres)
   local PG_HOST; PG_HOST="postgres-postgresql"

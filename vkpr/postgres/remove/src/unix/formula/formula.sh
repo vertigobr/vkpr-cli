@@ -2,7 +2,7 @@
 
 runFormula() {
   removePostgres
-  [[ $DELETE_PVC == true ]] && removePVC
+  removePVC
 }
 
 removePostgres(){
@@ -16,7 +16,9 @@ removePostgres(){
 }
 
 removePVC(){
-  echoColor "bold" "$(echoColor "green" "Removing PVC...")"
-  
-  $VKPR_KUBECTL delete pvc -A -l app.kubernetes.io/instance=postgresql
+  if [[ $DELETE_PVC == true ]]; then
+    echoColor "bold" "$(echoColor "green" "Removing PVC...")"
+    
+    $VKPR_KUBECTL delete pvc -A -l app.kubernetes.io/instance=postgresql
+  fi
 }

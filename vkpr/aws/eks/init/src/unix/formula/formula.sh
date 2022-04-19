@@ -5,7 +5,7 @@ PROJECT_ID=$(rawUrlEncode "${GITLAB_USERNAME}/aws-eks")
 runFormula() {
   checkGlobalConfig "$EKS_CLUSTER_NAME" "eks-sample" "aws.eks.clusterName" "EKS_CLUSTER_NAME"
   checkGlobalConfig "$EKS_K8S_VERSION" "1.21" "aws.eks.version" "EKS_K8S_VERSION"
-  checkGlobalConfig "$EKS_CLUSTER_NODE_INSTANCE_TYPE" "t3.small" "aws.eks.nodes.instaceType" "EKS_CLUSTER_NODE_INSTANCE_TYPE"
+  #checkGlobalConfig "$EKS_CLUSTER_NODE_INSTANCE_TYPE" "t3.small" "aws.eks.nodes.instaceType" "EKS_CLUSTER_NODE_INSTANCE_TYPE"
   checkGlobalConfig "$EKS_CLUSTER_SIZE" "1" "aws.eks.nodes.quantitySize" "EKS_CLUSTER_SIZE"
   checkGlobalConfig "$EKS_CAPACITY_TYPE" "ON_DEMAND" "aws.eks.nodes.capacityType" "EKS_CAPACITY_TYPE"
 

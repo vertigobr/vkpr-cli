@@ -1,10 +1,14 @@
 #!/bin/bash
 
 runFormula() {
+  # Global values
+  checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "global.namespace" "GLOBAL_NAMESPACE"
+
+  # App values
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "PROMETHEUS_STACK_NAMESPACE"
+  
   echoColor "bold" "$(echoColor "green" "Importing Dashboard...")"
   local JSON_FILE; JSON_FILE=$(cat "$DASHBOARD_PATH")
-
-  checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "prometheus-stack.namespace" "PROMETHEUS_STACK_NAMESPACE"
 
   dashboard="$DASHBOARD_NAME-grafana" \
     $VKPR_YQ eval '(.metadata.name, .metadata.labels.app) = strenv(dashboard)' \

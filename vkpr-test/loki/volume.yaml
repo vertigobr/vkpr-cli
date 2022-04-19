@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: task-pv-volume
+  labels:
+    app.kubernetes.io/name: loki
+spec:
+  storageClassName: gp2
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/tmp/k3dvol"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mypvc
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: loki
+  resources:
+    requests:
+      storage: 1Gi
+  volumeMode: Filesystem
+  volumeName: task-pv-volume
+  storageClassName: gp2
+  accessModes:
+    - ReadWriteOnce
+---
+loki:
+  helmArgs:
+    loki:
+      persistence:
+        enabled: true
+        size: 1Gi
+        selector:
+          matchLabels:
+            app.kubernetes.io/name: loki
+        existingClaim: mypvc
+      securityContext:
+        runAsNonRoot: false
+        runAsGroup: 0
+        runAsUser: 0

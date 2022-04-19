@@ -8,6 +8,12 @@
     },
     {
       "tutorial": "Specifies the username of the database owner.",
+      "label": "Type the keycloak super admin username:",
+      "name": "keycloak_username",
+      "type": "text"
+    },
+    {
+      "tutorial": "Specifies the username of the database owner.",
       "label": "Type the keycloak super admin password:",
       "name": "keycloak_password",
       "type": "password"

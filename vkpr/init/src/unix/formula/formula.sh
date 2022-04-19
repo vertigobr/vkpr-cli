@@ -11,13 +11,13 @@ runFormula() {
   echoColor "green" "VKPR initialization"
   echo "=============================="
   local VKPR_HOME=~/.vkpr
-  
+
   mkdir -p $VKPR_HOME/bin
   mkdir -p $VKPR_HOME/config
   mkdir -p $VKPR_HOME/bats
 
   installArkade
-  installGlab
+  #installGlab
   #Versions from ./utils/dependencies.sh or latest as default
   validateKubectlVersion
   installTool "kubectl" "$VKPR_TOOLS_KUBECTL"
@@ -63,16 +63,16 @@ installTool() {
   fi
 }
 
-installGlab() {
-  if [[ -f "$VKPR_GLAB" ]]; then
-    echoColor "yellow" "Glab already installed. Skipping..."
-  else
-    echoColor "blue" "Installing Glab..."
-    curl -sLS https://j.mp/glab-cli > /tmp/glab.sh
-    chmod +x /tmp/glab.sh
-    /tmp/glab.sh $VKPR_HOME/bin
-  fi
-}
+#installGlab() {
+#  if [[ -f "$VKPR_GLAB" ]]; then
+#    echoColor "yellow" "Glab already installed. Skipping..."
+#  else
+#    echoColor "blue" "Installing Glab..."
+#    curl -sLS https://j.mp/glab-cli > /tmp/glab.sh
+#    chmod +x /tmp/glab.sh
+#    /tmp/glab.sh $VKPR_HOME/bin
+#  fi
+#}
 
 installBats(){
   if [[ -f "$VKPR_HOME/bats/bin/bats" ]]; then
@@ -85,7 +85,7 @@ installBats(){
     tar -xzf /tmp/bats-core.tar.gz -C /tmp
     mv /tmp/bats-core-1.4.1 /tmp/bats-core
     /tmp/bats-core/install.sh $VKPR_HOME/bats
-    rm -r --force /tmp/bats-core
+    rm -rf /tmp/bats-core
 
     echoColor "blue" "intalling bats add-ons..."
     # bats-support

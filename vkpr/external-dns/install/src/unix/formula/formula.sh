@@ -1,9 +1,13 @@
 #!/bin/bash
 
 runFormula() {
+  # Global values
+  checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "global.namespace" "GLOBAL_NAMESPACE"
+
+  # App values
   [[ "$PDNS_APIURL" == "" ]] && PDNS_APIURL="example.com"
   checkGlobalConfig "$PDNS_APIURL" "example.com" "external-dns.powerDNS.apiUrl" "EXTERNAL_DNS_PDNS_APIURL"
-  checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "external-dns.namespace" "EXTERNAL_DNS_NAMESPACE"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "external-dns.namespace" "EXTERNAL_DNS_NAMESPACE"
   checkGlobalConfig "false" "false" "external-dns.metrics" "EXTERNAL_DNS_METRICS"
 
   local VKPR_EXTERNAL_DNS_VALUES; VKPR_EXTERNAL_DNS_VALUES="$(dirname "$0")"/utils/external-dns.yaml

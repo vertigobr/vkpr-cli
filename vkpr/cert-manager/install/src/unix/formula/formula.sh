@@ -60,7 +60,7 @@ settingCertmanager() {
     "
   fi
 
-  mergeVkprValuesHelmArgs "cert-manager" "$VKPR_INGRESS_VALUES"
+  mergeVkprValuesHelmArgs "cert-manager" "$VKPR_CERT_MANAGER_VALUES"
 }
 
 installIssuer() {

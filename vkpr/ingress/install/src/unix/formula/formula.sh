@@ -2,9 +2,13 @@
 
 
 runFormula() {
+  # Global values
+  checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "global.namespace" "GLOBAL_NAMESPACE"
+  
+  # App values
   checkGlobalConfig "$LB_TYPE" "Classic" "ingress.loadBalancerType" "INGRESS_LB_TYPE"
   checkGlobalConfig "false" "false" "ingress.metrics" "INGRESS_METRICS"
-  checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "ingress.namespace" "INGRESS_NAMESPACE"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "ingress.namespace" "INGRESS_NAMESPACE"
 
   local VKPR_INGRESS_VALUES; VKPR_INGRESS_VALUES="$(dirname "$0")"/utils/ingress.yaml
   

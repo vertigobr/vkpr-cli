@@ -27,8 +27,8 @@ lint:
 .PHONY: test
 bats_path = ${vkpr_dir}/bats/bin/bats
 test:
-ifneq (,"$(wildcard $(${current_dir}/vkpr-test/$(app).bats))")
-	@${bats_path} ${current_dir}/vkpr-test/$(app).bats
+ifneq (,"$(wildcard $(${current_dir}/vkpr-test/$(app)/$(app).bats))")
+	@${bats_path} ${current_dir}/vkpr-test/$(app)/$(app).bats
 endif
 
 .PHONY: clean

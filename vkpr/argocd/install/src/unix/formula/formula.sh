@@ -1,15 +1,19 @@
 #!/bin/bash
 
 runFormula() {
-  checkGlobalConfig "$DOMAIN" "localhost" "domain" "DOMAIN"
-  checkGlobalConfig "$SECURE" "false" "secure" "SECURE"
+  # Global values
+  checkGlobalConfig "$DOMAIN" "localhost" "global.domain" "GLOBAL_DOMAIN"
+  checkGlobalConfig "$SECURE" "false" "global.secure" "GLOBAL_SECURE"
+  checkGlobalConfig "nginx" "nginx" "global.ingressClassName" "GLOBAL_INGRESS"
+  
+  # App values
   checkGlobalConfig "$HA" "false" "argocd.HA" "ARGOCD_HA"
   checkGlobalConfig "argocd" "argocd" "argocd.namespace" "ARGOCD_NAMESPACE"
-  checkGlobalConfig "nginx" "nginx" "argocd.ingressClassName" "ARGOCD_INGRESS"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS" "$VKPR_ENV_GLOBAL_INGRESS" "argocd.ingressClassName" "ARGOCD_INGRESS"
   checkGlobalConfig "false" "false" "argocd.metrics" "ARGOCD_METRICS"
   checkGlobalConfig "false" "false" "argocd.addons.applicationset" "ARGOCD_ADDONS_APPLICATIONSET"
 
-  local VKPR_ENV_ARGOCD_DOMAIN="argocd.${VKPR_ENV_DOMAIN}"
+  local VKPR_ENV_ARGOCD_DOMAIN="argocd.${VKPR_ENV_GLOBAL_DOMAIN}"
   local VKPR_ARGOCD_VALUES; VKPR_ARGOCD_VALUES="$(dirname "$0")"/utils/argocd.yaml
 
   startInfos
@@ -21,7 +25,7 @@ startInfos() {
   echo "=============================="
   echoColor "bold" "$(echoColor "green" "VKPR ArgoCD Install Routine")"
   echoColor "bold" "$(echoColor "blue" "ArgoCD Domain:") ${VKPR_ENV_ARGOCD_DOMAIN}"
-  echoColor "bold" "$(echoColor "blue" "ArgoCD HTTPS:") ${VKPR_ENV_SECURE}"
+  echoColor "bold" "$(echoColor "blue" "ArgoCD HTTPS:") ${VKPR_ENV_GLOBAL_SECURE}"
   echoColor "bold" "$(echoColor "blue" "HA:") ${VKPR_ENV_ARGOCD_HA}"
   echoColor "bold" "$(echoColor "blue" "ArgoCD Admin Username:") admin"
   echoColor "bold" "$(echoColor "blue" "Ingress Controller:") ${VKPR_ENV_ARGOCD_INGRESS}"
@@ -58,7 +62,7 @@ settingArgoCD(){
     .server.ingress.annotations.[\"kubernetes.io/ingress.class\"] = \"$VKPR_ENV_ARGOCD_INGRESS\"
   "
 
-  if [[ "$VKPR_ENV_SECURE" == true ]]; then
+  if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
     YQ_VALUES="$YQ_VALUES |
       .server.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
       .server.ingress.tls[0].secretName = \"argocd-cert\" |

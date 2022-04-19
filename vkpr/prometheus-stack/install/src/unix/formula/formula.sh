@@ -1,20 +1,25 @@
 #!/bin/bash
 
 runFormula() {
-  checkGlobalConfig "$DOMAIN" "localhost" "domain" "DOMAIN"
-  checkGlobalConfig "$SECURE" "false" "secure" "SECURE"
+  # Global values
+  checkGlobalConfig "$DOMAIN" "localhost" "global.domain" "GLOBAL_DOMAIN"
+  checkGlobalConfig "$SECURE" "false" "global.secure" "GLOBAL_SECURE"
+  checkGlobalConfig "nginx" "nginx" "global.ingressClassName" "GLOBAL_INGRESS"
+  checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "global.namespace" "GLOBAL_NAMESPACE"
+  
+  # App values
   checkGlobalConfig "$ALERTMANAGER" "false" "prometheus-stack.alertManager.enabled" "PROMETHEUS_ALERT_MANAGER"
   checkGlobalConfig "$HA" "false" "prometheus-stack.alertmanager.HA" "PROMETHEUS_ALERT_MANAGER_HA"
   checkGlobalConfig "$GRAFANA_PASSWORD" "vkpr123" "prometheus-stack.grafana.adminPassword" "GRAFANA_PASSWORD"
-  checkGlobalConfig "nginx" "nginx" "prometheus-stack.ingressClassName" "PROMETHEUS_INGRESS"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS" "$VKPR_ENV_GLOBAL_INGRESS" "prometheus-stack.ingressClassName" "PROMETHEUS_INGRESS"
   checkGlobalConfig "true" "true" "prometheus-stack.grafana.k8sExporters" "PROMETHEUS_STACK_K8S_EXPORTERS"
-  checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "prometheus-stack.namespace" "PROMETHEUS_STACK_NAMESPACE"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "PROMETHEUS_STACK_NAMESPACE"
   
   # External app values
-  checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "loki.namespace" "LOKI_NAMESPACE"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "loki.namespace" "LOKI_NAMESPACE"
 
-  local VKPR_ENV_GRAFANA_DOMAIN="grafana.${VKPR_ENV_DOMAIN}" \
-    VKPR_ENV_ALERT_MANAGER_DOMAIN="alertmanager.${VKPR_ENV_DOMAIN}"
+  local VKPR_ENV_GRAFANA_DOMAIN="grafana.${VKPR_ENV_GLOBAL_DOMAIN}" \
+    VKPR_ENV_ALERT_MANAGER_DOMAIN="alertmanager.${VKPR_ENV_GLOBAL_DOMAIN}"
 
   local VKPR_PROMETHEUS_VALUES; VKPR_PROMETHEUS_VALUES=$(dirname "$0")/utils/prometheus-stack.yaml
   
@@ -50,7 +55,7 @@ installPrometheusStack() {
 }
 
 settingStack() {
-  if [[ "$VKPR_ENV_SECURE" == true ]]; then
+  if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
     YQ_VALUES="$YQ_VALUES |
       .grafana.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
       .grafana.ingress.tls[0].hosts[0] = \"$VKPR_ENV_GRAFANA_DOMAIN\" |

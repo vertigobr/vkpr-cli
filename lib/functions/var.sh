@@ -1,8 +1,8 @@
 #!/bin/bash
 
 export VKPR_HOME=~/.vkpr \
-  VKPR_GLOBAL=$CURRENT_PWD/vkpr.yaml \
-  VKPR_CONFIG=$VKPR_HOME/config \
+  VKPR_CONFIG=~/.vkpr/config \
+  VKPR_FILE=$CURRENT_PWD/vkpr.yaml \
   VKPR_K8S_NAMESPACE="vkpr"
 
 export VKPR_GLAB=$VKPR_HOME/bin/glab \

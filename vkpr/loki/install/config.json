@@ -1,5 +1,14 @@
 {
-  "inputs": [],
+  "inputs": [
+    {
+      "tutorial": "Specifies the domain to use in the application.",
+      "label": "Type the Loki domain:",
+      "name": "domain",
+      "type": "text",
+      "required": false,
+      "default": "localhost"
+    }
+  ],
   "template": "shell-bat",
   "templateRelease:": "2.16.2"
 }

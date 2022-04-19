@@ -22,7 +22,7 @@ createOrUpdateVariable(){
     --form "masked=$PARAMETER_MASKED" \
     --form "environment_scope=$ENVIRONMENT_SCOPE" |\
     head -n 1 |\
-    awk -F' ' '{print "$2"}'
+    awk -F' ' '{print $2}'
   )
   # echo "VARIABLE_RESPONSE_CODE = $VARIABLE_RESPONSE_CODE"
 

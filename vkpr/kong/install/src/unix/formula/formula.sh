@@ -1,16 +1,20 @@
 #!/bin/bash
 
 runFormula() {
-  checkGlobalConfig "$DOMAIN" "localhost" "domain" "DOMAIN"
-  checkGlobalConfig "$SECURE" "false" "secure" "SECURE"
+  # Global values
+  checkGlobalConfig "$DOMAIN" "localhost" "global.domain" "GLOBAL_DOMAIN"
+  checkGlobalConfig "$SECURE" "false" "global.secure" "GLOBAL_SECURE"
+  checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "global.namespace" "GLOBAL_NAMESPACE"
+  
+  # App values
   checkGlobalConfig "$HA" "false" "kong.HA" "KONG_HA"
   checkGlobalConfig "false" "false" "kong.metrics" "KONG_METRICS"
   checkGlobalConfig "$KONG_MODE" "dbless" "kong.mode" "KONG_DEPLOY"
   checkGlobalConfig "$RBAC_PASSWORD" "vkpr123" "kong.rbac.adminPassword" "KONG_RBAC"
-  checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "kong.namespace" "KONG_NAMESPACE"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "kong.namespace" "KONG_NAMESPACE"
 
   # External apps values
-  checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "postgresql.namespace" "POSTGRESQL_NAMESPACE"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "postgresql.namespace" "POSTGRESQL_NAMESPACE"
 
   local VKPR_KONG_VALUES; VKPR_KONG_VALUES="$(dirname "$0")"/utils/kong.yaml
 
@@ -25,8 +29,8 @@ runFormula() {
 startInfos() {
   echo "=============================="
   echoColor "bold" "$(echoColor "green" "VKPR Kong Install Routine")"
-  echoColor "bold" "$(echoColor "blue" "Kong HTTPS:") ${VKPR_ENV_SECURE}"
-  echoColor "bold" "$(echoColor "blue" "Kong Domain:") ${VKPR_ENV_DOMAIN}"
+  echoColor "bold" "$(echoColor "blue" "Kong HTTPS:") ${VKPR_ENV_GLOBAL_SECURE}"
+  echoColor "bold" "$(echoColor "blue" "Kong Domain:") ${VKPR_ENV_GLOBAL_DOMAIN}"
   echoColor "bold" "$(echoColor "blue" "Kong HA:") ${VKPR_ENV_KONG_HA}"
   echoColor "bold" "$(echoColor "blue" "Kong Mode:") ${VKPR_ENV_KONG_DEPLOY}"
   echo "=============================="
@@ -45,7 +49,7 @@ addDependencies(){
   \"cookie_secure\": false,
   \"storage\": \"kong\",
   \"cookie_domain\": \"manager.%s\"
-}" "$VKPR_ENV_DOMAIN" > config/admin_gui_session_conf
+}" "$VKPR_ENV_GLOBAL_DOMAIN" > config/admin_gui_session_conf
 
   printf "{
   \"cookie_name\": \"portal_session\",
@@ -54,7 +58,7 @@ addDependencies(){
   \"cookie_secure\": false,
   \"storage\": \"kong\",
   \"cookie_domain\": \"portal.%s\"
-}" "$VKPR_ENV_DOMAIN" > config/portal_session_conf
+}" "$VKPR_ENV_GLOBAL_DOMAIN" > config/portal_session_conf
 
   if [[ "$VKPR_ENV_KONG_DEPLOY" == "hybrid" ]]; then
     openssl req -new -x509 -nodes -newkey ec:<(openssl ecparam -name secp384r1) \
@@ -168,29 +172,29 @@ settingKongDefaults() {
     .env.pg_host = \"$PG_HOST\"
   "
 
-  if [[ "$VKPR_ENV_DOMAIN" != "localhost" ]]; then
+  if [[ "$VKPR_ENV_GLOBAL_DOMAIN" != "localhost" ]]; then
     YQ_VALUES="$YQ_VALUES |
-      .admin.ingress.hostname = \"api.manager.$VKPR_ENV_DOMAIN\" |
-      .manager.ingress.hostname = \"manager.$VKPR_ENV_DOMAIN\" |
-      .portal.ingress.hostname = \"portal.$VKPR_ENV_DOMAIN\" |
-      .portalapi.ingress.hostname = \"api.portal.$VKPR_ENV_DOMAIN\" |
-      .env.admin_gui_url = \"http://manager.$VKPR_ENV_DOMAIN\" |
-      .env.admin_api_uri = \"http://api.manager.$VKPR_ENV_DOMAIN\"|
-      .env.portal_gui_host = \"http://portal.$VKPR_ENV_DOMAIN\" |
-      .env.portal_api_url = \"http://api.portal.$VKPR_ENV_DOMAIN\"
+      .admin.ingress.hostname = \"api.manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
+      .manager.ingress.hostname = \"manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
+      .portal.ingress.hostname = \"portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
+      .portalapi.ingress.hostname = \"api.portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
+      .env.admin_gui_url = \"http://manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
+      .env.admin_api_uri = \"http://api.manager.$VKPR_ENV_GLOBAL_DOMAIN\"|
+      .env.portal_gui_host = \"http://portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
+      .env.portal_api_url = \"http://api.portal.$VKPR_ENV_GLOBAL_DOMAIN\"
     "
 
-    if [[ "$VKPR_ENV_SECURE" == true ]]; then
+    if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
       YQ_VALUES="$YQ_VALUES |
         .admin.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
         .admin.ingress.tls = \"admin-kong-cert\" |
         .manager.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
         .manager.ingress.tls = \"manager-kong-cert\" |
         .env.portal_gui_protocol = \"https\" |
-        .env.admin_gui_url = \"https://manager.$VKPR_ENV_DOMAIN\" |
-        .env.admin_api_uri = \"https://api.manager.$VKPR_ENV_DOMAIN\"|
-        .env.portal_gui_host = \"https://portal.$VKPR_ENV_DOMAIN\" |
-        .env.portal_api_url = \"https://api.portal.$VKPR_ENV_DOMAIN\"
+        .env.admin_gui_url = \"https://manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
+        .env.admin_api_uri = \"https://api.manager.$VKPR_ENV_GLOBAL_DOMAIN\"|
+        .env.portal_gui_host = \"portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
+        .env.portal_api_url = \"https://api.portal.$VKPR_ENV_GLOBAL_DOMAIN\"
       "
       if [[ "$VKPR_ENV_KONG_DEPLOY" != "dbless" ]]; then
         YQ_VALUES="$YQ_VALUES |

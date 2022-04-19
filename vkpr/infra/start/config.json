@@ -15,6 +15,13 @@
       "default": "8001"
     },
     {
+      "tutorial": "Specifies the quantity of Worker nodes.",
+      "label": "Type the quantity of Worker Nodes:",
+      "name": "worker_nodes",
+      "type": "text",
+      "default": "1"
+    },
+    {
       "tutorial": "Enable Traefik by default in Cluster.",
       "label": "Enable Traefik ingress controller ?",
       "name": "enable_traefik",

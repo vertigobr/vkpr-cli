@@ -1,7 +1,7 @@
 # EditorConfig is awesome: https://EditorConfig.org
 root = true
 
-[*]
+[vkpr-test/*]
 indent_style = space
 indent_size = 2
 end_of_line = lf

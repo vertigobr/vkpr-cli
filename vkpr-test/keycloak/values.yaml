@@ -1,0 +1,13 @@
+keycloak:
+  helmArgs:
+    extraVolumes: |
+      - name: keycloak-realm-secret
+        secret:
+          secretName: keycloak-realm-secret
+    extraVolumeMounts: |
+      - name: keycloak-realm-secret
+        mountPath: "/realm/"
+        readOnly: true
+    extraEnvVars:
+      - name: KEYCLOAK_EXTRA_ARGS
+        value: "-Dkeycloak.import=/realm/realm.json"

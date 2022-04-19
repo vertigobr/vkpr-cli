@@ -1,17 +1,22 @@
 #!/bin/bash
 
 runFormula() {
-  checkGlobalConfig "$DOMAIN" "localhost" "domain" "DOMAIN"
-  checkGlobalConfig "$SECURE" "false" "secure" "SECURE"
+  # Global values
+  checkGlobalConfig "$DOMAIN" "localhost" "global.domain" "GLOBAL_DOMAIN"
+  checkGlobalConfig "$SECURE" "false" "global.secure" "GLOBAL_SECURE"
+  checkGlobalConfig "nginx" "nginx" "global.ingressClassName" "GLOBAL_INGRESS"
+  checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "global.namespace" "GLOBAL_NAMESPACE"
+  
+  # App values
   checkGlobalConfig "$VAULT_MODE" "raft" "vault.storageMode" "VAULT_MODE"
   checkGlobalConfig "$VAULT_AUTO_UNSEAL" "false" "vault.autoUnseal" "VAULT_AUTO_UNSEAL"
-  checkGlobalConfig "nginx" "nginx" "vault.ingressClassName" "VAULT_INGRESS"
-  checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "vault.namespace" "VAULT_NAMESPACE"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS" "$VKPR_ENV_GLOBAL_INGRESS" "vault.ingressClassName" "VAULT_INGRESS"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "vault.namespace" "VAULT_NAMESPACE"
 
   # External app values
-  checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "consul.namespace" "CONSUL_NAMESPACE"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "consul.namespace" "CONSUL_NAMESPACE"
 
-  local VKPR_ENV_VAULT_DOMAIN="vault.${VKPR_ENV_DOMAIN}" \
+  local VKPR_ENV_VAULT_DOMAIN="vault.${VKPR_ENV_GLOBAL_DOMAIN}" \
         RIT_CREDENTIALS_PATH=~/.rit/credentials/default
 
   local VKPR_VAULT_VALUES; VKPR_VAULT_VALUES=$(dirname "$0")/utils/vault.yaml
@@ -26,7 +31,7 @@ startInfos() {
   echo "=============================="
   echoColor "bold" "$(echoColor "green" "VKPR Vault Install Routine")"
   echoColor "bold" "$(echoColor "blue" "Vault UI Domain:") ${VKPR_ENV_VAULT_DOMAIN}"
-  echoColor "bold" "$(echoColor "blue" "Vault UI HTTPS:") ${VKPR_ENV_SECURE}"
+  echoColor "bold" "$(echoColor "blue" "Vault UI HTTPS:") ${VKPR_ENV_GLOBAL_SECURE}"
   echoColor "bold" "$(echoColor "blue" "Ingress Controller:") ${VKPR_ENV_VAULT_INGRESS}"
   echoColor "bold" "$(echoColor "blue" "Storage Mode:") ${VKPR_ENV_VAULT_MODE}"
   echoColor "bold" "$(echoColor "blue" "Auto Unseal:") ${VKPR_ENV_VAULT_AUTO_UNSEAL}"
@@ -46,10 +51,12 @@ installVault() {
   | $VKPR_HELM upgrade -i --version "$VKPR_VAULT_VERSION" \
     --namespace "$VKPR_ENV_VAULT_NAMESPACE" --create-namespace \
     --wait -f - vault hashicorp/vault
-      
-  echoColor "bold" "$(echoColor "green" "Creating storage config...")"
-  $VKPR_KUBECTL create secret generic vault-storage-config -n "$VKPR_ENV_VAULT_NAMESPACE" --from-file="$VKPR_VAULT_CONFIG"
-  $VKPR_KUBECTL label secret vault-storage-config vkpr=true app.kubernetes.io/instance=vault -n "$VKPR_ENV_VAULT_NAMESPACE"
+  
+  if [[ $($VKPR_KUBECTL get secret -n "$VKPR_ENV_VAULT_NAMESPACE" | grep vault-storage-config | cut -d " " -f1) != "vault-storage-config" ]]; then
+    echoColor "bold" "$(echoColor "green" "Creating storage config...")"
+    $VKPR_KUBECTL create secret generic vault-storage-config -n "$VKPR_ENV_VAULT_NAMESPACE" --from-file="$VKPR_VAULT_CONFIG" && \
+      $VKPR_KUBECTL label secret vault-storage-config vkpr=true app.kubernetes.io/instance=vault -n "$VKPR_ENV_VAULT_NAMESPACE"
+  fi
 }
 
 settingVault() {
@@ -58,7 +65,7 @@ settingVault() {
     .server.ingress.hosts[0].host = \"$VKPR_ENV_VAULT_DOMAIN\"
   "
 
-  if [[ "$VKPR_ENV_SECURE" == true ]]; then
+  if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
     YQ_VALUES="$YQ_VALUES |
       .server.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
       .server.ingress.tls[0].hosts[0] = \"$VKPR_ENV_VAULT_DOMAIN\" |

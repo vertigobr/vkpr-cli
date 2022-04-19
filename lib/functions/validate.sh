@@ -36,7 +36,7 @@ validateAwsRegion() {
 # -----------------------------------------------------------------------------
 
 validateDigitalOceanApiToken() {
-  if [[ "$1" =~ ^([A-Za-z0-9]{64})$ ]]; then
+  if [[ "$1" =~ ^([a-z]+_v1_[A-Za-z0-9]{64})$ ]]; then
     return
     else
     echoColor "red" "Invalid Digital Ocean API Token, fix the credential with the command $(echoColor "bold" "rit set credential")."
