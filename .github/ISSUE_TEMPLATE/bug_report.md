@@ -2,6 +2,7 @@
 name: "🐛 Bug Report"
 title: 'Bug: '
 version: 'v.1.0.0'
+about: Find some bug? Report with this template!
 ---
 
 ## Description

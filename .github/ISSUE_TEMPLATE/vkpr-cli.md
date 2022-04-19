@@ -1,6 +1,6 @@
 ---
 name: "💬 VKPR-CLI"
-about: Bug reports, questions, and general feedback about VKPR-CLI
+about: Questions and general feedback about VKPR-CLI
 ---
 
 ## Description
