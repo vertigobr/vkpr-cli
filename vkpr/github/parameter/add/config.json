@@ -1,0 +1,36 @@
+{
+  "inputs": [
+    {
+      "label": "Github Project Name:(account/project)",
+      "name": "project_name",
+      "type": "text",
+      "cache": {
+        "active": true,
+        "qty": 10,
+        "newLabel": "Type another github project name: "
+      }
+    },
+    {
+      "label": "Secret Name:",
+      "name": "secret_name",
+      "type": "text",
+      "required": true
+    },
+    {
+      "label": "Secret Value:",
+      "name": "secret_value",
+      "type": "text",
+      "required": true
+    },
+    {
+      "name": "github_username",
+      "type": "CREDENTIAL_GITHUB_USERNAME"
+    },
+    {
+      "name": "github_token",
+      "type": "CREDENTIAL_GITHUB_TOKEN"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease": "2.17.0"
+}
