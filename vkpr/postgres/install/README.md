@@ -1,25 +1,39 @@
-# Description
+# VKPR postgres install
 
-Install Postgres into cluster. Uses [postgresql](https://artifacthub.io/packages/helm/bitnami/postgresql) Helm chart.
+## Description
+
+Install Postgresql into cluster. For more information about Postgresql, click [here.](https://www.postgresql.org/)
 
 ## Commands
 
-Interactive input:
+Interactive inputs:
 
-```bash
-vkpr postgres install
+```
+  vkpr postgres install [flags]
+```
+Non-interactive without setting values or using ```VKPR Values```:
+
+```
+  vkpr postgres install --default
 ```
 
-Non-interactive:
+## Parameters
 
-```bash
-rit set credential --provider="postgres" --fields="password" --values="<your-postgres-password>"
-vkpr postgres install
+```
+  --default        Set all values with default.
+  --HA             Specifies if the application will have High Availability.   Default: false
 ```
 
-### Content installed on the Cluster
+## Values File Parameters
 
-- Statefulset
-- Service
-- Secret
-- PV and PVC
+```yaml
+vkpr.yaml
+```
+```yaml
+global:
+  postgres:
+    namespace:   <String>
+    HA:          <Boolean>
+    metrics:     <Boolean>
+    helmArgs:    <Object>
+```
