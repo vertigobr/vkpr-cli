@@ -1,13 +1,35 @@
-# Description
+# VKPR loki install
 
-Formula description
+## Description
 
-## Command
+Install Loki into cluster. For more information about Loki, click [here.](https://grafana.com/oss/loki/)
 
-```bash
-rit vkpr loki install
+Commands
+
+Interactive inputs:
+
+```
+  vkpr loki install [flags]
 ```
 
-## Requirements
+Non-interactive without setting values or using ```VKPR Values```:
 
-## Demonstration
+```
+  vkpr loki install --default
+```
+
+## Parameters
+
+```
+  --default        Set all values with default.
+```
+
+## Values File Parameters
+
+```
+global:
+  loki:
+    namespace:   <String>
+    metrics:     <Boolean>
+    helmArgs:    <Object>
+```

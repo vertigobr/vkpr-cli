@@ -1,23 +1,40 @@
-# Description
+# VKPR ingress install
 
-Install nginx-ingress controller into cluster. Uses [ingress-nginx](https://artifacthub.io/packages/helm/ingress-nginx/ingress-nginx) Helm chart.
+## Description#
 
-## Command
+Install nginx-ingress controller into cluster. For more information about nginx-ingress controller, click [here.](https://kubernetes.github.io/ingress-nginx/deploy/)
 
-```bash
-rit vkpr ingress install
+## Commands
+
+Interactive inputs:
+
+```
+  vkpr ingress install [flags]
 ```
 
-### Content installed on the Cluster
+Non-interactive without setting values or using ```VKPR Values```:
 
-- Deployment
-- Service
-- Daemonset
-- Secret (certificate)
-- ConfigMap
-- Job
-- ClusterRole
-- Role
-- RoleBinding
-- ServiceAccount
-- ValidatingWebhookConfiguration
+```
+  vkpr ingress install --default
+```
+
+## Parameters
+
+```
+  --default       Set all values with default.
+  --lb_type       Define the Loadbalancer type in AWS. Default: "Classic" Allowed values: "Classic", "NLB"
+```
+
+## Values File Parameters
+
+```yaml
+vkpr.yaml
+```
+```yaml
+global:
+  ingress:
+    namespace:   <String>
+    loadBalancerType:   <String>
+    metrics:    <Boolean>
+    helmArgs:   <Object>
+```

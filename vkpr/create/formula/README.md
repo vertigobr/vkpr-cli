@@ -1,32 +1,21 @@
-# Description
+# VKPR Create Formula
 
-Runs `rit create formula`, removes unnecessary files and fixes configs in order to keep it exclusively as a shell local formula.
+## Description
 
-Files/folders removed:
+Create a new formula to use in VKPR.
 
-- build.bat
-- Dockerfile
-- Makefile
-- set_umask.sh
-- src/windows/
-- src/main.bat
+> Attention: This formula is used only when you want to contribute with VKPR.
 
-Files changed:
-
-- `config.json` (remove inputs array content)
-- `build.sh` (remove windows builds)
-- `metadata.json` (remove docker execution)
-
-## Command
+## Commands
 
 Interactive inputs:
 
-```bash
-vkpr create formula
+```
+  vkpr create formula [flags]
 ```
 
 Non-interactive:
 
-```bash
-vkpr create formula --vkpr_formula="vkpr object verb"
+```
+  vkpr create formula --vkpr_formula="name-formula"
 ```
