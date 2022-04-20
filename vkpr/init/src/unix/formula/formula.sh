@@ -17,6 +17,7 @@ runFormula() {
   mkdir -p $VKPR_HOME/bats
 
   installArkade
+  installOkteto
   #installGlab
   #Versions from ./utils/dependencies.sh or latest as default
   validateKubectlVersion
@@ -46,6 +47,20 @@ installArkade() {
     chmod +x /tmp/arkinst.sh
     rm /tmp/arkinst0.sh
     /tmp/arkinst.sh 2> /dev/null
+  fi
+}
+
+installOkteto() {
+  if [[ -f "$VKPR_OKTETO" ]]; then
+    echoColor "yellow" "Okteto already installed. Skipping..."
+  else
+    echoColor "blue" "Installing Okteto..."
+    # patches download script in order to change BINLOCATION
+    curl https://get.okteto.com -sSfL -o /tmp/okteto0.sh
+    sed "s|\/usr\/local\/bin|~\/\.vkpr\/bin|g" /tmp/okteto0.sh > /tmp/okteto.sh
+    chmod +x /tmp/okteto.sh
+    rm /tmp/okteto0.sh
+    /tmp/okteto.sh 2> /dev/null
   fi
 }
 
