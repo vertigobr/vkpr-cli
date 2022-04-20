@@ -1,0 +1,21 @@
+{
+  "inputs": [
+    {
+      "tutorial": "Specifies the AWS Access Key Credential.",
+      "name": "aws_access_key",
+      "type": "CREDENTIAL_AWS_ACCESSKEYID"
+    },
+    {
+      "tutorial": "Specifies the AWS Secret Key Credential.",
+      "name": "aws_secret_key",
+      "type": "CREDENTIAL_AWS_SECRETACCESSKEY"
+    },
+    {
+      "tutorial": "Specifies the AWS Region to set the environment.",
+      "name": "aws_region",
+      "type": "CREDENTIAL_AWS_REGION"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease": "2.17.0"
+}

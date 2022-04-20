@@ -1,0 +1,19 @@
+{
+  "inputs": [
+    {
+      "tutorial": "Specifies your email to issue the certificate.",
+      "label": "Type your email to use to generate certificates:",
+      "name": "email",
+      "type": "text",
+      "default": "default@vkpr.com",
+      "required": true,
+      "cache": {
+        "active": true,
+        "qty": 2,
+        "newLabel": "Type other email"
+      }
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease": "2.17.0"
+}

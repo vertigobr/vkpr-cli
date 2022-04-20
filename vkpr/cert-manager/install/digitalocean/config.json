@@ -1,0 +1,48 @@
+{
+  "inputs": [
+    {
+      "tutorial": "Specifies your email to issue the certificate.",
+      "label": "Type your email to use to generate certificates:",
+      "name": "email",
+      "type": "text",
+      "default": "default@vkpr.com",
+      "required": true,
+      "cache": {
+        "active": true,
+        "qty": 2,
+        "newLabel": "Type other email"
+      }
+    },
+    {
+      "tutorial": "Specifies what will be used to issue certificates.",
+      "label": "What is the default cluster issuer ?",
+      "name": "issuer",
+      "type": "text",
+      "default": "staging",
+      "required": true,
+      "items": [
+        "staging",
+        "production"
+      ]
+    },
+    {
+      "tutorial": "Specifies the type of challenge you will use to issue the certificate.",
+      "label": "What solver do you want to use ?",
+      "name": "issuer_solver",
+      "type": "text",
+      "default": "DNS01",
+      "required": true,
+      "items": [
+        "HTTP01",
+        "DNS01"
+      ]
+    },
+    {
+      "tutorial": "Specifies the Digital Ocean API Token.",
+      "name": "do_token",
+      "type": "CREDENTIAL_DIGITALOCEAN_TOKEN"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease": "2.17.0"
+}

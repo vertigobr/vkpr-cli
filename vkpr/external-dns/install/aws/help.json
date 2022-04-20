@@ -1,0 +1,4 @@
+{
+  "short": "Install external-dns in AWS",
+  "long": "Install the external-dns in the Kubernetes cluster configured against a AWS Route53 server."
+}

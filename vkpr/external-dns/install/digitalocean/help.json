@@ -1,0 +1,4 @@
+{
+  "short": "Install external-dns in Digitalocean",
+  "long": "Install the external-dns in the Kubernetes cluster configured against a Digital ocean server."
+}

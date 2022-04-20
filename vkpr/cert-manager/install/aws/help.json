@@ -1,0 +1,4 @@
+{
+  "short": "Install cert-manager with aws",
+  "long": "Install the cert-manager in the Kubernetes cluster."
+}
