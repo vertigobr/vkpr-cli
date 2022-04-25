@@ -1,28 +1,23 @@
 #!/bin/bash
 
 runFormula() {
+  local PROJECT_ID PIPELINE_ID BUILD_COMPLETE;
+
   validateGitlabUsername "$GITLAB_USERNAME"
   validateGitlabToken "$GITLAB_TOKEN"
   
-  local PROJECT_ID BUILD_COMPLETE; 
-  PROJECT_ID=$(curl https://gitlab.com/api/v4/users/"$GITLAB_USERNAME"/projects | $VKPR_JQ '.[0] | .id')
-  BUILD_COMPLETE=$(curl -H "PRIVATE-TOKEN: \"$GITLAB_TOKEN\"" https://gitlab.com/api/v4/projects/"$PROJECT_ID"/jobs | $VKPR_JQ '.[2] | .status')
+  PROJECT_ID=$(curl -s https://gitlab.com/api/v4/users/"$GITLAB_USERNAME"/projects |\
+    $VKPR_JQ '.[] | select(.name == "aws-eks").id'
+  )
+  PIPELINE_ID=$(curl -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/pipelines \
+    -H "PRIVATE-TOKEN: $GITLAB_TOKEN" |\
+    $VKPR_JQ '.[0].id'
+  )
+  BUILD_COMPLETE=$(curl -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/pipelines/"$PIPELINE_ID"/jobs \
+    -H "PRIVATE-TOKEN: $GITLAB_TOKEN" |\
+    $VKPR_JQ -r '.[2].status'
+  )
 
-  waitPipelineComplete
-  runDeploy
-}
-
-waitPipelineComplete(){
-  SECONDS=0
-  while [[ "$BUILD_COMPLETE" != '"success"' ]]; do
-    echoColor "yellow" "Pipeline still executing, await more... ${SECONDS}s passed"
-    sleep 30
-    (( SECONDS + 30 ))
-    BUILD_COMPLETE=$(curl -H "PRIVATE-TOKEN: \"$GITLAB_TOKEN\"" https://gitlab.com/api/v4/projects/"$PROJECT_ID"/jobs | $VKPR_JQ '.[2] | .status')
-  done
-}
-
-runDeploy(){
-  local DEPLOY_ID; DEPLOY_ID=$(curl -H "PRIVATE-TOKEN: \"$GITLAB_TOKEN\"" https://gitlab.com/api/v4/projects/"$PROJECT_ID"/jobs | $VKPR_JQ '.[1] | .id')
-  curl -H "PRIVATE-TOKEN: \"$GITLAB_TOKEN\"" -X POST -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/jobs/"$DEPLOY_ID"/play > /dev/null
+  waitJobComplete "$PROJECT_ID" "$PIPELINE_ID" "$BUILD_COMPLETE" "$GITLAB_TOKEN" "2"
+  jobDeployCluster "$PROJECT_ID" "$PIPELINE_ID" "$BUILD_COMPLETE" "$GITLAB_TOKEN"
 }
