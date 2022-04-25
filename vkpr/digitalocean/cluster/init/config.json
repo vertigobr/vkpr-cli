@@ -1,0 +1,88 @@
+{
+  "inputs": [
+    {
+      "tutorial": "Specifies the Cluster name.",
+      "label": "Type the Cluster name:",
+      "name": "do_cluster_name",
+      "type": "text",
+      "default": "do-sample",
+      "required": true,
+      "cache": {
+        "active": true,
+        "qty": 2,
+        "newLabel": "Type another cluster name"
+      },
+      "pattern": {
+        "regex": "^([A-Za-z0-9-]+)$",
+        "mismatchText": "Invalid Cluster name"
+      }
+    },
+    {
+      "tutorial": "Specifies the EKS Kubernetes Version.",
+      "label": "Choose the K8s version:",
+      "name": "do_k8s_version",
+      "type": "text",
+      "default": "1.22",
+      "required": true,
+      "items": [
+        "1.22",
+        "1.21"
+      ]
+    },
+    {
+      "tutorial": "Specifies the EKS Kubernetes Version.",
+      "label": "Choose the K8s region:",
+      "name": "do_cluster_region",
+      "type": "text",
+      "default": "nyc1",
+      "required": true,
+      "items": [
+        "nyc1",
+        "nyc2",
+        "sfo1"
+      ]
+    },
+    {
+      "tutorial": "Specifies the Node instance type.",
+      "label": "Choose nodes instance type:",
+      "name": "do_cluster_node_instance_type",
+      "type": "text",
+      "default": "s-2vcpu-2gb (vCPU:2, Mem: 2Gib)",
+      "required": true,
+      "items": [
+        "s-2vcpu-2gb (vCPU:2, Mem: 2Gib)",
+        "s-2vcpu-4gb (vCPU:2, Mem: 4Gib)",
+        "s-2vcpu-4gb (vCPU:4, Mem: 8Gib)"
+      ]
+    },
+    {
+      "tutorial": "Specifies the number of Nodes.",
+      "label": "Desired number of nodes:",
+      "name": "do_cluster_size",
+      "type": "text",
+      "default": "1",
+      "required": true,
+      "pattern": {
+        "regex": "^([0-9])$",
+        "mismatchText": "Invalid number of nodes."
+      }
+    },
+    {
+      "tutorial": "Specifies the Digital Ocean API Token.",
+      "name": "do_token",
+      "type": "CREDENTIAL_DIGITALOCEAN_TOKEN"
+    },
+    {
+      "tutorial": "Specifies your Gitlab Username.",
+      "name": "gitlab_username",
+      "type": "CREDENTIAL_GITLAB_USERNAME"
+    },
+    {
+      "tutorial": "Specifies your Gitlab Access-Token.",
+      "name": "gitlab_token",
+      "type": "CREDENTIAL_GITLAB_TOKEN"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease": "2.17.0"
+}
