@@ -20,15 +20,15 @@ setup() {
     load $VKPR_HOME/bats/bats-assert/load.bash
 }
 
-@test "wget to nGINX with HTTP and must return status 404" {
-  run wget --server-response http://localhost:8000
+@test "curl to nGINX with HTTP and must return status 404" {
+  run curl -I http://localhost:8000
   assert_output --partial "HTTP/1.1 404 Not Found"
   assert_success
 }
 
-@test "wget to nGINX with HTTP and must return status 404" {
-  run wget --no-check-certificate --server-response http://localhost:8001
-  assert_output --partial "HTTP/1.1 404 Not Found"
+@test "curl to nGINX with HTTPs and must return status 404" {
+  run curl -kI  https://localhost:8001
+  assert_output --partial "HTTP/2 404"
   assert_success
 }
 
