@@ -15,6 +15,29 @@ setup_file() {
   fi
 }
 
+@test "curl to Kong with HTTP and must return status 404" {
+  run curl -i http://localhost:8000
+  assert_output --partial "HTTP/1.1 404 Not Found"
+  assert_output --partial "{\"message\":\"no Route matched with those values\"}"
+  assert_success
+}
+
+@test "Use flag domain" {
+  rit vkpr kong install --domain="test" --default
+  run curl -iH "Host: api.manager.test" http://localhost:8000
+  assert_output --partial "HTTP/1.1 200 OK"
+  assert_success
+}
+
+@test "Use flag secure" {
+  rit vkpr kong install --domain="test" --secure=true --default
+  expected=$(kubectl get ingress -n vkpr | grep kong-kong-admin)
+  run echo $expected
+  assert_output --partial "80, 443"
+  assert_success
+}
+
+
 @test "Use vkpr.yaml to merge values in kong with helmArgs" {
   testValue="kong-test"
   useVKPRfile changeYAMLfile ".kong.helmArgs.fullnameOverride = \"${testValue}\" |
