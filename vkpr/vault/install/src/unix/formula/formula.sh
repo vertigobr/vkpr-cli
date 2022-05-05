@@ -98,16 +98,19 @@ settingVault() {
           .server.extraSecretEnvironmentVars[4].secretName = \"aws-unseal-vault\" |
           .server.extraSecretEnvironmentVars[4].secretKey = \"AWS_KMS_ENDPOINT\"
         "
-        validateAwsSecretKey "$AWS_SECRET_KEY"
+        AWS_ACCESS_KEY=$($VKPR_JQ -r .credential.accesskeyid $RIT_CREDENTIALS_PATH/aws)
+        AWS_SECRET_KEY=$($VKPR_JQ -r .credential.secretaccesskey $RIT_CREDENTIALS_PATH/aws)
+        AWS_REGION=$($VKPR_JQ -r .credential.region $RIT_CREDENTIALS_PATH/aws)
         validateAwsAccessKey "$AWS_ACCESS_KEY"
+        validateAwsSecretKey "$AWS_SECRET_KEY"
         validateAwsRegion "$AWS_REGION"
         $VKPR_YQ eval ".metadata.name = \"aws-unseal-vault\" |
           .metadata.namespace = \"$VKPR_ENV_VAULT_NAMESPACE\" |
-          .data.AWS_REGION = \"$(echo -n "$($VKPR_JQ -r .credential.accesskeyid $RIT_CREDENTIALS_PATH/aws)" | base64)\" |
-          .data.AWS_ACCESS_KEY = \"$(echo -n "$($VKPR_JQ -r .credential.secretaccesskey $RIT_CREDENTIALS_PATH/aws)" | base64)\" |
-          .data.AWS_SECRET_KEY = \"$(echo -n "$($VKPR_JQ -r .credential.awsregion $RIT_CREDENTIALS_PATH/aws)" | base64)\" |
-          .data.AWS_KMS_KEY_ID = \"$(echo -n "$($VKPR_JQ -r .credential.kmskeyid $RIT_CREDENTIALS_PATH/aws)" | base64)\" |
-          .data.AWS_KMS_ENDPOINT = \"$(echo -n "$($VKPR_JQ -r .credential.kmsendpoint $RIT_CREDENTIALS_PATH/aws)" | base64)\"
+          .data.AWS_ACCESS_KEY = \"$(echo -n "$AWS_ACCESS_KEY" | base64)\" |
+          .data.AWS_SECRET_KEY = \"$(echo -n "$AWS_SECRET_KEY" | base64)\" |
+          .data.AWS_REGION = \"$(echo -n "$AWS_REGION" | base64)\" |
+          .data.VAULT_AWSKMS_SEAL_KEY_ID = \"$(echo -n "$($VKPR_JQ -r .credential.kmskeyid $RIT_CREDENTIALS_PATH/aws)" | base64)\" |
+          .data.AWS_KMS_ENDPOINT = \"$(echo -n "kms."$AWS_REGION".amazonaws.com" | base64)\"
         " "$(dirname "$0")"/utils/auto-unseal.yaml | $VKPR_KUBECTL apply -f -
         ;;
       azure)
