@@ -1,0 +1,4 @@
+{
+  "short": "Install cert-manager with digitalocean",
+  "long": "Install the cert-manager in the Kubernetes cluster."
+}

@@ -1,0 +1,24 @@
+{
+  "inputs": [
+    {
+      "tutorial": "Specifies the PowerDNS API Key.",
+      "name": "pdns_apikey",
+      "type": "CREDENTIAL_POWERDNS_APIKEY"
+    },
+    {
+      "tutorial": "Specifies the PowerDNS server URL Endpoint.",
+      "label": "What is the PowerDNS server API url endpoint ?",
+      "name": "pdns_apiurl",
+      "type": "text",
+      "default": "example.com",
+      "required": true,
+      "cache": {
+        "active": true,
+        "qty": 3,
+        "newLabel": "Type another url"
+      }
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease": "2.17.0"
+}
