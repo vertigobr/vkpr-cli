@@ -214,8 +214,8 @@ downloadKubeconfig() {
       -H "PRIVATE-TOKEN: $GITLAB_TOKEN" \
       -o /tmp/artifacts.zip > /dev/null
     unzip -q /tmp/artifacts.zip -d /tmp
-    mkdir -p $VKPR_HOME/kubeconfig/"$DIR_LOCATION"
-    mv /tmp/kube/* $VKPR_HOME/kubeconfig/"$DIR_LOCATION"
+    mkdir -p "$VKPR_HOME"/kubeconfig/"$DIR_LOCATION"
+    mv /tmp/kube/* "$VKPR_HOME"/kubeconfig/"$DIR_LOCATION"
     rm -r /tmp/artifacts.zip /tmp/kube
   fi
 }

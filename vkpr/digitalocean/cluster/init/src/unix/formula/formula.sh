@@ -38,8 +38,8 @@ setVariablesGLAB() {
 }
 
 cloneRepository() {
-  git clone -q https://"$GITLAB_USERNAME":"$GITLAB_TOKEN"@gitlab.com/"$GITLAB_USERNAME"/k8s-digitalocean.git $VKPR_HOME/tmp/k8s-digitalocean
-  cd "$VKPR_HOME"/tmp/k8s-digitalocean
+  git clone -q https://"$GITLAB_USERNAME":"$GITLAB_TOKEN"@gitlab.com/"$GITLAB_USERNAME"/k8s-digitalocean.git "$VKPR_HOME"/tmp/k8s-digitalocean
+  cd "$VKPR_HOME"/tmp/k8s-digitalocean || return
   $VKPR_YQ eval -i ".region = \"$VKPR_ENV_DO_CLUSTER_REGION\" |
     .cluster_name = \"$VKPR_ENV_DO_CLUSTER_NAME\" |
     .prefix_version = \"$VKPR_ENV_DO_K8S_VERSION\" |
@@ -50,6 +50,6 @@ cloneRepository() {
   git checkout -b "$VKPR_ENV_DO_CLUSTER_NAME"
   git commit -am "[VKPR] Initial configuration defaults.yml"
   git push --set-upstream origin "$VKPR_ENV_DO_CLUSTER_NAME"
-  cd - > /dev/null
+  cd - > /dev/null || return
   rm -rf "$VKPR_HOME"/tmp/k8s-digitalocean
 }
