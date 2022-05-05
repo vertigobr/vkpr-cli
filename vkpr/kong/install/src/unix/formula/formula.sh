@@ -41,7 +41,7 @@ addRepoKong(){
 }
 
 addDependencies(){
-  mkdir -p config/
+  mkdir -p /tmp/config/
   printf "{
   \"cookie_name\": \"admin_session\",
   \"cookie_samesite\": \"Strict\",
@@ -49,7 +49,7 @@ addDependencies(){
   \"cookie_secure\": false,
   \"storage\": \"kong\",
   \"cookie_domain\": \"manager.%s\"
-}" "$VKPR_ENV_GLOBAL_DOMAIN" > config/admin_gui_session_conf
+}" "$VKPR_ENV_GLOBAL_DOMAIN" > /tmp/config/admin_gui_session_conf
 
   printf "{
   \"cookie_name\": \"portal_session\",
@@ -58,11 +58,11 @@ addDependencies(){
   \"cookie_secure\": false,
   \"storage\": \"kong\",
   \"cookie_domain\": \"portal.%s\"
-}" "$VKPR_ENV_GLOBAL_DOMAIN" > config/portal_session_conf
+}" "$VKPR_ENV_GLOBAL_DOMAIN" > /tmp/config/portal_session_conf
 
   if [[ "$VKPR_ENV_KONG_DEPLOY" == "hybrid" ]]; then
     openssl req -new -x509 -nodes -newkey ec:<(openssl ecparam -name secp384r1) \
-                -keyout config/cluster.key -out config/cluster.crt \
+                -keyout config/cluster.key -out /tmp/config/cluster.crt \
                 -days 1095 -subj "/CN=kong_clustering"
   fi
 }
@@ -78,25 +78,25 @@ createKongSecrets() {
 
   if [[ "$VKPR_ENV_KONG_DEPLOY" != "dbless" ]]; then
     $VKPR_KUBECTL create secret generic kong-session-config \
-      --from-file=config/admin_gui_session_conf \
-      --from-file=config/portal_session_conf -n "$VKPR_ENV_KONG_NAMESPACE" && \
+      --from-file=/tmp/config/admin_gui_session_conf \
+      --from-file=/tmp/config/portal_session_conf -n "$VKPR_ENV_KONG_NAMESPACE" && \
     $VKPR_KUBECTL label secret kong-session-config vkpr=true app.kubernetes.io/instance=kong -n "$VKPR_ENV_KONG_NAMESPACE"
   fi
 
   if [[ "$VKPR_ENV_KONG_DEPLOY" = "hybrid" ]]; then
     $VKPR_KUBECTL create ns kong
 
-    $VKPR_KUBECTL create secret tls kong-cluster-cert --cert=config/cluster.crt --key=config/cluster.key -n "$VKPR_ENV_KONG_NAMESPACE" && \
+    $VKPR_KUBECTL create secret tls kong-cluster-cert --cert=/tmp/config/cluster.crt --key=/tmp/config/cluster.key -n "$VKPR_ENV_KONG_NAMESPACE" && \
       $VKPR_KUBECTL label secret kong-cluster-cert vkpr=true app.kubernetes.io/instance=kong -n "$VKPR_ENV_KONG_NAMESPACE"
 
-    $VKPR_KUBECTL create secret tls kong-cluster-cert --cert=config/cluster.crt --key=config/cluster.key -n kong && \
+    $VKPR_KUBECTL create secret tls kong-cluster-cert --cert=/tmp/config/cluster.crt --key=/tmp/config/cluster.key -n kong && \
       $VKPR_KUBECTL label secret kong-cluster-cert vkpr=true app.kubernetes.io/instance=kong -n kong
 
     $VKPR_KUBECTL create secret generic kong-enterprise-license --from-file=$LICENSE -n kong && \
       $VKPR_KUBECTL label secret kong-enterprise-license vkpr=true app.kubernetes.io/instance=kong -n kong
   fi
 
-  rm -rf "$(dirname "$0")"/config/
+  rm -rf /tmp/config/
 }
 
 installDB(){
@@ -114,7 +114,6 @@ installDB(){
 
 installKong(){
   local YQ_VALUES=".proxy.enabled = true"
-  settingKongEnterprise
 
   case "$VKPR_ENV_KONG_DEPLOY" in
     hybrid)
@@ -150,27 +149,8 @@ installKongDP() {
 }
 
 settingKongDefaults() {
-  local PG_HOST="postgres-postgresql.${VKPR_ENV_POSTGRESQL_NAMESPACE}"
-  local PG_SECRET="postgres-postgresql"
-
-  if $VKPR_KUBECTL get pod -n "$VKPR_ENV_POSTGRESQL_NAMESPACE" | grep -q pgpool; then
-    PG_HOST="postgres-postgresql-pgpool.${VKPR_ENV_POSTGRESQL_NAMESPACE}"
-    PG_SECRET="postgres-postgresql-postgresql"
-    YQ_VALUES="$YQ_VALUES |
-     .env.pg_password.valueFrom.secretKeyRef.name = \"$PG_SECRET\"
-    "
-  fi
-
-  if ! $VKPR_KUBECTL get secret -n "$VKPR_ENV_KONG_NAMESPACE" | grep -q "$PG_SECRET"; then
-    PG_PASSWORD=$($VKPR_KUBECTL get secret "$PG_SECRET" -o yaml -n "$VKPR_ENV_POSTGRESQL_NAMESPACE" |\
-    $VKPR_YQ e ".data.postgresql-password" -)
-    $VKPR_KUBECTL create secret generic "$PG_SECRET" --from-literal="postgresql-password=$PG_PASSWORD" -n "$VKPR_ENV_KONG_NAMESPACE"
-    $VKPR_KUBECTL label secret "$PG_SECRET" vkpr=true app.kubernetes.io/instance=kong -n "$VKPR_ENV_KONG_NAMESPACE"
-  fi
-
-  YQ_VALUES="$YQ_VALUES |
-    .env.pg_host = \"$PG_HOST\"
-  "
+  settingKongEnterprise
+  settingKongDB
 
   if [[ "$VKPR_ENV_GLOBAL_DOMAIN" != "localhost" ]]; then
     YQ_VALUES="$YQ_VALUES |
@@ -190,14 +170,14 @@ settingKongDefaults() {
         .admin.ingress.tls = \"admin-kong-cert\" |
         .manager.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
         .manager.ingress.tls = \"manager-kong-cert\" |
-        .env.portal_gui_protocol = \"https\" |
         .env.admin_gui_url = \"https://manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
-        .env.admin_api_uri = \"https://api.manager.$VKPR_ENV_GLOBAL_DOMAIN\"|
-        .env.portal_gui_host = \"portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
-        .env.portal_api_url = \"https://api.portal.$VKPR_ENV_GLOBAL_DOMAIN\"
+        .env.admin_api_uri = \"https://api.manager.$VKPR_ENV_GLOBAL_DOMAIN\"
       "
       if [[ "$VKPR_ENV_KONG_DEPLOY" != "dbless" ]]; then
         YQ_VALUES="$YQ_VALUES |
+          .env.portal_gui_protocol = \"https\" |
+          .env.portal_gui_host = \"portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
+          .env.portal_api_url = \"https://api.portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
           .portal.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
           .portal.ingress.tls = \"portal-kong-cert\" |
           .portalapi.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
@@ -225,27 +205,10 @@ settingKongDefaults() {
     "
   fi
 
-  if [[ "$ENTERPRISE" == true ]] && [[ "$VKPR_ENV_KONG_DEPLOY" != "dbless" ]]; then
-    YQ_VALUES="$YQ_VALUES |
-      .env.password.valueFrom.secretKeyRef.name = \"kong-enterprise-superuser-password\" |
-      .env.password.valueFrom.secretKeyRef.key = \"password\" |
-      .ingressController.env.kong_admin_token.valueFrom.secretKeyRef.name = \"kong-enterprise-superuser-password\" |
-      .ingressController.env.kong_admin_token.valueFrom.secretKeyRef.key = \"password\" |
-      .enterprise.rbac.enabled = \"true\" |
-      .enterprise.rbac.admin_gui_auth = \"basic-auth\" |
-      .enterprise.rbac.session_conf_secret = \"kong-session-config\" |
-      .env.enforce_rbac = \"on\" |
-      .env.enforce_rbac style=\"double\"
-    "
-  fi
-
   mergeVkprValuesHelmArgs "kong" "$VKPR_KONG_VALUES"
 }
 
 settingKongEnterprise() {
-  $VKPR_KUBECTL create secret generic kong-enterprise-superuser-password --from-literal="password=$VKPR_ENV_KONG_RBAC" -n "$VKPR_ENV_KONG_NAMESPACE" && \
-    $VKPR_KUBECTL label secret kong-enterprise-superuser-password vkpr=true app.kubernetes.io/instance=kong -n "$VKPR_ENV_KONG_NAMESPACE"
-
   if [[ "$ENTERPRISE" == true ]]; then
     YQ_VALUES="$YQ_VALUES |
       .image.repository = \"kong/kong-gateway\" |
@@ -254,5 +217,44 @@ settingKongEnterprise() {
       .enterprise.vitals.enabled = \"true\" |
       .enterprise.portal.enabled = \"true\"
     "
+
+    if [[ "$VKPR_ENV_KONG_DEPLOY" != "dbless" ]]; then
+      YQ_VALUES="$YQ_VALUES |
+        .env.password.valueFrom.secretKeyRef.name = \"kong-enterprise-superuser-password\" |
+        .env.password.valueFrom.secretKeyRef.key = \"password\" |
+        .ingressController.env.kong_admin_token.valueFrom.secretKeyRef.name = \"kong-enterprise-superuser-password\" |
+        .ingressController.env.kong_admin_token.valueFrom.secretKeyRef.key = \"password\" |
+        .enterprise.rbac.enabled = \"true\" |
+        .enterprise.rbac.admin_gui_auth = \"basic-auth\" |
+        .enterprise.rbac.session_conf_secret = \"kong-session-config\" |
+        .env.enforce_rbac = \"on\" |
+        .env.enforce_rbac style=\"double\"
+      "
+      $VKPR_KUBECTL create secret generic kong-enterprise-superuser-password --from-literal="password=$VKPR_ENV_KONG_RBAC" -n "$VKPR_ENV_KONG_NAMESPACE" && \
+        $VKPR_KUBECTL label secret kong-enterprise-superuser-password vkpr=true app.kubernetes.io/instance=kong -n "$VKPR_ENV_KONG_NAMESPACE"
+    fi
+  fi
+}
+
+settingKongDB() {
+  if [[ "$VKPR_ENV_KONG_DEPLOY" != "dbless" ]]; then
+    local PG_HOST="postgres-postgresql.${VKPR_ENV_POSTGRESQL_NAMESPACE}"
+    local PG_SECRET="postgres-postgresql"
+
+    if $VKPR_KUBECTL get pod -n "$VKPR_ENV_POSTGRESQL_NAMESPACE" | grep -q pgpool; then
+      PG_HOST="postgres-postgresql-pgpool.${VKPR_ENV_POSTGRESQL_NAMESPACE}"
+      PG_SECRET="postgres-postgresql-postgresql"
+      YQ_VALUES="$YQ_VALUES |
+        .env.pg_host = \"$PG_HOST\" |
+        .env.pg_password.valueFrom.secretKeyRef.name = \"$PG_SECRET\"
+      "
+    fi
+
+    if ! $VKPR_KUBECTL get secret -n "$VKPR_ENV_KONG_NAMESPACE" | grep -q "$PG_SECRET"; then
+      PG_PASSWORD=$($VKPR_KUBECTL get secret "$PG_SECRET" -o yaml -n "$VKPR_ENV_POSTGRESQL_NAMESPACE" |\
+        $VKPR_YQ e ".data.postgresql-password" -)
+      $VKPR_KUBECTL create secret generic "$PG_SECRET" --from-literal="postgresql-password=$PG_PASSWORD" -n "$VKPR_ENV_KONG_NAMESPACE"
+      $VKPR_KUBECTL label secret "$PG_SECRET" vkpr=true app.kubernetes.io/instance=kong -n "$VKPR_ENV_KONG_NAMESPACE"
+    fi
   fi
 }
