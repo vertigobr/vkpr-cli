@@ -110,7 +110,7 @@ settingVault() {
           .data.AWS_SECRET_KEY = \"$(echo -n "$AWS_SECRET_KEY" | base64)\" |
           .data.AWS_REGION = \"$(echo -n "$AWS_REGION" | base64)\" |
           .data.VAULT_AWSKMS_SEAL_KEY_ID = \"$(echo -n "$($VKPR_JQ -r .credential.kmskeyid $RIT_CREDENTIALS_PATH/aws)" | base64)\" |
-          .data.AWS_KMS_ENDPOINT = \"$(echo -n "kms."$AWS_REGION".amazonaws.com" | base64)\"
+          .data.AWS_KMS_ENDPOINT = \"$(echo -n "kms.$AWS_REGION.amazonaws.com" | base64)\"
         " "$(dirname "$0")"/utils/auto-unseal.yaml | $VKPR_KUBECTL apply -f -
         ;;
       azure)

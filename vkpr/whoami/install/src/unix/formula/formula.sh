@@ -39,7 +39,7 @@ installWhoami() {
   settingWhoami
 
   $VKPR_YQ eval "$YQ_VALUES" "$VKPR_WHOAMI_VALUES" \
-  | $VKPR_HELM upgrade -i --version "$VKPR_WHOAMI_VERSION" $HELM_NAMESPACE \
+  | $VKPR_HELM upgrade -i --version "$VKPR_WHOAMI_VERSION" "$HELM_NAMESPACE" \
     --wait -f - whoami cowboysysop/whoami
 }
 
@@ -60,9 +60,9 @@ settingWhoami() {
 }
 
 settingWhoamiProvider() {
-  ACTUAL_CONTEXT=$($VKPR_KUBECTL config get-contexts --no-headers | grep \* | xargs | awk -F " " '{print $2}')
+  ACTUAL_CONTEXT=$($VKPR_KUBECTL config get-contexts --no-headers | grep "\*" | xargs | awk -F " " '{print $2}')
   if [[ "$VKPR_ENV_GLOBAL_PROVIDER" == "okteto" ]] || [[ $ACTUAL_CONTEXT == "cloud_okteto_com" ]]; then
-    OKTETO_NAMESPACE=$($VKPR_KUBECTL config get-contexts --no-headers | grep \* | xargs | awk -F " " '{print $NF}')
+    OKTETO_NAMESPACE=$($VKPR_KUBECTL config get-contexts --no-headers | grep "\*" | xargs | awk -F " " '{print $NF}')
     HELM_NAMESPACE=""
     YQ_VALUES="$YQ_VALUES |
       .ingress.enabled = \"false\" |

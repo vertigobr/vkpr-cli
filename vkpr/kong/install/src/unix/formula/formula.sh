@@ -48,7 +48,7 @@ addDependencies(){
   \"secret\": \"$(openssl rand -base64 32)\",
   \"cookie_secure\": false,
   \"storage\": \"kong\",
-  \"cookie_domain\": \"manager.%s\"
+  \"cookie_domain\": \".%s\"
 }" "$VKPR_ENV_GLOBAL_DOMAIN" > /tmp/config/admin_gui_session_conf
 
   printf "{
@@ -57,7 +57,7 @@ addDependencies(){
   \"secret\": \"$(openssl rand -base64 32)\",
   \"cookie_secure\": false,
   \"storage\": \"kong\",
-  \"cookie_domain\": \"portal.%s\"
+  \"cookie_domain\": \".%s\"
 }" "$VKPR_ENV_GLOBAL_DOMAIN" > /tmp/config/portal_session_conf
 
   if [[ "$VKPR_ENV_KONG_DEPLOY" == "hybrid" ]]; then
