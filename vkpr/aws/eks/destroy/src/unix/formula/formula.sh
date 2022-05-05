@@ -1,14 +1,22 @@
 #!/bin/bash
 
 runFormula() {
+  local PROJECT_ID PIPELINE_ID DEPLOY_STATUS;
+
   validateGitlabUsername "$GITLAB_USERNAME"
   validateGitlabToken "$GITLAB_TOKEN"
 
-  local PROJECT_ID; PROJECT_ID=$(curl https://gitlab.com/api/v4/users/"$GITLAB_USERNAME"/projects | $VKPR_JQ '.[0] | .id')
-  destroyEKS
-}
+  PROJECT_ID=$(curl -s https://gitlab.com/api/v4/users/"$GITLAB_USERNAME"/projects |\
+    $VKPR_JQ ".[] | select(.name == \"aws-eks\").id"
+  )
+  PIPELINE_ID=$(curl -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/pipelines \
+    -H "PRIVATE-TOKEN: $GITLAB_TOKEN" |\
+    $VKPR_JQ '.[0].id'
+  )
+  DEPLOY_STATUS=$(curl -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/pipelines/"$PIPELINE_ID"/jobs \
+    -H "PRIVATE-TOKEN: $GITLAB_TOKEN" |\
+    $VKPR_JQ -r '.[1].status'
+  )
 
-destroyEKS() {
-  DESTROY_ID=$(curl -H "PRIVATE-TOKEN: \"$GITLAB_TOKEN\"" https://gitlab.com/api/v4/projects/"$PROJECT_ID"/jobs | $VKPR_JQ '.[0] | .id')
-  curl -H "PRIVATE-TOKEN: \"$GITLAB_TOKEN\"" -X POST -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/jobs/"$DESTROY_ID"/play > /dev/null
+  jobDestroyCluster "$PROJECT_ID" "$PIPELINE_ID" "$DEPLOY_STATUS" "$GITLAB_TOKEN"
 }
