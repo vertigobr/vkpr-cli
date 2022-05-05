@@ -8,6 +8,7 @@ export VKPR_HOME=~/.vkpr \
 export VKPR_GLAB=$VKPR_HOME/bin/glab \
   VKPR_K3D=$VKPR_HOME/bin/k3d \
   VKPR_ARKADE=$VKPR_HOME/bin/arkade \
+  VKPR_OKTETO=$VKPR_HOME/bin/okteto \
   VKPR_KUBECTL=$VKPR_HOME/bin/kubectl \
   VKPR_HELM=$VKPR_HOME/bin/helm \
   VKPR_JQ=$VKPR_HOME/bin/jq \
