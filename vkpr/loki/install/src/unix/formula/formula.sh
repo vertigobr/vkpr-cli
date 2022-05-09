@@ -7,6 +7,7 @@ runFormula() {
   
   # App values
   checkGlobalConfig "false" "false" "loki.metrics" "LOKI_METRICS"
+  checkGlobalConfig "false" "false" "loki.persistance" "LOKI_PERSISTANCE"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "loki.namespace" "LOKI_NAMESPACE"
 
   # External app values
@@ -48,6 +49,14 @@ settingLoki() {
       .loki.serviceMonitor.interval = \"30s\" |
       .loki.serviceMonitor.additionalLabels.release = \"prometheus-stack\" |
       .loki.serviceMonitor.scrapeTimeout = \"30s\"
+    "
+  fi
+
+  if [[ "$VKPR_ENV_LOKI_PERSISTANCE" == true ]]; then
+    YQ_VALUES="$YQ_VALUES |
+      .loki.persistence.enabled = true |
+      .loki.persistence.accessModes[0] = \"ReadWriteOnce\" |
+      .loki.persistence.size = \"8Gi\"
     "
   fi
 
