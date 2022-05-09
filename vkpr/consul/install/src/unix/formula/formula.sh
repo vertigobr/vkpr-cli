@@ -32,6 +32,22 @@ configureRepository() {
   registerHelmRepository hashicorp https://helm.releases.hashicorp.com
 }
 
+installConsul() {
+  local YQ_VALUES=".ui.ingress.hosts[0].host = \"$VKPR_ENV_CONSUL_DOMAIN\" | .ui.ingress.ingressClassName = \"$VKPR_ENV_CONSUL_INGRESS\""
+  settingConsul
+
+  if [[ $DRY_RUN == true ]]; then
+    echoColor "bold" "---"
+    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_CONSUL_VALUES"
+  else
+    echoColor "bold" "$(echoColor "green" "Installing Consul...")" 
+    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_CONSUL_VALUES" \
+    | $VKPR_HELM upgrade -i --version "$VKPR_CONSUL_VERSION" \
+      --namespace "$VKPR_ENV_CONSUL_NAMESPACE" --create-namespace \
+      --wait -f - consul hashicorp/consul
+  fi
+}
+
 settingConsul() {
   if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
     YQ_VALUES="$YQ_VALUES |
@@ -45,15 +61,4 @@ settingConsul() {
   fi
 
   mergeVkprValuesHelmArgs "consul" "$VKPR_CONSUL_VALUES"
-}
-
-installConsul() {
-  echoColor "bold" "$(echoColor "green" "Installing Consul...")" 
-  local YQ_VALUES=".ui.ingress.hosts[0].host = \"$VKPR_ENV_CONSUL_DOMAIN\" | .ui.ingress.ingressClassName = \"$VKPR_ENV_CONSUL_INGRESS\""
-  settingConsul
-
-  $VKPR_YQ eval "$YQ_VALUES" "$VKPR_CONSUL_VALUES" \
-  | $VKPR_HELM upgrade -i --version "$VKPR_CONSUL_VERSION" \
-    --namespace "$VKPR_ENV_CONSUL_NAMESPACE" --create-namespace \
-    --wait -f - consul hashicorp/consul
 }

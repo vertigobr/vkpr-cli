@@ -12,6 +12,17 @@
         "qty": 2,
         "newLabel": "Type other email"
       }
+    },
+    {
+      "tutorial": "Specifies if output the values from the application.",
+      "label": "Dry-run ?",
+      "name": "dry_run",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "true",
+        "false"
+      ]
     }
   ],
   "template": "shell-bat",

@@ -17,6 +17,17 @@
         "qty": 3,
         "newLabel": "Type another url"
       }
+    },
+    {
+      "tutorial": "Specifies if output the values from the application.",
+      "label": "Dry-run ?",
+      "name": "dry_run",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "true",
+        "false"
+      ]
     }
   ],
   "template": "shell-bat",

@@ -38,6 +38,17 @@
       ]
     },
     {
+      "tutorial": "Specifies if output the values from the application.",
+      "label": "Dry-run ?",
+      "name": "dry_run",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "true",
+        "false"
+      ]
+    },
+    {
       "tutorial": "Specifies the Digital Ocean API Token.",
       "name": "do_token",
       "type": "CREDENTIAL_DIGITALOCEAN_TOKEN"

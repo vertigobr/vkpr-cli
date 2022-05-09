@@ -28,14 +28,19 @@ configureRepository() {
 }
 
 installIngress() {
-  echoColor "bold" "$(echoColor "green" "Installing ngnix ingress...")"
   local YQ_VALUES=".rbac.create = true"
   settingIngress
 
-  $VKPR_YQ eval "$YQ_VALUES" "$VKPR_INGRESS_VALUES" \
-  | $VKPR_HELM upgrade -i --version "$VKPR_INGRESS_NGINX_VERSION" \
-      --namespace "$VKPR_ENV_INGRESS_NAMESPACE" --create-namespace \
-      --wait -f - ingress-nginx ingress-nginx/ingress-nginx
+  if [[ $DRY_RUN == true ]]; then
+    echoColor "bold" "---"
+    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_INGRESS_VALUES"
+  else
+    echoColor "bold" "$(echoColor "green" "Installing ngnix ingress...")"
+    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_INGRESS_VALUES" \
+    | $VKPR_HELM upgrade -i --version "$VKPR_INGRESS_NGINX_VERSION" \
+        --namespace "$VKPR_ENV_INGRESS_NAMESPACE" --create-namespace \
+        --wait -f - ingress-nginx ingress-nginx/ingress-nginx
+  fi
 }
 
 settingIngress() {

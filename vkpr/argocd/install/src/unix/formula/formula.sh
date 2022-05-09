@@ -37,17 +37,22 @@ addRepoArgoCD(){
 }
 
 installArgoCD(){
-  echoColor "bold" "$(echoColor "green" "Installing ArgoCD...")"
   local YQ_VALUES=".server.ingress.enabled = true"
   settingArgoCD
 
-  $VKPR_YQ eval "$YQ_VALUES" "$VKPR_ARGOCD_VALUES" \
-  | $VKPR_HELM upgrade -i --version "$VKPR_ARGOCD_VERSION" \
-    --namespace "$VKPR_ENV_ARGOCD_NAMESPACE" --create-namespace  \
-    --wait -f - argocd argo/argo-cd
+  if [[ $DRY_RUN == true ]]; then
+    echoColor "bold" "---"
+    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_ARGOCD_VALUES"
+  else
+    echoColor "bold" "$(echoColor "green" "Installing ArgoCD...")"
+    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_ARGOCD_VALUES" \
+    | $VKPR_HELM upgrade -i --version "$VKPR_ARGOCD_VERSION" \
+      --namespace "$VKPR_ENV_ARGOCD_NAMESPACE" --create-namespace  \
+      --wait -f - argocd argo/argo-cd
+    printArgoPassword
+  fi
 
   settingArgoAddons
-  printArgoPassword
 }
 
 printArgoPassword(){

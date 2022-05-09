@@ -48,13 +48,19 @@ addRepoKeycloak(){
 
 installKeycloak(){
   local YQ_VALUES=".postgresql.enabled = false"
-  configureKeycloakDB
+  [[ $DRY_RUN == false ]] && configureKeycloakDB
   settingKeycloak
-  echoColor "bold" "$(echoColor "green" "Installing Keycloak...")"
-  $VKPR_YQ eval "$YQ_VALUES" "$VKPR_KEYCLOAK_VALUES" \
-  | $VKPR_HELM upgrade -i --version "$VKPR_KEYCLOAK_VERSION" \
-    --create-namespace -n "$VKPR_ENV_NAMESPACE" \
-    --wait --timeout 10m -f - keycloak bitnami/keycloak
+
+  if [[ $DRY_RUN == true ]]; then
+    echoColor "bold" "---"
+    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_KEYCLOAK_VALUES"
+  else
+    echoColor "bold" "$(echoColor "green" "Installing Keycloak...")"
+    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_KEYCLOAK_VALUES" \
+    | $VKPR_HELM upgrade -i --version "$VKPR_KEYCLOAK_VERSION" \
+      --create-namespace -n "$VKPR_ENV_NAMESPACE" \
+      --wait --timeout 10m -f - keycloak bitnami/keycloak
+  fi
 }
 
 settingKeycloak(){
@@ -102,7 +108,7 @@ configureKeycloakDB(){
   if [[ $(checkPodName "$VKPR_ENV_POSTGRESQL_NAMESPACE" "postgres-postgresql") != "true" ]]; then
     echoColor "green" "Initializing postgresql to Keycloak"
     [[ -f $CURRENT_PWD/vkpr.yaml ]] && cp "$CURRENT_PWD"/vkpr.yaml "$(dirname "$0")"
-    rit vkpr postgres install --HA="$PG_HA" --password="$PASSWORD" --default
+    rit vkpr postgres install --HA="$PG_HA" --default
   fi
   if [[ $(checkExistingDatabase "$PG_USER" "$PG_PASSWORD" "$PG_DATABASE_NAME" "$VKPR_ENV_POSTGRESQL_NAMESPACE") != "keycloak" ]]; then
     echoColor "green" "Creating Database Instance in postgresql..."

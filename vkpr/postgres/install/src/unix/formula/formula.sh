@@ -31,15 +31,20 @@ addRepoPostgres(){
 }
 
 installPostgres(){
-  echoColor "bold" "$(echoColor "green" "Installing Postgresql...")"
   local YQ_VALUES='.fullnameOverride = "postgres-postgresql"' \
     POSTGRESQL_CHART="postgresql"
   settingPostgres
 
-  $VKPR_YQ eval "$YQ_VALUES" "$VKPR_POSTGRES_VALUES" \
-  | $VKPR_HELM upgrade -i --version "$VKPR_POSTGRES_VERSION" \
-      --namespace "$VKPR_ENV_POSTGRESQL_NAMESPACE" --create-namespace \
-      --wait -f - postgresql bitnami/$POSTGRESQL_CHART
+  if [[ $DRY_RUN == true ]]; then
+    echoColor "bold" "---"
+    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_POSTGRES_VALUES"
+  else
+    echoColor "bold" "$(echoColor "green" "Installing Postgresql...")"
+    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_POSTGRES_VALUES" \
+    | $VKPR_HELM upgrade -i --version "$VKPR_POSTGRES_VERSION" \
+        --namespace "$VKPR_ENV_POSTGRESQL_NAMESPACE" --create-namespace \
+        --wait -f - postgresql bitnami/$POSTGRESQL_CHART
+  fi
 }
 
 settingPostgres() {

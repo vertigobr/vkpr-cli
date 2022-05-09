@@ -33,14 +33,20 @@ addRepoWhoami() {
 }
 
 installWhoami() {
-  echoColor "bold" "$(echoColor "green" "Installing whoami...")"
   local YQ_VALUES=".ingress.hosts[0].host = \"$VKPR_ENV_WHOAMI_DOMAIN\""
   local HELM_NAMESPACE="--create-namespace --namespace=$VKPR_ENV_WHOAMI_NAMESPACE"
   settingWhoami
 
-  $VKPR_YQ eval "$YQ_VALUES" "$VKPR_WHOAMI_VALUES" \
-  | $VKPR_HELM upgrade -i --version "$VKPR_WHOAMI_VERSION" "$HELM_NAMESPACE" \
-    --wait -f - whoami cowboysysop/whoami
+  if [[ $DRY_RUN == true ]]; then
+    echoColor "bold" "---"
+    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_WHOAMI_VALUES"
+  else
+    echoColor "bold" "$(echoColor "green" "Installing whoami...")"
+    # shellcheck disable=SC2086
+    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_WHOAMI_VALUES" \
+    | $VKPR_HELM upgrade -i --version "$VKPR_WHOAMI_VERSION" $HELM_NAMESPACE \
+      --wait -f - whoami cowboysysop/whoami
+  fi
 }
 
 settingWhoami() {
