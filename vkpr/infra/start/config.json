@@ -22,6 +22,17 @@
       "default": "1"
     },
     {
+      "tutorial": "Enable mount of volumes in cluster.",
+      "label": "Enable Volume Mount ?",
+      "name": "enable_volume",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "false",
+        "true"
+      ]
+    },
+    {
       "tutorial": "Enable Traefik by default in Cluster.",
       "label": "Enable Traefik ingress controller ?",
       "name": "enable_traefik",
