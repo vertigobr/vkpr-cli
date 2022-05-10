@@ -8,6 +8,6 @@ runFormula() {
   validateAwsRegion "$AWS_REGION"
   
   aws rds create-db-snapshot \
-    --db-instance-identifier $RDS_INSTANCE_NAME \
+    --db-instance-identifier "$RDS_INSTANCE_NAME" \
     --db-snapshot-identifier mydbsnapshot  1> /dev/null && echo "Snapshot created"
 }
