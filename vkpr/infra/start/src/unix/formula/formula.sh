@@ -62,16 +62,15 @@ startCluster() {
 
   if [ "$ENABLE_VOLUME" == true ]; then
     mkdir -p /tmp/k3dvol
-    VOLUME_FLAG="-v=/tmp/k3dvol:/tmp/k3dvol"
+    VOLUME_FLAG="/tmp/k3dvol:/tmp/k3dvol"
   fi
 
   if ! ${VKPR_K3D} cluster list | grep -q "vkpr-local"; then
     ${VKPR_K3D} cluster create vkpr-local \
-      -s "${VKPR_ENV_K3D_SERVERS}" -a "${VKPR_ENV_K3D_AGENTS}" \
+      -s "${VKPR_ENV_K3D_SERVERS}" -a "${VKPR_ENV_K3D_AGENTS}" --volume="${VOLUME_FLAG}" \
       -p "${VKPR_ENV_HTTP_PORT}:80@loadbalancer" \
       -p "${VKPR_ENV_HTTPS_PORT}:443@loadbalancer" \
       --k3s-arg "${TRAEFIK_FLAG}" \
-      "${VOLUME_FLAG}" \
       --registry-use k3d-registry.localhost \
       --registry-config "${VKPR_CONFIG}"/registry.yaml
   ${VKPR_KUBECTL} config use-context k3d-vkpr-local
