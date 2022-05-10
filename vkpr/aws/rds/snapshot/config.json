@@ -1,0 +1,33 @@
+{
+  "inputs": [
+    {
+      "tutorial": "Specifies the AWS Access Key Credential.",
+      "name": "aws_access_key",
+      "type": "CREDENTIAL_AWS_ACCESSKEYID"
+    },
+    {
+      "tutorial": "Specifies the AWS Secret Key Credential.",
+      "name": "aws_secret_key",
+      "type": "CREDENTIAL_AWS_SECRETACCESSKEY"
+    },
+    {
+      "tutorial": "Specifies the AWS Region to set the environment.",
+      "name": "aws_region",
+      "type": "CREDENTIAL_AWS_REGION"
+    },
+    {
+      "tutorial": "Specifies the RDS instance name to create SNAPSHOT.",
+      "label": "RDS instance name:",
+      "name": "rds_instance_name",
+      "type": "text",
+      "default": "rds-sample",
+      "required": true,
+      "pattern": {
+        "regex": "^([A-Za-z0-9-]+)$",
+        "mismatchText": "Invalid Cluster name"
+      }
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease:": "2.16.2"
+}
