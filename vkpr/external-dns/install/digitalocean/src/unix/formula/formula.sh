@@ -9,7 +9,6 @@ runFormula() {
   checkGlobalConfig "false" "false" "external-dns.metrics" "EXTERNAL_DNS_METRICS"
 
   local VKPR_EXTERNAL_DNS_VALUES; VKPR_EXTERNAL_DNS_VALUES="$(dirname "$0")"/utils/external-dns.yaml
-  local RIT_CREDENTIALS_PATH=~/.rit/credentials/default
 
   startInfos
   addRepoExternalDNS
@@ -27,18 +26,14 @@ addRepoExternalDNS() {
 }
 
 installExternalDNS() {
-  if [[ ! -f $RIT_CREDENTIALS_PATH/$PROVIDER ]]; then
-    echoColor "red" "Doesn't exists credential $PROVIDER to use in formula, create her or use the provider flag."
-  else
-    echoColor "bold" "$(echoColor "green" "Installing External-DNS Digital Ocean...")"
-    local YQ_VALUES=".rbac.create = true"
-    settingExternalDNS
+  echoColor "bold" "$(echoColor "green" "Installing External-DNS Digital Ocean...")"
+  local YQ_VALUES=".rbac.create = true"
+  settingExternalDNS
 
-    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_EXTERNAL_DNS_VALUES" \
-    | $VKPR_HELM upgrade -i --version "$VKPR_EXTERNAL_DNS_VERSION" \
-      --namespace "$VKPR_ENV_EXTERNAL_DNS_NAMESPACE" --create-namespace \
-      --wait -f - external-dns bitnami/external-dns
-  fi
+  $VKPR_YQ eval "$YQ_VALUES" "$VKPR_EXTERNAL_DNS_VALUES" \
+  | $VKPR_HELM upgrade -i --version "$VKPR_EXTERNAL_DNS_VERSION" \
+    --namespace "$VKPR_ENV_EXTERNAL_DNS_NAMESPACE" --create-namespace \
+    --wait -f - external-dns bitnami/external-dns
 }
 
 

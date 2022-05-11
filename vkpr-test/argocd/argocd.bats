@@ -17,6 +17,15 @@ setup_file() {
   fi
 }
 
+@test "Create a session using the generated password" {
+  argo_password=$($VKPR_KUBECTL get secret/argocd-initial-admin-secret -o=jsonpath="{.data.password}" -n argocd | base64 -d)
+  curl -H "Host: argocd.localhost" http://127.0.0.1:8000/api/v1/session \
+    -d '{"username":"admin","password":"$argo_password"}'
+  
+  refute_line --partial "null"
+  assert_success
+}
+
 @test "Use vkpr.yaml to merge values in argocd with helmArgs" {
   testValue="argocd-test"
   useVKPRfile changeYAMLfile ".argocd.helmArgs.fullnameOverride = \"${testValue}\" |
