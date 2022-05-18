@@ -20,9 +20,9 @@ runFormula() {
 
 startInfos() {
   echo "=============================="
-  echoColor "bold" "$(echoColor "green" "VKPR Postgresql Install Routine")"
-  echoColor "bold" "$(echoColor "blue" "Postgresql Password:") ${PASSWORD}"
-  echoColor "bold" "$(echoColor "blue" "HA:") ${VKPR_ENV_POSTGRESQL_HA}"
+  info "VKPR Postgresql Install Routine"
+  notice "Postgresql Password: ${PASSWORD}"
+  notice "HA: ${VKPR_ENV_POSTGRESQL_HA}"
   echo "=============================="
 }
 
@@ -31,7 +31,7 @@ addRepoPostgres(){
 }
 
 installPostgres(){
-  echoColor "bold" "$(echoColor "green" "Installing Postgresql...")"
+  info "Installing Postgresql..."
   local YQ_VALUES='.fullnameOverride = "postgres-postgresql"' \
     POSTGRESQL_CHART="postgresql"
   settingPostgres
