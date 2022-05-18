@@ -19,7 +19,7 @@ runFormula() {
 
 startInfos() {
   echo "=============================="
-  echoColor "bold" "$(echoColor "green" "VKPR Ingress Install Routine")"
+  info "VKPR Ingress Install Routine"
   echo "=============================="
 }
 
@@ -28,7 +28,7 @@ configureRepository() {
 }
 
 installIngress() {
-  echoColor "bold" "$(echoColor "green" "Installing ngnix ingress...")"
+  info "Installing ngnix ingress..."
   local YQ_VALUES=".rbac.create = true"
   settingIngress
 
