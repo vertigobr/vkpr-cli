@@ -22,7 +22,7 @@ runFormula() {
 
 startInfos() {
   echo "=============================="
-  echoColor "bold" "$(echoColor "green" "VKPR Loki Install Routine")"
+  info "VKPR Loki Install Routine"
   echo "=============================="
 }
 
@@ -31,7 +31,7 @@ addRepLoki(){
 }
 
 installLoki(){
-  echoColor "bold" "$(echoColor "green" "Installing Loki...")"
+  info "Installing Loki..."
   local YQ_VALUES=".grafana.enabled = false"
   settingLoki
 
@@ -67,7 +67,7 @@ existGrafana() {
     )
 
     if [[ $TOKEN_API_GRAFANA == "" ]]; then
-      echoColor "red" "Ingress is not installed to generate the api token"
+      error "Ingress is not installed to generate the api token"
       return
     fi
 
@@ -89,9 +89,9 @@ existGrafana() {
             "access":"proxy",
             "basicAuth":false,
             "editable": true
-          }' http://127.0.0.1:8000/api/datasources > /dev/null && echoColor "green" "Loki Datasource Added"
+          }' http://127.0.0.1:8000/api/datasources > /dev/null && info "Loki Datasource Added"
       else
-      echoColor "yellow" "Loki Datasource already created"
+      warn "Loki Datasource already created"
     fi
   fi
 }
