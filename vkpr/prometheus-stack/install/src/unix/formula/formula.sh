@@ -30,12 +30,12 @@ runFormula() {
 
 startInfos() {
   echo "=============================="
-  echoColor "bold" "$(echoColor "green" "VKPR Prometheus-Stack Install Routine")"
-  echoColor "bold" "$(echoColor "blue" "Grafana domain:") ${VKPR_ENV_GRAFANA_DOMAIN}"
-  echoColor "bold" "$(echoColor "blue" "Grafana password:") ${VKPR_ENV_GRAFANA_PASSWORD}"
-  echoColor "bold" "$(echoColor "blue" "Prometheus AlertManager enabled:") ${VKPR_ENV_PROMETHEUS_ALERT_MANAGER}"
-  [[ $VKPR_ENV_PROMETHEUS_ALERT_MANAGER == true ]] && echoColor "bold" "$(echoColor "blue" "Prometheus AlertManager domain:") ${VKPR_ENV_ALERT_MANAGER_DOMAIN}"
-  echoColor "bold" "$(echoColor "blue" "Ingress Controller:") ${VKPR_ENV_PROMETHEUS_INGRESS}"
+  info "VKPR Prometheus-Stack Install Routine"
+  notice "Grafana domain:" $VKPR_ENV_GRAFANA_DOMAIN
+  notice "Grafana password:" $VKPR_ENV_GRAFANA_PASSWORD
+  notice "Prometheus AlertManager enabled:" $VKPR_ENV_PROMETHEUS_ALERT_MANAGER
+  [[ $VKPR_ENV_PROMETHEUS_ALERT_MANAGER == true ]] && notice "Prometheus AlertManager domain:" $VKPR_ENV_ALERT_MANAGER_DOMAIN"
+  notice  "Ingress Controller:") ${VKPR_ENV_PROMETHEUS_INGRESS}"
   echo "=============================="
 }
 
@@ -44,7 +44,7 @@ addRepoPrometheusStack() {
 }
 
 installPrometheusStack() {
-  echoColor "bold" "$(echoColor "green" "Installing prometheus-stack...")"
+  info "Installing prometheus-stack..."
   local YQ_VALUES=".grafana.ingress.hosts[0] = \"$VKPR_ENV_GRAFANA_DOMAIN\" | .grafana.adminPassword = \"$VKPR_ENV_GRAFANA_PASSWORD\""
   settingStack
 
