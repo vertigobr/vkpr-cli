@@ -1,7 +1,7 @@
 #!/bin/bash
 
 runFormula() {
-  info "Removing Loki...")"
+  info "Removing Loki..."
   
   LOKI_NAMESPACE=$($VKPR_KUBECTL get po -A -l release=loki-stack,vkpr=true -o=yaml |\
                    $VKPR_YQ e ".items[].metadata.namespace" - |\
