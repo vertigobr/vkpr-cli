@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#!/bin/bash
-
 declare -Agr C=(
   [red]=$(echo -e '\033[31m')
   [green]=$(echo -e '\033[32m')
