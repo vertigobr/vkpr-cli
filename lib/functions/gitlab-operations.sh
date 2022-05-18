@@ -28,18 +28,18 @@ createOrUpdateVariable(){
 
   case $VARIABLE_RESPONSE_CODE in
     201)
-      echoColor yellow "Variable $PARAMETER_KEY created into ${EKS_CLUSTER_NAME} environment"
+      warn "Variable $PARAMETER_KEY created into ${EKS_CLUSTER_NAME} environment"
       ;;
     400)
-      # echoColor yellow "Variable $PARAMETER_KEY already exists, updating..."
+      # warn "Variable $PARAMETER_KEY already exists, updating..."
       updateVariable "$@"
       ;;
     401)
-      echoColor red "Unauthorized access to GitLab API"
+      error "Unauthorized access to GitLab API"
       exit 1
       ;;
     *)
-      echoColor red "Something wrong while saving $PARAMETER_KEY"
+      error "Something wrong while saving $PARAMETER_KEY"
       ;;
   esac
 }
@@ -74,9 +74,9 @@ updateVariable(){
   # echo "UPDATE_CODE= $UPDATE_CODE"  
 
   if [ "$UPDATE_CODE" == "200" ];then
-    echoColor green "$PARAMETER_KEY updated"
+    info "$PARAMETER_KEY updated"
   else
-    echoColor red "error while updating $PARAMETER_KEY, $UPDATE_CODE"
+    error "error while updating $PARAMETER_KEY, $UPDATE_CODE"
   fi
 }
 
@@ -93,7 +93,7 @@ createBranch(){
 
   local CREATE_BRANCH_CODE
 
-  echoColor green "Creating branch named $BRANCH_NAME or justing starting a new pipeline"
+  info "Creating branch named $BRANCH_NAME or justing starting a new pipeline"
   # echo "https://gitlab.com/api/v4/projects/${PROJECT_ID}/repository/branches?branch="$1"&ref=master"
   
   # Documentation: https://docs.gitlab.com/ee/api/branches.html#create-repository-branch
@@ -127,5 +127,5 @@ createPipeline(){
   )
   # echo "RESPONSE_PIPE: $RESPONSE_PIPE"
 
-  echoColor green "Pipeline url: $(echo "$RESPONSE_PIPE" | $VKPR_JQ -r '.web_url')"
+  info "Pipeline url: $(echo "$RESPONSE_PIPE" | $VKPR_JQ -r '.web_url')"
 }
