@@ -29,12 +29,12 @@ runFormula() {
 
 startInfos() {
   echo "=============================="
-  echoColor "bold" "$(echoColor "green" "VKPR Vault Install Routine")"
-  echoColor "bold" "$(echoColor "blue" "Vault UI Domain:") ${VKPR_ENV_VAULT_DOMAIN}"
-  echoColor "bold" "$(echoColor "blue" "Vault UI HTTPS:") ${VKPR_ENV_GLOBAL_SECURE}"
-  echoColor "bold" "$(echoColor "blue" "Ingress Controller:") ${VKPR_ENV_VAULT_INGRESS}"
-  echoColor "bold" "$(echoColor "blue" "Storage Mode:") ${VKPR_ENV_VAULT_MODE}"
-  echoColor "bold" "$(echoColor "blue" "Auto Unseal:") ${VKPR_ENV_VAULT_AUTO_UNSEAL}"
+  bold "$(info "VKPR Vault Install Routine")"
+  bold "$(notice "Vault UI Domain:") ${VKPR_ENV_VAULT_DOMAIN}"
+  bold "$(notice "Vault UI HTTPS:") ${VKPR_ENV_GLOBAL_SECURE}"
+  bold "$(notice "Ingress Controller:") ${VKPR_ENV_VAULT_INGRESS}"
+  bold "$(notice "Storage Mode:") ${VKPR_ENV_VAULT_MODE}"
+  bold "$(notice "Auto Unseal:") ${VKPR_ENV_VAULT_AUTO_UNSEAL}"
   echo "=============================="
 }
 
@@ -43,7 +43,7 @@ configureRepository() {
 }
 
 installVault() {
-  echoColor "bold" "$(echoColor "green" "Installing Vault...")"
+  bold "$(info "Installing Vault...")"
   local YQ_VALUES=".global.enabled = true"
   settingVault
 
@@ -53,7 +53,7 @@ installVault() {
     --wait -f - vault hashicorp/vault
   
   if [[ $($VKPR_KUBECTL get secret -n "$VKPR_ENV_VAULT_NAMESPACE" | grep vault-storage-config | cut -d " " -f1) != "vault-storage-config" ]]; then
-    echoColor "bold" "$(echoColor "green" "Creating storage config...")"
+    bold "$(info "Creating storage config...")"
     $VKPR_KUBECTL create secret generic vault-storage-config -n "$VKPR_ENV_VAULT_NAMESPACE" --from-file="$VKPR_VAULT_CONFIG" && \
       $VKPR_KUBECTL label secret vault-storage-config vkpr=true app.kubernetes.io/instance=vault -n "$VKPR_ENV_VAULT_NAMESPACE"
   fi
