@@ -12,25 +12,25 @@ checkGlobalConfig(){
         VALUES_LABEL_PATH=".$3" ENV_NAME="VKPR_ENV_$4"
 
   if [ "$INPUT_VALUE" != "$DEFAULT_INPUT_VALUE" ]; then
-    echoColor "yellow" "Setting value from input value"
+    warn "Setting value from input value"
     eval "$ENV_NAME"="$INPUT_VALUE"
     return
   fi
 
   if [ -f "$VKPR_FILE" ] && [ "$($VKPR_YQ eval "$VALUES_LABEL_PATH" "$VKPR_FILE")" != "null" ]; then
-    echoColor "yellow" "Setting value from config file"
+    warn "Setting value from config file"
     eval "$ENV_NAME"="$($VKPR_YQ eval "$VALUES_LABEL_PATH" "$VKPR_FILE")"
     return
   fi
 
   if printenv | grep -q "$ENV_NAME"; then
-    echoColor "yellow" "Setting value from env"
+    warn "Setting value from env"
     eval "$ENV_NAME"="$(printf '%s\n' "${!ENV_NAME}")"
     return
   fi
 
   if [ "$INPUT_VALUE" == "$DEFAULT_INPUT_VALUE" ]; then
-    echoColor "yellow" "Setting value from default value"
+    warn "Setting value from default value"
     eval "$ENV_NAME"="$INPUT_VALUE"
     return
   fi
@@ -113,7 +113,7 @@ registerHelmRepository(){
     echo "Adding repository $REPO_NAME"
     $VKPR_HELM repo add "$REPO_NAME" "$REPO_URL" --force-update
   else
-    echoColor green "Repository $REPO_NAME already configured."
+    info "Repository $REPO_NAME already configured."
   fi
   
 }
