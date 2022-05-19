@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 runFormula() {
   checkGlobalConfig "$HTTP_PORT" "8000" "infra.httpPort" "HTTP_PORT"
   checkGlobalConfig "$HTTPS_PORT" "8001" "infra.httpsPort" "HTTPS_PORT"
@@ -15,14 +16,15 @@ runFormula() {
 
 startInfos() {
   echo "=============================="
-  echoColor "bold" "$(echoColor "green" "VKPR Local Infra Start Routine")"
-  echoColor "bold" "$(echoColor "blue" "Enabled Traefik Ingress Controller:") ${VKPR_ENV_TRAEFIK}"
-  echoColor "bold" "$(echoColor "blue" "Ports Used:") :${VKPR_ENV_HTTP_PORT}/http :${VKPR_ENV_HTTPS_PORT}/https"
-  echoColor "bold" "$(echoColor "blue" "Kubernetes API:") :6443"
-  echoColor "bold" "$(echoColor "blue" "Local Registry:") :6000"
-  echoColor "bold" "$(echoColor "blue" "Docker Hub Registry Mirror (cache):") :6001"
-  echoColor "bold" "$(echoColor "yellow" "Using two local unamed Docker Volumes")"
+  info "VKPR Local Infra Start Routine"
+  notice "Enabled Traefik Ingress Controller: ${VKPR_ENV_TRAEFIK}"
+  notice "Ports Used: ${VKPR_ENV_HTTP_PORT}/http :${VKPR_ENV_HTTPS_PORT}/https"
+  notice "Kubernetes API: 6443"
+  notice "Local Registry: 6000"
+  notice "Docker Hub Registry Mirror (cache): 6001"
+  warn "Using two local unamed Docker Volumes"
   echo "=============================="
+  
 }
 
 configRegistry() {
@@ -41,13 +43,13 @@ startRegistry() {
   if ! ${VKPR_K3D} registry list | grep -q "k3d-registry\.localhost"; then
     ${VKPR_K3D} registry create registry.localhost -p 6000
   else
-    echoColor "yellow" "Registry already started, skipping..."
+    warn "Registry already started, skipping..."
   fi
 
   if ! ${VKPR_K3D} registry list | grep -q "k3d-mirror\.localhost"; then
     ${VKPR_K3D} registry create mirror.localhost -i vertigo/registry-mirror -p 6001
   else
-    echoColor "yellow" "Mirror already started, skipping..."
+    warn "Mirror already started, skipping..."
   fi
 }
 
@@ -75,7 +77,7 @@ startCluster() {
       --registry-config "${VKPR_CONFIG}"/registry.yaml
   ${VKPR_KUBECTL} config use-context k3d-vkpr-local
   else
-    echoColor "bold" "$(echoColor "red" "Cluster vkpr-local already created.")"
+    error "Cluster vkpr-local already created."
   fi
 
   ${VKPR_KUBECTL} cluster-info

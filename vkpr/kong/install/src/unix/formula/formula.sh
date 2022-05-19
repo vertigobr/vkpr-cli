@@ -30,11 +30,11 @@ runFormula() {
 
 startInfos() {
   echo "=============================="
-  echoColor "bold" "$(echoColor "green" "VKPR Kong Install Routine")"
-  echoColor "bold" "$(echoColor "blue" "Kong HTTPS:") ${VKPR_ENV_GLOBAL_SECURE}"
-  echoColor "bold" "$(echoColor "blue" "Kong Domain:") ${VKPR_ENV_GLOBAL_DOMAIN}"
-  echoColor "bold" "$(echoColor "blue" "Kong HA:") ${VKPR_ENV_KONG_HA}"
-  echoColor "bold" "$(echoColor "blue" "Kong Mode:") ${VKPR_ENV_KONG_DEPLOY}"
+  info "VKPR Kong Install Routine"
+  notice "Kong HTTPS: ${VKPR_ENV_GLOBAL_SECURE}"
+  notice "Kong Domain: ${VKPR_ENV_GLOBAL_DOMAIN}"
+  notice "Kong HA: ${VKPR_ENV_KONG_HA}"
+  notice "Kong Mode: ${VKPR_ENV_KONG_DEPLOY}"
   echo "=============================="
 }
 
@@ -70,7 +70,7 @@ addDependencies(){
 }
 
 createKongSecrets() {
-  echoColor "green" "Creating the Kong Secrets..."
+  info "Creating the Kong Secrets..."
   $VKPR_KUBECTL create ns "$VKPR_ENV_KONG_NAMESPACE" 2> /dev/null
 
   [[ "$LICENSE" == " " ]] && LICENSE="license"
@@ -105,11 +105,11 @@ installDB(){
   [[ $VKPR_ENV_KONG_HA == true ]] && PG_HA="true"
 
   if [[ $(checkPodName "$VKPR_ENV_POSTGRESQL_NAMESPACE" "postgres-postgresql") != "true" ]]; then
-    echoColor "green" "Initializing postgresql to Kong"
+    info "Initializing postgresql to Kong"
     [[ -f $CURRENT_PWD/vkpr.yaml ]] && cp "$CURRENT_PWD"/vkpr.yaml "$(dirname "$0")"
     rit vkpr postgres install --HA=$PG_HA --dry_run=$DRY_RUN --default
   else
-    echoColor "green" "Initializing Kong with Postgres already created"
+    info "Initializing Kong with Postgres already created"
   fi
 }
 
@@ -125,14 +125,13 @@ installKong(){
       VKPR_KONG_VALUES="$(dirname "$0")"/utils/kong-dbless.yaml
     ;;
   esac
-
   settingKongDefaults
 
   if [[ $DRY_RUN == true ]]; then
     echoColor "bold" "---"
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_KONG_VALUES"
   else
-    echoColor "bold" "$(echoColor "green" "Installing Kong...")"
+    info "Installing Kong..."
     $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_KONG_VALUES"
     mergeVkprValuesHelmArgs "kong" "$VKPR_KONG_VALUES"
     $VKPR_HELM upgrade -i --version "$VKPR_KONG_VERSION" \
@@ -153,7 +152,7 @@ installKongDP() {
     echoColor "bold" "---"
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_KONG_DP_VALUES"
   else
-    echoColor "bold" "$(echoColor "green" "Installing Kong DP in cluster...")"
+    info "Installing Kong DP in cluster..."
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_KONG_DP_VALUES" \
     | $VKPR_HELM upgrade -i --version "$VKPR_KONG_VERSION" \
       --namespace kong --create-namespace \

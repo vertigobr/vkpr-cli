@@ -20,9 +20,9 @@ runFormula() {
 
 startInfos() {
   echo "=============================="
-  echoColor "bold" "$(echoColor "green" "VKPR Postgresql Install Routine")"
-  echoColor "bold" "$(echoColor "blue" "Postgresql Password:") ${PASSWORD}"
-  echoColor "bold" "$(echoColor "blue" "HA:") ${VKPR_ENV_POSTGRESQL_HA}"
+  info "VKPR Postgresql Install Routine"
+  notice "Postgresql Password: ${PASSWORD}"
+  notice "HA: ${VKPR_ENV_POSTGRESQL_HA}"
   echo "=============================="
 }
 
@@ -39,7 +39,7 @@ installPostgres(){
     echoColor "bold" "---"
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_POSTGRES_VALUES"
   else
-    echoColor "bold" "$(echoColor "green" "Installing Postgresql...")"
+    info "Installing Postgresql..."
     $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_POSTGRES_VALUES"
     mergeVkprValuesHelmArgs "postgresql" "$VKPR_POSTGRES_VALUES"
     $VKPR_HELM upgrade -i --version "$VKPR_POSTGRES_VERSION" \

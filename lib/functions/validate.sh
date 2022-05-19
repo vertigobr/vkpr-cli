@@ -8,7 +8,7 @@ validateAwsSecretKey() {
   if [[ "$1" =~ ^([a-zA-Z0-9+/]{40})$ ]]; then
     return
     else
-    echoColor "red" "Invalid AWS Secret Key, fix the credential with the command $(echoColor "bold" "rit set credential")."
+    error "Invalid AWS Secret Key, fix the credential with the command $(bold "rit set credential")."
     exit
   fi
 }
@@ -17,7 +17,7 @@ validateAwsAccessKey() {
   if [[ "$1" =~ ^([A-Z0-9]{20})$ ]]; then
     return
     else
-    echoColor "red" "Invalid AWS Access Key, fix the credential with the command $(echoColor "bold" "rit set credential")."
+    error "Invalid AWS Access Key, fix the credential with the command $(bold "rit set credential")."
     exit
   fi
 }
@@ -26,7 +26,7 @@ validateAwsRegion() {
   if [[ "$1" =~ ^([a-z]+-)([a-z]+-)[1-3]$ ]]; then
     return
     else
-    echoColor "red" "Invalid AWS Region, fix the credential with the command $(echoColor "bold" "rit set credential")."
+    error "Invalid AWS Region, fix the credential with the command $(bold "rit set credential")."
     exit
   fi
 }
@@ -39,7 +39,7 @@ validateDigitalOceanApiToken() {
   if [[ "$1" =~ ^([a-z]+_v1_[A-Za-z0-9]{64})$ ]]; then
     return
     else
-    echoColor "red" "Invalid Digital Ocean API Token, fix the credential with the command $(echoColor "bold" "rit set credential")."
+    error "Invalid Digital Ocean API Token, fix the credential with the command $(bold "rit set credential")."
     exit
   fi
 }
@@ -56,7 +56,7 @@ validateGitlabToken() {
   if [[ "$1" =~ ^([A-Za-z0-9-]{26})$ ]]; then
     return
     else
-    echoColor "red" "Invalid Gitlab Access Token, fix the credential with the command $(echoColor "bold" "rit set credential")."
+    error "Invalid Gitlab Access Token, fix the credential with the command $(bold "rit set credential")."
     exit
   fi
 }
@@ -65,7 +65,7 @@ validateGitlabUsername() {
   if [[ "$1" =~ ^([A-Za-z0-9-]+)$ ]]; then
     return
     else
-    echoColor "red" "Invalid Gitlab Username, fix the credential with the command $(echoColor "bold" "rit set credential")."
+    error "Invalid Gitlab Username, fix the credential with the command $(bold "rit set credential")."
     exit
   fi
 }
@@ -78,7 +78,7 @@ validateTFCloudToken() {
   if [[ "$1" =~ ^([A-Za-z0-9]{14})\.(atlasv1)\.([A-Za-z0-9]{67})$ ]]; then
     return
     else
-    echoColor "red" "Invalid Terraform API Token, fix the credential with the command $(echoColor "bold" "rit set credential")."
+    error "Invalid Terraform API Token, fix the credential with the command $(bold "rit set credential")."
     exit
   fi
 }
@@ -92,7 +92,7 @@ validatePostgresqlPassword() {
   if [[ "$1" =~ ^([A-Za-z0-9-]{7,})$ ]]; then
     return
     else
-    echoColor "red" "Week Postgresql Password, we recommend change the credential with the command $(echoColor "bold" "rit set credential")."
+    error "Week Postgresql Password, we recommend change the credential with the command $(bold "rit set credential")."
   fi
 }
 

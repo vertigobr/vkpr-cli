@@ -24,22 +24,22 @@ createOrUpdateVariable(){
     head -n 1 |\
     awk -F' ' '{print $2}'
   )
-  # echo "VARIABLE_RESPONSE_CODE = $VARIABLE_RESPONSE_CODE"
+  debug "VARIABLE_RESPONSE_CODE = $VARIABLE_RESPONSE_CODE"
 
   case $VARIABLE_RESPONSE_CODE in
     201)
-      echoColor yellow "Variable $PARAMETER_KEY created into ${ENVIRONMENT_SCOPE} environment"
+      warn "Variable $PARAMETER_KEY created into ${EKS_CLUSTER_NAME} environment"
       ;;
     400)
-      # echoColor yellow "Variable $PARAMETER_KEY already exists, updating..."
+      warn "Variable $PARAMETER_KEY already exists, updating..."
       updateVariable "$@"
       ;;
     401)
-      echoColor red "Unauthorized access to GitLab API"
+      error "Unauthorized access to GitLab API"
       exit 1
       ;;
     *)
-      echoColor red "Something wrong while saving $PARAMETER_KEY"
+      error "Something wrong while saving $PARAMETER_KEY"
       ;;
   esac
 }
@@ -71,12 +71,12 @@ updateVariable(){
     head -n 1 |\
     awk -F' ' '{print "$2"}'
   )
-  # echo "UPDATE_CODE= $UPDATE_CODE"  
+  debug "UPDATE_CODE= $UPDATE_CODE"
 
   if [ "$UPDATE_CODE" == "200" ];then
-    echoColor green "$PARAMETER_KEY updated"
+    info "$PARAMETER_KEY updated"
   else
-    echoColor red "error while updating $PARAMETER_KEY, $UPDATE_CODE"
+    error "error while updating $PARAMETER_KEY, $UPDATE_CODE"
   fi
 }
 
@@ -93,17 +93,17 @@ createBranch(){
 
   local CREATE_BRANCH_CODE
 
-  echoColor green "Creating branch named $BRANCH_NAME or justing starting a new pipeline"
-  # echo "https://gitlab.com/api/v4/projects/${PROJECT_ENCODED}/repository/branches?branch="$1"&ref=master"
-  
+  info "Creating branch named $BRANCH_NAME or justing starting a new pipeline"
+  debug "https://gitlab.com/api/v4/projects/${PROJECT_ID}/repository/branches?branch="$1"&ref=master"
+
   # Documentation: https://docs.gitlab.com/ee/api/branches.html#create-repository-branch
   CREATE_BRANCH_CODE=$(curl -siX POST -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
     "https://gitlab.com/api/v4/projects/${PROJECT_ENCODED}/repository/branches?branch=$BRANCH_NAME&ref=master" |\
     head -n 1 |\
     awk -F' ' '{print "$2"}'
   )
-  # echo "CREATE_BRANCH_CODE: $CREATE_BRANCH_CODE"
-  
+  debug "CREATE_BRANCH_CODE: $CREATE_BRANCH_CODE"
+
   if [ "$CREATE_BRANCH_CODE" == "400" ];then
     createPipeline "$@"
   fi
@@ -125,9 +125,9 @@ createPipeline(){
   RESPONSE_PIPE=$(curl -sX POST -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
     "https://gitlab.com/api/v4/projects/${PROJECT_ENCODED}/pipeline?ref=$BRANCH_NAME"
   )
-  # echo "RESPONSE_PIPE: $RESPONSE_PIPE"
+  debug "RESPONSE_PIPE: $RESPONSE_PIPE"
 
-  echoColor green "Pipeline url: $(echo "$RESPONSE_PIPE" | $VKPR_JQ -r '.web_url')"
+  info "Pipeline url: $(echo "$RESPONSE_PIPE" | $VKPR_JQ -r '.web_url')"
 }
 
 # -----------------------------------------------------------------------------
@@ -140,7 +140,7 @@ waitJobComplete(){
         JOB_COMPLETE="$3" \
         GITLAB_TOKEN="$4" \
         JOB_TYPE="$5" # 0- Destroy | 1- Deploy | 2- Build | 3- Validate | 4- Init
-  
+
   SECONDS=0
   while [[ "$JOB_COMPLETE" != "success" ]]; do
     [[ "$JOB_COMPLETE" == "failed" ]] && break

@@ -17,14 +17,20 @@ export C
 log() {
   local TOTERM=${1:-}
   local MESSAGE=${2:-}
-  echo -e "${MESSAGE:-}"
+  echo -e "${MESSAGE:-}" | (
+    if [[ ${TOTERM} == true ]] ; then
+      tee -a >&2
+    fi
+  )
 }
 
-info() { log "${LOG_VERBOSE:-}" "${C[green]}$*${NC}"; }
-notice() { log "${LOG_NOTICE:-}" "${C[blue]}$*${NC}"; }
-warn() { log "${LOG_WARN:-}" "${C[yellow]}$*${NC}"; }
-error() { log "${LOG_ERROR:-}" "${C[red]}$*${NC}"; }
+info() { log "true" "${C[green]}$*${NC}"; }
+bold() { log "true" "${C[bold]}$*${NC}"; }
+notice() { log "true" "${C[blue]}$*${NC}"; }
+error() { log "true" "${C[red]}$*${NC}"; }
+warn() { log "${LOG_DEBUG:-}" "${C[yellow]}$*${NC}"; }
 debug() { log "${LOG_DEBUG:-}" "${C[red]}${C[red]}[DEBUG]${NC} $*${NC}"; }
+
 
 echoColor() {
   case $1 in

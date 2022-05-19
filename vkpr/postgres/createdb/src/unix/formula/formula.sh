@@ -8,7 +8,7 @@ runFormula() {
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "postgresql.namespace" "POSTGRESQL_NAMESPACE"
 
 
-  echoColor "bold" "$(echoColor "green" "Creating database $DBNAME in postgresql...")"
+  info "Creating database $DBNAME in postgresql..."
 
   local PG_PASSWORD; PG_PASSWORD=$($VKPR_JQ -r '.credential.password' ~/.rit/credentials/default/postgres)
   local PG_HOST; PG_HOST="postgres-postgresql"
@@ -22,6 +22,6 @@ runFormula() {
       --command -- psql -c '\x' -c "CREATE USER $DBUSER WITH ENCRYPTED PASSWORD '$DBPASSWORD';" \
                     -c "CREATE DATABASE $DBNAME;" -c "GRANT ALL PRIVILEGES ON DATABASE $DBNAME TO $DBUSER"
     else
-    echoColor "red" "Error, Postgresql doesn't up or installed yet"
+    error "Error, Postgresql doesn't up or installed yet"
   fi
 }

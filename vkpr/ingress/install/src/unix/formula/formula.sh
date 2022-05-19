@@ -19,7 +19,7 @@ runFormula() {
 
 startInfos() {
   echo "=============================="
-  echoColor "bold" "$(echoColor "green" "VKPR Ingress Install Routine")"
+  info "VKPR Ingress Install Routine"
   echo "=============================="
 }
 
@@ -35,7 +35,7 @@ installIngress() {
     echoColor "bold" "---"
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_INGRESS_VALUES"
   else
-    echoColor "bold" "$(echoColor "green" "Installing ngnix ingress...")"
+    info "Installing ngnix ingress..."
     $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_INGRESS_VALUES"
     mergeVkprValuesHelmArgs "ingress" "$VKPR_INGRESS_VALUES"
     $VKPR_HELM upgrade -i --version "$VKPR_INGRESS_NGINX_VERSION" \
