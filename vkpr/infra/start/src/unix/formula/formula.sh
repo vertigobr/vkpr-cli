@@ -53,15 +53,21 @@ startRegistry() {
 
 # Starts K8S using Registries
 startCluster() {
-  local TRAEFIK_FLAG=""
+  local TRAEFIK_FLAG="" \
+    VOLUME_FLAG=""
 
   if [ "${ENABLE_TRAEFIK}" == false ]; then
     TRAEFIK_FLAG="--disable=traefik@server:0"
   fi
 
+  if [ "$ENABLE_VOLUME" == true ]; then
+    mkdir -p /tmp/k3dvol
+    VOLUME_FLAG="/tmp/k3dvol:/tmp/k3dvol"
+  fi
+
   if ! ${VKPR_K3D} cluster list | grep -q "vkpr-local"; then
     ${VKPR_K3D} cluster create vkpr-local \
-      -s "${VKPR_ENV_K3D_SERVERS}" -a "${VKPR_ENV_K3D_AGENTS}" \
+      -s "${VKPR_ENV_K3D_SERVERS}" -a "${VKPR_ENV_K3D_AGENTS}" --volume="${VOLUME_FLAG}" \
       -p "${VKPR_ENV_HTTP_PORT}:80@loadbalancer" \
       -p "${VKPR_ENV_HTTPS_PORT}:443@loadbalancer" \
       --k3s-arg "${TRAEFIK_FLAG}" \
