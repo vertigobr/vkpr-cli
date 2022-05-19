@@ -9,11 +9,13 @@ runFormula() {
   
   # App values
   checkGlobalConfig "$ALERTMANAGER" "false" "prometheus-stack.alertManager.enabled" "PROMETHEUS_ALERT_MANAGER"
-  checkGlobalConfig "$HA" "false" "prometheus-stack.alertmanager.HA" "PROMETHEUS_ALERT_MANAGER_HA"
+  checkGlobalConfig "$HA" "false" "prometheus-stack.alertManager.HA" "PROMETHEUS_ALERT_MANAGER_HA"
   checkGlobalConfig "$GRAFANA_PASSWORD" "vkpr123" "prometheus-stack.grafana.adminPassword" "GRAFANA_PASSWORD"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS" "$VKPR_ENV_GLOBAL_INGRESS" "prometheus-stack.ingressClassName" "PROMETHEUS_INGRESS"
   checkGlobalConfig "true" "true" "prometheus-stack.grafana.k8sExporters" "PROMETHEUS_STACK_K8S_EXPORTERS"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "PROMETHEUS_STACK_NAMESPACE"
+  checkGlobalConfig "false" "false" "prometheus-stack.grafana.persistance" "GRAFANA_PERSISTANCE"
+  checkGlobalConfig "false" "false" "prometheus-stack.prometheus.persistance" "PROMETHEUS_PERSISTANCE"
   
   # External app values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "loki.namespace" "LOKI_NAMESPACE"
@@ -75,6 +77,20 @@ settingStack() {
         .alertmanager.ingress.tls[0].secretName = \"alertmanager-cert\"
       "
     fi
+  fi
+
+  if [[ "$VKPR_ENV_GRAFANA_PERSISTANCE" == true ]]; then
+    YQ_VALUES="$YQ_VALUES |
+      .grafana.persistence.enabled = true |
+      .grafana.persistence.size = \"8Gi\"
+    "
+  fi
+
+  if [[ "$VKPR_ENV_PROMETHEUS_PERSISTANCE" == true ]]; then
+    YQ_VALUES="$YQ_VALUES |
+      .prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.accessModes[0] = \"ReadWriteOnce\" |
+      .prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage = \"8Gi\"
+    "
   fi
 
   if [[ "$VKPR_ENV_PROMETHEUS_ALERT_MANAGER" == true ]]; then
