@@ -1,0 +1,47 @@
+{
+  "inputs": [
+    {
+      "label": "Bitbucket Project Name:(account/project)",
+      "name": "project_name",
+      "type": "text",
+      "cache": {
+        "active": true,
+        "qty": 10,
+        "newLabel": "Type another bitbucket project name: "
+      }
+    },
+    {
+      "label": "Parameter Name:",
+      "name": "parameter_name",
+      "type": "text",
+      "required": true
+    },
+    {
+      "label": "Parameter Value:",
+      "name": "parameter_value",
+      "type": "text",
+      "required": true
+    },
+    {
+      "label": "Parameter Masked:",
+      "name": "parameter_masked",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "true",
+        "false"
+      ],
+      "required": true
+    },
+    {
+      "name": "bitbucket_username",
+      "type": "CREDENTIAL_BITBUCKET_USERNAME"
+    },
+    {
+      "name": "bitbucket_token",
+      "type": "CREDENTIAL_BITBUCKET_TOKEN"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease": "2.17.0"
+}
