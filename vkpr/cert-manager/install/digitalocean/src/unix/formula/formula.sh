@@ -13,6 +13,8 @@ runFormula() {
   local VKPR_ISSUER_VALUES; VKPR_ISSUER_VALUES="$(dirname "$0")"/utils/issuer.yaml
   local VKPR_CERT_MANAGER_VALUES; VKPR_CERT_MANAGER_VALUES="$(dirname "$0")"/utils/cert-manager.yaml
 
+  [[ $DRY_RUN == true ]] && DRY_RUN_FLAGS="--dry-run=client -o yaml"
+
   startInfos
   installCRDS
   addCertManager
@@ -38,18 +40,22 @@ addCertManager() {
 }
 
 installCertManager() {
-  echoColor "bold" "$(echoColor "green" "Installing cert-manager...")"
   local YQ_VALUES=".ingressShim.defaultIssuerName = \"certmanager-issuer\" | .clusterResourceNamespace = \"$VKPR_ENV_CERT_MANAGER_NAMESPACE\""
 
-  $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_CERT_MANAGER_VALUES"
-  mergeVkprValuesHelmArgs "cert-manager" "$VKPR_CERT_MANAGER_VALUES"
-  $VKPR_HELM upgrade -i --version "$VKPR_CERT_VERSION" \
-    -n "$VKPR_ENV_CERT_MANAGER_NAMESPACE" --create-namespace \
-    --wait -f "$VKPR_CERT_MANAGER_VALUES" cert-manager jetstack/cert-manager
+  if [[ $DRY_RUN == true ]]; then
+    echoColor "bold" "---"
+    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_CERT_MANAGER_VALUES"
+  else
+    echoColor "bold" "$(echoColor "green" "Installing cert-manager...")"
+    $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_CERT_MANAGER_VALUES"
+    mergeVkprValuesHelmArgs "cert-manager" "$VKPR_CERT_MANAGER_VALUES"
+    $VKPR_HELM upgrade -i --version "$VKPR_CERT_VERSION" \
+      -n "$VKPR_ENV_CERT_MANAGER_NAMESPACE" --create-namespace \
+      --wait -f "$VKPR_CERT_MANAGER_VALUES" cert-manager jetstack/cert-manager
+  fi
 }
 
 installIssuer() {
-  echoColor "bold" "$(echoColor "green" "Installing Issuers and/or ClusterIssuers...")"
   local YQ_ISSUER_VALUES=".spec.acme.email = \"$VKPR_ENV_CERT_MANAGER_EMAIL\" | .metadata.namespace = \"$VKPR_ENV_CERT_MANAGER_NAMESPACE\""
 
   case "$VKPR_ENV_CERT_MANAGER_ISSUER" in
@@ -68,8 +74,14 @@ installIssuer() {
   esac
   settingIssuer
 
-  $VKPR_YQ eval "$YQ_ISSUER_VALUES" "$VKPR_ISSUER_VALUES" \
-  | $VKPR_KUBECTL apply -f -
+  if [[ $DRY_RUN == true ]]; then
+    echoColor "bold" "---"
+    $VKPR_YQ eval "$YQ_ISSUER_VALUES" "$VKPR_ISSUER_VALUES"
+  else
+    echoColor "bold" "$(echoColor "green" "Installing Issuers and/or ClusterIssuers...")"
+    $VKPR_YQ eval "$YQ_ISSUER_VALUES" "$VKPR_ISSUER_VALUES" \
+    | $VKPR_KUBECTL apply -f -
+  fi
 }
 
 settingIssuer() {
@@ -89,8 +101,9 @@ configureDNS01() {
   local DO_TOKEN; DO_TOKEN=$($VKPR_JQ -r .credential.token ~/.rit/credentials/default/digitalocean)
   validateDigitalOceanApiToken "$DO_TOKEN"
 
-  $VKPR_KUBECTL create secret generic digitalocean-secret -n $VKPR_ENV_CERT_MANAGER_NAMESPACE --from-literal="access-token=$DO_TOKEN"
-  $VKPR_KUBECTL label secret digitalocean-secret -n $VKPR_ENV_CERT_MANAGER_NAMESPACE vkpr=true app.kubernetes.io/instance=cert-manager
+  echoColor "bold" "$(echoColor "green" "Setting DO secret...")"
+  $VKPR_KUBECTL create secret generic digitalocean-secret -n $VKPR_ENV_CERT_MANAGER_NAMESPACE --from-literal="access-token=$DO_TOKEN" $DRY_RUN_FLAGS
+  $VKPR_KUBECTL label secret digitalocean-secret -n $VKPR_ENV_CERT_MANAGER_NAMESPACE vkpr=true app.kubernetes.io/instance=cert-manager 2> /dev/null
 
   YQ_ISSUER_VALUES="$YQ_ISSUER_VALUES |
     .spec.acme.solvers[0].dns01.digitalocean.tokenSecretRef.name = \"digitalocean-secret\" |

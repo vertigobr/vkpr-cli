@@ -43,6 +43,17 @@
       ]
     },
     {
+      "tutorial": "Specifies if output the values from the application.",
+      "label": "Dry-run ?",
+      "name": "dry_run",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "true",
+        "false"
+      ]
+    },
+    {
       "tutorial": "Specifies the AWS Access Key Credential.",
       "condition": {
         "variable": "vault_auto_unseal",

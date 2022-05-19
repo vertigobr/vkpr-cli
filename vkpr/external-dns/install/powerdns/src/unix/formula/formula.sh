@@ -28,13 +28,15 @@ addRepoExternalDNS() {
 }
 
 installExternalDNS() {
-  if [[ ! -f $RIT_CREDENTIALS_PATH/$PROVIDER ]]; then
-    echoColor "red" "Doesn't exists credential $PROVIDER to use in formula, create her or use the provider flag."
+  echoColor "bold" "$(echoColor "green" "Installing External-DNS PowerDNS...")"
+  local YQ_VALUES=".rbac.create = true"
+  settingExternalDNS
+
+  if [[ $DRY_RUN == true ]]; then
+    echoColor "bold" "---"
+    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_EXTERNAL_DNS_VALUES"
   else
     echoColor "bold" "$(echoColor "green" "Installing External-DNS PowerDNS...")"
-    local YQ_VALUES=".rbac.create = true"
-    settingExternalDNS
-
     $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_EXTERNAL_DNS_VALUES"
     mergeVkprValuesHelmArgs "external-dns" "$VKPR_EXTERNAL_DNS_VALUES"
     $VKPR_HELM upgrade -i --version "$VKPR_EXTERNAL_DNS_VERSION" \

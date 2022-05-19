@@ -30,11 +30,17 @@ installExternalDNS() {
   local YQ_VALUES=".rbac.create = true"
   settingExternalDNS
 
-  $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_EXTERNAL_DNS_VALUES"
-  mergeVkprValuesHelmArgs "external-dns" "$VKPR_EXTERNAL_DNS_VALUES"
-  $VKPR_HELM upgrade -i --version "$VKPR_EXTERNAL_DNS_VERSION" \
-    --namespace "$VKPR_ENV_EXTERNAL_DNS_NAMESPACE" --create-namespace \
-    --wait -f "$VKPR_EXTERNAL_DNS_VALUES" external-dns bitnami/external-dns
+  if [[ $DRY_RUN == true ]]; then
+    echoColor "bold" "---"
+    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_EXTERNAL_DNS_VALUES"
+  else
+    echoColor "bold" "$(echoColor "green" "Installing External-DNS AWS...")"
+    $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_EXTERNAL_DNS_VALUES"
+    mergeVkprValuesHelmArgs "external-dns" "$VKPR_EXTERNAL_DNS_VALUES"
+    $VKPR_HELM upgrade -i --version "$VKPR_EXTERNAL_DNS_VERSION" \
+      --namespace "$VKPR_ENV_EXTERNAL_DNS_NAMESPACE" --create-namespace \
+      --wait -f "$VKPR_EXTERNAL_DNS_VALUES" external-dns bitnami/external-dns
+  fi
 }
 
 

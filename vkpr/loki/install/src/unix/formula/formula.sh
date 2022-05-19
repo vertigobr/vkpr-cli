@@ -17,7 +17,6 @@ runFormula() {
   startInfos
   addRepLoki
   installLoki
-  existGrafana
 }
 
 startInfos() {
@@ -31,15 +30,21 @@ addRepLoki(){
 }
 
 installLoki(){
-  echoColor "bold" "$(echoColor "green" "Installing Loki...")"
   local YQ_VALUES=".grafana.enabled = false"
   settingLoki
 
-  $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_LOKI_VALUES"
-  mergeVkprValuesHelmArgs "loki" "$VKPR_LOKI_VALUES"
-  $VKPR_HELM upgrade -i --version "$VKPR_LOKI_VERSION" \
-    --namespace "$VKPR_ENV_LOKI_NAMESPACE" --create-namespace \
-    --wait -f "$VKPR_LOKI_VALUES" loki-stack grafana/loki-stack
+  if [[ $DRY_RUN == true ]]; then
+    echoColor "bold" "---"
+    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_LOKI_VALUES"
+  else
+    echoColor "bold" "$(echoColor "green" "Installing Loki...")"
+    $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_LOKI_VALUES"
+    mergeVkprValuesHelmArgs "loki" "$VKPR_LOKI_VALUES"
+    $VKPR_HELM upgrade -i --version "$VKPR_LOKI_VERSION" \
+      --namespace "$VKPR_ENV_LOKI_NAMESPACE" --create-namespace \
+      --wait -f "$VKPR_LOKI_VALUES" loki-stack grafana/loki-stack
+    existGrafana
+  fi
 }
 
 settingLoki() {

@@ -21,6 +21,8 @@ runFormula() {
 
   local VKPR_VAULT_VALUES; VKPR_VAULT_VALUES=$(dirname "$0")/utils/vault.yaml
   local VKPR_VAULT_CONFIG; VKPR_VAULT_CONFIG=$(dirname "$0")/utils/config.hcl
+
+  [[ $DRY_RUN == true ]] && DRY_RUN_FLAGS="--dry-run=client -o yaml"
   
   startInfos
   configureRepository
@@ -43,20 +45,25 @@ configureRepository() {
 }
 
 installVault() {
-  echoColor "bold" "$(echoColor "green" "Installing Vault...")"
   local YQ_VALUES=".global.enabled = true"
   settingVault
-
-  $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_VAULT_VALUES"
-  mergeVkprValuesHelmArgs "vault" "$VKPR_VAULT_VALUES"
-  $VKPR_HELM upgrade -i --version "$VKPR_VAULT_VERSION" \
-    --namespace "$VKPR_ENV_VAULT_NAMESPACE" --create-namespace \
-    --wait -f "$VKPR_VAULT_VALUES" vault hashicorp/vault
   
+  if [[ $DRY_RUN == true ]]; then
+    echoColor "bold" "---"
+    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_VAULT_VALUES"
+  else
+    echoColor "bold" "$(echoColor "green" "Installing Vault...")"
+    $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_VAULT_VALUES"
+    mergeVkprValuesHelmArgs "vault" "$VKPR_VAULT_VALUES"
+    $VKPR_HELM upgrade -i --version "$VKPR_VAULT_VERSION" \
+      --namespace "$VKPR_ENV_VAULT_NAMESPACE" --create-namespace \
+      --wait -f "$VKPR_VAULT_VALUES" vault hashicorp/vault
+  fi
+
   if [[ $($VKPR_KUBECTL get secret -n "$VKPR_ENV_VAULT_NAMESPACE" | grep vault-storage-config | cut -d " " -f1) != "vault-storage-config" ]]; then
     echoColor "bold" "$(echoColor "green" "Creating storage config...")"
-    $VKPR_KUBECTL create secret generic vault-storage-config -n "$VKPR_ENV_VAULT_NAMESPACE" --from-file="$VKPR_VAULT_CONFIG" && \
-      $VKPR_KUBECTL label secret vault-storage-config vkpr=true app.kubernetes.io/instance=vault -n "$VKPR_ENV_VAULT_NAMESPACE"
+    $VKPR_KUBECTL create secret generic vault-storage-config -n "$VKPR_ENV_VAULT_NAMESPACE" --from-file="$VKPR_VAULT_CONFIG" $DRY_RUN_FLAGS && \
+      $VKPR_KUBECTL label secret vault-storage-config vkpr=true app.kubernetes.io/instance=vault -n "$VKPR_ENV_VAULT_NAMESPACE" 2> /dev/null || true
   fi
 }
 
@@ -105,6 +112,7 @@ settingVault() {
         validateAwsAccessKey "$AWS_ACCESS_KEY"
         validateAwsSecretKey "$AWS_SECRET_KEY"
         validateAwsRegion "$AWS_REGION"
+        echoColor "bold" "$(echoColor "green" "Setting AWS secret...")"
         $VKPR_YQ eval ".metadata.name = \"aws-unseal-vault\" |
           .metadata.namespace = \"$VKPR_ENV_VAULT_NAMESPACE\" |
           .data.AWS_ACCESS_KEY = \"$(echo -n "$AWS_ACCESS_KEY" | base64)\" |
@@ -112,7 +120,7 @@ settingVault() {
           .data.AWS_REGION = \"$(echo -n "$AWS_REGION" | base64)\" |
           .data.VAULT_AWSKMS_SEAL_KEY_ID = \"$(echo -n "$($VKPR_JQ -r .credential.kmskeyid $RIT_CREDENTIALS_PATH/aws)" | base64)\" |
           .data.AWS_KMS_ENDPOINT = \"$(echo -n "kms.$AWS_REGION.amazonaws.com" | base64)\"
-        " "$(dirname "$0")"/utils/auto-unseal.yaml | $VKPR_KUBECTL apply -f -
+        " "$(dirname "$0")"/utils/auto-unseal.yaml | $VKPR_KUBECTL apply -f - $DRY_RUN_FLAGS
         ;;
       azure)
         YQ_VALUES="$YQ_VALUES |
@@ -133,6 +141,7 @@ settingVault() {
           .server.extraSecretEnvironmentVars[4].secretName = \"azure-unseal-vault\" |
           .server.extraSecretEnvironmentVars[4].secretKey = \"VAULT_AZUREKEYVAULT_KEY_NAME\"
         "
+        echoColor "bold" "$(echoColor "green" "Setting Azure secret...")"
         $VKPR_YQ eval ".metadata.name = \"azure-unseal-vault\" |
           .metadata.namespace = \"$VKPR_ENV_VAULT_NAMESPACE\" |
           .data.AZURE_TENANT_ID = \"$(echo -n "$($VKPR_JQ -r .credential.azuretenantid $RIT_CREDENTIALS_PATH/azure)" | base64)\" |
@@ -140,7 +149,7 @@ settingVault() {
           .data.AZURE_CLIENT_SECRET = \"$(echo -n "$($VKPR_JQ -r .credential.azureclientsecret $RIT_CREDENTIALS_PATH/azure)" | base64)\" |
           .data.VAULT_AZUREKEYVAULT_VAULT_NAME = \"$(echo -n "$($VKPR_JQ -r .credential.vaultazurekeyvaultvaultname $RIT_CREDENTIALS_PATH/azure)" | base64)\" |
           .data.VAULT_AZUREKEYVAULT_KEY_NAME = \"$(echo -n "$($VKPR_JQ -r .credential.vaultazurekeyvaultkeyname $RIT_CREDENTIALS_PATH/azure)" | base64)\"
-        " "$(dirname "$0")"/utils/auto-unseal.yaml | $VKPR_KUBECTL apply -f -
+        " "$(dirname "$0")"/utils/auto-unseal.yaml | $VKPR_KUBECTL apply -f - $DRY_RUN_FLAGS
         ;;
       esac
   fi

@@ -35,15 +35,20 @@ addCertManager() {
 }
 
 installCertManager() {
-  echoColor "bold" "$(echoColor "green" "Installing cert-manager...")"
   local YQ_VALUES=".ingressShim.defaultIssuerName = \"certmanager-issuer\" | .clusterResourceNamespace = \"$VKPR_ENV_CERT_MANAGER_NAMESPACE\""
   settingCertmanager
 
-  $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_CERT_MANAGER_VALUES"
-  mergeVkprValuesHelmArgs "cert-manager" "$VKPR_CERT_MANAGER_VALUES"
-  $VKPR_HELM upgrade -i --version "$VKPR_CERT_VERSION" \
-    -n "$VKPR_ENV_CERT_MANAGER_NAMESPACE" --create-namespace \
-    --wait -f "$VKPR_CERT_MANAGER_VALUES" cert-manager jetstack/cert-manager
+  if [[ $DRY_RUN == true ]]; then
+    echoColor "bold" "---"
+    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_CERT_MANAGER_VALUES"
+  else
+    echoColor "bold" "$(echoColor "green" "Installing cert-manager...")"
+    $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_CERT_MANAGER_VALUES"
+    mergeVkprValuesHelmArgs "cert-manager" "$VKPR_CERT_MANAGER_VALUES"
+    $VKPR_HELM upgrade -i --version "$VKPR_CERT_VERSION" \
+      -n "$VKPR_ENV_CERT_MANAGER_NAMESPACE" --create-namespace \
+      --wait -f "$VKPR_CERT_MANAGER_VALUES" cert-manager jetstack/cert-manager
+  fi
 }
 
 settingCertmanager() {
@@ -57,8 +62,6 @@ settingCertmanager() {
 }
 
 installIssuer() {
-  echoColor "bold" "$(echoColor "green" "Installing Issuers and/or ClusterIssuers...")"
-
   YQ_ISSUER_VALUES=".spec.acme.email = \"$VKPR_ENV_CERT_MANAGER_EMAIL\" |
     .metadata.namespace = \"$VKPR_ENV_CERT_MANAGER_NAMESPACE\" |
     .spec.acme.server = \"https://host.k3d.internal:9000/acme/acme/directory\" |
@@ -66,6 +69,12 @@ installIssuer() {
     .spec.acme.solvers[0].http01.ingress.class = \"$VKPR_ENV_CERT_MANAGER_HTTP01_INGRESS\"
   "
 
-  $VKPR_YQ eval "$YQ_ISSUER_VALUES" "$VKPR_ISSUER_VALUES" \
-  | $VKPR_KUBECTL apply -f -
+  if [[ $DRY_RUN == true ]]; then
+    echoColor "bold" "---"
+    $VKPR_YQ eval "$YQ_ISSUER_VALUES" "$VKPR_ISSUER_VALUES"
+  else
+    echoColor "bold" "$(echoColor "green" "Installing Issuers and/or ClusterIssuers...")"
+    $VKPR_YQ eval "$YQ_ISSUER_VALUES" "$VKPR_ISSUER_VALUES" \
+    | $VKPR_KUBECTL apply -f -
+  fi
 }
