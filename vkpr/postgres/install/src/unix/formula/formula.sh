@@ -36,10 +36,11 @@ installPostgres(){
     POSTGRESQL_CHART="postgresql"
   settingPostgres
 
-  $VKPR_YQ eval "$YQ_VALUES" "$VKPR_POSTGRES_VALUES" \
-  | $VKPR_HELM upgrade -i --version "$VKPR_POSTGRES_VERSION" \
-      --namespace "$VKPR_ENV_POSTGRESQL_NAMESPACE" --create-namespace \
-      --wait -f - postgresql bitnami/$POSTGRESQL_CHART
+  $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_POSTGRES_VALUES"
+  mergeVkprValuesHelmArgs "postgresql" "$VKPR_POSTGRES_VALUES"
+  $VKPR_HELM upgrade -i --version "$VKPR_POSTGRES_VERSION" \
+    --namespace "$VKPR_ENV_POSTGRESQL_NAMESPACE" --create-namespace \
+    --wait -f "$VKPR_POSTGRES_VALUES" postgresql bitnami/$POSTGRESQL_CHART
 }
 
 settingPostgres() {
@@ -85,7 +86,5 @@ settingPostgres() {
       "
     fi
   fi
-
-  mergeVkprValuesHelmArgs "postgresql" "$VKPR_POSTGRES_VALUES"
 }
 # $VKPR_KUBECTL patch cm --namespace vkpr tcp-services -p '{"data": {"5432": "default/postgres-postgresql:5432"}}'

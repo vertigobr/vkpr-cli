@@ -51,10 +51,11 @@ installKeycloak(){
   configureKeycloakDB
   settingKeycloak
   echoColor "bold" "$(echoColor "green" "Installing Keycloak...")"
-  $VKPR_YQ eval "$YQ_VALUES" "$VKPR_KEYCLOAK_VALUES" \
-  | $VKPR_HELM upgrade -i --version "$VKPR_KEYCLOAK_VERSION" \
+  $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_KEYCLOAK_VALUES"
+  mergeVkprValuesHelmArgs "keycloak" "$VKPR_KEYCLOAK_VALUES"
+  $VKPR_HELM upgrade -i --version "$VKPR_KEYCLOAK_VERSION" \
     --create-namespace -n "$VKPR_ENV_NAMESPACE" \
-    --wait --timeout 10m -f - keycloak bitnami/keycloak
+    --wait --timeout 10m -f "$VKPR_KEYCLOAK_VALUES" keycloak bitnami/keycloak
 }
 
 settingKeycloak(){
@@ -91,8 +92,6 @@ settingKeycloak(){
       .metrics.serviceMonitor.additionalLabels.release = \"prometheus-stack\" 
     "
   fi
-
-  mergeVkprValuesHelmArgs "keycloak" "$VKPR_KEYCLOAK_VALUES"
 }
 
 configureKeycloakDB(){

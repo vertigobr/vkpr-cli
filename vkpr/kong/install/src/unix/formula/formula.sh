@@ -128,10 +128,11 @@ installKong(){
   echoColor "bold" "$(echoColor "green" "Installing Kong...")"
   settingKongDefaults
 
-  $VKPR_YQ eval "$YQ_VALUES" "$VKPR_KONG_VALUES" \
-  | $VKPR_HELM upgrade -i --version "$VKPR_KONG_VERSION" \
+  $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_KONG_VALUES"
+  mergeVkprValuesHelmArgs "kong" "$VKPR_KONG_VALUES"
+  $VKPR_HELM upgrade -i --version "$VKPR_KONG_VERSION" \
     --namespace "$VKPR_ENV_KONG_NAMESPACE" --create-namespace \
-    --wait -f - kong kong/kong
+    --wait -f "$VKPR_KONG_VALUES" kong kong/kong
 
   if [[ "$VKPR_ENV_KONG_METRICS" == true ]]; then
     $VKPR_KUBECTL apply -f "$(dirname "$0")"/utils/prometheus-plugin.yaml
@@ -204,8 +205,6 @@ settingKongDefaults() {
       .ingressController.env.leader_elect = \"true\"
     "
   fi
-
-  mergeVkprValuesHelmArgs "kong" "$VKPR_KONG_VALUES"
 }
 
 settingKongEnterprise() {

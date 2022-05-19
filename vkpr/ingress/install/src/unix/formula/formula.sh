@@ -32,10 +32,11 @@ installIngress() {
   local YQ_VALUES=".rbac.create = true"
   settingIngress
 
-  $VKPR_YQ eval "$YQ_VALUES" "$VKPR_INGRESS_VALUES" \
-  | $VKPR_HELM upgrade -i --version "$VKPR_INGRESS_NGINX_VERSION" \
-      --namespace "$VKPR_ENV_INGRESS_NAMESPACE" --create-namespace \
-      --wait -f - ingress-nginx ingress-nginx/ingress-nginx
+  $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_INGRESS_VALUES"
+  mergeVkprValuesHelmArgs "ingress" "$VKPR_INGRESS_VALUES"
+  $VKPR_HELM upgrade -i --version "$VKPR_INGRESS_NGINX_VERSION" \
+    --namespace "$VKPR_ENV_INGRESS_NAMESPACE" --create-namespace \
+    --wait -f "$VKPR_INGRESS_VALUES" ingress-nginx ingress-nginx/ingress-nginx
 }
 
 settingIngress() {
@@ -57,6 +58,4 @@ settingIngress() {
       .controller.metrics.serviceMonitor.additionalLabels.release = \"prometheus-stack\"
      "
   fi
-
-  mergeVkprValuesHelmArgs "ingress" "$VKPR_INGRESS_VALUES"
 }

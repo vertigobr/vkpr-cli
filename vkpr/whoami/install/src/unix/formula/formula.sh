@@ -38,10 +38,11 @@ installWhoami() {
   local HELM_NAMESPACE="--create-namespace --namespace=$VKPR_ENV_WHOAMI_NAMESPACE"
   settingWhoami
 
+  $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_WHOAMI_VALUES"
+  mergeVkprValuesHelmArgs "whoami" "$VKPR_WHOAMI_VALUES"
   # shellcheck disable=SC2086
-  $VKPR_YQ eval "$YQ_VALUES" "$VKPR_WHOAMI_VALUES" \
-  | $VKPR_HELM upgrade -i --version "$VKPR_WHOAMI_VERSION" $HELM_NAMESPACE \
-    --wait -f - whoami cowboysysop/whoami
+  $VKPR_HELM upgrade -i --version "$VKPR_WHOAMI_VERSION" $HELM_NAMESPACE \
+    --wait -f "$VKPR_WHOAMI_VALUES" whoami cowboysysop/whoami
 }
 
 settingWhoami() {
@@ -57,7 +58,6 @@ settingWhoami() {
   fi
 
   settingWhoamiProvider
-  mergeVkprValuesHelmArgs "whoami" "$VKPR_WHOAMI_VALUES"
 }
 
 settingWhoamiProvider() {

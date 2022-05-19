@@ -41,10 +41,11 @@ installArgoCD(){
   local YQ_VALUES=".server.ingress.enabled = true"
   settingArgoCD
 
-  $VKPR_YQ eval "$YQ_VALUES" "$VKPR_ARGOCD_VALUES" \
-  | $VKPR_HELM upgrade -i --version "$VKPR_ARGOCD_VERSION" \
+  $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_ARGOCD_VALUES"
+  mergeVkprValuesHelmArgs "argocd" "$VKPR_ARGOCD_VALUES"
+  $VKPR_HELM upgrade -i --version "$VKPR_ARGOCD_VERSION" \
     --namespace "$VKPR_ENV_ARGOCD_NAMESPACE" --create-namespace  \
-    --wait -f - argocd argo/argo-cd
+    --wait -f "$VKPR_ARGOCD_VALUES" argocd argo/argo-cd
 
   settingArgoAddons
   printArgoPassword
@@ -98,8 +99,6 @@ settingArgoCD(){
       .server.metrics.serviceMonitor.additionalLabels.release = \"prometheus-stack\" 
     "
   fi
-
-  mergeVkprValuesHelmArgs "argocd" "$VKPR_ARGOCD_VALUES"
 }
 
 settingArgoAddons(){

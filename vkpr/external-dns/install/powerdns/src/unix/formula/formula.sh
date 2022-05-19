@@ -35,10 +35,11 @@ installExternalDNS() {
     local YQ_VALUES=".rbac.create = true"
     settingExternalDNS
 
-    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_EXTERNAL_DNS_VALUES" \
-    | $VKPR_HELM upgrade -i --version "$VKPR_EXTERNAL_DNS_VERSION" \
+    $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_EXTERNAL_DNS_VALUES"
+    mergeVkprValuesHelmArgs "external-dns" "$VKPR_EXTERNAL_DNS_VALUES"
+    $VKPR_HELM upgrade -i --version "$VKPR_EXTERNAL_DNS_VERSION" \
       --namespace "$VKPR_ENV_EXTERNAL_DNS_NAMESPACE" --create-namespace \
-      --wait -f - external-dns bitnami/external-dns
+      --wait -f "$VKPR_EXTERNAL_DNS_VALUES" external-dns bitnami/external-dns
   fi
 }
 
@@ -59,6 +60,4 @@ settingExternalDNS() {
       .metrics.serviceMonitor.interval = \"1m\"
     "
   fi
-
-  mergeVkprValuesHelmArgs "external-dns" "$VKPR_EXTERNAL_DNS_VALUES"
 }

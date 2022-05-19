@@ -35,10 +35,11 @@ installLoki(){
   local YQ_VALUES=".grafana.enabled = false"
   settingLoki
 
-  $VKPR_YQ eval "$YQ_VALUES" "$VKPR_LOKI_VALUES" \
-  | $VKPR_HELM upgrade -i --version "$VKPR_LOKI_VERSION" \
+  $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_LOKI_VALUES"
+  mergeVkprValuesHelmArgs "loki" "$VKPR_LOKI_VALUES"
+  $VKPR_HELM upgrade -i --version "$VKPR_LOKI_VERSION" \
     --namespace "$VKPR_ENV_LOKI_NAMESPACE" --create-namespace \
-    --wait -f - loki-stack grafana/loki-stack
+    --wait -f "$VKPR_LOKI_VALUES" loki-stack grafana/loki-stack
 }
 
 settingLoki() {
@@ -50,8 +51,6 @@ settingLoki() {
       .loki.serviceMonitor.scrapeTimeout = \"30s\"
     "
   fi
-
-  mergeVkprValuesHelmArgs "loki" "$VKPR_LOKI_VALUES"
 }
 
 existGrafana() {

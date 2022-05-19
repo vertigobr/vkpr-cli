@@ -43,8 +43,6 @@ settingConsul() {
       .ui.ingress.annotations = \"\"
     "
   fi
-
-  mergeVkprValuesHelmArgs "consul" "$VKPR_CONSUL_VALUES"
 }
 
 installConsul() {
@@ -52,8 +50,9 @@ installConsul() {
   local YQ_VALUES=".ui.ingress.hosts[0].host = \"$VKPR_ENV_CONSUL_DOMAIN\" | .ui.ingress.ingressClassName = \"$VKPR_ENV_CONSUL_INGRESS\""
   settingConsul
 
-  $VKPR_YQ eval "$YQ_VALUES" "$VKPR_CONSUL_VALUES" \
-  | $VKPR_HELM upgrade -i --version "$VKPR_CONSUL_VERSION" \
+  $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_CONSUL_VALUES"
+  mergeVkprValuesHelmArgs "consul" "$VKPR_CONSUL_VALUES"
+  $VKPR_HELM upgrade -i --version "$VKPR_CONSUL_VERSION" \
     --namespace "$VKPR_ENV_CONSUL_NAMESPACE" --create-namespace \
-    --wait -f - consul hashicorp/consul
+    --wait -f "$VKPR_CONSUL_VALUES" consul hashicorp/consul
 }

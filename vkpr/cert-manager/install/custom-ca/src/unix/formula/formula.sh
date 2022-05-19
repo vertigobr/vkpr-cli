@@ -39,10 +39,11 @@ installCertManager() {
   local YQ_VALUES=".ingressShim.defaultIssuerName = \"certmanager-issuer\" | .clusterResourceNamespace = \"$VKPR_ENV_CERT_MANAGER_NAMESPACE\""
   settingCertmanager
 
-  $VKPR_YQ eval "$YQ_VALUES" "$VKPR_CERT_MANAGER_VALUES" \
-  | $VKPR_HELM upgrade -i --version "$VKPR_CERT_VERSION" \
+  $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_CERT_MANAGER_VALUES"
+  mergeVkprValuesHelmArgs "cert-manager" "$VKPR_CERT_MANAGER_VALUES"
+  $VKPR_HELM upgrade -i --version "$VKPR_CERT_VERSION" \
     -n "$VKPR_ENV_CERT_MANAGER_NAMESPACE" --create-namespace \
-    --wait -f - cert-manager jetstack/cert-manager
+    --wait -f "$VKPR_CERT_MANAGER_VALUES" cert-manager jetstack/cert-manager
 }
 
 settingCertmanager() {
@@ -53,8 +54,6 @@ settingCertmanager() {
     .volumeMounts[0].mountPath = \"/etc/ssl/certs\" |
     .volumeMounts[0].readOnly = true
   "
-
-  mergeVkprValuesHelmArgs "cert-manager" "$VKPR_CERT_MANAGER_VALUES"
 }
 
 installIssuer() {

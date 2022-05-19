@@ -48,10 +48,11 @@ installPrometheusStack() {
   local YQ_VALUES=".grafana.ingress.hosts[0] = \"$VKPR_ENV_GRAFANA_DOMAIN\" | .grafana.adminPassword = \"$VKPR_ENV_GRAFANA_PASSWORD\""
   settingStack
 
-  $VKPR_YQ eval "$YQ_VALUES" "$VKPR_PROMETHEUS_VALUES" \
-  | $VKPR_HELM upgrade -i --version "$VKPR_PROMETHEUS_STACK_VERSION" \
+  $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_PROMETHEUS_VALUES"
+  mergeVkprValuesHelmArgs "prometheus-stack" "$VKPR_PROMETHEUS_VALUES"
+  $VKPR_HELM upgrade -i --version "$VKPR_PROMETHEUS_STACK_VERSION" \
     --namespace "$VKPR_ENV_PROMETHEUS_STACK_NAMESPACE" --create-namespace \
-    --wait -f - prometheus-stack prometheus-community/kube-prometheus-stack
+    --wait -f "$VKPR_PROMETHEUS_VALUES" prometheus-stack prometheus-community/kube-prometheus-stack
 }
 
 settingStack() {
@@ -118,6 +119,4 @@ settingStack() {
       .grafana.additionalDataSources[0].editable = true
     "
   fi
-
-  mergeVkprValuesHelmArgs "prometheus-stack" "$VKPR_PROMETHEUS_VALUES"
 }

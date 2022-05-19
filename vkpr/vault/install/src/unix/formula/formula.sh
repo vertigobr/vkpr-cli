@@ -47,10 +47,11 @@ installVault() {
   local YQ_VALUES=".global.enabled = true"
   settingVault
 
-  $VKPR_YQ eval "$YQ_VALUES" "$VKPR_VAULT_VALUES" \
-  | $VKPR_HELM upgrade -i --version "$VKPR_VAULT_VERSION" \
+  $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_VAULT_VALUES"
+  mergeVkprValuesHelmArgs "vault" "$VKPR_VAULT_VALUES"
+  $VKPR_HELM upgrade -i --version "$VKPR_VAULT_VERSION" \
     --namespace "$VKPR_ENV_VAULT_NAMESPACE" --create-namespace \
-    --wait -f - vault hashicorp/vault
+    --wait -f "$VKPR_VAULT_VALUES" vault hashicorp/vault
   
   if [[ $($VKPR_KUBECTL get secret -n "$VKPR_ENV_VAULT_NAMESPACE" | grep vault-storage-config | cut -d " " -f1) != "vault-storage-config" ]]; then
     echoColor "bold" "$(echoColor "green" "Creating storage config...")"
@@ -167,6 +168,4 @@ settingVault() {
   address = "consul-consul-server.%s.svc.cluster.local:8500"
 }' "$VKPR_ENV_CONSUL_NAMESPACE" >> "$VKPR_VAULT_CONFIG"
   fi
-
-  mergeVkprValuesHelmArgs "vault" "$VKPR_VAULT_VALUES"
 }
