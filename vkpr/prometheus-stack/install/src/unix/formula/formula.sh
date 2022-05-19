@@ -32,12 +32,12 @@ runFormula() {
 
 startInfos() {
   echo "=============================="
-  echoColor "bold" "$(echoColor "green" "VKPR Prometheus-Stack Install Routine")"
-  echoColor "bold" "$(echoColor "blue" "Grafana domain:") ${VKPR_ENV_GRAFANA_DOMAIN}"
-  echoColor "bold" "$(echoColor "blue" "Grafana password:") ${VKPR_ENV_GRAFANA_PASSWORD}"
-  echoColor "bold" "$(echoColor "blue" "Prometheus AlertManager enabled:") ${VKPR_ENV_PROMETHEUS_ALERT_MANAGER}"
-  [[ $VKPR_ENV_PROMETHEUS_ALERT_MANAGER == true ]] && echoColor "bold" "$(echoColor "blue" "Prometheus AlertManager domain:") ${VKPR_ENV_ALERT_MANAGER_DOMAIN}"
-  echoColor "bold" "$(echoColor "blue" "Ingress Controller:") ${VKPR_ENV_PROMETHEUS_INGRESS}"
+  info "VKPR Prometheus-Stack Install Routine"
+  notice "Grafana domain: $VKPR_ENV_GRAFANA_DOMAIN"
+  notice "Grafana password: $VKPR_ENV_GRAFANA_PASSWORD"
+  notice "Prometheus AlertManager enabled: $VKPR_ENV_PROMETHEUS_ALERT_MANAGER"
+  [[ $VKPR_ENV_PROMETHEUS_ALERT_MANAGER == true ]] && notice "Prometheus AlertManager domain: $VKPR_ENV_ALERT_MANAGER_DOMAIN"
+  notice "Ingress Controller: $VKPR_ENV_PROMETHEUS_INGRESS"
   echo "=============================="
 }
 
@@ -50,10 +50,10 @@ installPrometheusStack() {
   settingStack
 
   if [[ $DRY_RUN == true ]]; then
-    echoColor "bold" "---"
+    echo "---"
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_PROMETHEUS_VALUES"
   else
-    echoColor "bold" "$(echoColor "green" "Installing prometheus-stack...")"
+    info "Installing prometheus-stack..."
     $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_PROMETHEUS_VALUES"
     mergeVkprValuesHelmArgs "prometheus-stack" "$VKPR_PROMETHEUS_VALUES"
     $VKPR_HELM upgrade -i --version "$VKPR_PROMETHEUS_STACK_VERSION" \
