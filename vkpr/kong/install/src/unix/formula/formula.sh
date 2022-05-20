@@ -46,20 +46,20 @@ addDependencies(){
   mkdir -p /tmp/config/
   printf "{
   \"cookie_name\": \"admin_session\",
-  \"cookie_samesite\": \"Strict\",
+  \"cookie_samesite\": \"off\",
   \"secret\": \"$(openssl rand -base64 32)\",
   \"cookie_secure\": false,
   \"storage\": \"kong\",
-  \"cookie_domain\": \".%s\"
+  \"cookie_domain\": \"manager.%s\"
 }" "$VKPR_ENV_GLOBAL_DOMAIN" > /tmp/config/admin_gui_session_conf
 
   printf "{
   \"cookie_name\": \"portal_session\",
-  \"cookie_samesite\": \"Strict\",
+  \"cookie_samesite\": \"off\",
   \"secret\": \"$(openssl rand -base64 32)\",
   \"cookie_secure\": false,
   \"storage\": \"kong\",
-  \"cookie_domain\": \".%s\"
+  \"cookie_domain\": \"portal.%s\"
 }" "$VKPR_ENV_GLOBAL_DOMAIN" > /tmp/config/portal_session_conf
 
   if [[ "$VKPR_ENV_KONG_DEPLOY" == "hybrid" ]]; then
