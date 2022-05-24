@@ -12,9 +12,11 @@ runFormula() {
   checkGlobalConfig "$KONG_MODE" "dbless" "kong.mode" "KONG_DEPLOY"
   checkGlobalConfig "$RBAC_PASSWORD" "vkpr123" "kong.rbac.adminPassword" "KONG_RBAC"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "kong.namespace" "KONG_NAMESPACE"
+  checkGlobalConfig "false" "false" "kong.vitals.prometheusStrategy" "KONG_VITALS_STRATEGY"
 
   # External apps values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "postgresql.namespace" "POSTGRESQL_NAMESPACE"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "PROMETHEUS_STACK_NAMESPACE" 
 
   local VKPR_KONG_VALUES; VKPR_KONG_VALUES="$(dirname "$0")"/utils/kong.yaml
 
@@ -208,6 +210,16 @@ settingKongDefaults() {
       .serviceMonitor.labels.release = \"prometheus-stack\" |
       .serviceMonitor.targetLabels[0] = \"prometheus-stack\"
     "
+      if [[ "$VKPR_ENV_KONG_VITALS_STRATEGY" == "true" ]] && [[ $(checkPodName "$VKPR_ENV_PROMETHEUS_STACK_NAMESPACE" "prometheus-stack-kube-prom-operator") == "true" ]]; then
+        YQ_VALUES="$YQ_VALUES |
+          .env.vitals = \"on\" |
+          .env.vitals_strategy = \"prometheus\" |
+          .env.vitals_statsd_address = \"statsd-kong:9125\" |
+          .env.vitals_tsdb_address = \"prometheus-stack-kube-prom-prometheus:9090\" |      
+          .env.vitals_statsd_prefix = \"kong-vitals\" 
+        "
+        $VKPR_KUBECTL apply -f "$(dirname "$0")/utils/kong-service-monitor.yaml"
+      fi
   fi
 
   if [[ "$VKPR_ENV_KONG_HA" == "true" ]]; then
