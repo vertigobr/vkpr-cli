@@ -62,3 +62,16 @@ settingWhoami() {
 
   settingWhoamiProvider
 }
+
+settingWhoamiProvider() {
+  ACTUAL_CONTEXT=$($VKPR_KUBECTL config get-contexts --no-headers | grep "\*" | xargs | awk -F " " '{print $2}')
+  if [[ "$VKPR_ENV_GLOBAL_PROVIDER" == "okteto" ]] || [[ $ACTUAL_CONTEXT == "cloud_okteto_com" ]]; then
+    OKTETO_NAMESPACE=$($VKPR_KUBECTL config get-contexts --no-headers | grep "\*" | xargs | awk -F " " '{print $NF}')
+    HELM_NAMESPACE=""
+    YQ_VALUES="$YQ_VALUES |
+      .ingress.enabled = \"false\" |
+      .ingress.hosts[0].host = \"whoami-${OKTETO_NAMESPACE}.cloud.okteto.net\" |
+      .service.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\"
+    "
+  fi
+}
