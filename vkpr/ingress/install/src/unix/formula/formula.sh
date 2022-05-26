@@ -8,6 +8,10 @@ runFormula() {
   # App values
   checkGlobalConfig "$LB_TYPE" "Classic" "ingress.loadBalancerType" "INGRESS_LB_TYPE"
   checkGlobalConfig "false" "false" "ingress.metrics" "INGRESS_METRICS"
+  checkGlobalConfig "$SSL" "false" "ingress.ssl.enabled" "INGRESS_SSL"
+  checkGlobalConfig "nginx-cert" "nginx-cert" "ingress.ssl.secretName" "INGRESS_SSL_SECRET"
+  checkGlobalConfig "$CRT_FILE" "" "ingress.ssl.crt" "INGRESS_CERTIFICATE"
+  checkGlobalConfig "$KEY_FILE" "" "ingress.ssl.key" "INGRESS_KEY"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "ingress.namespace" "INGRESS_NAMESPACE"
 
   local VKPR_INGRESS_VALUES; VKPR_INGRESS_VALUES="$(dirname "$0")"/utils/ingress.yaml
@@ -61,6 +65,15 @@ settingIngress() {
       .controller.metrics.serviceMonitor.enabled = true |
       .controller.metrics.serviceMonitor.namespace = \"$VKPR_ENV_INGRESS_NAMESPACE\" |
       .controller.metrics.serviceMonitor.additionalLabels.release = \"prometheus-stack\"
+     "
+  fi
+
+  if [[ "$VKPR_ENV_INGRESS_SSL" == "true" ]]; then
+    [[ "$VKPR_ENV_INGRESS_SSL_SECRET" == "nginx-cert" ]] && $VKPR_KUBECTL create secret tls nginx-cert -n $VKPR_ENV_INGRESS_NAMESPACE \
+      --cert="$VKPR_ENV_INGRESS_CERTIFICATE" \
+      --key="$VKPR_ENV_INGRESS_KEY"
+    YQ_VALUES="$YQ_VALUES |
+      .controller.extraArgs.default-ssl-certificate = \"$VKPR_ENV_INGRESS_NAMESPACE/$INGRESS_SSL_SECRET\"
      "
   fi
 }
