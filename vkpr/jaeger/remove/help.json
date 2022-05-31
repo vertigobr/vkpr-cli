@@ -1,0 +1,4 @@
+{
+  "short": "Remove Jaeger",
+  "long": "Remove the Jaeger and its dependencies from the Kubernetes cluster"
+}

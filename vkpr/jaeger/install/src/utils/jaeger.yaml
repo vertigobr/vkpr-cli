@@ -1,0 +1,13 @@
+agent:
+  enabled: true
+collector:
+  enabled: true
+query:
+  enabled: true
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    hosts:
+      - jaeger.localhost
+provisionDataStore:
+  cassandra: true

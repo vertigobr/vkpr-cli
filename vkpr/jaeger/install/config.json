@@ -1,0 +1,35 @@
+{
+  "inputs": [
+    {
+      "tutorial": "Specifies the domain to use in the application",
+      "label": "Type the Jaeger UI domain:",
+      "name": "domain",
+      "type": "text",
+      "default": "localhost"
+    },
+    {
+      "tutorial": "Specifies if the application will have HTTPS",
+      "label": "Secure ?",
+      "name": "secure",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "true",
+        "false"
+      ]
+    },
+    {
+      "tutorial": "Specifies if output the values from the application",
+      "label": "Dry-run ?",
+      "name": "dry_run",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "true",
+        "false"
+      ]
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease": "2.17.0"
+}
