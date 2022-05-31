@@ -1,7 +1,7 @@
 {
   "inputs": [
     {
-      "tutorial": "Specifies if output the values from the application.",
+      "tutorial": "Specifies if output the values from the application",
       "label": "Dry-run ?",
       "name": "dry_run",
       "type": "bool",
@@ -12,7 +12,7 @@
       ]
     },
     {
-      "tutorial": "Specifies the Digital Ocean API Token.",
+      "tutorial": "Specifies the Digital Ocean API Token",
       "name": "do_token",
       "type": "CREDENTIAL_DIGITALOCEAN_TOKEN"
     }

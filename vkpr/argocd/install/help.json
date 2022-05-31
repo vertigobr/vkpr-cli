@@ -1,4 +1,4 @@
 {
   "short": "Install ArgoCD",
-  "long": "Install the ArgoCD in the Kubernetes cluster."
+  "long": "Install the ArgoCD in the Kubernetes cluster"
 }

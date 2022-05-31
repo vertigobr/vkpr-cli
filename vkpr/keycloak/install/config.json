@@ -1,14 +1,14 @@
 {
   "inputs": [
     {
-      "tutorial": "Specifies the domain to use in the application.",
+      "tutorial": "Specifies the domain to use in the application",
       "label": "Type the Keycloak domain:",
       "name": "domain",
       "type": "text",
       "default": "localhost"
     },
     {
-      "tutorial": "Specifies if the application will have HTTPS.",
+      "tutorial": "Specifies if the application will have HTTPS",
       "label": "Secure ?",
       "name": "secure",
       "type": "bool",
@@ -19,14 +19,14 @@
       ]
     },
     {
-      "tutorial": "Specifies the Super Admin username.",
+      "tutorial": "Specifies the Super Admin username",
       "label": "Type the Admin username:",
       "name": "admin_user",
       "type": "text",
       "default": "admin"
     },
     {
-      "tutorial": "Specifies the Super Admin password.",
+      "tutorial": "Specifies the Super Admin password",
       "label": "Type the Admin password:",
       "name": "admin_password",
       "type": "password",
@@ -37,7 +37,7 @@
       }
     },
     {
-      "tutorial": "Specifies if the application will have High Availability.",
+      "tutorial": "Specifies if the application will have High Availability",
       "label": "HA ?",
       "name": "HA",
       "type": "bool",
@@ -48,7 +48,7 @@
       ]
     },
     {
-      "tutorial": "Specifies if output the values from the application.",
+      "tutorial": "Specifies if output the values from the application",
       "label": "Dry-run ?",
       "name": "dry_run",
       "type": "bool",
@@ -59,7 +59,7 @@
       ]
     },
     {
-      "tutorial": "Specifies the Postgresql password.",
+      "tutorial": "Specifies the Postgresql password",
       "name": "password",
       "type": "CREDENTIAL_POSTGRES_PASSWORD"
     }

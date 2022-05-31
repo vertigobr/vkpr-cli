@@ -1,6 +1,7 @@
 {
   "inputs": [
     {
+      "tutorial": "Specifies the Bitbucket project Name",
       "label": "Bitbucket Project Name:(account/project)",
       "name": "project_name",
       "type": "text",
@@ -11,18 +12,21 @@
       }
     },
     {
+      "tutorial": "Specifies the name from the secret to be used in Bitbucket pipeline",
       "label": "Parameter Name:",
       "name": "parameter_name",
       "type": "text",
       "required": true
     },
     {
+      "tutorial": "Specifies the value from the secret to be used in Bitbucket pipeline",
       "label": "Parameter Value:",
       "name": "parameter_value",
       "type": "text",
       "required": true
     },
     {
+      "tutorial": "Specifies if the parameter will be masked when execute the pipeline",
       "label": "Parameter Masked:",
       "name": "parameter_masked",
       "type": "bool",
@@ -34,10 +38,12 @@
       "required": true
     },
     {
+      "tutorial": "Specifies your Bitbucket username",
       "name": "bitbucket_username",
       "type": "CREDENTIAL_BITBUCKET_USERNAME"
     },
     {
+      "tutorial": "Specifies your Bitbucket Access-Token",
       "name": "bitbucket_token",
       "type": "CREDENTIAL_BITBUCKET_TOKEN"
     }

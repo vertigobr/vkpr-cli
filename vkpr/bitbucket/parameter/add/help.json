@@ -1,4 +1,4 @@
 {
-  "short": "",
-  "long": ""
+  "short": "Add a secret to the project",
+  "long": "Add a secret to the project to use in the Bitbucket pipeline"
 }

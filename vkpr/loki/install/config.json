@@ -1,7 +1,7 @@
 {
   "inputs": [
     {
-      "tutorial": "Specifies the domain to use in the application.",
+      "tutorial": "Specifies the domain to use in the application",
       "label": "Type the Loki domain:",
       "name": "domain",
       "type": "text",
@@ -9,7 +9,7 @@
       "default": "localhost"
     },
     {
-      "tutorial": "Specifies if output the values from the application.",
+      "tutorial": "Specifies if output the values from the application",
       "label": "Dry-run ?",
       "name": "dry_run",
       "type": "bool",

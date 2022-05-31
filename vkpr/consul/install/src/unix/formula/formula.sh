@@ -8,7 +8,7 @@ runFormula() {
   checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "global.namespace" "GLOBAL_NAMESPACE"
   
   # App values
-  checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS" "$VKPR_ENV_GLOBAL_INGRESS" "consul.ingressClassName" "CONSUL_INGRESS"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS" "$VKPR_ENV_GLOBAL_INGRESS" "consul.ingressClassName" "CONSUL_INGRESS_CLASS_NAME"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "consul.namespace" "CONSUL_NAMESPACE"
 
   local VKPR_ENV_CONSUL_DOMAIN="consul.${VKPR_ENV_GLOBAL_DOMAIN}"
@@ -24,7 +24,7 @@ startInfos() {
   echoColor "bold" "$(echoColor "green" "VKPR Consul Install Routine")"
   echoColor "bold" "$(echoColor "blue" "Consul UI Domain:") ${VKPR_ENV_CONSUL_DOMAIN}"
   echoColor "bold" "$(echoColor "blue" "Consul UI HTTPS:") ${VKPR_ENV_GLOBAL_SECURE}"
-  echoColor "bold" "$(echoColor "blue" "Ingress Controller:") ${VKPR_ENV_CONSUL_INGRESS}"
+  echoColor "bold" "$(echoColor "blue" "Ingress Controller:") ${VKPR_ENV_CONSUL_INGRESS_CLASS_NAME}"
   echo "=============================="
 }
 
@@ -33,7 +33,7 @@ configureRepository() {
 }
 
 installConsul() {
-  local YQ_VALUES=".ui.ingress.hosts[0].host = \"$VKPR_ENV_CONSUL_DOMAIN\" | .ui.ingress.ingressClassName = \"$VKPR_ENV_CONSUL_INGRESS\""
+  local YQ_VALUES=".ui.ingress.hosts[0].host = \"$VKPR_ENV_CONSUL_DOMAIN\" | .ui.ingress.ingressClassName = \"$VKPR_ENV_CONSUL_INGRESS_CLASS_NAME\""
   settingConsul
 
   if [[ $DRY_RUN == true ]]; then

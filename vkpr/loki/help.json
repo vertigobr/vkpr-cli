@@ -1,4 +1,4 @@
 {
   "short": "Manage Loki",
-  "long": ""
+  "long": "Loki is a log aggregation system designed to store and query logs from all your applications and infrastructure"
 }

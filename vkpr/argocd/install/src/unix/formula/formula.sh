@@ -4,14 +4,14 @@ runFormula() {
   # Global values
   checkGlobalConfig "$DOMAIN" "localhost" "global.domain" "GLOBAL_DOMAIN"
   checkGlobalConfig "$SECURE" "false" "global.secure" "GLOBAL_SECURE"
-  checkGlobalConfig "nginx" "nginx" "global.ingressClassName" "GLOBAL_INGRESS"
+  checkGlobalConfig "nginx" "nginx" "global.ingressClassName" "GLOBAL_INGRESS_CLASSNAME"
   
   # App values
   checkGlobalConfig "$HA" "false" "argocd.HA" "ARGOCD_HA"
   checkGlobalConfig "argocd" "argocd" "argocd.namespace" "ARGOCD_NAMESPACE"
-  checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS" "$VKPR_ENV_GLOBAL_INGRESS" "argocd.ingressClassName" "ARGOCD_INGRESS"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS_CLASSNAME" "$VKPR_ENV_GLOBAL_INGRESS_CLASSNAME" "argocd.ingressClassName" "ARGOCD_INGRESS_CLASS_NAME"
   checkGlobalConfig "false" "false" "argocd.metrics" "ARGOCD_METRICS"
-  checkGlobalConfig "false" "false" "argocd.addons.applicationset" "ARGOCD_ADDONS_APPLICATIONSET"
+  checkGlobalConfig "false" "false" "argocd.addons.applicationSet" "ARGOCD_ADDONS_APPLICATION_SET"
 
   local VKPR_ENV_ARGOCD_DOMAIN="argocd.${VKPR_ENV_GLOBAL_DOMAIN}"
   local VKPR_ARGOCD_VALUES; VKPR_ARGOCD_VALUES="$(dirname "$0")"/utils/argocd.yaml
@@ -28,7 +28,7 @@ startInfos() {
   echoColor "bold" "$(echoColor "blue" "ArgoCD HTTPS:") ${VKPR_ENV_GLOBAL_SECURE}"
   echoColor "bold" "$(echoColor "blue" "HA:") ${VKPR_ENV_ARGOCD_HA}"
   echoColor "bold" "$(echoColor "blue" "ArgoCD Admin Username:") admin"
-  echoColor "bold" "$(echoColor "blue" "Ingress Controller:") ${VKPR_ENV_ARGOCD_INGRESS}"
+  echoColor "bold" "$(echoColor "blue" "Ingress Controller:") ${VKPR_ENV_ARGOCD_INGRESS_CLASSNAME}"
   echo "=============================="
 }
 
@@ -65,7 +65,7 @@ settingArgoCD(){
   YQ_VALUES="$YQ_VALUES |
     .server.ingress.hosts[0] = \"$VKPR_ENV_ARGOCD_DOMAIN\" |
     .server.config.url = \"$VKPR_ENV_ARGOCD_DOMAIN\" |
-    .server.ingress.annotations.[\"kubernetes.io/ingress.class\"] = \"$VKPR_ENV_ARGOCD_INGRESS\"
+    .server.ingress.annotations.[\"kubernetes.io/ingress.class\"] = \"$VKPR_ENV_ARGOCD_INGRESS_CLASSNAME\"
   "
 
   if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
@@ -107,7 +107,7 @@ settingArgoCD(){
 }
 
 settingArgoAddons(){
-  if [[ "$VKPR_ENV_ARGOCD_ADDONS_APPLICATIONSET" == true ]]; then
+  if [[ "$VKPR_ENV_ARGOCD_ADDONS_APPLICATION_SET" == true ]]; then
     echoColor "bold" "$(echoColor "green" "Installing ArgoCD Addon Applicationset...")"
 
     local VKPR_ARGOCD_APPLICATIONSET_VALUES; VKPR_ARGOCD_APPLICATIONSET_VALUES="$(dirname "$0")"/utils/argocd-applicationset.yaml
