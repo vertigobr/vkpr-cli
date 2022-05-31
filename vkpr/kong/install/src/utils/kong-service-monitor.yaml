@@ -1,0 +1,182 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: statsd-kong
+  namespace: vkpr
+  labels:
+    app.kubernetes.io/instance: statsd-kong
+    app.kubernetes.io/name: kong
+    app.kubernetes.io/version: "0.3.1"
+    enable-metrics: "true"
+    job: "vitals_statsd_exporter"
+spec:
+  containers:
+    - name: statsd-kong
+      image: kong/statsd-exporter-advanced:0.3.1
+      command:
+        - "/bin/statsd_exporter"
+      args:
+        - "--statsd.mapping-config=/etc/config/statsd.rules.yaml"
+      resources:
+        limits:
+          memory: "128Mi"
+          cpu: "500m"
+      ports:
+        - containerPort: 9102
+          protocol: TCP
+        - containerPort: 9125
+          protocol: TCP
+        - containerPort: 9125
+          protocol: UDP
+      volumeMounts:
+        - mountPath: /etc/config
+          name: kong-statsd-scrape-config
+  volumes:
+    - name: kong-statsd-scrape-config
+      configMap:
+        name: kong-statsd-scrape-config
+        items:
+          - key: statsd.rules.yaml
+            path: statsd.rules.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: statsd-kong
+  namespace: vkpr
+  labels:
+    app.kubernetes.io/instance: statsd-kong
+    app.kubernetes.io/name: kong
+    app.kubernetes.io/version: "0.3.1"
+    enable-metrics: "true"
+    job: "vitals_statsd_exporter"
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/instance: statsd-kong
+    app.kubernetes.io/name: kong
+    app.kubernetes.io/version: "0.3.1"
+  ports:
+    - name: prometheus-expose
+      port: 9102
+      targetPort: 9102
+      protocol: TCP
+    - name: default
+      port: 9125
+      targetPort: 9125
+      protocol: UDP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kong-statsd-scrape-config
+  namespace: vkpr
+data:
+  statsd.rules.yaml: |
+    mappings:
+    # by Service
+    - match: kong-vitals.service.*.request.count
+      name: "kong_requests_proxy"
+      labels:
+        job: "kong_metrics"
+
+    - match: kong-vitals.service.*.status.*
+      name: "kong_status_code"
+      labels:
+        service: "$1"
+        status_code: $2
+        job: "kong_metrics"
+
+    - match: kong-vitals.service.*.kong_latency
+      name: "kong_latency_proxy_request"
+      timer_type: histogram
+      buckets: [1]
+      min_max: true
+      labels:
+        job: "kong_metrics"
+
+    - match: kong-vitals.service.*.upstream_latency
+      name: "kong_latency_upstream"
+      timer_type: histogram
+      buckets: [1]
+      min_max: true
+      labels:
+        job: "kong_metrics"
+
+    - match: kong-vitals.service.*.cache_datastore_hits_total
+      name: "kong_cache_datastore_hits_total"
+      labels:
+        job: "kong_metrics"
+
+    - match: kong-vitals.service.*.cache_datastore_misses_total
+      name: "kong_cache_datastore_misses_total"
+      labels:
+        job: "kong_metrics"
+
+    # by Service and Route
+    - match: kong-vitals.service.*.user.*.status.*
+      name: "kong_status_code_per_consumer"
+      labels:
+        service: "$1"
+        route_id: ""
+        consumer: "$2"
+        status_code: $3
+        job: "kong_metrics"
+
+    - match: kong-vitals.route.*.user.*.status.*
+      name: "kong_status_code_per_consumer"
+      labels:
+        service: ""
+        route_id: "$1"
+        consumer: "$2"
+        status_code: $3
+        job: "kong_metrics"
+
+    # by Service and Workspace
+    - match: kong-vitals.service.*.workspace.*.status.*
+      name: "kong_status_code_per_workspace"
+      labels:
+        service: "$1"
+        workspace: "$2"
+        status_code: $3
+        job: "kong_metrics"
+
+    # by node
+    - match: kong-vitals.node.*.shdict.*.free_space
+      name: "kong_shdict_free_space"
+      labels:
+        node: "$1"
+        shdict: "$2"
+        job: "kong_metrics"
+
+    - match: kong-vitals.node.*.shdict.*.capacity
+      name: "kong_shdict_capacity"
+      labels:
+        node: "$1"
+        shdict: "$2"
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  annotations:
+    meta.helm.sh/release-name: kong
+    meta.helm.sh/release-namespace: vkpr
+  labels:
+    release: prometheus-stack
+  name: statsd-kong
+  namespace: vkpr
+spec:
+  endpoints:
+    - interval: 10s
+      scheme: http
+      path: /metrics
+      honorLabels: true
+  namespaceSelector:
+    matchNames:
+      - vkpr
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: statsd-kong
+      app.kubernetes.io/name: kong
+      app.kubernetes.io/version: "0.3.1"
+      enable-metrics: "true"
