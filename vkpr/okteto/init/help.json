@@ -1,4 +1,4 @@
 {
-  "short": "",
-  "long": ""
+  "short": "Initialize a cluster in Okteto",
+  "long": "Initialize a namespace in the Okteto cluster"
 }

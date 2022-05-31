@@ -48,6 +48,9 @@ applyConfig(){
 
 #12
   installWhoami
+
+#13
+  installJaeger
 }
 
 installArgoCD(){
@@ -205,5 +208,12 @@ installWhoami(){
   WHOAMI_EXISTS=$($VKPR_YQ eval .whoami.enabled "$VKPR_GLOBAL_CONFIG")
   if [ "$WHOAMI_EXISTS" == true ]; then
     rit vkpr whoami install --default
+  fi
+}
+
+installJaeger(){
+  JAEGER_EXISTS=$($VKPR_YQ eval .jaeger.enabled "$VKPR_GLOBAL_CONFIG")
+  if [ "$JAEGER_EXISTS" == true ]; then
+    rit vkpr jaeger install --default
   fi
 }

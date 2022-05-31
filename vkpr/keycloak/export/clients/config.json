@@ -1,19 +1,19 @@
 {
   "inputs": [
     {
-      "tutorial": "Specifies the name of the new database.",
+      "tutorial": "Specifies the realm name to be imported",
       "label": "Type the realm name:",
       "name": "realm_name",
       "type": "text"
     },
     {
-      "tutorial": "Specifies the username of the database owner.",
+      "tutorial": "Specifies the Keycloak Super admin username",
       "label": "Type the keycloak super admin username:",
       "name": "keycloak_username",
       "type": "text"
     },
     {
-      "tutorial": "Specifies the username of the database owner.",
+      "tutorial": "Specifies the Keycloak Super admin password",
       "label": "Type the keycloak super admin password:",
       "name": "keycloak_password",
       "type": "password"

@@ -1,7 +1,7 @@
 {
   "inputs": [
     {
-      "tutorial": "Specifies the VKPR Formula form, must have the form 'vkpr + object + verb + name'.",
+      "tutorial": "Specifies the VKPR Formula form, must have the form 'vkpr + object + verb + name'",
       "label": "Enter the New Formula Command:",
       "name": "vkpr_formula",
       "type": "text",
@@ -12,7 +12,7 @@
       }
     },
     {
-      "tutorial": "Specifies the path from your workspace with the VKPR formulas.",
+      "tutorial": "Specifies the path from your workspace with the VKPR formulas",
       "label": "Enter workspace path (Leave empty for current Working dir):",
       "name": "vkpr_workspace_path",
       "type": "text",

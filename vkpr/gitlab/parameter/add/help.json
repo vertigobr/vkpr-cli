@@ -1,4 +1,4 @@
 {
-  "short": "Add parameter to gitlab CI/CD pipeline",
-  "long": ""
+  "short": "Add a secret to the project",
+  "long": "Add a secret to the project to use in the Gitlab pipeline"
 }

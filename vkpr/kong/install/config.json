@@ -1,14 +1,14 @@
 {
   "inputs": [
     {
-      "tutorial": "Specifies the domain to use in the application.",
+      "tutorial": "Specifies the domain to use in the application",
       "label": "Type the Kong domain:",
       "name": "domain",
       "type": "text",
       "default": "localhost"
     },
     {
-      "tutorial": "Specifies if the application will have HTTPS.",
+      "tutorial": "Specifies if the application will have HTTPS",
       "label": "Secure ?",
       "name": "secure",
       "type": "bool",
@@ -19,7 +19,7 @@
       ]
     },
     {
-      "tutorial": "Specifies the type of Kong Deployment.",
+      "tutorial": "Specifies the type of Kong Deployment",
       "label": "Kong Mode: (Hybrid only available in Kong Enterprise)",
       "name": "kong_mode",
       "type": "text",
@@ -31,7 +31,7 @@
       ]
     },
     {
-      "tutorial": "Specifies if the Kong will be using Enterprise License.",
+      "tutorial": "Specifies if the Kong will be using Enterprise License",
       "label": "Do you will use enterprise?",
       "name": "enterprise",
       "type": "bool",
@@ -43,7 +43,7 @@
       ]
     },
     {
-      "tutorial": "Specifies the Kong Enterprise License path.",
+      "tutorial": "Specifies the Kong Enterprise License path",
       "condition": {
         "variable": "enterprise",
         "operator": "==",
@@ -60,7 +60,7 @@
       }
     },
     {
-      "tutorial": "Specifies the RBAC Super Admin Password.",
+      "tutorial": "Specifies the RBAC Super Admin Password",
       "condition": {
         "variable": "enterprise",
         "operator": "==",
@@ -76,7 +76,7 @@
       }
     },
     {
-      "tutorial": "Specifies if the application will have High Availability.",
+      "tutorial": "Specifies if the application will have High Availability",
       "label": "HA ?",
       "name": "HA",
       "type": "bool",
@@ -87,7 +87,7 @@
       ]
     },
     {
-      "tutorial": "Specifies if output the values from the application.",
+      "tutorial": "Specifies if output the values from the application",
       "label": "Dry-run ?",
       "name": "dry_run",
       "type": "bool",
@@ -98,7 +98,7 @@
       ]
     },
     {
-      "tutorial": "Specifies the Postgresql password.",
+      "tutorial": "Specifies the Postgresql password",
       "name": "password",
       "type": "CREDENTIAL_POSTGRES_PASSWORD"
     }

@@ -16,7 +16,7 @@ runFormula() {
   checkGlobalConfig "$HA" "false" "keycloak.HA" "HA"
   checkGlobalConfig "$ADMIN_USER" "admin" "keycloak.adminUser" "KEYCLOAK_ADMIN_USER"
   checkGlobalConfig "$ADMIN_PASSWORD" "vkpr123" "keycloak.adminPassword" "KEYCLOAK_ADMIN_PASSWORD"
-  checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS" "$VKPR_ENV_GLOBAL_INGRESS" "keycloak.ingressClassName" "KEYCLOAK_INGRESS"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS" "$VKPR_ENV_GLOBAL_INGRESS" "keycloak.ingressClassName" "KEYCLOAK_INGRESS_CLASS_NAME"
   checkGlobalConfig "false" "false" "keycloak.metrics" "METRICS"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "keycloak.namespace" "NAMESPACE"
 
@@ -38,7 +38,7 @@ startInfos() {
   echoColor "bold" "$(echoColor "blue" "HA:") ${VKPR_ENV_HA}"
   echoColor "bold" "$(echoColor "blue" "Keycloak Admin Username:") ${VKPR_ENV_KEYCLOAK_ADMIN_USER}"
   echoColor "bold" "$(echoColor "blue" "Keycloak Admin Password:") ${VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD}"
-  echoColor "bold" "$(echoColor "blue" "Ingress Controller:") ${VKPR_ENV_KEYCLOAK_INGRESS}"
+  echoColor "bold" "$(echoColor "blue" "Ingress Controller:") ${VKPR_ENV_KEYCLOAK_INGRESS_CLASS_NAME}"
   echo "=============================="
 }
 
@@ -68,7 +68,7 @@ installKeycloak(){
 settingKeycloak(){
   YQ_VALUES="$YQ_VALUES |
     .ingress.hostname = \"$VKPR_ENV_KEYCLOAK_DOMAIN\" |
-    .ingress.ingressClassName = \"$VKPR_ENV_KEYCLOAK_INGRESS\" |
+    .ingress.ingressClassName = \"$VKPR_ENV_KEYCLOAK_INGRESS_CLASS_NAME\" |
     .auth.adminUser = \"$VKPR_ENV_KEYCLOAK_ADMIN_USER\" |
     .auth.adminPassword = \"$VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD\"
   "

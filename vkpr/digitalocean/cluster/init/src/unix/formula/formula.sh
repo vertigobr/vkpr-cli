@@ -8,10 +8,10 @@ runFormula() {
   DO_CLUSTER_NODE_INSTANCE_TYPE=${DO_CLUSTER_NODE_INSTANCE_TYPE// /}
 
   checkGlobalConfig "$DO_CLUSTER_NAME" "do-sample" "digitalocean.cluster.name" "DO_CLUSTER_NAME"
-  checkGlobalConfig "$DO_K8S_VERSION" "1.22" "digitalocean.cluster.version" "DO_K8S_VERSION"
+  checkGlobalConfig "$DO_K8S_VERSION" "1.22" "digitalocean.cluster.version" "DO_CLUSTER_VERSION"
   checkGlobalConfig "$DO_CLUSTER_REGION" "nyc1" "digitalocean.cluster.region" "DO_CLUSTER_REGION"
-  checkGlobalConfig "$DO_CLUSTER_NODE_INSTANCE_TYPE" "s-2vcpu-2gb" "digitalocean.cluster.nodes.instaceType" "DO_CLUSTER_NODE_INSTANCE_TYPE"
-  checkGlobalConfig "$DO_CLUSTER_SIZE" "1" "digitalocean.cluster.nodes.quantitySize" "DO_CLUSTER_SIZE"
+  checkGlobalConfig "$DO_CLUSTER_NODE_INSTANCE_TYPE" "s-2vcpu-2gb" "digitalocean.cluster.nodes.instaceType" "DO_CLUSTER_NODES_INSTANCE_TYPE"
+  checkGlobalConfig "$DO_CLUSTER_SIZE" "1" "digitalocean.cluster.nodes.quantitySize" "DO_CLUSTER_QUANTITY_SIZE"
 
   validateDigitalOceanApiToken "$DO_TOKEN"
   validateGitlabUsername "$GITLAB_USERNAME"
@@ -42,10 +42,10 @@ cloneRepository() {
   cd "$VKPR_HOME"/tmp/k8s-digitalocean || return
   $VKPR_YQ eval -i ".region = \"$VKPR_ENV_DO_CLUSTER_REGION\" |
     .cluster_name = \"$VKPR_ENV_DO_CLUSTER_NAME\" |
-    .prefix_version = \"$VKPR_ENV_DO_K8S_VERSION\" |
+    .prefix_version = \"$VKPR_ENV_DO_VERSION\" |
     .node_pool_default.name = \"${VKPR_ENV_DO_CLUSTER_NAME}-node-pool\" |
-    .node_pool_default.size = \"$VKPR_ENV_DO_CLUSTER_NODE_INSTANCE_TYPE\" |
-    .node_pool_default.node_count = \"$VKPR_ENV_DO_CLUSTER_SIZE\"
+    .node_pool_default.size = \"$VKPR_ENV_DO_CLUSTER_NODES_INSTANCE_TYPE\" |
+    .node_pool_default.node_count = \"$VKPR_ENV_DO_CLUSTER_QUANTITY_SIZE\"
   " "$VKPR_HOME"/tmp/k8s-digitalocean/config/defaults.yml
   git checkout -b "$VKPR_ENV_DO_CLUSTER_NAME"
   git commit -am "[VKPR] Initial configuration defaults.yml"

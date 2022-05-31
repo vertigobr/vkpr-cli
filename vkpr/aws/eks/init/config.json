@@ -1,22 +1,22 @@
 {
   "inputs": [
     {
-      "tutorial": "Specifies the AWS Access Key Credential.",
+      "tutorial": "Specifies the AWS Access Key Credential",
       "name": "aws_access_key",
       "type": "CREDENTIAL_AWS_ACCESSKEYID"
     },
     {
-      "tutorial": "Specifies the AWS Secret Key Credential.",
+      "tutorial": "Specifies the AWS Secret Key Credential",
       "name": "aws_secret_key",
       "type": "CREDENTIAL_AWS_SECRETACCESSKEY"
     },
     {
-      "tutorial": "Specifies the AWS Region to set the environment.",
+      "tutorial": "Specifies the AWS Region to set the environment",
       "name": "aws_region",
       "type": "CREDENTIAL_AWS_REGION"
     },
     {
-      "tutorial": "Specifies the EKS Cluster name.",
+      "tutorial": "Specifies the EKS Cluster name",
       "label": "EKS cluster name:",
       "name": "eks_cluster_name",
       "type": "text",
@@ -33,7 +33,7 @@
       }
     },
     {
-      "tutorial": "Specifies the EKS Kubernetes Version.",
+      "tutorial": "Specifies the EKS Kubernetes Version",
       "label": "K8s version",
       "name": "eks_k8s_version",
       "type": "text",
@@ -48,7 +48,7 @@
       ]
     },
     {
-      "tutorial": "Specifies the EKS Node instance type.",
+      "tutorial": "Specifies the EKS Node instance type",
       "label": "Choose nodes instance type:",
       "name": "eks_cluster_node_instance_type",
       "type": "text",
@@ -64,7 +64,7 @@
       ]
     },
     {
-      "tutorial": "Specifies the number of Nodes.",
+      "tutorial": "Specifies the number of Nodes",
       "label": "Desired number of nodes:",
       "name": "eks_cluster_size",
       "type": "text",
@@ -72,35 +72,35 @@
       "required": true,
       "pattern": {
         "regex": "^([0-9])$",
-        "mismatchText": "Invalid number of nodes."
+        "mismatchText": "Invalid number of nodes"
       }
     },
     {
-      "tutorial": "Specifies the Node Group capacity type.",
+      "tutorial": "Specifies the Node Group capacity type",
       "label": "Choose the capacity type from the nodes:",
       "name": "eks_capacity_type",
       "type": "text",
-      "default": "ON_DEMAND",
+      "default": "on_demand",
       "required": true,
       "items": [
-        "ON_DEMAND",
-        "SPOT"
+        "on_demand",
+        "spot"
       ]
     },
     {
-      "tutorial": "Specifies where you want to store the TF state.",
+      "tutorial": "Specifies where you want to store the TF state",
       "label": "Choose where to store the state of Terraform:",
       "name": "terraform_state",
       "type": "text",
-      "default": "Gitlab",
+      "default": "gitlab",
       "required": false,
       "items": [
-        "Gitlab",
-        "Terraform Cloud"
+        "gitlab",
+        "terraform-cloud"
       ]
     },
     {
-      "tutorial": "Specifies your Terraform Cloud Token.",
+      "tutorial": "Specifies your Terraform Cloud Token",
       "condition": {
         "variable": "terraform_state",
         "operator": "==",
@@ -111,7 +111,7 @@
       "required": false
     },
     {
-      "tutorial": "Specifies your Gitlab Username.",
+      "tutorial": "Specifies your Gitlab Username",
       "condition": {
         "variable": "terraform_state",
         "operator": "==",
@@ -121,7 +121,7 @@
       "type": "CREDENTIAL_GITLAB_USERNAME"
     },
     {
-      "tutorial": "Specifies your Gitlab Access-Token.",
+      "tutorial": "Specifies your Gitlab Access-Token",
       "condition": {
         "variable": "terraform_state",
         "operator": "==",

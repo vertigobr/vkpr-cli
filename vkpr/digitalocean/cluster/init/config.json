@@ -1,7 +1,7 @@
 {
   "inputs": [
     {
-      "tutorial": "Specifies the Cluster name.",
+      "tutorial": "Specifies the Cluster name",
       "label": "Type the Cluster name:",
       "name": "do_cluster_name",
       "type": "text",
@@ -18,7 +18,7 @@
       }
     },
     {
-      "tutorial": "Specifies the EKS Kubernetes Version.",
+      "tutorial": "Specifies the EKS Kubernetes Version",
       "label": "Choose the K8s version:",
       "name": "do_k8s_version",
       "type": "text",
@@ -30,7 +30,7 @@
       ]
     },
     {
-      "tutorial": "Specifies the EKS Kubernetes Version.",
+      "tutorial": "Specifies the EKS Kubernetes Version",
       "label": "Choose the K8s region:",
       "name": "do_cluster_region",
       "type": "text",
@@ -43,7 +43,7 @@
       ]
     },
     {
-      "tutorial": "Specifies the Node instance type.",
+      "tutorial": "Specifies the Node instance type",
       "label": "Choose nodes instance type:",
       "name": "do_cluster_node_instance_type",
       "type": "text",
@@ -52,11 +52,11 @@
       "items": [
         "s-2vcpu-2gb (vCPU:2, Mem: 2Gib)",
         "s-2vcpu-4gb (vCPU:2, Mem: 4Gib)",
-        "s-2vcpu-4gb (vCPU:4, Mem: 8Gib)"
+        "s-4vcpu-8gb (vCPU:4, Mem: 8Gib)"
       ]
     },
     {
-      "tutorial": "Specifies the number of Nodes.",
+      "tutorial": "Specifies the number of Nodes",
       "label": "Desired number of nodes:",
       "name": "do_cluster_size",
       "type": "text",
@@ -64,21 +64,21 @@
       "required": true,
       "pattern": {
         "regex": "^([0-9])$",
-        "mismatchText": "Invalid number of nodes."
+        "mismatchText": "Invalid number of nodes"
       }
     },
     {
-      "tutorial": "Specifies the Digital Ocean API Token.",
+      "tutorial": "Specifies the Digital Ocean API Token",
       "name": "do_token",
       "type": "CREDENTIAL_DIGITALOCEAN_TOKEN"
     },
     {
-      "tutorial": "Specifies your Gitlab Username.",
+      "tutorial": "Specifies your Gitlab Username",
       "name": "gitlab_username",
       "type": "CREDENTIAL_GITLAB_USERNAME"
     },
     {
-      "tutorial": "Specifies your Gitlab Access-Token.",
+      "tutorial": "Specifies your Gitlab Access-Token",
       "name": "gitlab_token",
       "type": "CREDENTIAL_GITLAB_TOKEN"
     }

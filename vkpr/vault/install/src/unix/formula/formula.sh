@@ -4,13 +4,13 @@ runFormula() {
   # Global values
   checkGlobalConfig "$DOMAIN" "localhost" "global.domain" "GLOBAL_DOMAIN"
   checkGlobalConfig "$SECURE" "false" "global.secure" "GLOBAL_SECURE"
-  checkGlobalConfig "nginx" "nginx" "global.ingressClassName" "GLOBAL_INGRESS"
+  checkGlobalConfig "nginx" "nginx" "global.ingressClassName" "GLOBAL_INGRESS_CLASS_NAME"
   checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "global.namespace" "GLOBAL_NAMESPACE"
   
   # App values
-  checkGlobalConfig "$VAULT_MODE" "raft" "vault.storageMode" "VAULT_MODE"
+  checkGlobalConfig "$VAULT_MODE" "raft" "vault.storageMode" "VAULT_STORAGE_MODE"
   checkGlobalConfig "$VAULT_AUTO_UNSEAL" "false" "vault.autoUnseal" "VAULT_AUTO_UNSEAL"
-  checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS" "$VKPR_ENV_GLOBAL_INGRESS" "vault.ingressClassName" "VAULT_INGRESS"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "vault.ingressClassName" "VAULT_INGRESS_CLASS_NAME"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "vault.namespace" "VAULT_NAMESPACE"
 
   # External app values
@@ -34,8 +34,8 @@ startInfos() {
   bold "$(info "VKPR Vault Install Routine")"
   bold "$(notice "Vault UI Domain:") ${VKPR_ENV_VAULT_DOMAIN}"
   bold "$(notice "Vault UI HTTPS:") ${VKPR_ENV_GLOBAL_SECURE}"
-  bold "$(notice "Ingress Controller:") ${VKPR_ENV_VAULT_INGRESS}"
-  bold "$(notice "Storage Mode:") ${VKPR_ENV_VAULT_MODE}"
+  bold "$(notice "Ingress Controller:") ${VKPR_ENV_VAULT_INGRESS_CLASS_NAME}"
+  bold "$(notice "Storage Mode:") ${VKPR_ENV_VAULT_STORAGE_MODE}"
   bold "$(notice "Auto Unseal:") ${VKPR_ENV_VAULT_AUTO_UNSEAL}"
   echo "=============================="
 }
@@ -69,7 +69,7 @@ installVault() {
 
 settingVault() {
   YQ_VALUES="$YQ_VALUES |
-    .server.ingress.ingressClassName = \"$VKPR_ENV_VAULT_INGRESS\" |
+    .server.ingress.ingressClassName = \"$VKPR_ENV_VAULT_INGRESS_CLASS_NAME\" |
     .server.ingress.hosts[0].host = \"$VKPR_ENV_VAULT_DOMAIN\"
   "
 
@@ -113,10 +113,9 @@ settingVault() {
         validateAwsSecretKey "$AWS_SECRET_KEY"
         validateAwsRegion "$AWS_REGION"
         echoColor "bold" "$(echoColor "green" "Setting AWS secret...")"
-        $VKPR_YQ eval ".metadata.name = \"aws-unseal-vault\" |
-          .metadata.namespace = \"$VKPR_ENV_VAULT_NAMESPACE\" |
-          .data.AWS_ACCESS_KEY = \"$(echo -n "$AWS_ACCESS_KEY" | base64)\" |
-          .data.AWS_SECRET_KEY = \"$(echo -n "$AWS_SECRET_KEY" | base64)\" |
+        $VKPR_YQ eval ".metadata.name = \"aws-unseal-vault\" |VAULT_MODE
+VAULT_MODE
+VAULT_MODE
           .data.AWS_REGION = \"$(echo -n "$AWS_REGION" | base64)\" |
           .data.VAULT_AWSKMS_SEAL_KEY_ID = \"$(echo -n "$($VKPR_JQ -r .credential.kmskeyid $RIT_CREDENTIALS_PATH/aws)" | base64)\" |
           .data.AWS_KMS_ENDPOINT = \"$(echo -n "kms.$AWS_REGION.amazonaws.com" | base64)\"
@@ -154,7 +153,7 @@ settingVault() {
       esac
   fi
 
-  if [[ "$VKPR_ENV_VAULT_MODE" == "raft" ]]; then
+  if [[ "$VKPR_ENV_VAULT_STORAGE_MODE" == "raft" ]]; then
   YQ_VALUES="$YQ_VALUES |
     .server.ha.raft.enabled = true
   "

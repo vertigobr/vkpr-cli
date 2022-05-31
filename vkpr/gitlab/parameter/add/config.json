@@ -1,6 +1,7 @@
 {
   "inputs": [
     {
+      "tutorial": "Specifies the Gitlab project Name",
       "label": "Gitlab Project Name:(account/project)",
       "name": "project_name",
       "type": "text",
@@ -11,18 +12,21 @@
       }
     },
     {
+      "tutorial": "Specifies the name from the secret to be used in Gitlab pipeline",
       "label": "Parameter Name:",
       "name": "parameter_name",
       "type": "text",
       "required": true
     },
     {
+      "tutorial": "Specifies the value from the secret to be used in Gitlab pipeline",
       "label": "Parameter Value:",
       "name": "parameter_value",
       "type": "text",
       "required": true
     },
     {
+      "tutorial": "Specifies if the parameter will be masked when execute the pipeline",
       "label": "Parameter Masked:",
       "name": "parameter_masked",
       "type": "bool",
@@ -34,6 +38,7 @@
       "required": true
     },
     {
+      "tutorial": "Define the scope from the Gitlab secret",
       "label": "Parameter Scope:",
       "name": "parameter_scope",
       "type": "text",
@@ -54,5 +59,5 @@
     }
   ],
   "template": "shell-bat",
-  "templateRelease": "{tag}"
+  "templateRelease": "2.17.0"
 }

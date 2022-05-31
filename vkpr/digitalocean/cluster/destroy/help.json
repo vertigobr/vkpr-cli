@@ -1,4 +1,4 @@
 {
-  "short": "",
-  "long": ""
+  "short": "Destroy the Digitalocean Cluster",
+  "long": "Destroy the Digitalocean Cluster by your Gitlab CI Pipeline"
 }
