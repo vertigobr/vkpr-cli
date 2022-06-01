@@ -15,7 +15,7 @@
       "label": "Kong Admin Token:",
       "tutorial": "Specifies the Kong Admin Token.",
       "name": "kong_admin_token",
-      "default": "q1w2e3r4",
+      "default": "",
       "type": "text",
       "cache": {
         "active": true,
