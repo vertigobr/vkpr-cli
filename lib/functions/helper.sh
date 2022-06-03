@@ -85,7 +85,7 @@ checkExistingDatabase() {
         DATABASE_NAME="$3" NAMESPACE="$4"
 
   local PG_HOST="postgres-postgresql"
-  
+
   if $VKPR_KUBECTL get pod -n "$NAMESPACE" | grep -q "pgpool"; then
     PG_HOST="postgres-postgresql-pgpool"
   fi
@@ -103,19 +103,8 @@ checkExistingDatabase() {
 registerHelmRepository(){
   local REPO_NAME="$1" \
         REPO_URL="$2"
-
-  local RESULT
-  
-  #Checking by url because is not an unique column
-  RESULT=$($VKPR_HELM repo list -o json | $VKPR_JQ -r ".[] | select(.url == \"$REPO_URL\").name")
-
-  if [[ -z "$RESULT" ]];then
-    echo "Adding repository $REPO_NAME"
-    $VKPR_HELM repo add "$REPO_NAME" "$REPO_URL" --force-update
-  else
-    info "Repository $REPO_NAME already configured."
-  fi
-  
+  echo "Adding repository $REPO_NAME"
+  $VKPR_HELM repo add "$REPO_NAME" "$REPO_URL" --force-update
 }
 
 ## Merge KV from the helmArgs key by the VKPR values into application values
@@ -137,7 +126,7 @@ mergeVkprValuesHelmArgs() {
         "$APP_VALUES" "$(dirname "$0")"/vkpr-cp.yaml
     done
     rm "$(dirname "$0")"/vkpr-cp.yaml
-    
+
   fi
 }
 
@@ -158,6 +147,6 @@ rawUrlEncode() {
      esac
      encoded+="${o}"
   done
-  echo "${encoded}"    # You can either set a return variable (FASTER) 
+  echo "${encoded}"    # You can either set a return variable (FASTER)
   REPLY="${encoded}"   #+or echo the result (EASIER)... or both... :p
 }
