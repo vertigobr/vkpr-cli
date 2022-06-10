@@ -49,7 +49,7 @@ installVault() {
   settingVault
   
   if [[ $DRY_RUN == true ]]; then
-    echoColor "bold" "---"
+    bold "---"
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_VAULT_VALUES"
   else
     info "Installing Vault..."
@@ -112,7 +112,7 @@ settingVault() {
         validateAwsAccessKey "$AWS_ACCESS_KEY"
         validateAwsSecretKey "$AWS_SECRET_KEY"
         validateAwsRegion "$AWS_REGION"
-        echoColor "bold" "$(echoColor "green" "Setting AWS secret...")"
+        bold "$(info "Setting AWS secret...")"
         $VKPR_YQ eval ".metadata.name = \"aws-unseal-vault\" |VAULT_MODE
 VAULT_MODE
 VAULT_MODE
@@ -140,7 +140,7 @@ VAULT_MODE
           .server.extraSecretEnvironmentVars[4].secretName = \"azure-unseal-vault\" |
           .server.extraSecretEnvironmentVars[4].secretKey = \"VAULT_AZUREKEYVAULT_KEY_NAME\"
         "
-        echoColor "bold" "$(echoColor "green" "Setting Azure secret...")"
+        bold "$(info "Setting Azure secret...")"
         $VKPR_YQ eval ".metadata.name = \"azure-unseal-vault\" |
           .metadata.namespace = \"$VKPR_ENV_VAULT_NAMESPACE\" |
           .data.AZURE_TENANT_ID = \"$(echo -n "$($VKPR_JQ -r .credential.azuretenantid $RIT_CREDENTIALS_PATH/azure)" | base64)\" |

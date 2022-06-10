@@ -8,7 +8,7 @@
 # Requires: curl
 
 runFormula() {
-  echoColor "green" "VKPR initialization"
+  info "VKPR initialization"
   echo "=============================="
   local VKPR_HOME=~/.vkpr
 
@@ -38,9 +38,9 @@ runFormula() {
 
 installArkade() {
   if [[ -f "$VKPR_ARKADE" ]]; then
-    echoColor "yellow" "Alex Ellis' arkade already installed. Skipping..."
+    warn "Alex Ellis' arkade already installed. Skipping..."
   else
-    echoColor "blue" "Installing arkade..."
+    notice "Installing arkade..."
     # patches download script in order to change BINLOCATION
     curl -sLS https://get.arkade.dev > /tmp/arkinst0.sh
     sed "s/^export BINLOCATION=.*/export BINLOCATION=~\/\.vkpr\/bin/g" /tmp/arkinst0.sh > /tmp/arkinst.sh
@@ -52,9 +52,9 @@ installArkade() {
 
 installOkteto() {
   if [[ -f "$VKPR_OKTETO" ]]; then
-    echoColor "yellow" "Okteto already installed. Skipping..."
+    warn "Okteto already installed. Skipping..."
   else
-    echoColor "blue" "Installing Okteto..."
+    notice "Installing Okteto..."
     # patches download script in order to change BINLOCATION
     curl https://get.okteto.com -sSfL -o /tmp/okteto0.sh
     sed "s|\/usr\/local\/bin|~\/\.vkpr\/bin|g" /tmp/okteto0.sh > /tmp/okteto.sh
@@ -69,20 +69,20 @@ installTool() {
   local toolName=$1
   local toolVersion=$2
   if [[ -f "$VKPR_HOME/bin/$toolName" ]]; then
-    echoColor "yellow" "Tool $toolName already installed. Skipping."
+    warn "Tool $toolName already installed. Skipping."
   else
-    echoColor "green" "Installing $toolName@${toolVersion:-latest} using arkade..."
+    info "Installing $toolName@${toolVersion:-latest} using arkade..."
     $VKPR_HOME/bin/arkade get "$toolName@$toolVersion" --stash=true > /dev/null
     mv "$HOME/.arkade/bin/$toolName" $VKPR_HOME/bin
-    echoColor "green" "$toolName@${toolVersion:-latest} installed!"
+    info "$toolName@${toolVersion:-latest} installed!"
   fi
 }
 
 #installGlab() {
 #  if [[ -f "$VKPR_GLAB" ]]; then
-#    echoColor "yellow" "Glab already installed. Skipping..."
+#    warn "Glab already installed. Skipping..."
 #  else
-#    echoColor "blue" "Installing Glab..."
+#    notice "Installing Glab..."
 #    curl -sLS https://j.mp/glab-cli > /tmp/glab.sh
 #    chmod +x /tmp/glab.sh
 #    /tmp/glab.sh $VKPR_HOME/bin
@@ -91,9 +91,9 @@ installTool() {
 
 installBats(){
   if [[ -f "$VKPR_HOME/bats/bin/bats" ]]; then
-    echoColor "yellow" "Bats already installed. Skipping."
+    warn "Bats already installed. Skipping."
   else
-    echoColor "blue" "intalling Bats..."
+    notice "intalling Bats..."
     mkdir -p /tmp/bats
     # bats-core
     curl -sL -o /tmp/bats-core.tar.gz https://github.com/bats-core/bats-core/archive/refs/tags/v1.4.1.tar.gz
@@ -102,7 +102,7 @@ installBats(){
     /tmp/bats-core/install.sh $VKPR_HOME/bats
     rm -rf /tmp/bats-core
 
-    echoColor "blue" "intalling bats add-ons..."
+    notice "intalling bats add-ons..."
     # bats-support
     #git clone https://github.com/bats-core/bats-support $VKPR_HOME/bats/bats-support
     curl -sL -o /tmp/bats-support.tar.gz https://github.com/bats-core/bats-support/archive/refs/tags/v0.3.0.tar.gz
@@ -116,6 +116,6 @@ installBats(){
     curl -sL -o /tmp/bats-file.tar.gz https://github.com/bats-core/bats-file/archive/refs/tags/v0.3.0.tar.gz
     tar -xzf /tmp/bats-file.tar.gz -C /tmp
     mv /tmp/bats-file-0.3.0 $VKPR_HOME/bats/bats-file
-    echoColor "green" "Bats add-ons installed"
+    info "Bats add-ons installed"
   fi
 }

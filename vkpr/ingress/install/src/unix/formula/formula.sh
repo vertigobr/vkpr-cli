@@ -32,7 +32,7 @@ installIngress() {
   settingIngress
 
   if [[ $DRY_RUN == true ]]; then
-    echoColor "bold" "---"
+    bold "---"
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_INGRESS_VALUES"
   else
     info "Installing ngnix ingress..."

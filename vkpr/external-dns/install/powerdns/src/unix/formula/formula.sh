@@ -19,7 +19,7 @@ runFormula() {
 
 startInfos() {
   echo "=============================="
-  echoColor "bold" "$(echoColor "green" "VKPR External-DNS Install PowerDNS Routine")"
+  bold "$(info "VKPR External-DNS Install PowerDNS Routine")"
   echo "=============================="
 }
 
@@ -28,15 +28,15 @@ addRepoExternalDNS() {
 }
 
 installExternalDNS() {
-  echoColor "bold" "$(echoColor "green" "Installing External-DNS PowerDNS...")"
+  bold "$(info "Installing External-DNS PowerDNS...")"
   local YQ_VALUES=".rbac.create = true"
   settingExternalDNS
 
   if [[ $DRY_RUN == true ]]; then
-    echoColor "bold" "---"
+    bold "---"
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_EXTERNAL_DNS_VALUES"
   else
-    echoColor "bold" "$(echoColor "green" "Installing External-DNS PowerDNS...")"
+    bold "$(info "Installing External-DNS PowerDNS...")"
     $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_EXTERNAL_DNS_VALUES"
     mergeVkprValuesHelmArgs "external-dns" "$VKPR_EXTERNAL_DNS_VALUES"
     $VKPR_HELM upgrade -i --version "$VKPR_EXTERNAL_DNS_VERSION" \

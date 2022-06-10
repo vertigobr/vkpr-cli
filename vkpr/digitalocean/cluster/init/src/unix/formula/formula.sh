@@ -25,7 +25,7 @@ runFormula() {
   )
   #echo "FORK_RESPONSE_CODE= $FORK_RESPONSE_CODE"
   if [ "$FORK_RESPONSE_CODE" == "409" ];then
-    echoColor yellow "Project already forked"
+    warn"Project already forked"
   fi
   
   setVariablesGLAB
