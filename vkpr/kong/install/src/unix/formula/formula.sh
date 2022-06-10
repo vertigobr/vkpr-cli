@@ -7,6 +7,7 @@ runFormula() {
   checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "global.namespace" "GLOBAL_NAMESPACE"
   
   # App values
+  checkGlobalConfig "$ENTERPRISE" "true" "kong.enterprise.enabled" "KONG_ENTERPRISE"
   checkGlobalConfig "$HA" "false" "kong.HA" "KONG_HA"
   checkGlobalConfig "false" "false" "kong.metrics" "KONG_METRICS"
   checkGlobalConfig "$KONG_MODE" "dbless" "kong.mode" "KONG_MODE"
@@ -17,6 +18,16 @@ runFormula() {
   # External apps values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "postgresql.namespace" "POSTGRESQL_NAMESPACE"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "PROMETHEUS_STACK_NAMESPACE" 
+
+  # Validating
+  # validateKongDomain "$VKPR_ENV_GLOBAL_DOMAIN"
+  validateKongHTTP "$VKPR_ENV_GLOBAL_SECURE"
+  validateKongDeployment "$VKPR_ENV_KONG_MODE"
+  validateKongEnterpriseLicense "$VKPR_ENV_KONG_ENTERPRISE"
+  #validateKongEnterpriseLicensePath "$LICENCE"
+  validateKongRBACPsw "$VKPR_ENV_KONG_RBAC_ADMIN_PASSWORD"
+  validateHA "$VKPR_ENV_KONG_HA"
+  validateBool "$VKPR_ENV_KONG_METRICS"
 
   local VKPR_KONG_VALUES; VKPR_KONG_VALUES="$(dirname "$0")"/utils/kong.yaml
 

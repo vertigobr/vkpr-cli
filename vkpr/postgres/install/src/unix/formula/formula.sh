@@ -2,17 +2,21 @@
 
 runFormula() {
   # Global values
+  checkGlobalConfig "" "" "global.provider" "GLOBAL_PROVIDER"
   checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "global.namespace" "GLOBAL_NAMESPACE"
-  
+  checkGlobalConfig "nginx" "nginx" "global.ingressClassName" "GLOBAL_INGRESS"
+
   # App values
   checkGlobalConfig "$HA" "false" "postgresql.HA" "POSTGRESQL_HA"
   checkGlobalConfig "false" "false" "postgresql.metrics" "POSTGRESQL_METRICS"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "postgresql.namespace" "POSTGRESQL_NAMESPACE"
 
   validatePostgresqlPassword "$PASSWORD"
+  validateHA "$VKPR_ENV_POSTGRESQL_HA"
+  validatePostgresqlMetrics "$VKPR_ENV_POSTGRESQL_METRICS"
 
   local VKPR_POSTGRES_VALUES; VKPR_POSTGRES_VALUES=$(dirname "$0")/utils/postgres.yaml
-
+ 
   startInfos
   addRepoPostgres
   installPostgres
@@ -92,4 +96,3 @@ settingPostgres() {
     fi
   fi
 }
-# $VKPR_KUBECTL patch cm --namespace vkpr tcp-services -p '{"data": {"5432": "default/postgres-postgresql:5432"}}'
