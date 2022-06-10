@@ -56,14 +56,7 @@ admin:
   tls:
     enabled: false
 proxy:
-  enabled: true
-  type: ClusterIP
-  http:
-    enabled: true
-    servicePort: 80
-    containerPort: 8000
-  tls:
-    enabled: false
+  enabled: false
 # -----------------------------------------------------------------------------
 # Ingress Controller parameters
 # -----------------------------------------------------------------------------

@@ -6,25 +6,19 @@ secretVolumes:
   - kong-cluster-cert
 env:
   role: data_plane
+  cluster_server_name: "kong_clustering"
   cluster_cert: /etc/secrets/kong-cluster-cert/tls.crt
   cluster_cert_key: /etc/secrets/kong-cluster-cert/tls.key
   lua_ssl_trusted_certificate: /etc/secrets/kong-cluster-cert/tls.crt
-  cluster_control_plane: kong-kong-cluster.kong.svc.cluster.local:8005
-  cluster_telemetry_endpoint: kong-kong-clustertelemetry.kong.svc.cluster.local:8006
+  cluster_control_plane: kong-kong-cluster.vkpr.svc.cluster.local:8005
+  cluster_telemetry_endpoint: kong-kong-clustertelemetry.vkpr.svc.cluster.local:8006
   status_listen: 0.0.0.0:8100
   log_level: notice
 image:
-  repository: kong
-  tag: "2.7"
+  repository: kong/kong-gateway
+  tag: "2.7.1.2-alpine"
 admin:
-  enabled: true
-  http:
-    enabled: true
-    servicePort: 8001
-    containerPort: 8001
-    nodePort: 30005
-  tls:
-    enabled: false
+  enabled: false
 proxy:
   enabled: true
   type: LoadBalancer
