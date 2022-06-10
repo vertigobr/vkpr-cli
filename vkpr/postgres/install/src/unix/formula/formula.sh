@@ -2,8 +2,10 @@
 
 runFormula() {
   # Global values
+  checkGlobalConfig "" "" "global.provider" "GLOBAL_PROVIDER"
   checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "global.namespace" "GLOBAL_NAMESPACE"
-  
+  checkGlobalConfig "nginx" "nginx" "global.ingressClassName" "GLOBAL_INGRESS"
+
   # App values
   checkGlobalConfig "$HA" "false" "postgresql.HA" "POSTGRESQL_HA"
   checkGlobalConfig "false" "false" "postgresql.metrics" "POSTGRESQL_METRICS"
@@ -12,6 +14,7 @@ runFormula() {
   validatePostgresqlPassword "$PASSWORD"
 
   local VKPR_POSTGRES_VALUES; VKPR_POSTGRES_VALUES=$(dirname "$0")/utils/postgres.yaml
+  local HELM_ARGS='--namespace "$VKPR_ENV_POSTGRES_NAMESPACE" --create-namespace'
 
   startInfos
   addRepoPostgres
@@ -43,7 +46,7 @@ installPostgres(){
     $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_POSTGRES_VALUES"
     mergeVkprValuesHelmArgs "postgresql" "$VKPR_POSTGRES_VALUES"
     $VKPR_HELM upgrade -i --version "$VKPR_POSTGRES_VERSION" \
-      --namespace "$VKPR_ENV_POSTGRESQL_NAMESPACE" --create-namespace \
+        $HELM_ARGS \
       --wait -f "$VKPR_POSTGRES_VALUES" postgresql bitnami/$POSTGRESQL_CHART
   fi
 }
@@ -69,7 +72,7 @@ settingPostgres() {
     VKPR_POSTGRES_VERSION="8.2.5"
     else
     YQ_VALUES="$YQ_VALUES |
-      .global.postgresql.postgresqlPassword = \"$PASSWORD\"
+      .global.postgresql.auth.password = \"$PASSWORD\"
     "
   fi
   
@@ -91,5 +94,12 @@ settingPostgres() {
       "
     fi
   fi
+  settingPostgresProvider
 }
-# $VKPR_KUBECTL patch cm --namespace vkpr tcp-services -p '{"data": {"5432": "default/postgres-postgresql:5432"}}'
+
+settingPostgresProvider(){
+  ACTUAL_CONTEXT=$($VKPR_KUBECTL config get-contexts --no-headers | grep "\*" | xargs | awk -F " " '{print $2}')
+  if [[ "$VKPR_ENV_GLOBAL_PROVIDER" == "okteto" ]] || [[$ACTUAL_CONTEXT == "cloud_okteto_com" ]]; then   
+    HELM_ARGS=""
+  fi  
+}
