@@ -53,8 +53,6 @@ installArgoCD(){
       --wait -f "$VKPR_ARGOCD_VALUES" argocd argo/argo-cd
     printArgoPassword
   fi
-
-  settingArgoAddons
 }
 
 printArgoPassword(){
@@ -104,18 +102,5 @@ settingArgoCD(){
       .server.metrics.serviceMonitor.scrapeTimeout = \"30s\" |
       .server.metrics.serviceMonitor.additionalLabels.release = \"prometheus-stack\" 
     "
-  fi
-}
-
-settingArgoAddons(){
-  if [[ "$VKPR_ENV_ARGOCD_ADDONS_APPLICATION_SET" == true ]]; then
-    echoColor "bold" "$(echoColor "green" "Installing ArgoCD Addon Applicationset...")"
-
-    local VKPR_ARGOCD_APPLICATIONSET_VALUES; VKPR_ARGOCD_APPLICATIONSET_VALUES="$(dirname "$0")"/utils/argocd-applicationset.yaml
-    local YQ_APPLICATIONSET_VALUES; YQ_APPLICATIONSET_VALUES=".args.namespace = \"$VKPR_ENV_ARGOCD_NAMESPACE\""
-
-    $VKPR_YQ eval "$YQ_APPLICATIONSET_VALUES" "$VKPR_ARGOCD_APPLICATIONSET_VALUES" \
-    | $VKPR_HELM upgrade -i --version "$VKPR_ARGOCD_ADDON_APPLICATIONSET_VERSION" \
-      --namespace "$VKPR_ENV_ARGOCD_NAMESPACE" --wait -f - argocd-applicationset argo/argocd-applicationset
   fi
 }
