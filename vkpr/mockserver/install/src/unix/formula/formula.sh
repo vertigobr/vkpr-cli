@@ -13,7 +13,7 @@ runFormula() {
 
   local VKPR_ENV_MOCKSERVER_DOMAIN="mockserver.${VKPR_ENV_GLOBAL_DOMAIN}"
   local VKPR_MOCKSERVER_VALUES; VKPR_MOCKSERVER_VALUES=$(dirname "$0")/utils/mockserver.yaml
-  local HELM_NAMESPACE='--create-namespace --namespace "$VKPR_ENV_MOCKSERVER_NAMESPACE"'
+  local HELM_NAMESPACE="--create-namespace --namespace $VKPR_ENV_MOCKSERVER_NAMESPACE"
 
   startInfos
   addRepoMockServer

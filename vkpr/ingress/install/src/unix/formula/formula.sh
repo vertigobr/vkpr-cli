@@ -70,7 +70,7 @@ settingIngress() {
   fi
 
   if [[ "$VKPR_ENV_INGRESS_SSL" == "true" ]]; then
-    [[ "$VKPR_ENV_INGRESS_SSL_SECRET" == "nginx-cert" ]] && $VKPR_KUBECTL create secret tls nginx-cert -n $VKPR_ENV_INGRESS_NAMESPACE \
+    [[ "$VKPR_ENV_INGRESS_SSL_SECRET" == "nginx-cert" ]] && $VKPR_KUBECTL create secret tls nginx-cert -n "$VKPR_ENV_INGRESS_NAMESPACE" \
       --cert="$VKPR_ENV_INGRESS_CERTIFICATE" \
       --key="$VKPR_ENV_INGRESS_KEY"
     YQ_VALUES="$YQ_VALUES |

@@ -16,12 +16,8 @@ runFormula() {
   validatePostgresqlMetrics "$VKPR_ENV_POSTGRESQL_METRICS"
 
   local VKPR_POSTGRES_VALUES; VKPR_POSTGRES_VALUES=$(dirname "$0")/utils/postgres.yaml
-<<<<<<< HEAD
-  local HELM_ARGS='--namespace "$VKPR_ENV_POSTGRES_NAMESPACE" --create-namespace'
+  local HELM_ARGS="--namespace $VKPR_ENV_POSTGRES_NAMESPACE --create-namespace"
 
-=======
- 
->>>>>>> origin/VKPR-383
   startInfos
   addRepoPostgres
   installPostgres
@@ -52,6 +48,7 @@ installPostgres(){
     info "Installing Postgresql..."
     $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_POSTGRES_VALUES"
     mergeVkprValuesHelmArgs "postgresql" "$VKPR_POSTGRES_VALUES"
+    # shellcheck disable=SC2086
     $VKPR_HELM upgrade -i --version "$VKPR_POSTGRES_VERSION" \
         $HELM_ARGS \
       --wait -f "$VKPR_POSTGRES_VALUES" postgresql bitnami/$POSTGRESQL_CHART
@@ -106,7 +103,7 @@ settingPostgres() {
 
 settingPostgresProvider(){
   ACTUAL_CONTEXT=$($VKPR_KUBECTL config get-contexts --no-headers | grep "\*" | xargs | awk -F " " '{print $2}')
-  if [[ "$VKPR_ENV_GLOBAL_PROVIDER" == "okteto" ]] || [[$ACTUAL_CONTEXT == "cloud_okteto_com" ]]; then   
+  if [[ "$VKPR_ENV_GLOBAL_PROVIDER" == "okteto" ]] || [[ $ACTUAL_CONTEXT == "cloud_okteto_com" ]]; then   
     HELM_ARGS=""
   fi  
 }

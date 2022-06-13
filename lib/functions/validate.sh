@@ -98,7 +98,7 @@ validatePostgresqlPassword() {
 
 validatePostgresqlMetrics() {
     if validateBool $1 | grep -q "error" ; then
-      error "Invalid value for postgresql.metrics, please insert true or false"  
+      error "Invalid value for postgresql.metrics, please insert true or false"
       exit
   else
     return
@@ -165,7 +165,7 @@ validateBool(){
   if [[  $(echo $1 | tr '[:upper:]' '[:lower:]') =~ ^true|false$ ]]; then
    return
   else
-    echo "error" 
+    echo "error"
     exit
   fi
 }
@@ -226,7 +226,7 @@ validateKongRBACPsw() {
 
 validateHA(){
   if validateBool $1 | grep -q "error" ; then
-      error "It was not possible to identify if the application will have High Availability "  
+      error "It was not possible to identify if the application will have High Availability "
       exit
   else
     return

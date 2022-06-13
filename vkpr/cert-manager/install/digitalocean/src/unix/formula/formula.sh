@@ -103,6 +103,7 @@ configureDNS01() {
   validateDigitalOceanApiToken "$DO_TOKEN"
 
   echoColor "bold" "$(echoColor "green" "Setting DO secret...")"
+  # shellcheck disable=SC2086
   $VKPR_KUBECTL create secret generic digitalocean-secret -n $VKPR_ENV_CERT_MANAGER_NAMESPACE --from-literal="access-token=$DO_TOKEN" $DRY_RUN_FLAGS
   $VKPR_KUBECTL label secret digitalocean-secret -n $VKPR_ENV_CERT_MANAGER_NAMESPACE vkpr=true app.kubernetes.io/instance=cert-manager 2> /dev/null
 

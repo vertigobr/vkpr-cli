@@ -13,7 +13,7 @@ runFormula() {
 
   local VKPR_ENV_WHOAMI_DOMAIN="whoami.${VKPR_ENV_GLOBAL_DOMAIN}"
   local VKPR_WHOAMI_VALUES; VKPR_WHOAMI_VALUES=$(dirname "$0")/utils/whoami.yaml
-  local HELM_NAMESPACE='--create-namespace --namespace "$VKPR_ENV_WHOAMI_NAMESPACE"'
+  local HELM_NAMESPACE="--create-namespace --namespace $VKPR_ENV_WHOAMI_NAMESPACE"
 
   startInfos
   addRepoWhoami

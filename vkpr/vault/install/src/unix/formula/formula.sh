@@ -24,8 +24,8 @@ runFormula() {
   local VKPR_VAULT_CONFIG; VKPR_VAULT_CONFIG=$(dirname "$0")/utils/config.hcl
 
   [[ $DRY_RUN == true ]] && DRY_RUN_FLAGS="--dry-run=client -o yaml"
-  local HELM_NAMESPACE='--namespace $VKPR_ENV_VAULT_NAMESPACE --create-namespace'
-  local KUBERNETES_NAMESPACE='-n $VKPR_ENV_VAULT_NAMESPACE'
+  local HELM_NAMESPACE="--namespace $VKPR_ENV_VAULT_NAMESPACE --create-namespace"
+  local KUBERNETES_NAMESPACE="-n $VKPR_ENV_VAULT_NAMESPACE"
 
   startInfos
   configureRepository
@@ -59,13 +59,16 @@ installVault() {
     info "Installing Vault..."
     $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_VAULT_VALUES"
     mergeVkprValuesHelmArgs "vault" "$VKPR_VAULT_VALUES"
+    # shellcheck disable=SC2086
     $VKPR_HELM upgrade -i --version "$VKPR_VAULT_VERSION" \
      $HELM_NAMESPACE \
       --wait -f "$VKPR_VAULT_VALUES" vault hashicorp/vault
   fi
 
+  # shellcheck disable=SC2086
   if [[ $($VKPR_KUBECTL get secret $KUBERNETES_NAMESPACE | grep vault-storage-config | cut -d " " -f1) != "vault-storage-config" ]]; then
     info "Creating storage config..."
+    # shellcheck disable=SC2015
     $VKPR_KUBECTL create secret generic vault-storage-config $KUBERNETES_NAMESPACE --from-file="$VKPR_VAULT_CONFIG" $DRY_RUN_FLAGS && \
       $VKPR_KUBECTL label secret vault-storage-config vkpr=true app.kubernetes.io/instance=vault -n "$VKPR_ENV_VAULT_NAMESPACE" 2> /dev/null || true
   fi
@@ -117,6 +120,7 @@ settingVault() {
         validateAwsSecretKey "$AWS_SECRET_KEY"
         validateAwsRegion "$AWS_REGION"
         echoColor "bold" "$(echoColor "green" "Setting AWS secret...")"
+        # shellcheck disable=SC2086
         $VKPR_YQ eval ".metadata.name = \"aws-unseal-vault\" |
           .metadata.namespace = \"$VKPR_ENV_VAULT_NAMESPACE\" |
           .data.AWS_ACCESS_KEY = \"$(echo -n "$AWS_ACCESS_KEY" | base64)\" |
@@ -146,6 +150,7 @@ settingVault() {
           .server.extraSecretEnvironmentVars[4].secretKey = \"VAULT_AZUREKEYVAULT_KEY_NAME\"
         "
         bold "$(info "Setting Azure secret...")"
+        # shellcheck disable=SC2086
         $VKPR_YQ eval ".metadata.name = \"azure-unseal-vault\" |
           .metadata.namespace = \"$VKPR_ENV_VAULT_NAMESPACE\" |
           .data.AZURE_TENANT_ID = \"$(echo -n "$($VKPR_JQ -r .credential.azuretenantid $RIT_CREDENTIALS_PATH/azure)" | base64)\" |
@@ -187,7 +192,6 @@ settingVault() {
 settingVaultProvider() {
   ACTUAL_CONTEXT=$($VKPR_KUBECTL config get-contexts --no-headers | grep "\*" | xargs | awk -F " " '{print $2}')
   if [[ "$VKPR_ENV_GLOBAL_PROVIDER" == "okteto" ]] || [[ $ACTUAL_CONTEXT == "cloud_okteto_com" ]]; then
-    OKTETO_NAMESPACE=$($VKPR_KUBECTL config get-contexts --no-headers | grep "\*" | xargs | awk -F " " '{print $NF}')
     HELM_NAMESPACE=""
     KUBERNETES_NAMESPACE=""
     YQ_VALUES="$YQ_VALUES |

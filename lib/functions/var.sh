@@ -12,4 +12,5 @@ export VKPR_GLAB=$VKPR_HOME/bin/glab \
   VKPR_KUBECTL=$VKPR_HOME/bin/kubectl \
   VKPR_HELM=$VKPR_HOME/bin/helm \
   VKPR_JQ=$VKPR_HOME/bin/jq \
-  VKPR_YQ=$VKPR_HOME/bin/yq
+  VKPR_YQ=$VKPR_HOME/bin/yq \
+  VKPR_DECK=$VKPR_HOME/bin/deck
