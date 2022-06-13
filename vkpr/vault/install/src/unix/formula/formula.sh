@@ -6,7 +6,8 @@ runFormula() {
   checkGlobalConfig "$SECURE" "false" "global.secure" "GLOBAL_SECURE"
   checkGlobalConfig "nginx" "nginx" "global.ingressClassName" "GLOBAL_INGRESS_CLASS_NAME"
   checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "global.namespace" "GLOBAL_NAMESPACE"
-  
+  checkGlobalConfig "" "" "global.provider" "GLOBAL_PROVIDER"
+
   # App values
   checkGlobalConfig "$VAULT_MODE" "raft" "vault.storageMode" "VAULT_STORAGE_MODE"
   checkGlobalConfig "$VAULT_AUTO_UNSEAL" "false" "vault.autoUnseal" "VAULT_AUTO_UNSEAL"
@@ -23,7 +24,9 @@ runFormula() {
   local VKPR_VAULT_CONFIG; VKPR_VAULT_CONFIG=$(dirname "$0")/utils/config.hcl
 
   [[ $DRY_RUN == true ]] && DRY_RUN_FLAGS="--dry-run=client -o yaml"
-  
+  local HELM_NAMESPACE='--namespace $VKPR_ENV_VAULT_NAMESPACE --create-namespace'
+  local KUBERNETES_NAMESPACE='-n $VKPR_ENV_VAULT_NAMESPACE'
+
   startInfos
   configureRepository
   installVault
@@ -56,13 +59,13 @@ installVault() {
     $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_VAULT_VALUES"
     mergeVkprValuesHelmArgs "vault" "$VKPR_VAULT_VALUES"
     $VKPR_HELM upgrade -i --version "$VKPR_VAULT_VERSION" \
-      --namespace "$VKPR_ENV_VAULT_NAMESPACE" --create-namespace \
+     $HELM_NAMESPACE \
       --wait -f "$VKPR_VAULT_VALUES" vault hashicorp/vault
   fi
 
-  if [[ $($VKPR_KUBECTL get secret -n "$VKPR_ENV_VAULT_NAMESPACE" | grep vault-storage-config | cut -d " " -f1) != "vault-storage-config" ]]; then
+  if [[ $($VKPR_KUBECTL get secret $KUBERNETES_NAMESPACE | grep vault-storage-config | cut -d " " -f1) != "vault-storage-config" ]]; then
     info "Creating storage config..."
-    $VKPR_KUBECTL create secret generic vault-storage-config -n "$VKPR_ENV_VAULT_NAMESPACE" --from-file="$VKPR_VAULT_CONFIG" $DRY_RUN_FLAGS && \
+    $VKPR_KUBECTL create secret generic vault-storage-config $KUBERNETES_NAMESPACE --from-file="$VKPR_VAULT_CONFIG" $DRY_RUN_FLAGS && \
       $VKPR_KUBECTL label secret vault-storage-config vkpr=true app.kubernetes.io/instance=vault -n "$VKPR_ENV_VAULT_NAMESPACE" 2> /dev/null || true
   fi
 }
@@ -175,5 +178,26 @@ VAULT_MODE
   path = "vault"
   address = "consul-consul-server.%s.svc.cluster.local:8500"
 }' "$VKPR_ENV_CONSUL_NAMESPACE" >> "$VKPR_VAULT_CONFIG"
+  fi
+  settingVaultProvider
+}
+
+settingVaultProvider() {
+  ACTUAL_CONTEXT=$($VKPR_KUBECTL config get-contexts --no-headers | grep "\*" | xargs | awk -F " " '{print $2}')
+  if [[ "$VKPR_ENV_GLOBAL_PROVIDER" == "okteto" ]] || [[ $ACTUAL_CONTEXT == "cloud_okteto_com" ]]; then
+    OKTETO_NAMESPACE=$($VKPR_KUBECTL config get-contexts --no-headers | grep "\*" | xargs | awk -F " " '{print $NF}')
+    HELM_NAMESPACE=""
+    KUBERNETES_NAMESPACE=""
+    YQ_VALUES="$YQ_VALUES |
+      del(.server) |
+      del(.global) |
+      .injector.enabled = false |
+      .dataStorage.size = \"1Gi\" |
+      .auditStorage.size = \"1Gi\" |
+      .ui.enabled = true |
+      .server.dev.enabled = true |
+      .server.authDelegator.enabled = false |
+      .ui.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\"
+    "
   fi
 }
