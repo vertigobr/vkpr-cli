@@ -37,7 +37,7 @@ installWhoami() {
   settingWhoami
 
   if [[ $DRY_RUN == true ]]; then
-    echoColor "bold" "---"
+    bold "---"
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_WHOAMI_VALUES"
     mergeVkprValuesHelmArgs "whoami" "$VKPR_WHOAMI_VALUES"    
   else

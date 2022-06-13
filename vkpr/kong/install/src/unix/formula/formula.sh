@@ -141,7 +141,7 @@ installKong(){
   settingKongDefaults
 
   if [[ $DRY_RUN == true ]]; then
-    echoColor "bold" "---"
+    bold "---"
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_KONG_VALUES"
     mergeVkprValuesHelmArgs "kong" "$VKPR_KONG_VALUES"    
   else
@@ -154,7 +154,7 @@ installKong(){
   fi
 
   if [[ "$VKPR_ENV_KONG_METRICS" == true ]]; then
-    echoColor "bold" "Setting prometheus plugins..."
+    bold "Setting prometheus plugins..."
     $VKPR_KUBECTL apply -f "$(dirname "$0")"/utils/prometheus-plugin.yaml $DRY_RUN_FLAGS
   fi
 }
@@ -163,7 +163,7 @@ installKongDP() {
   local VKPR_KONG_DP_VALUES; VKPR_KONG_DP_VALUES="$(dirname "$0")"/utils/kong-dp.yaml
 
   if [[ $DRY_RUN == true ]]; then
-    echoColor "bold" "---"
+    bold "---"
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_KONG_DP_VALUES"
   else
     info "Installing Kong DP in cluster..."

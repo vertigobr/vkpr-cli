@@ -45,7 +45,7 @@ installPostgres(){
   settingPostgres
 
   if [[ $DRY_RUN == true ]]; then
-    echoColor "bold" "---"
+    bold "---"
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_POSTGRES_VALUES"
     mergeVkprValuesHelmArgs "postgresql" "$VKPR_POSTGRES_VALUES"    
   else

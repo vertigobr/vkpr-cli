@@ -52,7 +52,7 @@ installVault() {
   settingVault
   
   if [[ $DRY_RUN == true ]]; then
-    echoColor "bold" "---"
+    bold "---"
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_VAULT_VALUES"
     mergeVkprValuesHelmArgs "vault" "$VKPR_VAULT_VALUES"    
   else
@@ -145,7 +145,7 @@ settingVault() {
           .server.extraSecretEnvironmentVars[4].secretName = \"azure-unseal-vault\" |
           .server.extraSecretEnvironmentVars[4].secretKey = \"VAULT_AZUREKEYVAULT_KEY_NAME\"
         "
-        echoColor "bold" "$(echoColor "green" "Setting Azure secret...")"
+        bold "$(info "Setting Azure secret...")"
         $VKPR_YQ eval ".metadata.name = \"azure-unseal-vault\" |
           .metadata.namespace = \"$VKPR_ENV_VAULT_NAMESPACE\" |
           .data.AZURE_TENANT_ID = \"$(echo -n "$($VKPR_JQ -r .credential.azuretenantid $RIT_CREDENTIALS_PATH/azure)" | base64)\" |

@@ -25,6 +25,6 @@ runFormula() {
   waitJobComplete "$PROJECT_ID" "$PIPELINE_ID" "$DEPLOY_COMPLETE" "$GITLAB_TOKEN" "1"
   downloadKubeconfig "$PROJECT_ID" "$PIPELINE_ID" "$DEPLOY_COMPLETE" "$GITLAB_TOKEN" "digitalocean"
 
-  echoColor "green" "Kubeconfig downloaded succefully, to use the Kubeconfig run the following command: "
-  echoColor "bold" "export KUBECONFIG=\$HOME/.vkpr/kubeconfig/digitalocean/kubeconfig_${BRANCH_NAME}"
+  info "Kubeconfig downloaded succefully, to use the Kubeconfig run the following command: "
+  bold "export KUBECONFIG=\$HOME/.vkpr/kubeconfig/digitalocean/kubeconfig_${BRANCH_NAME}"
 }
