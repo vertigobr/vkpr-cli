@@ -18,6 +18,7 @@ runFormula() {
 
   installArkade
   installOkteto
+  installDeck
   #installGlab
   #Versions from ./utils/dependencies.sh or latest as default
   validateKubectlVersion
@@ -119,3 +120,16 @@ installBats(){
     echoColor "green" "Bats add-ons installed"
   fi
 }
+
+installDeck() {
+  if [[ -f "$VKPR_DECK" ]]; then
+    echoColor "yellow" "decK already installed. Skipping..."
+  else
+    echoColor "blue" "Installing decK..."
+    # patches download script in order to change BINLOCATION
+    curl -sL https://github.com/kong/deck/releases/download/v"${VKPR_TOOLS_DECK}"/deck_"${VKPR_TOOLS_DECK}"_linux_amd64.tar.gz -o /tmp/deck.tar.gz
+    tar -xf /tmp/deck.tar.gz
+    cp /tmp/deck ~/.vkpr/bin
+  fi
+}
+

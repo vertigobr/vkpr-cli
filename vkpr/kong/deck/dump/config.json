@@ -1,0 +1,40 @@
+{
+  "inputs": [
+    { 
+      "label": "Kong Admin Adress:",
+      "tutorial": "Specifies the Kong Admin Adress.",
+      "name": "kong_addr",
+      "default": "admin.localhost:8000",
+      "type": "text",
+      "cache": {
+        "active": true, 
+        "qty": 2
+      }
+    },
+    {
+      "label": "Kong Admin Token:",
+      "tutorial": "Specifies the Kong Admin Token.",
+      "name": "kong_admin_token",
+      "default": "",
+      "type": "text",
+      "cache": {
+        "active": true,
+        "qty": 2
+      }
+    },
+    {
+      "label": "Kong's Workspace:",
+      "tutorial": "Specifies the Kong's Workspace.",
+      "name": "kong_workspace",
+      "default": "default",
+      "type": "text",
+      "cache": {
+        "active": true,
+        "qty": 2
+      }
+    }    
+   ],
+
+  "template": "shell-bat",
+  "templateRelease": "2.17.0"
+}
