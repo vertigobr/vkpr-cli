@@ -116,9 +116,10 @@ settingVault() {
         validateAwsSecretKey "$AWS_SECRET_KEY"
         validateAwsRegion "$AWS_REGION"
         echoColor "bold" "$(echoColor "green" "Setting AWS secret...")"
-        $VKPR_YQ eval ".metadata.name = \"aws-unseal-vault\" |VAULT_MODE
-VAULT_MODE
-VAULT_MODE
+        $VKPR_YQ eval ".metadata.name = \"aws-unseal-vault\" |
+          .metadata.namespace = \"$VKPR_ENV_VAULT_NAMESPACE\" |
+          .data.AWS_ACCESS_KEY = \"$(echo -n "$AWS_ACCESS_KEY" | base64)\" |
+          .data.AWS_SECRET_KEY = \"$(echo -n "$AWS_SECRET_KEY" | base64)\" |
           .data.AWS_REGION = \"$(echo -n "$AWS_REGION" | base64)\" |
           .data.VAULT_AWSKMS_SEAL_KEY_ID = \"$(echo -n "$($VKPR_JQ -r .credential.kmskeyid $RIT_CREDENTIALS_PATH/aws)" | base64)\" |
           .data.AWS_KMS_ENDPOINT = \"$(echo -n "kms.$AWS_REGION.amazonaws.com" | base64)\"
