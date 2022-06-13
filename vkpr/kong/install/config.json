@@ -31,6 +31,46 @@
       ]
     },
     {
+      "tutorial": "Specifies the Plane to install on Hybrid Mode",
+      "condition": {
+        "variable": "kong_mode",
+        "operator": "==",
+        "value": "hybrid"
+      },
+      "label": "Select the plane to install",
+      "name": "kong_plane",
+      "type": "text",
+      "default": "control",
+      "items": [
+        "control",
+        "data"
+      ]
+    },
+    {
+      "tutorial": "Specifies which Kong CP to point at",
+      "condition": {
+        "variable": "kong_plane",
+        "operator": "==",
+        "value": "data"
+      },
+      "label": "Kong Control Plane",
+      "name": "kong_cp_url",
+      "type": "text",
+      "default": "kong-kong-cluster.vkpr.svc.cluster.local:8005"
+    },
+    {
+      "tutorial": "Specifies which telemetry endpoint to point at",
+      "condition": {
+        "variable": "kong_plane",
+        "operator": "==",
+        "value": "data"
+      },
+      "label": "Kong Telemetry Endpoint",
+      "name": "kong_telemetry_url",
+      "type": "text",
+      "default": "kong-kong-clustertelemetry.vkpr.svc.cluster.local:8006"
+    },
+    {
       "tutorial": "Specifies if the Kong will be using Enterprise License",
       "label": "Do you will use enterprise?",
       "name": "enterprise",
@@ -60,13 +100,13 @@
       }
     },
     {
-      "tutorial": "Specifies the RBAC Super Admin Password",
+      "tutorial": "Specifies the RBAC Super Admin Password. Has no effect on hybrid data plane installations.",
       "condition": {
         "variable": "enterprise",
         "operator": "==",
         "value": "true"
       },
-      "label": "Type the RBAC Admin Password:",
+      "label": "Type the RBAC Admin Password. Has no effect on hybrid data plane installations:",
       "name": "rbac_password",
       "type": "text",
       "default": "vkpr123",
