@@ -4,9 +4,10 @@
 runFormula() {
   checkGlobalConfig "$HTTP_PORT" "8000" "infra.httpPort" "HTTP_PORT"
   checkGlobalConfig "$HTTPS_PORT" "8001" "infra.httpsPort" "HTTPS_PORT"
-  checkGlobalConfig "$ENABLE_TRAEFIK" "false" "infra.traefik.enabled" "TRAEFIK"
+  checkGlobalConfig "$ENABLE_TRAEFIK" "false" "infra.enableTraefik" "TRAEFIK"
   checkGlobalConfig "1" "1" "infra.resources.masters" "K3D_SERVERS"
   checkGlobalConfig "$WORKER_NODES" "1" "infra.resources.workers" "K3D_AGENTS"
+  checkGlobalConfig "$ENABLE_VOLUME" "false" "infra.enableVolume" "VOLUME"
 
   startInfos
   configRegistry
@@ -58,11 +59,11 @@ startCluster() {
   local TRAEFIK_FLAG="" \
     VOLUME_FLAG=""
 
-  if [ "${ENABLE_TRAEFIK}" == false ]; then
+  if [ "$VKPR_ENV_TRAEFIK" == false ]; then
     TRAEFIK_FLAG="--disable=traefik@server:0"
   fi
 
-  if [ "$ENABLE_VOLUME" == true ]; then
+  if [ "$VKPR_ENV_VOLUME" == true ]; then
     mkdir -p /tmp/k3dvol
     VOLUME_FLAG="/tmp/k3dvol:/tmp/k3dvol"
   fi

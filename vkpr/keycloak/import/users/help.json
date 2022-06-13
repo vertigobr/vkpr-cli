@@ -1,4 +1,4 @@
 {
-  "short": "",
-  "long": ""
+  "short": "Import users from a specifed file in Keycloak database",
+  "long": "Import users from a specifed file in Keycloak database"
 }

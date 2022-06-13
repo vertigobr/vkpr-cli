@@ -1,4 +1,4 @@
 {
   "short": "Remove Vault",
-  "long": "Remove the Vault in the Kubernetes cluster."
+  "long": "Remove the Vault in the Kubernetes cluster"
 }

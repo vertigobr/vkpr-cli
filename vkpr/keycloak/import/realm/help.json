@@ -1,4 +1,4 @@
 {
-  "short": "",
-  "long": ""
+  "short": "Import realm from the specifed file in Keycloak database",
+  "long": "Import realm from the specifed file in Keycloak database"
 }

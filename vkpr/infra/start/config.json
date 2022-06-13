@@ -1,28 +1,28 @@
 {
   "inputs": [
     {
-      "tutorial": "Specifies the HTTP listening port from the Cluster.",
+      "tutorial": "Specifies the HTTP listening port from the Cluster",
       "label": "Type the HTTP listening port:",
       "name": "http_port",
       "type": "text",
       "default": "8000"
     },
     {
-      "tutorial": "Specifies the HTTPS listening port from the Cluster.",
+      "tutorial": "Specifies the HTTPS listening port from the Cluster",
       "label": "Type the HTTPS listening port:",
       "name": "https_port",
       "type": "text",
       "default": "8001"
     },
     {
-      "tutorial": "Specifies the quantity of Worker nodes.",
+      "tutorial": "Specifies the quantity of Worker nodes",
       "label": "Type the quantity of Worker Nodes:",
       "name": "worker_nodes",
       "type": "text",
       "default": "1"
     },
     {
-      "tutorial": "Enable mount of volumes in cluster.",
+      "tutorial": "Enable mount of volumes in cluster",
       "label": "Enable Volume Mount ?",
       "name": "enable_volume",
       "type": "bool",
@@ -33,7 +33,7 @@
       ]
     },
     {
-      "tutorial": "Enable Traefik by default in Cluster.",
+      "tutorial": "Enable Traefik by default in Cluster",
       "label": "Enable Traefik ingress controller ?",
       "name": "enable_traefik",
       "type": "bool",

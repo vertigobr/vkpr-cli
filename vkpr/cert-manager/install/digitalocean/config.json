@@ -1,7 +1,7 @@
 {
   "inputs": [
     {
-      "tutorial": "Specifies your email to issue the certificate.",
+      "tutorial": "Specifies your email to issue the certificate",
       "label": "Type your email to use to generate certificates:",
       "name": "email",
       "type": "text",
@@ -14,7 +14,7 @@
       }
     },
     {
-      "tutorial": "Specifies what will be used to issue certificates.",
+      "tutorial": "Specifies what will be used to issue certificates",
       "label": "What is the default cluster issuer ?",
       "name": "issuer",
       "type": "text",
@@ -26,7 +26,7 @@
       ]
     },
     {
-      "tutorial": "Specifies the type of challenge you will use to issue the certificate.",
+      "tutorial": "Specifies the type of challenge you will use to issue the certificate",
       "label": "What solver do you want to use ?",
       "name": "issuer_solver",
       "type": "text",
@@ -38,7 +38,7 @@
       ]
     },
     {
-      "tutorial": "Specifies if output the values from the application.",
+      "tutorial": "Specifies if output the values from the application",
       "label": "Dry-run ?",
       "name": "dry_run",
       "type": "bool",
@@ -49,7 +49,7 @@
       ]
     },
     {
-      "tutorial": "Specifies the Digital Ocean API Token.",
+      "tutorial": "Specifies the Digital Ocean API Token",
       "name": "do_token",
       "type": "CREDENTIAL_DIGITALOCEAN_TOKEN"
     }

@@ -2,9 +2,9 @@
 
 runFormula() {
   checkGlobalConfig "$EMAIL" "default@vkpr.com" "cert-manager.email" "CERT_MANAGER_EMAIL"
-  checkGlobalConfig "$ISSUER" "staging" "cert-manager.issuer" "CERT_MANAGER_ISSUER"
-  checkGlobalConfig "$ISSUER_SOLVER" "DNS01" "cert-manager.solver" "CERT_MANAGER_ISSUER_SOLVER"
-  checkGlobalConfig "nginx" "nginx" "cert-manager.ingress" "CERT_MANAGER_HTTP01_INGRESS"
+  checkGlobalConfig "$ISSUER" "staging" "cert-manager.issuer.type" "CERT_MANAGER_ISSUER_TYPE"
+  checkGlobalConfig "$ISSUER_SOLVER" "DNS01" "cert-manager.issuer.solver" "CERT_MANAGER_ISSUER_SOLVER"
+  checkGlobalConfig "nginx" "nginx" "cert-manager.issuer.ingress" "CERT_MANAGER_ISSUER_INGRESS"
   checkGlobalConfig "cert-manager" "cert-manager" "cert-manager.namespace" "CERT_MANAGER_NAMESPACE"
 
   # Todo: find why cert-manager doesnt work in another namespace
@@ -58,7 +58,7 @@ installCertManager() {
 installIssuer() {
   local YQ_ISSUER_VALUES=".spec.acme.email = \"$VKPR_ENV_CERT_MANAGER_EMAIL\" | .metadata.namespace = \"$VKPR_ENV_CERT_MANAGER_NAMESPACE\""
 
-  case "$VKPR_ENV_CERT_MANAGER_ISSUER" in
+  case "$VKPR_ENV_CERT_MANAGER_ISSUER_TYPE" in
     staging)
         YQ_ISSUER_VALUES="$YQ_ISSUER_VALUES |
           .spec.acme.server = \"https://acme-staging-v02.api.letsencrypt.org/directory\" |
@@ -88,7 +88,7 @@ settingIssuer() {
   case "$VKPR_ENV_CERT_MANAGER_ISSUER_SOLVER" in
     HTTP01)
         YQ_ISSUER_VALUES="$YQ_ISSUER_VALUES |
-          .spec.acme.solvers[0].http01.ingress.class = \"$VKPR_ENV_CERT_MANAGER_HTTP01_INGRESS\"
+          .spec.acme.solvers[0].http01.ingress.class = \"$VKPR_ENV_CERT_MANAGER_ISSUER_INGRESS\"
         "
       ;;
     DNS01)

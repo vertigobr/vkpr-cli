@@ -1,4 +1,4 @@
 {
 	"short": "Install Kong",
-	"long": "Install the Kong in the Kubernetes cluster."
+	"long": "Install the Kong in the Kubernetes cluster"
 }

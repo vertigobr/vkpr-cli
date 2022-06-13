@@ -1,4 +1,4 @@
 {
   "short": "Install Keycloak",
-  "long": "Install the Keycloak in the Kubernetes cluster."
+  "long": "Install the Keycloak in the Kubernetes cluster"
 }

@@ -1,6 +1,7 @@
 {
   "inputs": [
     {
+      "tutorial": "Specifies the Github project Name",
       "label": "Github Project Name:(account/project)",
       "name": "project_name",
       "type": "text",
@@ -11,22 +12,26 @@
       }
     },
     {
+      "tutorial": "Specifies the name from the secret to be used in Github Actions",
       "label": "Secret Name:",
       "name": "secret_name",
       "type": "text",
       "required": true
     },
     {
+      "tutorial": "Specifies the value from the secret to be used in Github Actions",
       "label": "Secret Value:",
       "name": "secret_value",
       "type": "text",
       "required": true
     },
     {
+      "tutorial": "Specifies your Github Username",
       "name": "github_username",
       "type": "CREDENTIAL_GITHUB_USERNAME"
     },
     {
+      "tutorial": "Specifies your Github personal access token",
       "name": "github_token",
       "type": "CREDENTIAL_GITHUB_TOKEN"
     }

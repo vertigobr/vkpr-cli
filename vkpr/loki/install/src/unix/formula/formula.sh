@@ -7,7 +7,7 @@ runFormula() {
   
   # App values
   checkGlobalConfig "false" "false" "loki.metrics" "LOKI_METRICS"
-  checkGlobalConfig "false" "false" "loki.persistance" "LOKI_PERSISTANCE"
+  checkGlobalConfig "false" "false" "loki.persistence" "LOKI_PERSISTANCE"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "loki.namespace" "LOKI_NAMESPACE"
 
   # External app values

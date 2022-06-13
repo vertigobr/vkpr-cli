@@ -1,4 +1,4 @@
 {
-  "short": "",
-  "long": ""
+  "short": "Export all users from the realm specified in Keycloak database",
+  "long": "Export all users from the realm specified in Keycloak database"
 }

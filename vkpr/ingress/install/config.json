@@ -1,7 +1,7 @@
 {
   "inputs": [
     {
-      "tutorial": "Define the Loadbalancer type in AWS.",
+      "tutorial": "Define the Loadbalancer type in AWS",
       "label": "Which type of LoadBalancer do you prefer ?",
       "name": "lb_type",
       "type": "text",

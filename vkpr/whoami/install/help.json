@@ -1,4 +1,4 @@
 {
   "short": "Install whoami",
-  "long": "Install the whoami in the Kubernetes cluster."
+  "long": "Install the whoami in the Kubernetes cluster"
 }

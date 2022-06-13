@@ -1,17 +1,18 @@
 {
-  "inputs": [ {
-    "tutorial": "Specifies the RDS instance name to destroy.",
-    "label": "RDS instance name:",
-    "name": "rds_instance_name",
-    "type": "text",
-    "default": "rds-sample",
-    "required": true,
-  
-    "pattern": {
-      "regex": "^([A-Za-z0-9-]+)$",
-      "mismatchText": "Invalid Cluster name"
+  "inputs": [
+    {
+      "tutorial": "Specifies the RDS instance name to destroy",
+      "label": "RDS instance name:",
+      "name": "rds_instance_name",
+      "type": "text",
+      "default": "rds-sample",
+      "required": true,
+      "pattern": {
+        "regex": "^([A-Za-z0-9-]+)$",
+        "mismatchText": "Invalid Cluster name"
+      }
     }
-  }],
+  ],
   "template": "shell-bat",
   "templateRelease": "2.17.0"
-} 
+}

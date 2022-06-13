@@ -1,4 +1,4 @@
 {
 	"short": "Create a configurable Kubernetes Cluster",
-	"long": "Create the Kubernetes cluster to test environment."
+	"long": "Create the Kubernetes cluster to test environment"
 }
