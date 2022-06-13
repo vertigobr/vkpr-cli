@@ -170,36 +170,37 @@ settingKongDefaults() {
   if [[ "$VKPR_ENV_GLOBAL_DOMAIN" != "localhost" ]]; then
     YQ_VALUES="$YQ_VALUES |
       .admin.ingress.hostname = \"api.manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
-      .manager.ingress.hostname = \"manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
+      .ingress.hostname = \"manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
       .portal.ingress.hostname = \"portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
       .portalapi.ingress.hostname = \"api.portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
-      .env.admin_gui_url = \"http://manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
-      .env.admin_api_uri = \"http://api.manager.$VKPR_ENV_GLOBAL_DOMAIN\"|
-      .env.portal_gui_host = \"http://portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
-      .env.portal_api_url = \"http://api.portal.$VKPR_ENV_GLOBAL_DOMAIN\"
+      .env.admin_gui_url = \"https://manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
+      .env.admin_api_uri = \"https://api.manager.$VKPR_ENV_GLOBAL_DOMAIN\"|
+      .env.portal_gui_host = \"https://portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
+      .env.portal_api_url = \"https://api.portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
+      .env.portal_gui_protocol = \"https\"
     "
+  fi
 
-    if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
-      YQ_VALUES="$YQ_VALUES |
-        .admin.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
-        .admin.ingress.tls = \"admin-kong-cert\" |
-        .manager.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
-        .manager.ingress.tls = \"manager-kong-cert\" |
-        .env.admin_gui_url = \"https://manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
-        .env.admin_api_uri = \"https://api.manager.$VKPR_ENV_GLOBAL_DOMAIN\"
-      "
-      if [[ "$VKPR_ENV_KONG_MODE" != "dbless" ]]; then
-        YQ_VALUES="$YQ_VALUES |
-          .env.portal_gui_protocol = \"https\" |
-          .env.portal_gui_host = \"portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
-          .env.portal_api_url = \"https://api.portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
-          .portal.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
-          .portal.ingress.tls = \"portal-kong-cert\" |
-          .portalapi.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
-          .portalapi.ingress.tls = \"portalapi-kong-cert\"
-        "
-      fi
-    fi
+  if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
+    YQ_VALUES="$YQ_VALUES |
+      .env.portal_gui_protocol = \"https\" |
+      .env.admin_gui_url = \"https://manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
+      .env.admin_api_uri = \"https://api.manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
+      .env.portal_api_url = \"https://api.portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
+      .env.portal_gui_host = \"portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
+      .admin.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
+      .manager.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
+      .portal.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
+      .portalapi.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
+      .admin.ingress.tls = \"admin-kong-cert\" |
+      .manager.ingress.tls = \"manager-kong-cert\" |
+      .portal.ingress.tls = \"portal-kong-cert\" |
+      .portalapi.ingress.tls = \"portalapi-kong-cert\" |
+      .admin.tls.enabled = true |
+      .manager.tls.enabled = true |
+      .portal.tls.enabled = true |
+      .portalapi.tls.enabled = true
+    "
   fi
 
   if [[ "$VKPR_ENV_KONG_METRICS" == "true" ]]; then
