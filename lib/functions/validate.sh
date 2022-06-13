@@ -96,6 +96,16 @@ validatePostgresqlPassword() {
   fi
 }
 
+validatePostgresqlMetrics() {
+    if validateBool $1 | grep -q "error" ; then
+      error "Invalid value for postgresql.metrics, please insert true or false"  
+      exit
+  else
+    return
+  fi
+
+}
+
 # -----------------------------------------------------------------------------
 # Binary validators
 # -----------------------------------------------------------------------------
@@ -145,5 +155,80 @@ validateK9SVersion() {
     return
   else
     rm "$VKPR_K9S"
+  fi
+}
+# -----------------------------------------------------------------------------
+# Kong Credential validators
+# -----------------------------------------------------------------------------
+
+validateBool(){
+  if [[  $(echo $1 | tr '[:upper:]' '[:lower:]') =~ ^true|false$ ]]; then
+   return
+  else
+    echo "error" 
+    exit
+  fi
+}
+
+validateKongDomain() {
+  if [[ "$1" =~ ^([A-Za-z0-9])$ ]]; then
+    return
+    else
+    error "Please correctly enter the domain to be used "
+    exit
+  fi
+}
+
+validateKongHTTP() {
+  if validateBool $1 | grep -q "error" ; then
+      error "It was not possible to identify if the application will have HTTPS"
+      exit
+  else
+    return
+  fi
+}
+
+validateKongDeployment() {
+  if [[ $(echo $1 | tr '[:upper:]' '[:lower:]') =~ ^(standard|hybrid|dbless)$ ]]; then
+    return
+    else
+    error "It was not possible to identify the type of deployment of Kong"
+    exit
+  fi
+}
+
+validateKongEnterpriseLicense() {
+  if validateBool $1 | grep -q "error"; then
+      error "It was not possible to identify if the application will use enterprise license!"
+      exit
+    else
+      return
+  fi
+}
+
+validateKongEnterpriseLicensePath() {
+  if [[ "$1" =~ ^(\/[^\/]+){0,2}\/?$ ]]; then
+      error "Invalid path"
+      exit
+    else
+      return
+  fi
+}
+
+validateKongRBACPsw() {
+  if [[ "$1" =~ ^([A-Za-z0-9-]{7,})$ ]]; then
+      error "Invalid password"
+      exit
+    else
+      return
+  fi
+}
+
+validateHA(){
+  if validateBool $1 | grep -q "error" ; then
+      error "It was not possible to identify if the application will have High Availability "  
+      exit
+  else
+    return
   fi
 }

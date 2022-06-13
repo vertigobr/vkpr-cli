@@ -12,10 +12,16 @@ runFormula() {
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "postgresql.namespace" "POSTGRESQL_NAMESPACE"
 
   validatePostgresqlPassword "$PASSWORD"
+  validateHA "$VKPR_ENV_POSTGRESQL_HA"
+  validatePostgresqlMetrics "$VKPR_ENV_POSTGRESQL_METRICS"
 
   local VKPR_POSTGRES_VALUES; VKPR_POSTGRES_VALUES=$(dirname "$0")/utils/postgres.yaml
+<<<<<<< HEAD
   local HELM_ARGS='--namespace "$VKPR_ENV_POSTGRES_NAMESPACE" --create-namespace'
 
+=======
+ 
+>>>>>>> origin/VKPR-383
   startInfos
   addRepoPostgres
   installPostgres
