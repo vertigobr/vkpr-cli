@@ -4,6 +4,8 @@ collector:
   enabled: true
 query:
   enabled: true
+  podLabels:
+    vkpr: "true"
   ingress:
     enabled: true
     ingressClassName: nginx
