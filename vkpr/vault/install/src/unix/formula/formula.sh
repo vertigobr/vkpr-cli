@@ -54,6 +54,7 @@ installVault() {
   if [[ $DRY_RUN == true ]]; then
     echoColor "bold" "---"
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_VAULT_VALUES"
+    mergeVkprValuesHelmArgs "vault" "$VKPR_VAULT_VALUES"    
   else
     info "Installing Vault..."
     $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_VAULT_VALUES"

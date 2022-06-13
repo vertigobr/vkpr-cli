@@ -45,6 +45,7 @@ installCertManager() {
   if [[ $DRY_RUN == true ]]; then
     echoColor "bold" "---"
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_CERT_MANAGER_VALUES"
+    mergeVkprValuesHelmArgs "cert-manager" "$VKPR_CERT_MANAGER_VALUES"    
   else
     echoColor "bold" "$(echoColor "green" "Installing cert-manager...")"
     $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_CERT_MANAGER_VALUES"

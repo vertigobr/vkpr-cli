@@ -42,6 +42,7 @@ installArgoCD(){
 
   if [[ $DRY_RUN == true ]]; then
     echoColor "bold" "---"
+    mergeVkprValuesHelmArgs "argocd" "$VKPR_ARGOCD_VALUES"    
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_ARGOCD_VALUES"
   else
     echoColor "bold" "$(echoColor "green" "Installing ArgoCD...")"

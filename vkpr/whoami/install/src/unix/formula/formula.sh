@@ -38,6 +38,7 @@ installWhoami() {
   if [[ $DRY_RUN == true ]]; then
     echoColor "bold" "---"
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_WHOAMI_VALUES"
+    mergeVkprValuesHelmArgs "whoami" "$VKPR_WHOAMI_VALUES"    
   else
     info "Installing whoami..."
     $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_WHOAMI_VALUES"

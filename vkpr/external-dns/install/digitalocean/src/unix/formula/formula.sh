@@ -33,6 +33,7 @@ installExternalDNS() {
   if [[ $DRY_RUN == true ]]; then
     echoColor "bold" "---"
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_EXTERNAL_DNS_VALUES"
+    mergeVkprValuesHelmArgs "external-dns" "$VKPR_EXTERNAL_DNS_VALUES"    
   else
     echoColor "bold" "$(echoColor "green" "Installing External-DNS Digitalocean...")"
     $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_EXTERNAL_DNS_VALUES"
