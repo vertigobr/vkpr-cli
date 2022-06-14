@@ -35,7 +35,7 @@ installLoki(){
   settingLoki
 
   if [[ $DRY_RUN == true ]]; then
-    echoColor "bold" "---"
+    bold "---"
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_LOKI_VALUES"
   else
     info "Installing Loki..."
