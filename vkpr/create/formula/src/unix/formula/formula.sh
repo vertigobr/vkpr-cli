@@ -34,11 +34,11 @@ EOF
 
 startInfos() {
   echo "=============================="
-  echoColor "bold" "$(echoColor "green" "VKPR Create Formula Routine")"
-  echoColor "bold" "$(echoColor "blue" "Formula Name:") ${VKPR_FORMULA}"
-  echoColor "bold" "$(echoColor "blue" "Formula Language:") ${VKPR_FORMULA_LANGUAGE}"
-  echoColor "bold" "$(echoColor "blue" "Formula Workspace:") ${REAL_WORKSPACE_NAME}"
-  echoColor "bold" "$(echoColor "blue" "Formula Path:") ${REAL_FORMULA_PATH}"
+  bold "$(info "VKPR Create Formula Routine")"
+  bold "$(notice "Formula Name:") ${VKPR_FORMULA}"
+  bold "$(notice "Formula Language:") ${VKPR_FORMULA_LANGUAGE}"
+  bold "$(notice "Formula Workspace:") ${REAL_WORKSPACE_NAME}"
+  bold "$(notice "Formula Path:") ${REAL_FORMULA_PATH}"
   echo "=============================="
 }
 
@@ -56,7 +56,7 @@ getWorkspaceName() {
 cleanupFormula() {
   local formulaPath=$1
   if [ ! -f "${formulaPath}/config.json" ]; then
-    echoColor "red" "cleanupFormula: This isn't a formula path (no 'config.json' file), bailing out."
+    error "cleanupFormula: This isn't a formula path (no 'config.json' file), bailing out."
     exit 1
   fi
 
