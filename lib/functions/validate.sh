@@ -96,6 +96,60 @@ validatePostgresqlPassword() {
   fi
 }
 
+validateBool(){
+  if [[  $(echo $1 | tr '[:upper:]' '[:lower:]') =~ ^true|false$ ]]; then
+   return false
+  else
+    return true
+    exit
+  fi
+}
+
+validateWhoamiSecure(){
+  if validateBool $1; then
+      error "Specifies if the application will have HTTPS."
+      exit
+  else
+    return
+  fi
+}
+
+
+validateInfraTraefik(){
+  if validateBool $1; then
+      error "Enable Traefik by default in Cluster."
+      exit
+  else
+    return
+  fi
+}
+
+validateInfraHTTP(){
+  if [[ "$1" =~ ^([0-9]{4})$ ]]; then
+      error "It was not possible to identify if the application will have HTTP."
+      exit
+  else
+    return
+  fi
+}
+
+validateInfraHTTPS(){
+  if [[ "$1" =~ ^([0-9]{4})$ ]]; then
+      error "It was not possible to identify if the application will have HTTPS."
+      exit
+  else
+    return
+  fi
+}
+
+validateInfraNodes(){
+  if [[ "$1" =~ ^([0-9]{,1})$ ]]; then
+      error "It was not possible to identify if the application will have Nodes."
+      exit
+  else
+    return
+  fi
+}
 # -----------------------------------------------------------------------------
 # Binary validators
 # -----------------------------------------------------------------------------
