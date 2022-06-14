@@ -1,7 +1,7 @@
 #!/bin/bash
 
 runFormula() {
-  echoColor "bold" "$(echoColor "green" "Importing Realm clients...")"
+ bold "$(info "Importing Realm clients...")"
 
   # Global values
   checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "global.namespace" "GLOBAL_NAMESPACE"

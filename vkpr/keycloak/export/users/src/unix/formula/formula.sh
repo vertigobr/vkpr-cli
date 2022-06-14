@@ -1,7 +1,7 @@
 #!/bin/bash
 
 runFormula() {
-  echoColor "bold" "$(echoColor "green" "Exporting Realm users from $REALM_NAME...")"
+  bold "$(info "Exporting Realm users from $REALM_NAME...")"
 
   # Global values
   checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "global.namespace" "GLOBAL_NAMESPACE"
