@@ -21,10 +21,10 @@ runFormula() {
 
 startInfos() {
   echo "=============================="
-  echoColor "bold" "$(echoColor "green" "VKPR Consul Install Routine")"
-  echoColor "bold" "$(echoColor "blue" "Consul UI Domain:") ${VKPR_ENV_CONSUL_DOMAIN}"
-  echoColor "bold" "$(echoColor "blue" "Consul UI HTTPS:") ${VKPR_ENV_GLOBAL_SECURE}"
-  echoColor "bold" "$(echoColor "blue" "Ingress Controller:") ${VKPR_ENV_CONSUL_INGRESS_CLASS_NAME}"
+  bold "$(info "VKPR Consul Install Routine")"
+  bold "$(notice "Consul UI Domain:") ${VKPR_ENV_CONSUL_DOMAIN}"
+  bold "$(notice "Consul UI HTTPS:") ${VKPR_ENV_GLOBAL_SECURE}"
+  bold "$(notice "Ingress Controller:") ${VKPR_ENV_CONSUL_INGRESS_CLASS_NAME}"
   echo "=============================="
 }
 
@@ -37,10 +37,10 @@ installConsul() {
   settingConsul
 
   if [[ $DRY_RUN == true ]]; then
-    echoColor "bold" "---"
+    bold "---"
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_CONSUL_VALUES"
   else
-    echoColor "bold" "$(echoColor "green" "Installing Consul...")" 
+    bold "$(info "Installing Consul...")" 
     $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_CONSUL_VALUES"
     mergeVkprValuesHelmArgs "consul" "$VKPR_CONSUL_VALUES"
     $VKPR_HELM upgrade -i --version "$VKPR_CONSUL_VERSION" \
