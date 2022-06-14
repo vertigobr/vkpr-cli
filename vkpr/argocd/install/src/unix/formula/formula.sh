@@ -23,12 +23,12 @@ runFormula() {
 
 startInfos() {
   echo "=============================="
-  echoColor "bold" "$(echoColor "green" "VKPR ArgoCD Install Routine")"
-  echoColor "bold" "$(echoColor "blue" "ArgoCD Domain:") ${VKPR_ENV_ARGOCD_DOMAIN}"
-  echoColor "bold" "$(echoColor "blue" "ArgoCD HTTPS:") ${VKPR_ENV_GLOBAL_SECURE}"
-  echoColor "bold" "$(echoColor "blue" "HA:") ${VKPR_ENV_ARGOCD_HA}"
-  echoColor "bold" "$(echoColor "blue" "ArgoCD Admin Username:") admin"
-  echoColor "bold" "$(echoColor "blue" "Ingress Controller:") ${VKPR_ENV_ARGOCD_INGRESS_CLASSNAME}"
+  bold "$(info "VKPR ArgoCD Install Routine")"
+  bold "$(notice "ArgoCD Domain:") ${VKPR_ENV_ARGOCD_DOMAIN}"
+  bold "$(notice "ArgoCD HTTPS:") ${VKPR_ENV_GLOBAL_SECURE}"
+  bold "$(notice "HA:") ${VKPR_ENV_ARGOCD_HA}"
+  bold "$(notice "ArgoCD Admin Username:") admin"
+  bold "$(notice "Ingress Controller:") ${VKPR_ENV_ARGOCD_INGRESS}"
   echo "=============================="
 }
 
@@ -41,10 +41,10 @@ installArgoCD(){
   settingArgoCD
 
   if [[ $DRY_RUN == true ]]; then
-    echoColor "bold" "---"
+    bold "---"
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_ARGOCD_VALUES"
   else
-    echoColor "bold" "$(echoColor "green" "Installing ArgoCD...")"
+    bold "$(info "Installing ArgoCD...")"
     $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_ARGOCD_VALUES"
     mergeVkprValuesHelmArgs "argocd" "$VKPR_ARGOCD_VALUES"
     $VKPR_HELM upgrade -i --version "$VKPR_ARGOCD_VERSION" \
@@ -58,7 +58,7 @@ installArgoCD(){
 
 printArgoPassword(){
   PASSWORD=$($VKPR_KUBECTL -n "$VKPR_ENV_ARGOCD_NAMESPACE" get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
-  echoColor "blue" "Your ArgoCD Super Admin password is ${PASSWORD}, we recommend that it be changed after the first login"
+  notice "Your ArgoCD Super Admin password is ${PASSWORD}, we recommend that it be changed after the first login"
 }
 
 settingArgoCD(){
@@ -108,7 +108,7 @@ settingArgoCD(){
 
 settingArgoAddons(){
   if [[ "$VKPR_ENV_ARGOCD_ADDONS_APPLICATION_SET" == true ]]; then
-    echoColor "bold" "$(echoColor "green" "Installing ArgoCD Addon Applicationset...")"
+    bold "$(info"Installing ArgoCD Addon Applicationset...")"
 
     local VKPR_ARGOCD_APPLICATIONSET_VALUES; VKPR_ARGOCD_APPLICATIONSET_VALUES="$(dirname "$0")"/utils/argocd-applicationset.yaml
     local YQ_APPLICATIONSET_VALUES; YQ_APPLICATIONSET_VALUES=".args.namespace = \"$VKPR_ENV_ARGOCD_NAMESPACE\""
