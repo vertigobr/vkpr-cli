@@ -2,6 +2,7 @@
 
 runFormula() {
   # Global values
+  checkGlobalConfig "" "" "global.provider" "GLOBAL_PROVIDER"
   checkGlobalConfig "$DOMAIN" "localhost" "global.domain" "GLOBAL_DOMAIN"
   checkGlobalConfig "$SECURE" "false" "global.secure" "GLOBAL_SECURE"
   checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "global.namespace" "GLOBAL_NAMESPACE"
@@ -19,9 +20,10 @@ runFormula() {
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "PROMETHEUS_STACK_NAMESPACE" 
 
   local VKPR_KONG_VALUES; VKPR_KONG_VALUES="$(dirname "$0")"/utils/kong.yaml
+  local HELM_ARGS='--namespace $VKPR_ENV_KONG_NAMESPACE --create-namespace'
 
   [[ $DRY_RUN == true ]] && DRY_RUN_FLAGS="--dry-run=client -o yaml"
-
+  
   startInfos
   addRepoKong
   addDependencies
@@ -106,9 +108,14 @@ installDB(){
   local PG_HA="false"
   [[ $VKPR_ENV_KONG_HA == true ]] && PG_HA="true"
 
+  if [[ "$VKPR_ENV_GLOBAL_PROVIDER" == "okteto" ]]; then
+  HELM_ARGS=""
+  fi
+
   if [[ $(checkPodName "$VKPR_ENV_POSTGRESQL_NAMESPACE" "postgres-postgresql") != "true" ]]; then
     info "Initializing postgresql to Kong"
     [[ -f $CURRENT_PWD/vkpr.yaml ]] && cp "$CURRENT_PWD"/vkpr.yaml "$(dirname "$0")"
+    [[ "$VKPR_ENV_GLOBAL_PROVIDER" == "okteto" ]] && $VKPR_YQ eval -i ".postgresql.helmArgs.primary.persistence.size = \"2Gi\"" "$(dirname "$0")"/vkpr.yaml
     rit vkpr postgres install --HA=$PG_HA --dry_run=$DRY_RUN --default
   else
     info "Initializing Kong with Postgres already created"
@@ -135,9 +142,9 @@ installKong(){
   else
     info "Installing Kong..."
     $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_KONG_VALUES"
-    mergeVkprValuesHelmArgs "kong" "$VKPR_KONG_VALUES"
+    mergeVkprValuesHelmArgs "kong" "$VKPR_KONG_VALUES"  
     $VKPR_HELM upgrade -i --version "$VKPR_KONG_VERSION" \
-      --namespace "$VKPR_ENV_KONG_NAMESPACE" --create-namespace \
+        $HELM_ARGS \
       --wait -f "$VKPR_KONG_VALUES" kong kong/kong
   fi
 
@@ -228,6 +235,7 @@ settingKongDefaults() {
       .ingressController.env.leader_elect = \"true\"
     "
   fi
+  settingKongProvider 
 }
 
 settingKongEnterprise() {
@@ -278,4 +286,43 @@ settingKongDB() {
       $VKPR_KUBECTL label secret "$PG_SECRET" vkpr=true app.kubernetes.io/instance=kong -n "$VKPR_ENV_KONG_NAMESPACE" 2> /dev/null
     fi
   fi
+}
+
+settingKongProvider(){
+  ACTUAL_CONTEXT=$($VKPR_KUBECTL config get-contexts --no-headers | grep "\*" | xargs | awk -F " "'{print $2}')
+  if [[ "$VKPR_ENV_GLOBAL_PROVIDER" == "okteto" ]] || [[ $ACTUAL_CONTEXT == "cloud_okteto_com" ]]; then
+    OKTETO_NAMESPACE=$($VKPR_KUBECTL config get-contexts --no-headers | grep "\*" | xargs | awk -F " " '{print $NF}')
+    HELM_ARGS="--skip-crds"
+    $VKPR_KUBECTL delete secret kong-session-config
+    $VKPR_KUBECTL create secret generic kong-session-config \
+      --from-literal='admin_gui_session_conf={"cookie_name":"admin_session","cookie_samesite":"Strict","secret":"kong123","cookie_secure":true,"storage":"kong","cookie_domain":"cloud.okteto.net"}' \
+      --from-literal='portal_session_conf={"cookie_name":"portal_session","cookie_samesite":"Strict","secret":"kong123","cookie_secure":true,"storage":"kong","cookie_domain":"cloud.okteto.net"}'
+    YQ_VALUES="$YQ_VALUES |
+        del(.portal.ingress) |
+        del(.admin.ingress) |
+        del(.portalapi.ingress) |
+        del(.manager.ingress) |                       
+        del(.ingressController) |
+        .ingressController.enabled = false |
+        .ingressController.installCRDs = false |
+        .admin.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\" |
+        .admin.ingress.enabled = false |
+        .manager.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\" |
+        .manager.ingress.enabled = false |
+        .portal.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\" |
+        .portal.ingress.enabled = false |
+        .portalapi.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\" |
+        .portalapi.ingress.enabled = false |  
+        .proxy.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\" |
+        .proxy.tls.enabled.enabled = false |
+        .proxy.type = \"ClusterIP\" |
+        .env.admin_gui_url = \"https://kong-kong-manager-$OKTETO_NAMESPACE.cloud.okteto.net\" |
+        .env.admin_api_uri = \"https://kong-kong-admin-$OKTETO_NAMESPACE.cloud.okteto.net\" |
+        .env.portal_gui_host = \"kong-kong-portal-$OKTETO_NAMESPACE.cloud.okteto.net\" |
+        .env.proxy_url = \"https://kong-kong-proxy-$OKTETO_NAMESPACE.cloud.okteto.net\" |
+        .env.portal_api_url = \"https://kong-kong-portalapi-$OKTETO_NAMESPACE.cloud.okteto.net\" | 
+        .env.portal_gui_protocol = \"https\" |
+        .env.pg_password.valueFrom.secretKeyRef.key = \"postgres-password\" 
+      "
+    fi  
 }
