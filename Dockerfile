@@ -13,4 +13,5 @@ RUN curl -fsSL https://get.vkpr.net/ | bash && \
   rm -rf /tmp/*
 
 ENV PATH="${PATH}:/root/.vkpr/bin/"
+RUN rit update repo --name="vkpr-cli" 
 RUN echo 'alias vkpr="rit vkpr"' >> /root/.bashrc

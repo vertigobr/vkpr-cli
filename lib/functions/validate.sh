@@ -208,19 +208,19 @@ validateKongEnterpriseLicense() {
 
 validateKongEnterpriseLicensePath() {
   if [[ "$1" =~ ^(\/[^\/]+){0,2}\/?$ ]]; then
-      error "Invalid path"
-      exit
-    else
-      return
+    return
+  else
+    error "Invalid path"
+    exit
   fi
 }
 
 validateKongRBACPsw() {
   if [[ "$1" =~ ^([A-Za-z0-9-]{7,})$ ]]; then
-      error "Invalid password"
-      exit
-    else
-      return
+    return
+  else
+    error "Invalid password"
+    exit
   fi
 }
 
