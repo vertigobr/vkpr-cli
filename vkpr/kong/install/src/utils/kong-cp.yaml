@@ -16,7 +16,7 @@ env:
     valueFrom:
       secretKeyRef:
         name: postgres-postgresql
-        key: postgresql-password
+        key: postgres-password
   pg_port: 5432
   log_level: notice
   portal: on

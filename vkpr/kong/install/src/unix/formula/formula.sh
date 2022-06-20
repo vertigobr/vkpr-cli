@@ -297,8 +297,8 @@ settingKongDB() {
 
     if ! $VKPR_KUBECTL get secret -n "$VKPR_ENV_KONG_NAMESPACE" | grep -q "$PG_SECRET"; then
       PG_PASSWORD=$($VKPR_KUBECTL get secret "$PG_SECRET" -o yaml -n "$VKPR_ENV_POSTGRESQL_NAMESPACE" |\
-        $VKPR_YQ e ".data.postgresql-password" - | base64 -d -)
-      $VKPR_KUBECTL create secret generic "$PG_SECRET" --from-literal="postgresql-password=$PG_PASSWORD" -n "$VKPR_ENV_KONG_NAMESPACE" $DRY_RUN_FLAGS
+        $VKPR_YQ e ".data.postgres-password" - | base64 -d -)
+      $VKPR_KUBECTL create secret generic "$PG_SECRET" --from-literal="postgres-password=$PG_PASSWORD" -n "$VKPR_ENV_KONG_NAMESPACE" $DRY_RUN_FLAGS
       $VKPR_KUBECTL label secret "$PG_SECRET" vkpr=true app.kubernetes.io/instance=kong -n "$VKPR_ENV_KONG_NAMESPACE" 2> /dev/null
     fi
   fi

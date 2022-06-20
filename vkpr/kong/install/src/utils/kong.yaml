@@ -12,7 +12,7 @@ env:
     valueFrom:
       secretKeyRef:
         name: postgres-postgresql
-        key: postgresql-password
+        key: postgres-password
   pg_port: 5432
   admin_gui_url: "http://manager.localhost:8000"
   admin_api_uri: "http://api.manager.localhost:8000"
