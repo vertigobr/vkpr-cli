@@ -1,8 +1,12 @@
 #!/bin/bash
 
-PROJECT_ENCODED=$(rawUrlEncode "${GITLAB_USERNAME}/aws-eks")
-
 runFormula() {
+  local RIT_CREDENTIALS_PATH=~/.rit/credentials/default
+  AWS_ACCESS_KEY="$($VKPR_JQ -r '.credential.accesskeyid' $RIT_CREDENTIALS_PATH/aws)"
+  AWS_SECRET_KEY="$($VKPR_JQ -r '.credential.secretaccesskey' $RIT_CREDENTIALS_PATH/aws)"
+  AWS_REGION="$($VKPR_JQ -r '.credential.region' $RIT_CREDENTIALS_PATH/aws)"
+  GITLAB_USERNAME="$($VKPR_JQ -r '.credential.username' $RIT_CREDENTIALS_PATH/gitlab)"
+  GITLAB_TOKEN="$($VKPR_JQ -r '.credential.token' $RIT_CREDENTIALS_PATH/gitlab)"
   #getting real instance type
   EKS_CLUSTER_NODE_INSTANCE_TYPE=${EKS_CLUSTER_NODE_INSTANCE_TYPE// ([^)]*)/}
   EKS_CLUSTER_NODE_INSTANCE_TYPE=${EKS_CLUSTER_NODE_INSTANCE_TYPE// /}
@@ -19,8 +23,10 @@ runFormula() {
   validateAwsRegion "$AWS_REGION"
   validateGitlabUsername "$GITLAB_USERNAME"
   validateGitlabToken "$GITLAB_TOKEN"
+
   [[ "$VKPR_ENV_EKS_TERRAFORM_STATE" == "terraform-cloud" ]] && validateTFCloudToken "$TERRAFORMCLOUD_API_TOKEN"
 
+  local PROJECT_ENCODED=$(rawUrlEncode "${GITLAB_USERNAME}/aws-eks")
   local FORK_RESPONSE_CODE
   FORK_RESPONSE_CODE=$(curl -siX POST -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
     "https://gitlab.com/api/v4/projects/$(rawUrlEncode "vkpr/aws-eks")/fork" |\
@@ -55,7 +61,7 @@ cloneRepository() {
     .node_groups.${VKPR_ENV_EKS_CLUSTER_NAME}.min_capacity = \"$VKPR_ENV_EKS_NODES_QUANTITY_SIZE\" |
     .node_groups.${VKPR_ENV_EKS_CLUSTER_NAME}.ami_type = \"AL2_x86_64\" |
     .node_groups.${VKPR_ENV_EKS_CLUSTER_NAME}.instance_types[0] = \"$VKPR_ENV_EKS_NODES_INSTANCE_TYPE\" |
-    .node_groups.${VKPR_ENV_EKS_CLUSTER_NAME}.capacity_type = \"$VKPR_ENV_EKS_NODES_CAPACITY_TYPE\"
+    .node_groups.${VKPR_ENV_EKS_CLUSTER_NAME}.capacity_type = \"${VKPR_ENV_EKS_NODES_CAPACITY_TYPE^^}\"
   " "$VKPR_HOME"/tmp/aws-eks/config/defaults.yml
   git checkout -b "$VKPR_ENV_EKS_CLUSTER_NAME"
   git commit -am "[VKPR] Initial configuration defaults.yml"
