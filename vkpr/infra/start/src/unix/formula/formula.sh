@@ -9,6 +9,11 @@ runFormula() {
   checkGlobalConfig "$WORKER_NODES" "1" "infra.resources.workers" "K3D_AGENTS"
   checkGlobalConfig "$ENABLE_VOLUME" "false" "infra.enableVolume" "VOLUME"
 
+  validateInfraHTTP "$VKPR_ENV_HTTP_PORT"
+  validateInfraHTTPS "$VKPR_ENV_HTTPS_PORT"
+  validateInfraNodes "$VKPR_ENV_K3D_AGENTS"
+  validateInfraTraefik "$VKPR_ENV_TRAEFIK"
+
   startInfos
   configRegistry
   startRegistry
