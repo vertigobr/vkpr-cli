@@ -36,8 +36,8 @@ installLoki(){
 
   if [[ $DRY_RUN == true ]]; then
     echoColor "bold" "---"
-    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_LOKI_VALUES"
-    mergeVkprValuesHelmArgs "loki" "$VKPR_LOKI_VALUES"    
+    mergeVkprValuesHelmArgs "loki" "$VKPR_LOKI_VALUES"
+    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_LOKI_VALUES"    
   else
     info "Installing Loki..."
     $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_LOKI_VALUES"

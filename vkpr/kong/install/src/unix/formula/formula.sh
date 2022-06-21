@@ -144,8 +144,8 @@ installKong(){
 
   if [[ $DRY_RUN == true ]]; then
     bold "---"
-    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_KONG_VALUES"
-    mergeVkprValuesHelmArgs "kong" "$VKPR_KONG_VALUES"    
+    mergeVkprValuesHelmArgs "kong" "$VKPR_KONG_VALUES"
+    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_KONG_VALUES"    
   else
     info "Installing Kong..."
     $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_KONG_VALUES"

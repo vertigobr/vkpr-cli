@@ -54,6 +54,7 @@ installKeycloak(){
 
   if [[ $DRY_RUN == true ]]; then
     echoColor "bold" "---"
+    mergeVkprValuesHelmArgs "keycloak" "$VKPR_KEYCLOAK_VALUES"
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_KEYCLOAK_VALUES"
   else
     echoColor "bold" "$(echoColor "green" "Installing Keycloak...")"

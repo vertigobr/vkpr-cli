@@ -38,8 +38,8 @@ installConsul() {
 
   if [[ $DRY_RUN == true ]]; then
     echoColor "bold" "---"
-    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_CONSUL_VALUES"
-    mergeVkprValuesHelmArgs "consul" "$VKPR_CONSUL_VALUES"    
+    mergeVkprValuesHelmArgs "consul" "$VKPR_CONSUL_VALUES"
+    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_CONSUL_VALUES"    
   else
     echoColor "bold" "$(echoColor "green" "Installing Consul...")" 
     $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_CONSUL_VALUES"
