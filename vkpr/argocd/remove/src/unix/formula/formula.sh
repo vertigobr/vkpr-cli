@@ -1,7 +1,7 @@
 #!/bin/bash
 
 runFormula() {
-  echoColor "bold" "$(echoColor "green" "Removing ArgoCD...")"
+  bold "$(info "Removing ArgoCD...")"
 
   $VKPR_KUBECTL get crd | grep -q applicationsets.argoproj.io && uninstallApplicationset
   uninstallResources
@@ -13,7 +13,7 @@ uninstallArgo() {
                      $VKPR_YQ e ".items[].metadata.namespace" - |\
                      head -n1)
 
-  $VKPR_HELM uninstall argocd -n "$ARGOCD_NAMESPACE" 2> /dev/null || echoColor "red" "VKPR Argocd not found"
+  $VKPR_HELM uninstall argocd -n "$ARGOCD_NAMESPACE" 2> /dev/null || error "VKPR Argocd not found"
 }
 
 uninstallApplicationset() {
@@ -21,7 +21,7 @@ uninstallApplicationset() {
                                     $VKPR_YQ e ".items[].metadata.namespace" - |\
                                     head -n1)
 
-  $VKPR_HELM uninstall argocd-applicationset -n "$ARGOCD_APPLICATIONSET_NAMESPACE" 2> /dev/null || echoColor "red" "VKPR Argocd Applicationset not found"
+  $VKPR_HELM uninstall argocd-applicationset -n "$ARGOCD_APPLICATIONSET_NAMESPACE" 2> /dev/null || error "VKPR Argocd Applicationset not found"
   $VKPR_KUBECTL delete ApplicationSet -A --ignore-not-found=true -l vkpr=true > /dev/null
 }
 

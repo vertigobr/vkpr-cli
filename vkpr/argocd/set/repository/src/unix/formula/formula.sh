@@ -10,7 +10,7 @@ runFormula() {
   VKPR_REPO_VALUES="$(dirname "$0")"/utils/repository.yaml
   REPO_NAME=$(echo "$REPO_URL" | awk -F "/" '{ print $NF }' | cut -d "." -f1)
   
-  echoColor "green" "Connecting repository in Argocd"
+  info "Connecting repository in Argocd"
   $VKPR_YQ eval ".metadata.name = \"${REPO_NAME}-repo\" |
     .metadata.namespace = \"$VKPR_ENV_ARGOCD_NAMESPACE\" |
     .stringData.url = \"$REPO_URL\" |

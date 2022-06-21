@@ -7,7 +7,7 @@ runFormula() {
   VKPR_APPLICATIONSET_VALUES=$(dirname "$0")/utils/applicationset.yaml
   REPO_NAME=$(echo "$REPO_URL" | awk -F "/" '{ print $NF }' | cut -d "." -f1)
 
-  echoColor "green" "Creating Applicationset in Argocd"
+  info "Creating Applicationset in Argocd"
   $VKPR_YQ eval " .metadata.name = \"$REPO_NAME-applicationset\" |
     .metadata.namespace = \"$VKPR_ENV_ARGOCD_NAMESPACE\" |
     .spec.generators[0].git.repoURL = \"$REPO_URL\" |

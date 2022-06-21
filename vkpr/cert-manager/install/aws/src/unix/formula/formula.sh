@@ -24,14 +24,14 @@ runFormula() {
 
 startInfos() {
   echo "=============================="
-  echoColor "bold" "$(echoColor "green" "VKPR Cert-manager Install AWS Routine")"
-  echoColor "bold" "$(echoColor "blue" "Email:") ${VKPR_ENV_CERT_MANAGER_EMAIL}"
-  echoColor "bold" "$(echoColor "blue" "Issuer Solver:") ${VKPR_ENV_CERT_MANAGER_ISSUER_SOLVER}"
+   bold "$(info "VKPR Cert-manager Install AWS Routine")"
+   bold "$(notice "Email:") ${VKPR_ENV_CERT_MANAGER_EMAIL}"
+   bold "$(notice "blue" "Issuer Solver:") ${VKPR_ENV_CERT_MANAGER_ISSUER_SOLVER}"
   echo "=============================="
 }
 
 installCRDS() {
-  echoColor "yellow" "Installing cert-manager CRDS beforehand..."
+  warn "Installing cert-manager CRDS beforehand..."
   $VKPR_KUBECTL apply -f "https://github.com/jetstack/cert-manager/releases/download/$VKPR_CERT_VERSION/cert-manager.crds.yaml"
 }
 
@@ -43,11 +43,11 @@ installCertManager() {
   local YQ_VALUES=".ingressShim.defaultIssuerName = \"certmanager-issuer\" | .clusterResourceNamespace = \"$VKPR_ENV_CERT_MANAGER_NAMESPACE\""
 
   if [[ $DRY_RUN == true ]]; then
-    echoColor "bold" "---"
-    mergeVkprValuesHelmArgs "cert-manager" "$VKPR_CERT_MANAGER_VALUES"    
-    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_CERT_MANAGER_VALUES"    
+    bold "---"
+    mergeVkprValuesHelmArgs "cert-manager" "$VKPR_CERT_MANAGER_VALUES"
+    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_CERT_MANAGER_VALUES"
   else
-    echoColor "bold" "$(echoColor "green" "Installing cert-manager...")"
+    bold "$(info "Installing cert-manager...")"
     $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_CERT_MANAGER_VALUES"
     mergeVkprValuesHelmArgs "cert-manager" "$VKPR_CERT_MANAGER_VALUES"
     $VKPR_HELM upgrade -i --version "$VKPR_CERT_VERSION" \
@@ -76,10 +76,10 @@ installIssuer() {
   settingIssuer
 
   if [[ $DRY_RUN == true ]]; then
-    echoColor "bold" "---"
+    bold "---"
     $VKPR_YQ eval "$YQ_ISSUER_VALUES" "$VKPR_ISSUER_VALUES"
   else
-    echoColor "bold" "$(echoColor "green" "Installing Issuers and/or ClusterIssuers...")"
+    bold "$(info "Installing Issuers and/or ClusterIssuers...")"
     $VKPR_YQ eval "$YQ_ISSUER_VALUES" "$VKPR_ISSUER_VALUES" \
     | $VKPR_KUBECTL apply -f -
   fi
@@ -107,8 +107,12 @@ configureDNS01() {
   validateAwsSecretKey "$AWS_SECRET_KEY"
   validateAwsRegion "$AWS_REGION"
 
+<<<<<<< HEAD
   echoColor "bold" "$(echoColor "green" "Setting AWS secret...")"
   # shellcheck disable=SC2086
+=======
+  bold "$(info "Setting AWS secret...")"
+>>>>>>> origin/VKPR-478-N
   $VKPR_KUBECTL create secret generic route53-secret -n "$VKPR_ENV_CERT_MANAGER_NAMESPACE" --from-literal="secret-access-key=$AWS_SECRET_KEY" $DRY_RUN_FLAGS
   $VKPR_KUBECTL label secret route53-secret -n "$VKPR_ENV_CERT_MANAGER_NAMESPACE" vkpr=true app.kubernetes.io/instance=cert-manager 2> /dev/null
 

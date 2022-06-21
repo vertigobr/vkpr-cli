@@ -32,13 +32,13 @@ runFormula() {
 
 startInfos() {
   echo "=============================="
-  echoColor "bold" "$(echoColor "green" "VKPR Keycloak Install Routine")"
-  echoColor "bold" "$(echoColor "blue" "Keycloak Domain:") ${VKPR_ENV_KEYCLOAK_DOMAIN}"
-  echoColor "bold" "$(echoColor "blue" "Keycloak HTTPS:") ${VKPR_ENV_GLOBAL_SECURE}"
-  echoColor "bold" "$(echoColor "blue" "HA:") ${VKPR_ENV_HA}"
-  echoColor "bold" "$(echoColor "blue" "Keycloak Admin Username:") ${VKPR_ENV_KEYCLOAK_ADMIN_USER}"
-  echoColor "bold" "$(echoColor "blue" "Keycloak Admin Password:") ${VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD}"
-  echoColor "bold" "$(echoColor "blue" "Ingress Controller:") ${VKPR_ENV_KEYCLOAK_INGRESS_CLASS_NAME}"
+  bold "$(info "VKPR Keycloak Install Routine")"
+  bold "$(notice "Keycloak Domain:") ${VKPR_ENV_KEYCLOAK_DOMAIN}"
+  bold "$(notice "Keycloak HTTPS:") ${VKPR_ENV_GLOBAL_SECURE}"
+  bold "$(notice "HA:") ${VKPR_ENV_HA}"
+  bold "$(notice "Keycloak Admin Username:") ${VKPR_ENV_KEYCLOAK_ADMIN_USER}"
+  bold "$(notice "Keycloak Admin Password:") ${VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD}"
+  bold "$(notice "Ingress Controller:") ${VKPR_ENV_KEYCLOAK_INGRESS_CLASS_NAME}"
   echo "=============================="
 }
 
@@ -50,13 +50,13 @@ installKeycloak(){
   local YQ_VALUES=".postgresql.enabled = false"
   [[ $DRY_RUN == false ]] && configureKeycloakDB
   settingKeycloak
-  echoColor "bold" "$(echoColor "green" "Installing Keycloak...")"
+  bold "$(info "Installing Keycloak...")"
 
   if [[ $DRY_RUN == true ]]; then
-    echoColor "bold" "---"
+    bold "---"
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_KEYCLOAK_VALUES"
   else
-    echoColor "bold" "$(echoColor "green" "Installing Keycloak...")"
+    bold "$(info "Installing Keycloak...")"
     $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_KEYCLOAK_VALUES"
     mergeVkprValuesHelmArgs "keycloak" "$VKPR_KEYCLOAK_VALUES"
     $VKPR_HELM upgrade -i --version "$VKPR_KEYCLOAK_VERSION" \
@@ -106,12 +106,12 @@ configureKeycloakDB(){
   validatePostgresqlPassword "$PASSWORD"
   [[ $VKPR_ENV_HA == true ]] && PG_HA="true"
   if [[ $(checkPodName "$VKPR_ENV_POSTGRESQL_NAMESPACE" "postgres-postgresql") != "true" ]]; then
-    echoColor "green" "Initializing postgresql to Keycloak"
+    info "Initializing postgresql to Keycloak"
     [[ -f $CURRENT_PWD/vkpr.yaml ]] && cp "$CURRENT_PWD"/vkpr.yaml "$(dirname "$0")"
     rit vkpr postgres install --HA="$PG_HA" --default
   fi
   if [[ $(checkExistingDatabase "$PG_USER" "$PG_PASSWORD" "$PG_DATABASE_NAME" "$VKPR_ENV_POSTGRESQL_NAMESPACE") != "keycloak" ]]; then
-    echoColor "green" "Creating Database Instance in postgresql..."
+    info "Creating Database Instance in postgresql..."
     createDatabase "$PG_USER" "$PG_PASSWORD" "$PG_DATABASE_NAME" "$VKPR_ENV_POSTGRESQL_NAMESPACE"
   fi
 
