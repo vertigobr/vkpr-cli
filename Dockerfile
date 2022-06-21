@@ -1,5 +1,5 @@
 FROM alpine:3.15.0
-
+ARG version
 #-----------------------------------------------
 # INSTALL DEPENDENCIES
 #-----------------------------------------------
@@ -13,5 +13,6 @@ RUN curl -fsSL https://get.vkpr.net/ | bash && \
   rm -rf /tmp/*
 
 ENV PATH="${PATH}:/root/.vkpr/bin/"
-RUN rit update repo --name="vkpr-cli" 
+RUN rit update repo --name="vkpr-cli" --version=$version
+RUN rit vkpr init
 RUN echo 'alias vkpr="rit vkpr"' >> /root/.bashrc
