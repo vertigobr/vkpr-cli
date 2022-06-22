@@ -19,6 +19,10 @@ runFormula() {
   checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS" "$VKPR_ENV_GLOBAL_INGRESS" "keycloak.ingressClassName" "KEYCLOAK_INGRESS_CLASS_NAME"
   checkGlobalConfig "false" "false" "keycloak.metrics" "METRICS"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "keycloak.namespace" "NAMESPACE"
+  checkGlobalConfig "$SSL" "false" "keycloak.ssl.enabled" "KEYCLOAK_SSL"
+  checkGlobalConfig "$CRT_FILE" "" "keycloak.ssl.crt" "KEYCLOAK_CERTIFICATE"
+  checkGlobalConfig "$KEY_FILE" "" "keycloak.ssl.key" "KEYCLOAK_KEY"
+  checkGlobalConfig "" "" "keycloak.ssl.secretName" "KEYCLOAK_SSL_SECRET"
 
   # External apps values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "postgresql.namespace" "POSTGRESQL_NAMESPACE"
@@ -98,6 +102,20 @@ settingKeycloak(){
       .metrics.serviceMonitor.scrapeTimeout = \"30s\" |
       .metrics.serviceMonitor.additionalLabels.release = \"prometheus-stack\" 
     "
+  fi
+
+  if [[ "$VKPR_ENV_KEYCLOAK_SSL" == "true" ]]; then
+    KEYCLOAK_TLS_KEY=$(cat $VKPR_ENV_KEYCLOAK_KEY)
+    KEYCLOAK_TLS_CERT=$(cat $VKPR_ENV_KEYCLOAK_CERTIFICATE)
+    if [[ "$VKPR_ENV_KEYCLOAK_SSL_SECRET" != "" ]]; then
+      KEYCLOAK_TLS_KEY=$($VKPR_KUBECTL get secret $VKPR_ENV_KEYCLOAK_SSL_SECRET -o=jsonpath="{.data.tls\.key}" -n $VKPR_ENV_KEYCLOAK_NAMESPACE | base64 -d)
+      KEYCLOAK_TLS_CERT=$($VKPR_KUBECTL get secret $VKPR_ENV_KEYCLOAK_SSL_SECRET -o=jsonpath="{.data.tls\.crt}" -n $VKPR_ENV_KEYCLOAK_NAMESPACE | base64 -d)
+    fi
+    YQ_VALUES="$YQ_VALUES |
+      .ingress.secrets[0].name = \"$VKPR_ENV_KEYCLOAK_DOMAIN-tls\" |
+      .ingress.secrets[0].key = \"$KEYCLOAK_TLS_KEY\" |
+      .ingress.secrets[0].certificate = \"$KEYCLOAK_TLS_CERT\"
+     "
   fi
 }
 

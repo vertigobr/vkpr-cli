@@ -2,6 +2,7 @@
 
 runFormula() {
   # Global values
+  checkGlobalConfig "" "" "global.provider" "GLOBAL_PROVIDER"
   checkGlobalConfig "$DOMAIN" "localhost" "global.domain" "GLOBAL_DOMAIN"
   checkGlobalConfig "$SECURE" "false" "global.secure" "GLOBAL_SECURE"
   checkGlobalConfig "nginx" "nginx" "global.ingressClassName" "GLOBAL_INGRESS_CLASS_NAME"
@@ -10,6 +11,10 @@ runFormula() {
   # App values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "whoami.ingressClassName" "WHOAMI_INGRESS_CLASS_NAME"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "whoami.namespace" "WHOAMI_NAMESPACE"
+  checkGlobalConfig "$SSL" "false" "whoami.ssl.enabled" "WHOAMI_SSL"
+  checkGlobalConfig "$CRT_FILE" "" "whoami.ssl.crt" "WHOAMI_CERTIFICATE"
+  checkGlobalConfig "$KEY_FILE" "" "whoami.ssl.key" "WHOAMI_KEY"
+  checkGlobalConfig "" "" "whoami.ssl.secretName" "WHOAMI_SSL_SECRET"
 
   validateWhoamiSecure "$VKPR_ENV_GLOBAL_SECURE"
 
@@ -62,6 +67,19 @@ settingWhoami() {
       .ingress.tls[0].hosts[0] = \"$VKPR_ENV_WHOAMI_DOMAIN\" |
       .ingress.tls[0].secretName = \"whoami-cert\"
     "
+  fi
+
+  if [[ "$VKPR_ENV_WHOAMI_SSL" == "true" ]]; then
+    if [[ "$VKPR_ENV_WHOAMI_SSL_SECRET" == "" ]]; then
+      VKPR_ENV_WHOAMI_SSL_SECRET="whoami-certificate"
+      $VKPR_KUBECTL create secret tls $VKPR_ENV_WHOAMI_SSL_SECRET -n "$VKPR_ENV_WHOAMI_NAMESPACE" \
+        --cert="$VKPR_ENV_WHOAMI_CERTIFICATE" \
+        --key="$VKPR_ENV_WHOAMI_KEY"
+    fi 
+    YQ_VALUES="$YQ_VALUES |
+      .ingress.tls[0].hosts[0] = \"$VKPR_ENV_WHOAMI_DOMAIN\" |
+      .ingress.tls[0].secretName = \"$VKPR_ENV_WHOAMI_SSL_SECRET\"
+     "
   fi
 
   settingWhoamiProvider
