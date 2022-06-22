@@ -107,46 +107,47 @@ validateBool(){
 
 validateWhoamiSecure(){
   if validateBool $1; then
-      error "Specifies if the application will have HTTPS."
-      exit
-  else
     return
+  else
+    error "Specifies if the application will have HTTPS."
+    exit
   fi
 }
 
 validateInfraTraefik(){
   if validateBool $1; then
-      error "Enable Traefik by default in Cluster."
-      exit
-  else
     return
+  else
+    error "Enable Traefik by default in Cluster."
+    exit
   fi
 }
 
 validateInfraHTTP(){
-  if [[ "$1" =~ ^([0-9]{4})$ ]]; then
-      error "It was not possible to identify if the application will have HTTP."
-      exit
-  else
+  echo $1
+  if [[ "$1" =~ ^([0-9]{,4})$ ]]; then
     return
+  else
+    error "It was not possible to identify if the application will have HTTP."
+    exit
   fi
 }
 
 validateInfraHTTPS(){
   if [[ "$1" =~ ^([0-9]{4})$ ]]; then
-      error "It was not possible to identify if the application will have HTTPS."
-      exit
-  else
     return
+  else
+    error "It was not possible to identify if the application will have HTTPS."
+    exit
   fi
 }
 
 validateInfraNodes(){
   if [[ "$1" =~ ^([0-9]{,1})$ ]]; then
-      error "It was not possible to identify if the application will have Nodes."
-      exit
-  else
     return
+  else
+    error "It was not possible to identify if the application will have Nodes."
+    exit
   fi
 }
 # -----------------------------------------------------------------------------
