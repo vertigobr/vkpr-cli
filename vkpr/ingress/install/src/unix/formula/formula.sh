@@ -74,7 +74,7 @@ settingIngress() {
       --cert="$VKPR_ENV_INGRESS_CERTIFICATE" \
       --key="$VKPR_ENV_INGRESS_KEY"
     YQ_VALUES="$YQ_VALUES |
-      .controller.extraArgs.default-ssl-certificate = \"$VKPR_ENV_INGRESS_NAMESPACE/$INGRESS_SSL_SECRET\"
+      .controller.extraArgs.default-ssl-certificate = \"$VKPR_ENV_INGRESS_NAMESPACE/$VKPR_ENV_INGRESS_SSL_SECRET\"
      "
   fi
 }
