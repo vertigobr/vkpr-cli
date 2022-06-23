@@ -16,3 +16,4 @@ postgresql:
     enabled: false
 podLabels:
   vkpr: "true"
+proxy: none

@@ -42,8 +42,8 @@ installPostgres(){
 
   if [[ $DRY_RUN == true ]]; then
     bold "---"
-    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_POSTGRES_VALUES"
-    mergeVkprValuesHelmArgs "postgresql" "$VKPR_POSTGRES_VALUES"    
+    mergeVkprValuesHelmArgs "postgresql" "$VKPR_POSTGRES_VALUES"
+    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_POSTGRES_VALUES"    
   else
     info "Installing Postgresql..."
     $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_POSTGRES_VALUES"

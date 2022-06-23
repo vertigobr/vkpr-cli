@@ -51,8 +51,8 @@ installPrometheusStack() {
 
   if [[ $DRY_RUN == true ]]; then
     echo "---"
-    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_PROMETHEUS_VALUES"
-    mergeVkprValuesHelmArgs "prometheus-stack" "$VKPR_PROMETHEUS_VALUES"    
+    mergeVkprValuesHelmArgs "prometheus-stack" "$VKPR_PROMETHEUS_VALUES"
+    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_PROMETHEUS_VALUES"    
   else
     info "Installing prometheus-stack..."
     $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_PROMETHEUS_VALUES"
