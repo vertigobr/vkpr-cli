@@ -25,9 +25,10 @@ runFormula() {
   )
   #echo "FORK_RESPONSE_CODE= $FORK_RESPONSE_CODE"
   if [ "$FORK_RESPONSE_CODE" == "409" ];then
-    warn"Project already forked"
+    warn "Project already forked"
   fi
-  
+  local VKPR_DIGITALOCEAN_VALUES; VKPR_DIGITALOCEAN_VALUES="$(dirname "$0")"/utils/digitalocean.yaml
+
   setVariablesGLAB
   cloneRepository
 }
@@ -42,11 +43,12 @@ cloneRepository() {
   cd "$VKPR_HOME"/tmp/k8s-digitalocean || return
   $VKPR_YQ eval -i ".region = \"$VKPR_ENV_DO_CLUSTER_REGION\" |
     .cluster_name = \"$VKPR_ENV_DO_CLUSTER_NAME\" |
-    .prefix_version = \"$VKPR_ENV_DO_VERSION\" |
+    .prefix_version = \"$VKPR_ENV_DO_CLUSTER_VERSION\" |
     .node_pool_default.name = \"${VKPR_ENV_DO_CLUSTER_NAME}-node-pool\" |
     .node_pool_default.size = \"$VKPR_ENV_DO_CLUSTER_NODES_INSTANCE_TYPE\" |
     .node_pool_default.node_count = \"$VKPR_ENV_DO_CLUSTER_QUANTITY_SIZE\"
   " "$VKPR_HOME"/tmp/k8s-digitalocean/config/defaults.yml
+  mergeVkprValuesExtraArgs "digitalocean.cluster" "$VKPR_HOME"/tmp/k8s-digitalocean/config/defaults.yml
   git checkout -b "$VKPR_ENV_DO_CLUSTER_NAME"
   git commit -am "[VKPR] Initial configuration defaults.yml"
   git push --set-upstream origin "$VKPR_ENV_DO_CLUSTER_NAME"
