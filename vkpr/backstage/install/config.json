@@ -1,0 +1,60 @@
+{
+  "inputs": [
+    {
+      "tutorial": "Specifies the domain to use in the application",
+      "label": "Type the Backstage domain:",
+      "name": "domain",
+      "type": "text",
+      "default": "localhost"
+    },
+    {
+      "tutorial": "Specifies if the application will have HTTPS",
+      "label": "Secure ?",
+      "name": "secure",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "true",
+        "false"
+      ]
+    },
+    {
+      "tutorial": "Specifies if output the values from the application",
+      "label": "Dry-run ?",
+      "name": "dry_run",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "true",
+        "false"
+      ]
+    },
+    {
+      "tutorial": "Specifies the Okta Client ID",
+      "name": "okta_client_id",
+      "type": "CREDENTIAL_OKTA_CLIENTID"
+    },
+    {
+      "tutorial": "Specifies the Okta Client Secret",
+      "name": "okta_client_secret",
+      "type": "CREDENTIAL_OKTA_CLIENTSECRET"
+    },
+    {
+      "tutorial": "Specifies the Okta Audience",
+      "name": "okta_client_audience",
+      "type": "CREDENTIAL_OKTA_AUDIENCE"
+    },
+    {
+      "tutorial": "Specifies your Github personal access token",
+      "name": "github_token",
+      "type": "CREDENTIAL_GITHUB_TOKEN"
+    },
+    {
+      "tutorial": "Specifies your Github SpecHouse URL",
+      "name": "github_spechouseurl",
+      "type": "CREDENTIAL_GITHUB_SPECHOUSEURL"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease:": "2.16.2"
+}
