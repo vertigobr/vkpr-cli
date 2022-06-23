@@ -19,6 +19,10 @@ runFormula() {
   checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS" "$VKPR_ENV_GLOBAL_INGRESS" "keycloak.ingressClassName" "KEYCLOAK_INGRESS_CLASS_NAME"
   checkGlobalConfig "false" "false" "keycloak.metrics" "METRICS"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "keycloak.namespace" "NAMESPACE"
+  checkGlobalConfig "$SSL" "false" "keycloak.ssl.enabled" "KEYCLOAK_SSL"
+  checkGlobalConfig "$CRT_FILE" "" "keycloak.ssl.crt" "KEYCLOAK_CERTIFICATE"
+  checkGlobalConfig "$KEY_FILE" "" "keycloak.ssl.key" "KEYCLOAK_KEY"
+  checkGlobalConfig "" "" "keycloak.ssl.secretName" "KEYCLOAK_SSL_SECRET"
 
   # External apps values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "postgresql.namespace" "POSTGRESQL_NAMESPACE"
@@ -54,6 +58,7 @@ installKeycloak(){
 
   if [[ $DRY_RUN == true ]]; then
     bold "---"
+    mergeVkprValuesHelmArgs "keycloak" "$VKPR_KEYCLOAK_VALUES"
     $VKPR_YQ eval "$YQ_VALUES" "$VKPR_KEYCLOAK_VALUES"
   else
     bold "$(info "Installing Keycloak...")"
@@ -70,7 +75,8 @@ settingKeycloak(){
     .ingress.hostname = \"$VKPR_ENV_KEYCLOAK_DOMAIN\" |
     .ingress.ingressClassName = \"$VKPR_ENV_KEYCLOAK_INGRESS_CLASS_NAME\" |
     .auth.adminUser = \"$VKPR_ENV_KEYCLOAK_ADMIN_USER\" |
-    .auth.adminPassword = \"$VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD\"
+    .auth.adminPassword = \"$VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD\" |
+    .proxy = \"none\"
   "
   if [[ $VKPR_ENV_GLOBAL_SECURE = true ]]; then
     YQ_VALUES="$YQ_VALUES |
@@ -81,23 +87,32 @@ settingKeycloak(){
   if [[ $VKPR_ENV_HA = true ]]; then
     YQ_VALUES="$YQ_VALUES |
       .replicaCount = 3 |
-      .serviceDiscovery.enabled = \"true\" |
-      .serviceDiscovery.protocol = \"dns.DNS_PING\" |
-      .serviceDiscovery.properties[0] = \"dns_query=\"keycloak-headless.$VKPR_ENV_NAMESPACE.svc.cluster.local\"\" |
-      .proxyAddressForwarding = true |
-      .cache.ownersCount = 3 |
-      .cache.authOwnersCount = 3
+      .cache.enabled = true
     "
   fi
   if [[ $VKPR_ENV_METRICS == "true" ]]; then
     YQ_VALUES="$YQ_VALUES |
       .metrics.enabled = true |
       .metrics.serviceMonitor.enabled = true |
-      .metrics.serviceMonitor.namespace = \"$VKPR_ENV_NAMESPACE\" |
+      .metrics.serviceMonitor.namespace = \"$VKPR_ENV_GLOBAL_NAMESPACE\" |
       .metrics.serviceMonitor.interval = \"30s\" |
       .metrics.serviceMonitor.scrapeTimeout = \"30s\" |
-      .metrics.serviceMonitor.additionalLabels.release = \"prometheus-stack\" 
+      .metrics.serviceMonitor.labels.release = \"prometheus-stack\" 
     "
+  fi
+
+  if [[ "$VKPR_ENV_KEYCLOAK_SSL" == "true" ]]; then
+    KEYCLOAK_TLS_KEY=$(cat $VKPR_ENV_KEYCLOAK_KEY)
+    KEYCLOAK_TLS_CERT=$(cat $VKPR_ENV_KEYCLOAK_CERTIFICATE)
+    if [[ "$VKPR_ENV_KEYCLOAK_SSL_SECRET" != "" ]]; then
+      KEYCLOAK_TLS_KEY=$($VKPR_KUBECTL get secret $VKPR_ENV_KEYCLOAK_SSL_SECRET -o=jsonpath="{.data.tls\.key}" -n $VKPR_ENV_KEYCLOAK_NAMESPACE | base64 -d)
+      KEYCLOAK_TLS_CERT=$($VKPR_KUBECTL get secret $VKPR_ENV_KEYCLOAK_SSL_SECRET -o=jsonpath="{.data.tls\.crt}" -n $VKPR_ENV_KEYCLOAK_NAMESPACE | base64 -d)
+    fi
+    YQ_VALUES="$YQ_VALUES |
+      .ingress.secrets[0].name = \"$VKPR_ENV_KEYCLOAK_DOMAIN-tls\" |
+      .ingress.secrets[0].key = \"$KEYCLOAK_TLS_KEY\" |
+      .ingress.secrets[0].certificate = \"$KEYCLOAK_TLS_CERT\"
+     "
   fi
 }
 

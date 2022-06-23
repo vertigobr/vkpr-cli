@@ -1,12 +1,5 @@
 #!/bin/bash
 
-#
-# Downloads tools and other CLIs used transparently
-#
-# Trying to use `arkade` when possible
-#
-# Requires: curl
-
 runFormula() {
   info "VKPR initialization"
   echo "=============================="
@@ -19,20 +12,16 @@ runFormula() {
   installArkade
   installOkteto
   installDeck
-  #installGlab
+  installHelm
   #Versions from ./utils/dependencies.sh or latest as default
   validateKubectlVersion
   installTool "kubectl" "$VKPR_TOOLS_KUBECTL"
-  validateHelmVersion
-  installTool "helm" "$VKPR_TOOLS_HELM"
   validateK3DVersion
   installTool "k3d" "$VKPR_TOOLS_K3D"
   validateJQVersion
   installTool "jq" "$VKPR_TOOLS_JQ"
   validateYQVersion
   installTool "yq" "$VKPR_TOOLS_YQ"
-  # validateK9SVersion
-  # installTool "k9s" $VKPR_TOOLS_K9S
 
   installBats
 }
@@ -63,6 +52,16 @@ installOkteto() {
     rm /tmp/okteto0.sh
     /tmp/okteto.sh 2> /dev/null
   fi
+}
+
+installHelm() {
+  notice "Installing Helm..."
+  # patches download script in order to change BINLOCATION
+  curl -fsSL -o /tmp/get_helm0.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+  sed "s|\/usr\/local\/bin|$\HOME/\.vkpr\/bin|g" /tmp/get_helm0.sh > /tmp/get_helm.sh
+  chmod +x /tmp/get_helm.sh
+  rm /tmp/get_helm0.sh
+  /tmp/get_helm.sh 2> /dev/null
 }
 
 ##Install tool using arkade and get tools version from ./utils/dependencies.sh or latest as default
@@ -130,6 +129,7 @@ installDeck() {
     curl -sL https://github.com/kong/deck/releases/download/v"${VKPR_TOOLS_DECK}"/deck_"${VKPR_TOOLS_DECK}"_linux_amd64.tar.gz -o /tmp/deck.tar.gz
     tar -xf /tmp/deck.tar.gz -C /tmp
     cp /tmp/deck ~/.vkpr/bin
+    info "Deck installed!"
   fi
 }
 
