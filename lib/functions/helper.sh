@@ -130,6 +130,27 @@ mergeVkprValuesHelmArgs() {
   fi
 }
 
+mergeVkprValuesExtraArgs() {
+  local APP_NAME="$1" APP_VALUES="$2"
+
+  [[ ! -f "$VKPR_FILE" ]] && return
+
+  if [[ $($VKPR_YQ eval ".${APP_NAME} | has (\"extraArgs\")" "$CURRENT_PWD"/vkpr.yaml) == true ]]; then
+    cp "$CURRENT_PWD"/vkpr.yaml "$(dirname "$0")"/vkpr-cp.yaml
+
+    # foreach key in extraArgs, merge the values into application value
+
+    for i in $($VKPR_YQ eval ".${APP_NAME}.extraArgs | keys" "$CURRENT_PWD"/vkpr.yaml | cut -d " " -f2); do
+      $VKPR_YQ eval-all -i \
+        ". * {\"${i}\": select(fileIndex==1).${APP_NAME}.extraArgs.${i}} | select(fileIndex==0)" \
+        "$APP_VALUES" "$(dirname "$0")"/vkpr-cp.yaml
+    done
+    rm "$(dirname "$0")"/vkpr-cp.yaml
+
+  fi
+  
+}
+
 ## Encode text
 # Parameters:
 # 1 - STRING
