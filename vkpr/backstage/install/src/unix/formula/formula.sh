@@ -15,7 +15,7 @@ runFormula() {
   local VKPR_ENV_BACKSTAGE_DOMAIN="backstage.${VKPR_ENV_GLOBAL_DOMAIN}" \
         RIT_CREDENTIALS_PATH=~/.rit/credentials/default
   local VKPR_BACKSTAGE_VALUES; VKPR_BACKSTAGE_VALUES=$(dirname "$0")/utils/backstage.yaml
-  local HELM_NAMESPACE="--create-namespace --namespace $VKPR_ENV_BACKSTAGE_NAMESPACE"
+  local HELM_NAMESPACE="--namespace=$VKPR_ENV_BACKSTAGE_NAMESPACE --create-namespace"
 
   startInfos
   addRepoBackstage
@@ -54,9 +54,10 @@ installBackstage() {
 
 settingBackstage() {
   YQ_VALUES="$YQ_VALUES |
+    .ingress.enabled = true |
     .ingress.ingressClassName = \"$VKPR_ENV_BACKSTAGE_INGRESS_CLASS_NAME\" |
-    .appConfig.app.baseUrl = \"$VKPR_ENV_BACKSTAGE_DOMAIN\" |
-    .appConfig.backend.baseUrl = \"$VKPR_ENV_BACKSTAGE_DOMAIN\" |
+    .appConfig.app.baseUrl = \"http://$VKPR_ENV_BACKSTAGE_DOMAIN/\" |
+    .appConfig.backend.baseUrl = \"http://$VKPR_ENV_BACKSTAGE_DOMAIN/\" |
     .auth.okta.clientId = \"$(echo -n "$($VKPR_JQ -r .credential.clientid $RIT_CREDENTIALS_PATH/okta)")\" |
     .auth.okta.clientSecret = \"$(echo -n "$($VKPR_JQ -r .credential.clientsecret $RIT_CREDENTIALS_PATH/okta)")\" |
     .auth.okta.audience = \"$(echo -n "$($VKPR_JQ -r .credential.audience $RIT_CREDENTIALS_PATH/okta)")\" |
@@ -68,7 +69,7 @@ settingBackstage() {
     YQ_VALUES="$YQ_VALUES |
       .ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
       .ingress.tls[0].hosts[0] = \"$VKPR_ENV_BACKSTAGE_DOMAIN\" |
-      .ingress.tls[0].secretName = \"whoami-cert\"
+      .ingress.tls[0].secretName = \"backstage-cert\"
     "
   fi
 
@@ -85,4 +86,4 @@ settingBackstageProvider() {
       .service.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\"
     "
   fi
-}
+} 

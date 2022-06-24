@@ -3,7 +3,7 @@
 runFormula() {
   info "Removing backstage..."
 
-  BACKSTAGE_NAMESPACE=$($VKPR_KUBECTL get po -A -l app.kubernetes.io/instance=backstage -o=yaml |\
+  BACKSTAGE_NAMESPACE=$($VKPR_KUBECTL get po -A -l app=devportal -o=yaml |\
                      $VKPR_YQ e ".items[].metadata.namespace" - |\
                      head -n1)
 
