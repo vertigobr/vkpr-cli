@@ -35,7 +35,10 @@ addRepoBackstage() {
 }
 
 installBackstage() {
-  local YQ_VALUES=".ingress.hosts[0].host = \"$VKPR_ENV_BACKSTAGE_DOMAIN\""
+  local YQ_VALUES=".ingress.hosts[0].host = \"$VKPR_ENV_BACKSTAGE_DOMAIN\" |
+   .ingress.hosts[0].paths[0].path = \"/\"|
+    .ingress.hosts[0].paths[0].pathType = \"ImplementationSpecific\"
+  "
   settingBackstage
 
   if [[ $DRY_RUN == true ]]; then
