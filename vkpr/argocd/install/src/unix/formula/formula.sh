@@ -103,20 +103,4 @@ settingArgoCD(){
       .server.metrics.serviceMonitor.additionalLabels.release = \"prometheus-stack\" 
     "
   fi
-<<<<<<< HEAD
-=======
-}
-
-settingArgoAddons(){
-  if [[ "$VKPR_ENV_ARGOCD_ADDONS_APPLICATION_SET" == true ]]; then
-    bold "$(info"Installing ArgoCD Addon Applicationset...")"
-
-    local VKPR_ARGOCD_APPLICATIONSET_VALUES; VKPR_ARGOCD_APPLICATIONSET_VALUES="$(dirname "$0")"/utils/argocd-applicationset.yaml
-    local YQ_APPLICATIONSET_VALUES; YQ_APPLICATIONSET_VALUES=".args.namespace = \"$VKPR_ENV_ARGOCD_NAMESPACE\""
-
-    $VKPR_YQ eval "$YQ_APPLICATIONSET_VALUES" "$VKPR_ARGOCD_APPLICATIONSET_VALUES" \
-    | $VKPR_HELM upgrade -i --version "$VKPR_ARGOCD_ADDON_APPLICATIONSET_VERSION" \
-      --namespace "$VKPR_ENV_ARGOCD_NAMESPACE" --wait -f - argocd-applicationset argo/argocd-applicationset
-  fi
->>>>>>> origin/VKPR-478-N
 }
