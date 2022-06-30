@@ -16,6 +16,14 @@ runFormula() {
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "PROMETHEUS_STACK_NAMESPACE"
   checkGlobalConfig "false" "false" "prometheus-stack.grafana.persistance" "GRAFANA_PERSISTANCE"
   checkGlobalConfig "false" "false" "prometheus-stack.prometheus.persistance" "PROMETHEUS_PERSISTANCE"
+  checkGlobalConfig "$SSL" "false" "grafana.ssl.enabled" "GRAFANA_SSL"
+  checkGlobalConfig "$CRT_FILE" "" "grafana.ssl.crt" "GRAFANA_CERTIFICATE"
+  checkGlobalConfig "$KEY_FILE" "" "grafana.ssl.key" "GRAFANA_KEY"
+  checkGlobalConfig "" "" "grafana.ssl.secretName" "GRAFANA_SSL_SECRET"
+  checkGlobalConfig "$SSL" "false" "alertManager.ssl.enabled" "ALERTMANAGER_SSL"
+  checkGlobalConfig "$CRT_FILE" "" "alertManager.ssl.crt" "ALERTMANAGER_CERTIFICATE"
+  checkGlobalConfig "$KEY_FILE" "" "alertManager.ssl.key" "ALERTMANAGER_KEY"
+  checkGlobalConfig "" "" "alertManager.ssl.secretName" "ALERTMANAGER_SSL_SECRET"
   
   # External app values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "loki.namespace" "LOKI_NAMESPACE"
@@ -78,6 +86,32 @@ settingStack() {
         .alertmanager.ingress.tls[0].secretName = \"alertmanager-cert\"
       "
     fi
+  fi
+
+  if [[ "$VKPR_ENV_GRAFANA_SSL" == "true" ]]; then
+    if [[ "$VKPR_ENV_GRAFANA_SSL_SECRET" == "" ]]; then
+      VKPR_ENV_GRAFANA_SSL_SECRET="grafana-certificate"
+      $VKPR_KUBECTL create secret tls $VKPR_ENV_GRAFANA_SSL_SECRET -n "$VKPR_ENV_GRAFANA_NAMESPACE" \
+        --cert="$VKPR_ENV_GRAFANA_CERTIFICATE" \
+        --key="$VKPR_ENV_GRAFANA_KEY"
+    fi
+    YQ_VALUES="$YQ_VALUES |
+      .grafana.ingress.tls[0].hosts[0] = \"$VKPR_ENV_GRAFANA_DOMAIN\" |
+      .grafana.ingress.tls[0].secretName = \"$VKPR_ENV_GRAFANA_SSL_SECRET\"
+     "
+  fi
+
+  if [[ "$VKPR_ENV_ALERTMANAGER_SSL" == "true" ]]; then
+    if [[ "$VKPR_ENV_ALERTMANAGER_SSL_SECRET" == "" ]]; then
+      VKPR_ENV_ALERTMANAGER_SSL_SECRET="alertmanager-certificate"
+      $VKPR_KUBECTL create secret tls $VKPR_ENV_ALERTMANAGER_SSL_SECRET -n "$VKPR_ENV_ALERTMANAGER_NAMESPACE" \
+        --cert="$VKPR_ENV_ALERTMANAGER_CERTIFICATE" \
+        --key="$VKPR_ENV_ALERTMANAGER_KEY"
+    fi 
+    YQ_VALUES="$YQ_VALUES |
+      .alertmanager.ingress.tls[0].hosts[0] = \"$VKPR_ENV_ALERTMANAGER_DOMAIN\" |
+      .alertmanager.ingress.tls[0].secretName = \"$VKPR_ENV_ALERTMANAGER_SSL_SECRET\"
+     "
   fi
 
   if [[ "$VKPR_ENV_GRAFANA_PERSISTANCE" == true ]]; then

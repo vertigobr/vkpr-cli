@@ -10,6 +10,10 @@ runFormula() {
   # App values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS" "$VKPR_ENV_GLOBAL_INGRESS" "consul.ingressClassName" "CONSUL_INGRESS_CLASS_NAME"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "consul.namespace" "CONSUL_NAMESPACE"
+  checkGlobalConfig "$SSL" "false" "consul.ssl.enabled" "CONSUL_SSL"
+  checkGlobalConfig "$CRT_FILE" "" "consul.ssl.crt" "CONSUL_CERTIFICATE"
+  checkGlobalConfig "$KEY_FILE" "" "consul.ssl.key" "CONSUL_KEY"
+  checkGlobalConfig "" "" "consul.ssl.secretName" "CONSUL_SSL_SECRET"
 
   local VKPR_ENV_CONSUL_DOMAIN="consul.${VKPR_ENV_GLOBAL_DOMAIN}"
   local VKPR_CONSUL_VALUES; VKPR_CONSUL_VALUES="$(dirname "$0")"/utils/consul.yaml
@@ -60,5 +64,18 @@ settingConsul() {
     YQ_VALUES="$YQ_VALUES |
       .ui.ingress.annotations = \"\"
     "
+  fi
+
+  if [[ "$VKPR_ENV_CONSUL_SSL" == "true" ]]; then
+    if [[ "$VKPR_ENV_CONSUL_SSL_SECRET" == "" ]]; then
+      VKPR_ENV_CONSUL_SSL_SECRET="consul-certificate"
+      $VKPR_KUBECTL create secret tls $VKPR_ENV_CONSUL_SSL_SECRET -n "$VKPR_ENV_CONSUL_NAMESPACE" \
+        --cert="$VKPR_ENV_CONSUL_CERTIFICATE" \
+        --key="$VKPR_ENV_CONSUL_KEY"
+    fi 
+    YQ_VALUES="$YQ_VALUES |
+      .ui.ingress.tls[0].hosts[0] = \"$VKPR_ENV_CONSUL_DOMAIN\" |
+      .ui.ingress.tls[0].secretName = \"$VKPR_ENV_CONSUL_SSL_SECRET\"
+     "
   fi
 }

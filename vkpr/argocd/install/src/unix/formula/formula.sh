@@ -12,6 +12,10 @@ runFormula() {
   checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS_CLASSNAME" "$VKPR_ENV_GLOBAL_INGRESS_CLASSNAME" "argocd.ingressClassName" "ARGOCD_INGRESS_CLASS_NAME"
   checkGlobalConfig "false" "false" "argocd.metrics" "ARGOCD_METRICS"
   checkGlobalConfig "false" "false" "argocd.addons.applicationSet" "ARGOCD_ADDONS_APPLICATION_SET"
+  checkGlobalConfig "$SSL" "false" "argocd.ssl.enabled" "ARGOCD_SSL"
+  checkGlobalConfig "$CRT_FILE" "" "argocd.ssl.crt" "ARGOCD_CERTIFICATE"
+  checkGlobalConfig "$KEY_FILE" "" "argocd.ssl.key" "ARGOCD_KEY"
+  checkGlobalConfig "" "" "argocd.ssl.secretName" "ARGOCD_SSL_SECRET"
 
   local VKPR_ENV_ARGOCD_DOMAIN="argocd.${VKPR_ENV_GLOBAL_DOMAIN}"
   local VKPR_ARGOCD_VALUES; VKPR_ARGOCD_VALUES="$(dirname "$0")"/utils/argocd.yaml
@@ -102,5 +106,18 @@ settingArgoCD(){
       .server.metrics.serviceMonitor.scrapeTimeout = \"30s\" |
       .server.metrics.serviceMonitor.additionalLabels.release = \"prometheus-stack\" 
     "
+  fi
+
+  if [[ "$VKPR_ENV_ARGOCD_SSL" == "true" ]]; then
+    if [[ "$VKPR_ENV_ARGOCD_SSL_SECRET" == "" ]]; then
+      VKPR_ENV_ARGOCD_SSL_SECRET="argocd-certificate"
+      $VKPR_KUBECTL create secret tls $VKPR_ENV_ARGOCD_SSL_SECRET -n "$VKPR_ENV_ARGOCD_NAMESPACE" \
+        --cert="$VKPR_ENV_ARGOCD_CERTIFICATE" \
+        --key="$VKPR_ENV_ARGOCD_KEY"
+    fi 
+    YQ_VALUES="$YQ_VALUES |
+      .server.ingress.tls[0].hosts[0] = \"$VKPR_ENV_ARGOCD_DOMAIN\" |
+      .server.ingress.tls[0].secretName = \"$VKPR_ENV_ARGOCD_SSL_SECRET\"
+     "
   fi
 }

@@ -13,6 +13,10 @@ runFormula() {
   checkGlobalConfig "$VAULT_AUTO_UNSEAL" "false" "vault.autoUnseal" "VAULT_AUTO_UNSEAL"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "vault.ingressClassName" "VAULT_INGRESS_CLASS_NAME"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "vault.namespace" "VAULT_NAMESPACE"
+  checkGlobalConfig "$SSL" "false" "vault.ssl.enabled" "VAULT_SSL"
+  checkGlobalConfig "$CRT_FILE" "" "vault.ssl.crt" "VAULT_CERTIFICATE"
+  checkGlobalConfig "$KEY_FILE" "" "vault.ssl.key" "VAULT_KEY"
+  checkGlobalConfig "" "" "vault.ssl.secretName" "VAULT_SSL_SECRET"
 
   # External app values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "consul.namespace" "CONSUL_NAMESPACE"
@@ -161,6 +165,19 @@ settingVault() {
         " "$(dirname "$0")"/utils/auto-unseal.yaml | $VKPR_KUBECTL apply -f - $DRY_RUN_FLAGS
         ;;
       esac
+  fi
+
+  if [[ "$VKPR_ENV_VAULT_SSL" == "true" ]]; then
+    if [[ "$VKPR_ENV_VAULT_SSL_SECRET" == "" ]]; then
+      VKPR_ENV_VAULT_SSL_SECRET="vault-certificate"
+      $VKPR_KUBECTL create secret tls $VKPR_ENV_VAULT_SSL_SECRET -n "$VKPR_ENV_VAULT_NAMESPACE" \
+        --cert="$VKPR_ENV_VAULT_CERTIFICATE" \
+        --key="$VKPR_ENV_VAULT_KEY"
+    fi 
+    YQ_VALUES="$YQ_VALUES |
+      .server.ingress.tls[0].hosts[0] = \"$VKPR_ENV_VAULT_DOMAIN\" |
+      .server.ingress.tls[0].secretName = \"$VKPR_ENV_VAULT_SSL_SECRET\"
+     "
   fi
 
   if [[ "$VKPR_ENV_VAULT_STORAGE_MODE" == "raft" ]]; then
