@@ -254,8 +254,24 @@ settingKongDefaults() {
 
   if [[ "$VKPR_ENV_KONG_HA" == "true" ]]; then
     YQ_VALUES="$YQ_VALUES |
-      .replicaCount = \"3\" |
-      .ingressController.env.leader_elect = \"true\"
+      .autoscaling.enabled = \"true\" |
+      .autoscaling.minReplicas = \"3\" |
+      .autoscaling.maxReplicas = \"5\" |
+      .autoscaling.targetCPUUtilizationPercentage = \"80%\" |
+      .topologySpreadConstraints[0].maxSkew = 1 |
+      .topologySpreadConstraints[0].topologyKey = \"kubernetes.io/hostname\" |
+      .topologySpreadConstraints[0].whenUnsatisfiable = \"DoNotSchedule\" |
+      .topologySpreadConstraints[0].labelSelector.matchLabels.vkpr = \"true\" |
+      .podDisruptionBudget.enabled = \"true\" |
+      .podDisruptionBudget.maxUnavailable = \"60%\" |
+      .ingressController.resources.limits.cpu = \"100m\" |
+      .ingressController.resources.limits.memory = \"256Mi\" |
+      .ingressController.resources.requests.cpu = \"50m\" |
+      .ingressController.resources.requests.memory = \"128Mi\" |
+      .resources.limits.cpu = \"512m\" |
+      .resources.limits.memory = \"1G\" |
+      .resources.requests.cpu = \"100m\" |
+      .resources.requests.memory = \"128Mi\"
     "
   fi
   settingKongProvider 
