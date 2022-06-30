@@ -63,6 +63,7 @@ cloneRepository() {
     .node_groups.${VKPR_ENV_EKS_CLUSTER_NAME}.instance_types[0] = \"$VKPR_ENV_EKS_NODES_INSTANCE_TYPE\" |
     .node_groups.${VKPR_ENV_EKS_CLUSTER_NAME}.capacity_type = \"${VKPR_ENV_EKS_NODES_CAPACITY_TYPE^^}\"
   " "$VKPR_HOME"/tmp/aws-eks/config/defaults.yml
+  mergeVkprValuesExtraArgs "aws.eks" "$VKPR_HOME"/tmp/aws-eks/config/defaults.yml
   git checkout -b "$VKPR_ENV_EKS_CLUSTER_NAME"
   git commit -am "[VKPR] Initial configuration defaults.yml"
   git push --set-upstream origin "$VKPR_ENV_EKS_CLUSTER_NAME"
