@@ -7,6 +7,11 @@ declare -Agr C=(
   [blue]=$(echo -e '\033[34m')
   [cyan]=$(echo -e '\033[36m')
   [bold]=$(echo -e '\033[1m')
+  [boldred]=$(echo -e '\033[01;31m')
+  [boldgreen]=$(echo -e '\033[01;32m')
+  [boldyellow]=$(echo -e '\033[01;33m')
+  [boldblue]=$(echo -e '\033[01;34m')
+  [boldcyan]=$(echo -e '\033[01;36m')
 )
 
 NC=$(echo -e "\e[0m")
@@ -30,6 +35,10 @@ notice() { log "true" "${C[blue]}$*${NC}"; }
 error() { log "true" "${C[red]}$*${NC}"; }
 warn() { log "${LOG_DEBUG:-}" "${C[yellow]}$*${NC}"; }
 debug() { log "${LOG_DEBUG:-}" "${C[red]}${C[red]}[DEBUG]${NC} $*${NC}"; }
+boldinfo() { log "true" "${C[boldgreen]}$*${NC}"; }
+boldnotice() { log "true" "${C[boldblue]}$*${NC}"; }
+bolderror() { log "true" "${C[boldred]}$*${NC}"; }
+boldwarn() { log "${LOG_DEBUG:-}" "${C[boldyellow]}$*${NC}"; }
 
 
 echoColor() {
