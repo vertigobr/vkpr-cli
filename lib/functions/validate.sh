@@ -276,3 +276,34 @@ validateHA(){
     return
   fi
 }
+
+# -----------------------------------------------------------------------------
+# Cert Manager validators
+# -----------------------------------------------------------------------------
+
+validateCertManagerEmail() {
+  if [[ "$1" =~ ^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-z]{2,}$ ]]; then
+    return
+  else
+    error "Invalid email"
+    # exit
+  fi
+}
+
+validateIssuerType(){
+  if [[  $(echo $1 | tr '[:upper:]' '[:lower:]') =~ ^staging|production$ ]]; then
+   return
+  else
+    error "It was not possible to identify what is the cluster issuer"
+    exit
+  fi
+}
+
+validateIssuerSolver(){
+  if [[ "$1" =~ ^HTTP01|DNS01$ ]]; then
+   return
+  else
+    error "It was not possible to identify what type of challenge you will use to issue the certificate"
+    exit
+  fi
+}
