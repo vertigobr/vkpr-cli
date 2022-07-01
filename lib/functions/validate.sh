@@ -97,16 +97,13 @@ validatePostgresqlPassword() {
 }
 
 validateBool(){
-  if [[  $(echo $1 | tr '[:upper:]' '[:lower:]') =~ ^true|false$ ]]; then
-   return false
-  else
-    return true
-    exit
+  if [[ $1 =~ ^true|false$ ]]; then
+    echo "true"
   fi
 }
 
 validateWhoamiSecure(){
-  if validateBool $1; then
+  if $(validateBool $1); then
     return
   else
     error "Specifies if the application will have HTTPS."
@@ -115,7 +112,7 @@ validateWhoamiSecure(){
 }
 
 validateInfraTraefik(){
-  if validateBool $1; then
+  if $(validateBool $1); then
     return
   else
     error "Enable Traefik by default in Cluster."
@@ -124,7 +121,6 @@ validateInfraTraefik(){
 }
 
 validateInfraHTTP(){
-  echo $1
   if [[ "$1" =~ ^([0-9]{,4})$ ]]; then
     return
   else
@@ -205,48 +201,39 @@ validateK9SVersion() {
 # Kong Credential validators
 # -----------------------------------------------------------------------------
 
-validateBool(){
-  if [[  $(echo $1 | tr '[:upper:]' '[:lower:]') =~ ^true|false$ ]]; then
-   return
-  else
-    echo "error"
-    exit
-  fi
-}
-
 validateKongDomain() {
   if [[ "$1" =~ ^([A-Za-z0-9])$ ]]; then
     return
-    else
+  else
     error "Please correctly enter the domain to be used "
     exit
   fi
 }
 
 validateKongHTTP() {
-  if validateBool $1 | grep -q "error" ; then
-      error "It was not possible to identify if the application will have HTTPS"
-      exit
-  else
+  if $(validateBool $1); then
     return
+  else
+    error "It was not possible to identify if the application will have HTTPS"
+    exit
   fi
 }
 
 validateKongDeployment() {
   if [[ $(echo $1 | tr '[:upper:]' '[:lower:]') =~ ^(standard|hybrid|dbless)$ ]]; then
     return
-    else
+  else
     error "It was not possible to identify the type of deployment of Kong"
     exit
   fi
 }
 
 validateKongEnterpriseLicense() {
-  if validateBool $1 | grep -q "error"; then
-      error "It was not possible to identify if the application will use enterprise license!"
-      exit
-    else
-      return
+  if $(validateBool $1); then
+    return
+  else
+    error "It was not possible to identify if the application will use enterprise license!"
+    exit
   fi
 }
 
@@ -269,10 +256,10 @@ validateKongRBACPsw() {
 }
 
 validateHA(){
-  if validateBool $1 | grep -q "error" ; then
-      error "It was not possible to identify if the application will have High Availability "
-      exit
-  else
+  if $(validateBool $1); then
     return
+  else
+    error "It was not possible to identify if the application will have High Availability "
+    exit
   fi
 }

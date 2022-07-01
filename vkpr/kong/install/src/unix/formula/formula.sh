@@ -29,10 +29,12 @@ runFormula() {
   validateKongHTTP "$VKPR_ENV_GLOBAL_SECURE"
   validateKongDeployment "$VKPR_ENV_KONG_MODE"
   validateKongEnterpriseLicense "$VKPR_ENV_KONG_ENTERPRISE"
-  #validateKongEnterpriseLicensePath "$LICENCE"
-  validateKongRBACPsw "$VKPR_ENV_KONG_RBAC_ADMIN_PASSWORD"
   validateHA "$VKPR_ENV_KONG_HA"
   validateBool "$VKPR_ENV_KONG_METRICS"
+  if [ ! -z $LICENSE ]; then
+    validateKongRBACPsw "$VKPR_ENV_KONG_RBAC_ADMIN_PASSWORD"
+    #validateKongEnterpriseLicensePath "$LICENCE"
+  fi
 
   local VKPR_KONG_VALUES; VKPR_KONG_VALUES="$(dirname "$0")"/utils/kong.yaml
   local HELM_ARGS="--namespace=$VKPR_ENV_KONG_NAMESPACE --create-namespace"

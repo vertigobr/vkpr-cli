@@ -13,7 +13,7 @@ runFormula() {
 
   validatePostgresqlPassword "$PASSWORD"
   validateHA "$VKPR_ENV_POSTGRESQL_HA"
-  validatePostgresqlMetrics "$VKPR_ENV_POSTGRESQL_METRICS"
+  #validatePostgresqlMetrics "$VKPR_ENV_POSTGRESQL_METRICS"
 
   local VKPR_POSTGRES_VALUES; VKPR_POSTGRES_VALUES=$(dirname "$0")/utils/postgres.yaml
   local HELM_ARGS="--namespace=$VKPR_ENV_POSTGRESQL_NAMESPACE --create-namespace"
