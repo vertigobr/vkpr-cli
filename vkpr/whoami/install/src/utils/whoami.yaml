@@ -6,4 +6,4 @@ ingress:
     - paths: ["/"]
   pathType: Prefix
 podLabels:
-  vkpr: "true"
+  app.kubernetes.io/managed-by: vkpr

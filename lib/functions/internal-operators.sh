@@ -36,75 +36,12 @@ checkGlobalConfig(){
   fi
 }
 
-## Check if any Pod is already up to use and match with another tools
-# Parameters:
-# 1 - POD_NAMESPACE
-# 2 - POD_NAME
-checkPodName(){
-  local POD_NAMESPACE="$1" POD_NAME="$2"
-
-  for pod in $($VKPR_KUBECTL get pods -n "$POD_NAMESPACE" --ignore-not-found  | awk 'NR>1{print $1}'); do
-    if [[ "$pod" == "$POD_NAME"* ]]; then
-      echo true  # pod name found a match, then returns True
-      return
-    fi
-  done
-  echo false
-}
-
-## Create a new Postgresql database
-# Parameters:
-# 1 - POSTGRESQL_USER
-# 2 - POSTGRESQL_PASSWORD
-# 3 - DATABASE_NAME
-# 4 - POSTGRESQL_POD_NAMESPACE
-createDatabase(){
-  local PG_USER="$1" PG_PASSWORD="$2" \
-        DATABASE_NAME="$3" NAMESPACE="$4"
-
-  local PG_HOST="postgres-postgresql"
-
-  if $VKPR_KUBECTL get pod -n "$NAMESPACE" | grep -q pgpool; then
-    PG_HOST="postgres-postgresql-pgpool"
-  fi
-
-  $VKPR_KUBECTL run init-db --rm -it --restart="Never" --namespace "$NAMESPACE" \
-    --image docker.io/bitnami/postgresql-repmgr:11.14.0-debian-10-r12 \
-    --env="PGUSER=$PG_USER" --env="PGPASSWORD=$PG_PASSWORD" --env="PGHOST=${PG_HOST}" --env="PGPORT=5432" --env="PGDATABASE=postgres" \
-    --command -- psql --command="CREATE DATABASE $DATABASE_NAME"
-}
-
-## Check if there is any database with specific name in Postgres
-# Parameters:
-# 1 - POSTGRESQL_USER
-# 2 - POSTGRESQL_PASSWORD
-# 3 - DATABASE_NAME
-# 4 - POSTGRESQL_POD_NAMESPACE
-checkExistingDatabase() {
-  local PG_USER="$1" PG_PASSWORD="$2" \
-        DATABASE_NAME="$3" NAMESPACE="$4"
-
-  local PG_HOST="postgres-postgresql"
-
-  if $VKPR_KUBECTL get pod -n "$NAMESPACE" | grep -q "pgpool"; then
-    PG_HOST="postgres-postgresql-pgpool"
-  fi
-
-  $VKPR_KUBECTL run check-db --rm -it --restart='Never' --namespace "$NAMESPACE" \
-    --image docker.io/bitnami/postgresql-repmgr:11.14.0-debian-10-r12 \
-    --env="PGUSER=$PG_USER" --env="PGPASSWORD=$PG_PASSWORD" --env="PGHOST=${PG_HOST}" --env="PGPORT=5432" --env="PGDATABASE=postgres" \
-    --command -- psql -lqt | cut -d \| -f 1 | grep "$DATABASE_NAME" | sed -e 's/^[ \t]*//'
-}
-
-## Register new repository when url does not exists in helm
-# Parameters:
-# 1 - REPO_NAME
-# 2 - REPO_URL
-registerHelmRepository(){
-  local REPO_NAME="$1" \
-        REPO_URL="$2"
-  echo "Adding repository $REPO_NAME"
-  $VKPR_HELM repo add "$REPO_NAME" "$REPO_URL" --force-update
+globalInputs() {
+  checkGlobalConfig "$DOMAIN" "localhost" "global.domain" "GLOBAL_DOMAIN"
+  checkGlobalConfig "$SECURE" "false" "global.secure" "GLOBAL_SECURE"
+  checkGlobalConfig "nginx" "nginx" "global.ingressClassName" "GLOBAL_INGRESS_CLASS_NAME"
+  checkGlobalConfig "vkpr" "vkpr" "global.namespace" "GLOBAL_NAMESPACE"
+  checkGlobalConfig "" "" "global.provider" "GLOBAL_PROVIDER"
 }
 
 ## Merge KV from the helmArgs key by the VKPR values into application values
@@ -169,4 +106,11 @@ rawUrlEncode() {
   done
   echo "${encoded}"    # You can either set a return variable (FASTER)
   REPLY="${encoded}"   #+or echo the result (EASIER)... or both... :p
+}
+
+verifyActualEnv() {
+  ACTUAL_CONTEXT=$($VKPR_KUBECTL config get-contexts --no-headers | grep "\*" | xargs | awk -F " " '{print $2}')
+  if [[ "$VKPR_ENV_GLOBAL_PROVIDER" == "okteto" ]] || [[ $ACTUAL_CONTEXT == "cloud_okteto_com" ]]; then
+    eval "VKPR_ENVIRONMENT"="okteto"
+  fi
 }

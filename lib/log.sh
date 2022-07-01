@@ -7,6 +7,11 @@ declare -Agr C=(
   [blue]=$(echo -e '\033[34m')
   [cyan]=$(echo -e '\033[36m')
   [bold]=$(echo -e '\033[1m')
+  [boldred]=$(echo -e '\033[01;31m')
+  [boldgreen]=$(echo -e '\033[01;32m')
+  [boldyellow]=$(echo -e '\033[01;33m')
+  [boldblue]=$(echo -e '\033[01;34m')
+  [boldcyan]=$(echo -e '\033[01;36m')
 )
 
 NC=$(echo -e "\e[0m")
@@ -24,13 +29,16 @@ log() {
   )
 }
 
-info() { log "true" "${C[green]}$*${NC}"; }
 bold() { log "true" "${C[bold]}$*${NC}"; }
+info() { log "true" "${C[green]}$*${NC}"; }
+boldInfo() { log "true" "${C[boldgreen]}$*${NC}"; }
 notice() { log "true" "${C[blue]}$*${NC}"; }
+boldNotice() { log "true" "${C[boldblue]}$*${NC}"; }
 error() { log "true" "${C[red]}$*${NC}"; }
+boldError() { log "true" "${C[boldred]}$*${NC}"; }
 warn() { log "${LOG_DEBUG:-}" "${C[yellow]}$*${NC}"; }
+boldWarn() { log "${LOG_DEBUG:-}" "${C[boldyellow]}$*${NC}"; }
 debug() { log "${LOG_DEBUG:-}" "${C[red]}${C[red]}[DEBUG]${NC} $*${NC}"; }
-
 
 echoColor() {
   case $1 in
