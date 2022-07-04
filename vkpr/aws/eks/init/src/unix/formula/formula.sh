@@ -12,7 +12,7 @@ runFormula() {
   EKS_CLUSTER_NODE_INSTANCE_TYPE=${EKS_CLUSTER_NODE_INSTANCE_TYPE// /}
 
   checkGlobalConfig "$EKS_CLUSTER_NAME" "eks-sample" "aws.eks.clusterName" "EKS_CLUSTER_NAME"
-  checkGlobalConfig "$EKS_K8S_VERSION" "1.21" "aws.eks.version" "EKS_VERSION"
+  checkGlobalConfig "$EKS_K8S_VERSION" "1.20" "aws.eks.version" "EKS_VERSION"
   checkGlobalConfig "$EKS_CLUSTER_NODE_INSTANCE_TYPE" "t3.small" "aws.eks.nodes.instaceType" "EKS_NODES_INSTANCE_TYPE"
   checkGlobalConfig "$EKS_CLUSTER_SIZE" "1" "aws.eks.nodes.quantitySize" "EKS_NODES_QUANTITY_SIZE"
   checkGlobalConfig "$EKS_CAPACITY_TYPE" "on_demand" "aws.eks.nodes.capacityType" "EKS_NODES_CAPACITY_TYPE"
@@ -23,6 +23,13 @@ runFormula() {
   validateAwsRegion "$AWS_REGION"
   validateGitlabUsername "$GITLAB_USERNAME"
   validateGitlabToken "$GITLAB_TOKEN"
+
+  validateEksClusterName "$VKPR_ENV_EKS_CLUSTER_NAME"
+  validateEksVersion "$VKPR_ENV_EKS_VERSION"
+  validateEksNodeInstanceType "$VKPR_ENV_EKS_NODES_INSTANCE_TYPE"
+  validateEksClusterSize "$VKPR_ENV_EKS_NODES_QUANTITY_SIZE"
+  validateEksCapacityType "$VKPR_ENV_EKS_NODES_CAPACITY_TYPE"
+  validateEksStoreTfState "$VKPR_ENV_EKS_TERRAFORM_STATE"
 
   [[ "$VKPR_ENV_EKS_TERRAFORM_STATE" == "terraform-cloud" ]] && validateTFCloudToken "$TERRAFORMCLOUD_API_TOKEN"
 
