@@ -1,7 +1,7 @@
 #!/bin/bash
 
 runFormula() {
-  local VKPR_ENV_WHOAMI_DOMAIN VKPR_WHOAMI_VALUES ACTUAL_CONTEXT HELM_ARGS;
+  local VKPR_ENV_WHOAMI_DOMAIN VKPR_WHOAMI_VALUES HELM_ARGS;
   formulaInputs
   validateInputs
 
@@ -71,7 +71,7 @@ settingWhoami() {
 
 settingWhoamiEnvironment() {
   if [[ "$VKPR_ENVIRONMENT" == "okteto" ]]; then
-    HELM_ARGS=""
+    HELM_ARGS="--cleanup-on-fail"
     YQ_VALUES="$YQ_VALUES |
       .ingress.enabled = false |
       .service.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\"
