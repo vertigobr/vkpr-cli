@@ -15,7 +15,7 @@ runFormula() {
     installApplication "postgresql" "bitnami/postgresql" "$VKPR_ENV_POSTGRESQL_NAMESPACE" "$VKPR_POSTGRESQL_VERSION" "$VKPR_POSTGRESQL_VALUES" "$HELM_ARGS"
   else
     settingPostgresqlHA
-    installApplication "postgresql-ha" "bitnami/postgresql-ha" "$VKPR_ENV_POSTGRESQL_NAMESPACE" "$VKPR_POSTGRESQL_HA_VERSION" "$VKPR_POSTGRESQL_VALUES" "$HELM_ARGS"
+    installApplication "postgresql" "bitnami/postgresql-ha" "$VKPR_ENV_POSTGRESQL_NAMESPACE" "$VKPR_POSTGRESQL_HA_VERSION" "$VKPR_POSTGRESQL_VALUES" "$HELM_ARGS"
   fi
 }
 

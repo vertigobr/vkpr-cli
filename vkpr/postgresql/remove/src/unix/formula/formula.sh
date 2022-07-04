@@ -8,9 +8,11 @@ runFormula() {
 removePostgres(){
   info "Removing Postgresql..."
 
-  POSTGRESQL_NAMESPACE=$($VKPR_KUBECTL get po -A -l app.kubernetes.io/instance=postgresql,vkpr=true -o=yaml |\
-                         $VKPR_YQ e ".items[].metadata.namespace" - |\
-                         head -n1)
+  HELM_FLAG="-A"
+  [[ "$VKPR_ENVIRONMENT" == "okteto" ]] && HELM_FLAG=""
+  CONSUL_NAMESPACE=$($VKPR_HELM ls -o=json $HELM_FLAG |\
+                     $VKPR_JQ -r '.[] | select(.name | contains("consul")) | .namespace' |\
+                     head -n1)
 
   $VKPR_HELM uninstall --namespace "$POSTGRESQL_NAMESPACE" postgresql 2> /dev/null || error "VKPR Postgresql not found"
 }
