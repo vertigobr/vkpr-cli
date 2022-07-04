@@ -10,8 +10,8 @@ removePostgres(){
 
   HELM_FLAG="-A"
   [[ "$VKPR_ENVIRONMENT" == "okteto" ]] && HELM_FLAG=""
-  CONSUL_NAMESPACE=$($VKPR_HELM ls -o=json $HELM_FLAG |\
-                     $VKPR_JQ -r '.[] | select(.name | contains("consul")) | .namespace' |\
+  POSTGRESQL_NAMESPACE=$($VKPR_HELM ls -o=json $HELM_FLAG |\
+                     $VKPR_JQ -r '.[] | select(.name | contains("postgresql")) | .namespace' |\
                      head -n1)
 
   $VKPR_HELM uninstall --namespace "$POSTGRESQL_NAMESPACE" postgresql 2> /dev/null || error "VKPR Postgresql not found"
