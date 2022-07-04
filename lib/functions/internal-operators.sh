@@ -12,25 +12,25 @@ checkGlobalConfig(){
         VALUES_LABEL_PATH=".$3" ENV_NAME="VKPR_ENV_$4"
 
   if [ "$INPUT_VALUE" != "$DEFAULT_INPUT_VALUE" ]; then
-    warn "Setting value from input value"
+    warn "Setting value from input value: $ENV_NAME"
     eval "$ENV_NAME"="$INPUT_VALUE"
     return
   fi
 
   if [ -f "$VKPR_FILE" ] && [ "$($VKPR_YQ eval "$VALUES_LABEL_PATH" "$VKPR_FILE")" != "null" ]; then
-    warn "Setting value from config file"
+    warn "Setting value from config file: $ENV_NAME"
     eval "$ENV_NAME"="$($VKPR_YQ eval "$VALUES_LABEL_PATH" "$VKPR_FILE")"
     return
   fi
 
   if printenv | grep -q "$ENV_NAME"; then
-    warn "Setting value from env"
+    warn "Setting value from env: $ENV_NAME"
     eval "$ENV_NAME"="$(printf '%s\n' "${!ENV_NAME}")"
     return
   fi
 
   if [ "$INPUT_VALUE" == "$DEFAULT_INPUT_VALUE" ]; then
-    warn "Setting value from default value"
+    warn "Setting value from default value: $ENV_NAME"
     eval "$ENV_NAME"="$INPUT_VALUE"
     return
   fi

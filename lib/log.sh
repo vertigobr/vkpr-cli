@@ -36,6 +36,8 @@ notice() { log "true" "${C[blue]}$*${NC}"; }
 boldNotice() { log "true" "${C[boldblue]}$*${NC}"; }
 error() { log "true" "${C[red]}$*${NC}"; }
 boldError() { log "true" "${C[boldred]}$*${NC}"; }
+trace() { log "${LOG_TRACE:-}" "${C[cyan]}$*${NC}"; }
+boldTrace() { log "${LOG_TRACE:-}" "${C[boldcyan]}$*${NC}"; }
 warn() { log "${LOG_DEBUG:-}" "${C[yellow]}$*${NC}"; }
 boldWarn() { log "${LOG_DEBUG:-}" "${C[boldyellow]}$*${NC}"; }
 debug() { log "${LOG_DEBUG:-}" "${C[red]}${C[red]}[DEBUG]${NC} $*${NC}"; }

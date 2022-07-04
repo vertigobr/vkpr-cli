@@ -17,6 +17,7 @@ installApplication() {
     APP_VALUES=$5 HELM_ARGS=$6
 
   if [[ $DRY_RUN == true ]]; then
+    trace "App install with dry-run"
     bold "---"
     mergeVkprValuesHelmArgs "$APP_NAME" "$APP_VALUES"
     $VKPR_YQ eval "$YQ_VALUES" "$APP_VALUES"
@@ -28,13 +29,15 @@ installApplication() {
   mergeVkprValuesHelmArgs "$APP_NAME" "$APP_VALUES"
 
   if [ -z $HELM_ARGS ]; then
-    $VKPR_HELM upgrade -i $HELM_ARGS \
-     --version "$APP_VERSION" \
-     --values "$APP_VALUES" "$APP_NAME" "$APP_CHART"
-  else
+    trace "var HELM_ARGS without content"
     $VKPR_HELM upgrade -i --atomic --cleanup-on-fail \
      --version "$APP_VERSION" \
      --create-namespace --namespace $APP_NAMESPACE \
+     --values "$APP_VALUES" "$APP_NAME" "$APP_CHART"
+  else
+    trace "var HELM_ARGS with content"
+    $VKPR_HELM upgrade -i $HELM_ARGS \
+     --version "$APP_VERSION" \
      --values "$APP_VALUES" "$APP_NAME" "$APP_CHART"
   fi
 }
