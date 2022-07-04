@@ -286,7 +286,7 @@ validateCertManagerEmail() {
     return
   else
     error "Invalid email"
-    # exit
+    exit
   fi
 }
 
@@ -306,4 +306,22 @@ validateIssuerSolver(){
     error "It was not possible to identify what type of challenge you will use to issue the certificate"
     exit
   fi
+}
+
+validateCertManagerNamespace(){
+  if [[ "$1" =~ ^cert-manager$ ]]; then
+    return
+  else
+    error "Please correctly enter the Namespace to be used"
+    exit
+  fi
+}
+
+validateCertManagerIssueIngress(){
+  if [[ "$1" =~ ^nginx$ ]]; then
+   return
+  else
+    error "invalid value for cert-manager issue ingress"
+    exit
+  fi 
 }

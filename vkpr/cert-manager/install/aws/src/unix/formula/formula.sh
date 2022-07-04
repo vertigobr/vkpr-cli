@@ -10,12 +10,16 @@ runFormula() {
   validateCertManagerEmail "$VKPR_ENV_CERT_MANAGER_EMAIL"
   validateIssuerType "$VKPR_ENV_CERT_MANAGER_ISSUER_TYPE"
   validateIssuerSolver "$VKPR_ENV_CERT_MANAGER_ISSUER_SOLVER"
+  validateCertManagerIssueIngress "$VKPR_ENV_CERT_MANAGER_ISSUER_INGRESS"
+  validateCertManagerNamespace "$VKPR_ENV_CERT_MANAGER_NAMESPACE"
 
   # Todo: find why cert-manager doesnt work in another namespace
   VKPR_ENV_CERT_MANAGER_NAMESPACE="cert-manager"
 
   local VKPR_ISSUER_VALUES; VKPR_ISSUER_VALUES="$(dirname "$0")"/utils/issuer.yaml
   local VKPR_CERT_MANAGER_VALUES; VKPR_CERT_MANAGER_VALUES="$(dirname "$0")"/utils/cert-manager.yaml
+
+  
 
   [[ $DRY_RUN == true ]] && DRY_RUN_FLAGS="--dry-run=client -o yaml"
 
