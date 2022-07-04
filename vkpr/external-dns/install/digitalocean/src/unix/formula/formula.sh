@@ -1,9 +1,6 @@
 #!/bin/bash
 
 runFormula() {
-  # Global values
-  checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "global.namespace" "GLOBAL_NAMESPACE"
-
   # App values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "external-dns.namespace" "EXTERNAL_DNS_NAMESPACE"
   checkGlobalConfig "false" "false" "external-dns.metrics" "EXTERNAL_DNS_METRICS"
