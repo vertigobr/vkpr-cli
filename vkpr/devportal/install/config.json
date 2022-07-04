@@ -2,7 +2,7 @@
   "inputs": [
     {
       "tutorial": "Specifies the domain to use in the application",
-      "label": "Type the Backstage domain:",
+      "label": "Type the Devportal domain:",
       "name": "domain",
       "type": "text",
       "default": "localhost"
@@ -14,8 +14,8 @@
       "type": "bool",
       "default": "false",
       "items": [
-        "true",
-        "false"
+        "false",
+        "true"
       ]
     },
     {
@@ -25,8 +25,8 @@
       "type": "bool",
       "default": "false",
       "items": [
-        "true",
-        "false"
+        "false",
+        "true"
       ]
     },
     {

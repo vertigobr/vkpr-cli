@@ -7,6 +7,10 @@ runFormula() {
   checkGlobalConfig "nginx" "nginx" "cert-manager.issuer.ingress" "CERT_MANAGER_ISSUER_INGRESS"
   checkGlobalConfig "cert-manager" "cert-manager" "cert-manager.namespace" "CERT_MANAGER_NAMESPACE"
 
+  validateCertManagerEmail "$VKPR_ENV_CERT_MANAGER_EMAIL"
+  validateIssuerType "$VKPR_ENV_CERT_MANAGER_ISSUER_TYPE"
+  validateIssuerSolver "$VKPR_ENV_CERT_MANAGER_ISSUER_SOLVER"
+
   # Todo: find why cert-manager doesnt work in another namespace
   VKPR_ENV_CERT_MANAGER_NAMESPACE="cert-manager"
 
@@ -107,12 +111,7 @@ configureDNS01() {
   validateAwsSecretKey "$AWS_SECRET_KEY"
   validateAwsRegion "$AWS_REGION"
 
-<<<<<<< HEAD
-  echoColor "bold" "$(echoColor "green" "Setting AWS secret...")"
-  # shellcheck disable=SC2086
-=======
   bold "$(info "Setting AWS secret...")"
->>>>>>> origin/VKPR-478-N
   $VKPR_KUBECTL create secret generic route53-secret -n "$VKPR_ENV_CERT_MANAGER_NAMESPACE" --from-literal="secret-access-key=$AWS_SECRET_KEY" $DRY_RUN_FLAGS
   $VKPR_KUBECTL label secret route53-secret -n "$VKPR_ENV_CERT_MANAGER_NAMESPACE" vkpr=true app.kubernetes.io/instance=cert-manager 2> /dev/null
 

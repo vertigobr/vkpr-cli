@@ -47,7 +47,7 @@ installOkteto() {
     notice "Installing Okteto..."
     # patches download script in order to change BINLOCATION
     curl https://get.okteto.com -sSfL -o /tmp/okteto0.sh
-    sed "s|\/usr\/local\/bin|~\/\.vkpr\/bin|g" /tmp/okteto0.sh > /tmp/okteto.sh
+    sed 's|\/usr\/local\/bin|~\/\.vkpr\/bin|g ; 59,71s/^/#/' /tmp/okteto0.sh > /tmp/okteto.sh
     chmod +x /tmp/okteto.sh
     rm /tmp/okteto0.sh
     /tmp/okteto.sh 2> /dev/null
@@ -58,7 +58,7 @@ installHelm() {
   notice "Installing Helm..."
   # patches download script in order to change BINLOCATION
   curl -fsSL -o /tmp/get_helm0.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-  sed "s|\/usr\/local\/bin|$\HOME/\.vkpr\/bin|g" /tmp/get_helm0.sh > /tmp/get_helm.sh
+  sed 's|\/usr\/local\/bin|$\HOME/\.vkpr\/bin|g ; s/USE_SUDO:="true"/USE_SUDO:="false"/' /tmp/get_helm0.sh > /tmp/get_helm.sh
   chmod +x /tmp/get_helm.sh
   rm /tmp/get_helm0.sh
   /tmp/get_helm.sh 2> /dev/null
