@@ -1,12 +1,14 @@
 #!/bin/bash
 
 # shellcheck source=/dev/null
-source src/log.sh
-source src/var.sh
-source src/helper.sh
-source src/validate.sh
-source src/versions.sh
+source src/lib/load.sh "validator"
+source src/lib/load.sh "functions"
+source src/lib/log.sh
+source src/lib/var.sh
+source src/lib/versions.sh
 
 . "$(dirname "$0")"/unix/formula/formula.sh --source-only
 
+globalInputs
+verifyActualEnv
 runFormula

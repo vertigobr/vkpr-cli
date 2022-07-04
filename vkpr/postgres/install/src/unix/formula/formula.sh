@@ -1,19 +1,14 @@
 #!/bin/bash
 
 runFormula() {
-  # Global values
-  checkGlobalConfig "" "" "global.provider" "GLOBAL_PROVIDER"
-  checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "global.namespace" "GLOBAL_NAMESPACE"
-  checkGlobalConfig "nginx" "nginx" "global.ingressClassName" "GLOBAL_INGRESS"
-
   # App values
   checkGlobalConfig "$HA" "false" "postgresql.HA" "POSTGRESQL_HA"
   checkGlobalConfig "false" "false" "postgresql.metrics" "POSTGRESQL_METRICS"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "postgresql.namespace" "POSTGRESQL_NAMESPACE"
 
   validatePostgresqlPassword "$PASSWORD"
-  validateHA "$VKPR_ENV_POSTGRESQL_HA"
-  validatePostgresqlMetrics "$VKPR_ENV_POSTGRESQL_METRICS"
+  #validateHA "$VKPR_ENV_POSTGRESQL_HA"
+  #validatePostgresqlMetrics "$VKPR_ENV_POSTGRESQL_METRICS"
 
   local VKPR_POSTGRES_VALUES; VKPR_POSTGRES_VALUES=$(dirname "$0")/utils/postgres.yaml
   local HELM_ARGS="--namespace=$VKPR_ENV_POSTGRESQL_NAMESPACE --create-namespace"
@@ -36,7 +31,7 @@ addRepoPostgres(){
 }
 
 installPostgres(){
-  local YQ_VALUES='.fullnameOverride = "postgres-postgresql"' \
+  local YQ_VALUES=".fullnameOverride = \"postgres-postgresql\"" \
     POSTGRESQL_CHART="postgresql"
   settingPostgres
 
@@ -92,17 +87,22 @@ settingPostgres() {
         .metrics.serviceMonitor.selector.release = \"prometheus-stack\"
       "
       else
-      YQ_VALUES="$YQ_VALUES' | 
+      YQ_VALUES="$YQ_VALUES | 
         .metrics.serviceMonitor.additionalLabels.release = \"prometheus-stack\"
       "
     fi
   fi
   settingPostgresProvider
+
+  debug "YQ_CONTENT = $YQ_VALUES"
 }
 
 settingPostgresProvider(){
   ACTUAL_CONTEXT=$($VKPR_KUBECTL config get-contexts --no-headers | grep "\*" | xargs | awk -F " " '{print $2}')
   if [[ "$VKPR_ENV_GLOBAL_PROVIDER" == "okteto" ]] || [[ $ACTUAL_CONTEXT == "cloud_okteto_com" ]]; then   
     HELM_ARGS=""
+    YQ_VALUES="$YQ_VALUES |
+      .primary.persistence.size = \"2Gi\"
+    "
   fi  
 }
