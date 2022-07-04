@@ -13,7 +13,7 @@ uninstallKong() {
                    head -n1)
 
   $VKPR_HELM uninstall --namespace "$KONG_NAMESPACE" kong 2> /dev/null || error "VKPR Kong not found"
-  $VKPR_KUBECTL delete secret -A --ignore-not-found=true -l app.kubernetes.io/instance=kong,vkpr=true > /dev/null
+  $VKPR_KUBECTL delete secret -A --ignore-not-found=true -l app.kubernetes.io/instance=kong,app.kubernetes.io/managed-by=vkpr > /dev/null
 }
 
 uninstallKongDP() {
