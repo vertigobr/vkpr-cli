@@ -108,7 +108,7 @@ installDB(){
   if [[ $(checkPodName "$VKPR_ENV_POSTGRESQL_NAMESPACE" "postgres-postgresql") != "true" ]]; then
     info "Initializing postgresql to Kong"
     [[ -f $CURRENT_PWD/vkpr.yaml ]] && cp "$CURRENT_PWD"/vkpr.yaml "$(dirname "$0")"
-    rit vkpr postgres install --HA=$VKPR_ENV_KONG_HA --default
+    rit vkpr postgresql install --HA=$VKPR_ENV_KONG_HA --default
   else
     info "Initializing Kong with Postgres already created"
   fi

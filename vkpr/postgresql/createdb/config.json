@@ -1,0 +1,29 @@
+{
+  "inputs": [
+    {
+      "tutorial": "Specifies the name of the new database",
+      "label": "Type the new database name:",
+      "name": "dbname",
+      "type": "text"
+    },
+    {
+      "tutorial": "Specifies the username of the database owner",
+      "label": "Type the db user name:",
+      "name": "dbuser",
+      "type": "text"
+    },
+    {
+      "tutorial": "Specifies the database owner's user password",
+      "label": "Type the db user's password:",
+      "name": "dbpassword",
+      "type": "text"
+    },
+    {
+      "tutorial": "Specifies the Postgresql password",
+      "name": "password",
+      "type": "CREDENTIAL_POSTGRES_PASSWORD"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease:": "2.16.2"
+}

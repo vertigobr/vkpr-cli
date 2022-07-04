@@ -1,0 +1,17 @@
+{
+  "inputs": [
+    {
+      "tutorial": "Specifies if you want to delete the postgresql PVC",
+      "label": "Want to delete the PVCs ?",
+      "name": "delete_pvc",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "false",
+        "true"
+      ]
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease:": "2.16.2"
+}

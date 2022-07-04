@@ -123,7 +123,7 @@ configureKeycloakDB(){
   if [[ $(checkPodName "$VKPR_ENV_POSTGRESQL_NAMESPACE" "postgres-postgresql") != "true" ]]; then
     info "Initializing postgresql to Keycloak"
     [[ -f $CURRENT_PWD/vkpr.yaml ]] && cp "$CURRENT_PWD"/vkpr.yaml "$(dirname "$0")"
-    rit vkpr postgres install --HA="$PG_HA" --default
+    rit vkpr postgresql install --HA="$PG_HA" --default
   fi
   if [[ $(checkExistingDatabase "$PG_USER" "$PG_PASSWORD" "$PG_DATABASE_NAME" "$VKPR_ENV_POSTGRESQL_NAMESPACE") != "keycloak" ]]; then
     info "Creating Database Instance in postgresql..."

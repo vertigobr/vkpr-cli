@@ -1,0 +1,4 @@
+{
+  "short": "Install PostgreSQL",
+  "long": "Install the PostgreSQL in the Kubernetes cluster"
+}
