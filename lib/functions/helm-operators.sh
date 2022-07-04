@@ -31,13 +31,13 @@ installApplication() {
   if [ -z $HELM_ARGS ]; then
     trace "var HELM_ARGS without content"
     $VKPR_HELM upgrade -i --atomic --cleanup-on-fail \
-     --version "$APP_VERSION" \
+     --timeout 10m --version "$APP_VERSION" \
      --create-namespace --namespace $APP_NAMESPACE \
      --values "$APP_VALUES" "$APP_NAME" "$APP_CHART"
   else
     trace "var HELM_ARGS with content"
     $VKPR_HELM upgrade -i $HELM_ARGS \
-     --version "$APP_VERSION" \
+     --timeout 10m --version "$APP_VERSION" \
      --values "$APP_VALUES" "$APP_NAME" "$APP_CHART"
   fi
 }
