@@ -3,7 +3,7 @@ kind: ApplicationSet
 metadata:
   namespace: argocd
   labels:
-    vkpr: "true"
+    app.kubernetes.io/managed-by: vkpr
 spec:
   generators:
     - git:

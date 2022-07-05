@@ -1,14 +1,15 @@
 #!/bin/bash
 
 runFormula() {
+  local VKPR_REPO_VALUES REPO_NAME;
+
+  VKPR_REPO_VALUES="$(dirname "$0")"/utils/repository.yaml
+  REPO_NAME=$(echo "$REPO_URL" | awk -F "/" '{ print $NF }' | cut -d "." -f1)
+
   checkGlobalConfig "argocd" "argocd" "argocd.namespace" "ARGOCD_NAMESPACE"
 
   validateGitlabUsername "$GITLAB_USERNAME"
   validateGitlabToken "$GITLAB_TOKEN"
-
-  local VKPR_REPO_VALUES REPO_NAME;
-  VKPR_REPO_VALUES="$(dirname "$0")"/utils/repository.yaml
-  REPO_NAME=$(echo "$REPO_URL" | awk -F "/" '{ print $NF }' | cut -d "." -f1)
   
   info "Connecting repository in Argocd"
   $VKPR_YQ eval ".metadata.name = \"${REPO_NAME}-repo\" |
