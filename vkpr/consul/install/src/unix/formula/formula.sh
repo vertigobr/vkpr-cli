@@ -3,7 +3,7 @@
 runFormula() {
   local VKPR_ENV_CONSUL_DOMAIN VKPR_CONSUL_VALUES HELM_ARGS;
   formulaInputs
-  validateInputs
+#  validateInputs
 
   VKPR_ENV_CONSUL_DOMAIN="consul.${VKPR_ENV_GLOBAL_DOMAIN}"
   VKPR_CONSUL_VALUES=$(dirname "$0")/utils/consul.yaml
@@ -34,9 +34,7 @@ formulaInputs() {
   checkGlobalConfig "" "" "consul.ssl.secretName" "CONSUL_SSL_SECRET"
 }
 
-validateInputs() {
-
-}
+#validateInputs() {}
 
 settingConsul() {
   YQ_VALUES=".ui.ingress.hosts[0].host = \"$VKPR_ENV_CONSUL_DOMAIN\" |
