@@ -7,6 +7,11 @@ runFormula() {
   checkGlobalConfig "nginx" "nginx" "cert-manager.issuer.ingress" "CERT_MANAGER_ISSUER_INGRESS"
   checkGlobalConfig "cert-manager" "cert-manager" "cert-manager.namespace" "CERT_MANAGER_NAMESPACE"
 
+  validateCertManagerEmail "$VKPR_ENV_CERT_MANAGER_EMAIL"
+  validateCertManagerIssuer "$VKPR_ENV_CERT_MANAGER_ISSUER_TYPE"
+  validateCertManagerIssueSolver "$VKPR_ENV_CERT_MANAGER_ISSUER_SOLVER"
+  validateDigitalOceanApiToken "$VKPR_ENV_DO_TOKEN"
+
   # Todo: find why cert-manager doesnt work in another namespace
   VKPR_ENV_CERT_MANAGER_NAMESPACE="cert-manager"
 
