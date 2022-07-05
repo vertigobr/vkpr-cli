@@ -2,5 +2,7 @@ global:
   podLabels:
     vkpr: "true"
 server:
+  ingress:
+    enabled: true
   extraArgs:
     - --insecure

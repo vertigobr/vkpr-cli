@@ -1,4 +1,0 @@
-args:
-  policy: "sync"
-podLabels:
-  vkpr: "true"
