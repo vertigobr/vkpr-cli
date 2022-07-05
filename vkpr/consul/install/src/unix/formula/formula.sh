@@ -35,7 +35,7 @@ formulaInputs() {
 }
 
 validateInputs() {
-  validateConsulDomain "$VKPR_ENV_CONSUL_DOMAIN"
+  validateConsulDomain "$VKPR_ENV_GLOBAL_DOMAIN"
   validateConsulSecure "$VKPR_ENV_GLOBAL_SECURE"
 
   validateConsulIngressClassName "$VKPR_ENV_CONSUL_INGRESS_CLASS_NAME"

@@ -23,7 +23,7 @@ validateConsulSecure(){
 }
 
 validateConsulIngressClassName(){
-  if [[ "$1" =~ ^nginx$ ]]; then
+  if [[ "$1" =~ ^([a-z]+)$ ]]; then
    return
   else
     error "Please correctly enter the ingress class name"
@@ -50,8 +50,7 @@ validateConsulSsl(){
 }
 
 validateConsulSslCrtPath (){
-  if  $(validatePath $1); then
-    echo "$1"
+  if $(validatePath $1); then
     return
   else
     error "Invalid path for SSL .crt file"
@@ -59,8 +58,7 @@ validateConsulSslCrtPath (){
 }
 
 validateConsulSslKeyPath(){
-
-  if  $(validatePath $1); then
+  if $(validatePath $1); then
     echo "$1"
     return
   else
