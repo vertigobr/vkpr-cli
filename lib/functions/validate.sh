@@ -318,10 +318,10 @@ validateCertManagerNamespace(){
 }
 
 validateCertManagerIssueIngress(){
-  if [[ "$1" =~ ^nginx$ ]]; then
+  if [[ "$1" =~ [[:lower:]] ]]; then
    return
   else
-    error "invalid value for cert-manager issue ingress"
+    error "Invalid value for cert-manager issue ingress"
     exit
   fi 
 }
