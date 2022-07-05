@@ -3,15 +3,15 @@
 runFormula() {
   local VKPR_ENV_CONSUL_DOMAIN VKPR_CONSUL_VALUES HELM_ARGS;
   formulaInputs
-#  validateInputs
+  validateInputs
 
   VKPR_ENV_CONSUL_DOMAIN="consul.${VKPR_ENV_GLOBAL_DOMAIN}"
   VKPR_CONSUL_VALUES=$(dirname "$0")/utils/consul.yaml
 
-  startInfos
-  settingConsul
-  [ $DRY_RUN = false ] && registerHelmRepository hashicorp https://helm.releases.hashicorp.com
-  installApplication "consul" "hashicorp/consul" "$VKPR_ENV_CONSUL_NAMESPACE" "$VKPR_CONSUL_VERSION" "$VKPR_CONSUL_VALUES" "$HELM_ARGS"
+  # startInfos
+  # settingConsul
+  # [ $DRY_RUN = false ] && registerHelmRepository hashicorp https://helm.releases.hashicorp.com
+  # installApplication "consul" "hashicorp/consul" "$VKPR_ENV_CONSUL_NAMESPACE" "$VKPR_CONSUL_VERSION" "$VKPR_CONSUL_VALUES" "$HELM_ARGS"
 }
 
 startInfos() {
@@ -26,7 +26,7 @@ startInfos() {
 
 formulaInputs() {
   # App values
-  checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS" "$VKPR_ENV_GLOBAL_INGRESS" "consul.ingressClassName" "CONSUL_INGRESS_CLASS_NAME"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "consul.ingressClassName" "CONSUL_INGRESS_CLASS_NAME"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "consul.namespace" "CONSUL_NAMESPACE"
   checkGlobalConfig "$SSL" "false" "consul.ssl.enabled" "CONSUL_SSL"
   checkGlobalConfig "$CRT_FILE" "" "consul.ssl.crt" "CONSUL_CERTIFICATE"
@@ -34,7 +34,18 @@ formulaInputs() {
   checkGlobalConfig "" "" "consul.ssl.secretName" "CONSUL_SSL_SECRET"
 }
 
-#validateInputs() {}
+validateInputs() {
+  validateConsulDomain "$VKPR_ENV_CONSUL_DOMAIN"
+  validateConsulSecure "$VKPR_ENV_GLOBAL_SECURE"
+
+  validateConsulIngressClassName "$VKPR_ENV_CONSUL_INGRESS_CLASS_NAME"
+  validateConsulNamespace "$VKPR_ENV_CONSUL_NAMESPACE"
+  validateConsulSsl "$VKPR_ENV_CONSUL_SSL"
+  if [[ "$VKPR_ENV_CONSUL_SSL" == true ]]; then
+    validateConsulSslCrtPath "$VKPR_ENV_CONSUL_CERTIFICATE"
+    validateConsulSslKeyPath "$VKPR_ENV_CONSUL_KEY"
+  fi
+}
 
 settingConsul() {
   YQ_VALUES=".ui.ingress.hosts[0].host = \"$VKPR_ENV_CONSUL_DOMAIN\" |
