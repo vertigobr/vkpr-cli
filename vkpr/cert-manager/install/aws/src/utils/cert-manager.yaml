@@ -6,5 +6,5 @@ ingressShim:
 prometheus:
   enabled: false
 podLabels:
-  vkpr: "true"
+  app.kubernetes.io/managed-by: vkpr
 clusterResourceNamespace: cert

@@ -1,4 +1,0 @@
-{
-  "short": "Install cert-manager with custom-ca",
-  "long": "Install the cert-manager in the Kubernetes cluster."
-}
