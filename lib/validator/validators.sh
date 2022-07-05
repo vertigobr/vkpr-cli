@@ -31,7 +31,7 @@ validatePort(){
 }
 
 validateEmail(){
-  if [[ $1 =~ ^[a-z0-9.]+@[a-z0-9]+\.[a-z]+\.([a-z]+)?$ ]]; then
+  if [[ $1 =~ ^[a-z0-9.]+@[a-z0-9]+\.[a-z]+(\.[a-z]+)?$ ]]; then
     echo "true"
   fi
 }
