@@ -8,10 +8,10 @@ runFormula() {
   VKPR_ENV_CONSUL_DOMAIN="consul.${VKPR_ENV_GLOBAL_DOMAIN}"
   VKPR_CONSUL_VALUES=$(dirname "$0")/utils/consul.yaml
 
-  # startInfos
-  # settingConsul
-  # [ $DRY_RUN = false ] && registerHelmRepository hashicorp https://helm.releases.hashicorp.com
-  # installApplication "consul" "hashicorp/consul" "$VKPR_ENV_CONSUL_NAMESPACE" "$VKPR_CONSUL_VERSION" "$VKPR_CONSUL_VALUES" "$HELM_ARGS"
+  startInfos
+  settingConsul
+  [ $DRY_RUN = false ] && registerHelmRepository hashicorp https://helm.releases.hashicorp.com
+  installApplication "consul" "hashicorp/consul" "$VKPR_ENV_CONSUL_NAMESPACE" "$VKPR_CONSUL_VERSION" "$VKPR_CONSUL_VALUES" "$HELM_ARGS"
 }
 
 startInfos() {
