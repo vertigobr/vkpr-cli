@@ -22,7 +22,7 @@ runFormula() {
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "consul.namespace" "CONSUL_NAMESPACE"
 
   local VKPR_ENV_VAULT_DOMAIN="vault.${VKPR_ENV_GLOBAL_DOMAIN}" \
-        RIT_CREDENTIALS_PATH=~/.rit/credentials/default
+        
 
   local VKPR_VAULT_VALUES; VKPR_VAULT_VALUES=$(dirname "$0")/utils/vault.yaml
   local VKPR_VAULT_CONFIG; VKPR_VAULT_CONFIG=$(dirname "$0")/utils/config.hcl
@@ -117,9 +117,9 @@ settingVault() {
           .server.extraSecretEnvironmentVars[4].secretName = \"aws-unseal-vault\" |
           .server.extraSecretEnvironmentVars[4].secretKey = \"AWS_KMS_ENDPOINT\"
         "
-        AWS_ACCESS_KEY=$($VKPR_JQ -r .credential.accesskeyid $RIT_CREDENTIALS_PATH/aws)
-        AWS_SECRET_KEY=$($VKPR_JQ -r .credential.secretaccesskey $RIT_CREDENTIALS_PATH/aws)
-        AWS_REGION=$($VKPR_JQ -r .credential.region $RIT_CREDENTIALS_PATH/aws)
+        AWS_ACCESS_KEY=$($VKPR_JQ -r .credential.accesskeyid $VKPR_CREDENTIAL/aws)
+        AWS_SECRET_KEY=$($VKPR_JQ -r .credential.secretaccesskey $VKPR_CREDENTIAL/aws)
+        AWS_REGION=$($VKPR_JQ -r .credential.region $VKPR_CREDENTIAL/aws)
         validateAwsAccessKey "$AWS_ACCESS_KEY"
         validateAwsSecretKey "$AWS_SECRET_KEY"
         validateAwsRegion "$AWS_REGION"
@@ -130,7 +130,7 @@ settingVault() {
           .data.AWS_ACCESS_KEY = \"$(echo -n "$AWS_ACCESS_KEY" | base64)\" |
           .data.AWS_SECRET_KEY = \"$(echo -n "$AWS_SECRET_KEY" | base64)\" |
           .data.AWS_REGION = \"$(echo -n "$AWS_REGION" | base64)\" |
-          .data.VAULT_AWSKMS_SEAL_KEY_ID = \"$(echo -n "$($VKPR_JQ -r .credential.kmskeyid $RIT_CREDENTIALS_PATH/aws)" | base64)\" |
+          .data.VAULT_AWSKMS_SEAL_KEY_ID = \"$(echo -n "$($VKPR_JQ -r .credential.kmskeyid $VKPR_CREDENTIAL/aws)" | base64)\" |
           .data.AWS_KMS_ENDPOINT = \"$(echo -n "kms.$AWS_REGION.amazonaws.com" | base64)\"
         " "$(dirname "$0")"/utils/auto-unseal.yaml | $VKPR_KUBECTL apply -f - $DRY_RUN_FLAGS
         ;;
@@ -157,11 +157,11 @@ settingVault() {
         # shellcheck disable=SC2086
         $VKPR_YQ eval ".metadata.name = \"azure-unseal-vault\" |
           .metadata.namespace = \"$VKPR_ENV_VAULT_NAMESPACE\" |
-          .data.AZURE_TENANT_ID = \"$(echo -n "$($VKPR_JQ -r .credential.azuretenantid $RIT_CREDENTIALS_PATH/azure)" | base64)\" |
-          .data.AZURE_CLIENT_ID = \"$(echo -n "$($VKPR_JQ -r .credential.azureclientid $RIT_CREDENTIALS_PATH/azure)" | base64)\" |
-          .data.AZURE_CLIENT_SECRET = \"$(echo -n "$($VKPR_JQ -r .credential.azureclientsecret $RIT_CREDENTIALS_PATH/azure)" | base64)\" |
-          .data.VAULT_AZUREKEYVAULT_VAULT_NAME = \"$(echo -n "$($VKPR_JQ -r .credential.vaultazurekeyvaultvaultname $RIT_CREDENTIALS_PATH/azure)" | base64)\" |
-          .data.VAULT_AZUREKEYVAULT_KEY_NAME = \"$(echo -n "$($VKPR_JQ -r .credential.vaultazurekeyvaultkeyname $RIT_CREDENTIALS_PATH/azure)" | base64)\"
+          .data.AZURE_TENANT_ID = \"$(echo -n "$($VKPR_JQ -r .credential.azuretenantid $VKPR_CREDENTIAL/azure)" | base64)\" |
+          .data.AZURE_CLIENT_ID = \"$(echo -n "$($VKPR_JQ -r .credential.azureclientid $VKPR_CREDENTIAL/azure)" | base64)\" |
+          .data.AZURE_CLIENT_SECRET = \"$(echo -n "$($VKPR_JQ -r .credential.azureclientsecret $VKPR_CREDENTIAL/azure)" | base64)\" |
+          .data.VAULT_AZUREKEYVAULT_VAULT_NAME = \"$(echo -n "$($VKPR_JQ -r .credential.vaultazurekeyvaultvaultname $VKPR_CREDENTIAL/azure)" | base64)\" |
+          .data.VAULT_AZUREKEYVAULT_KEY_NAME = \"$(echo -n "$($VKPR_JQ -r .credential.vaultazurekeyvaultkeyname $VKPR_CREDENTIAL/azure)" | base64)\"
         " "$(dirname "$0")"/utils/auto-unseal.yaml | $VKPR_KUBECTL apply -f - $DRY_RUN_FLAGS
         ;;
       esac

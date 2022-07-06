@@ -1,16 +1,16 @@
 #!/bin/bash
 
 runFormula() {
-  local EKS_CLUSTER_NODE_INSTANCE_TYPE PROJECT_ENCODED FORK_RESPONSE_CODE RIT_CREDENTIALS_PATH;
-  formulaInputs
-  setCredentials
-  validateInputs
+  local EKS_CLUSTER_NODE_INSTANCE_TYPE PROJECT_ENCODED FORK_RESPONSE_CODE;
 
   #getting real instance type
   EKS_CLUSTER_NODE_INSTANCE_TYPE=${EKS_CLUSTER_NODE_INSTANCE_TYPE// ([^)]*)/}
   EKS_CLUSTER_NODE_INSTANCE_TYPE=${EKS_CLUSTER_NODE_INSTANCE_TYPE// /}
-
-  RIT_CREDENTIALS_PATH=~/.rit/credentials/default
+  
+  formulaInputs
+  setCredentials
+  validateInputs
+  
   PROJECT_ENCODED=$(rawUrlEncode "${GITLAB_USERNAME}/aws-eks")
   FORK_RESPONSE_CODE=$(curl -siX POST -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
     "https://gitlab.com/api/v4/projects/$(rawUrlEncode "vkpr/aws-eks")/fork" |\
@@ -37,11 +37,11 @@ formulaInputs() {
 }
 
 setCredentials() {
-  AWS_ACCESS_KEY="$($VKPR_JQ -r '.credential.accesskeyid' $RIT_CREDENTIALS_PATH/aws)"
-  AWS_SECRET_KEY="$($VKPR_JQ -r '.credential.secretaccesskey' $RIT_CREDENTIALS_PATH/aws)"
-  AWS_REGION="$($VKPR_JQ -r '.credential.region' $RIT_CREDENTIALS_PATH/aws)"
-  GITLAB_USERNAME="$($VKPR_JQ -r '.credential.username' $RIT_CREDENTIALS_PATH/gitlab)"
-  GITLAB_TOKEN="$($VKPR_JQ -r '.credential.token' $RIT_CREDENTIALS_PATH/gitlab)"
+  AWS_ACCESS_KEY="$($VKPR_JQ -r '.credential.accesskeyid' $VKPR_CREDENTIAL/aws)"
+  AWS_SECRET_KEY="$($VKPR_JQ -r '.credential.secretaccesskey' $VKPR_CREDENTIAL/aws)"
+  AWS_REGION="$($VKPR_JQ -r '.credential.region' $VKPR_CREDENTIAL/aws)"
+  GITLAB_USERNAME="$($VKPR_JQ -r '.credential.username' $VKPR_CREDENTIAL/gitlab)"
+  GITLAB_TOKEN="$($VKPR_JQ -r '.credential.token' $VKPR_CREDENTIAL/gitlab)"
 }
 
 validateInputs() {

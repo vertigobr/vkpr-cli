@@ -2,7 +2,7 @@
 
 runFormula() {
   local PG_USER="postgres"
-  local PG_PASSWORD; PG_PASSWORD=$($VKPR_JQ -r '.credential.password' ~/.rit/credentials/default/postgres)
+  local PG_PASSWORD; PG_PASSWORD=$($VKPR_JQ -r '.credential.password' "$VKPR_CREDENTIAL"/postgres)
   local PG_DATABASE_NAME="keycloak"
   local VKPR_KEYCLOAK_VALUES; VKPR_KEYCLOAK_VALUES=$(dirname "$0")/utils/keycloak.yaml
 

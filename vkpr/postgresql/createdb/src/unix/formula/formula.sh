@@ -10,7 +10,7 @@ runFormula() {
 
   info "Creating database $DBNAME in postgresql..."
 
-  local PG_PASSWORD; PG_PASSWORD=$($VKPR_JQ -r '.credential.password' ~/.rit/credentials/default/postgres)
+  local PG_PASSWORD; PG_PASSWORD=$($VKPR_JQ -r '.credential.password' "$VKPR_CREDENTIAL"/postgres)
   local PG_HOST; PG_HOST="postgres-postgresql"
 
   if [[ $(checkPodName "$VKPR_ENV_POSTGRESQL_NAMESPACE" "postgres-postgresql") == "true" ]]; then

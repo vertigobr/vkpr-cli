@@ -6,7 +6,7 @@ runFormula() {
   validateInputs
 
   VKPR_POSTGRESQL_VALUES=$(dirname "$0")/utils/postgres.yaml
-  PG_PASSWORD=$($VKPR_JQ -r '.credential.password' ~/.rit/credentials/default/postgres)
+  PG_PASSWORD=$($VKPR_JQ -r '.credential.password' "$VKPR_CREDENTIAL"/postgres)
 
   startInfos
   [ $DRY_RUN = false ] && registerHelmRepository bitnami https://charts.bitnami.com/bitnami

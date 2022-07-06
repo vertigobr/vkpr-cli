@@ -16,9 +16,9 @@ runFormula() {
 }
 
 setCredentials() {
-  GITLAB_USERNAME=$($VKPR_JQ -r '.credential.username' ~/.rit/credentials/default/gitlab)
-  AWS_SECRET_KEY=$($VKPR_JQ -r '.credential.secretaccesskey' ~/.rit/credentials/default/aws)
-  AWS_ACCESS_KEY=$($VKPR_JQ -r '.credential.accesskeyid' ~/.rit/credentials/default/aws)
+  GITLAB_USERNAME=$($VKPR_JQ -r '.credential.username' "$VKPR_CREDENTIAL"/gitlab)
+  AWS_SECRET_KEY=$($VKPR_JQ -r '.credential.secretaccesskey' "$VKPR_CREDENTIAL"/aws)
+  AWS_ACCESS_KEY=$($VKPR_JQ -r '.credential.accesskeyid' "$VKPR_CREDENTIAL"/aws)
 }
 
 validateInputs() {
