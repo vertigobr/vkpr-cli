@@ -3,7 +3,7 @@
 runFormula() {
   local VKPR_ENV_ARGOCD_DOMAIN VKPR_ARGOCD_VALUES HELM_ARGS;
   formulaInputs
-  #validateInputs
+  validateInputs
 
   VKPR_ENV_ARGOCD_DOMAIN="argocd.${VKPR_ENV_GLOBAL_DOMAIN}"
   VKPR_ARGOCD_VALUES="$(dirname "$0")"/utils/argocd.yaml
@@ -29,7 +29,7 @@ formulaInputs() {
   # App values
   checkGlobalConfig "$HA" "false" "argocd.HA" "ARGOCD_HA"
   checkGlobalConfig "argocd" "argocd" "argocd.namespace" "ARGOCD_NAMESPACE"
-  checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS_CLASSNAME" "$VKPR_ENV_GLOBAL_INGRESS_CLASSNAME" "argocd.ingressClassName" "ARGOCD_INGRESS_CLASS_NAME"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "argocd.ingressClassName" "ARGOCD_INGRESS_CLASS_NAME"
   checkGlobalConfig "false" "false" "argocd.metrics" "ARGOCD_METRICS"
   checkGlobalConfig "$SSL" "false" "argocd.ssl.enabled" "ARGOCD_SSL"
   checkGlobalConfig "$CRT_FILE" "" "argocd.ssl.crt" "ARGOCD_SSL_CERTIFICATE"
@@ -37,7 +37,19 @@ formulaInputs() {
   checkGlobalConfig "" "" "argocd.ssl.secretName" "ARGOCD_SSL_SECRET"
 }
 
-#validateInputs() {}
+validateInputs() {
+  validateArgoDomain "$VKPR_ENV_GLOBAL_DOMAIN"
+  validateArgoSecure "$VKPR_ENV_GLOBAL_SECURE"
+  validateArgoHa "$VKPR_ENV_ARGOCD_HA"
+  validateArgoNamespace "$VKPR_ENV_ARGOCD_NAMESPACE"
+  validateArgoSsl "$VKPR_ENV_ARGOCD_SSL"
+  if [[ "$VKPR_ENV_ARGOCD_SSL" == true  ]] ; then 
+    validateArgoSslCrt "$VKPR_ENV_ARGOCD_SSL_CERTIFICATE"
+    validateArgoSslKey "$VKPR_ENV_ARGOCD_SSL_KEY"
+  fi
+  validateArgoIngressClassName "$VKPR_ENV_ARGOCD_INGRESS_CLASS_NAME"
+  validateArgoMetrics "$VKPR_ENV_ARGOCD_METRICS"
+}
 
 settingArgoCD() {
   YQ_VALUES=".server.ingress.hosts[0] = \"$VKPR_ENV_ARGOCD_DOMAIN\" |

@@ -30,7 +30,7 @@
       ]
     },
     {
-      "tutorial": "Specifies if the mockserver will be using internal SSL certificates.",
+      "tutorial": "Specifies if the application will be using internal SSL certificates.",
       "label": "Do you will use SSL?",
       "name": "ssl",
       "type": "bool",
@@ -42,7 +42,7 @@
       ]
     },
     {
-      "tutorial": "Specifies the mockserver .crt file path.",
+      "tutorial": "Specifies the full path .crt file.",
       "condition": {
         "variable": "ssl",
         "operator": "==",
@@ -59,7 +59,7 @@
       }
     },
     {
-      "tutorial": "Specifies the mockserver .key file path.",
+      "tutorial": "Specifies the full path the .key file.",
       "condition": {
         "variable": "ssl",
         "operator": "==",
