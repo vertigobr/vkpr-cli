@@ -1,13 +1,12 @@
 #!/bin/bash
 
 runFormula() {
-  local VKPR_ENV_DEVPORTAL_DOMAIN VKPR_DEVPORTAL_VALUES RIT_CREDENTIALS_PATH HELM_ARGS;
+  local VKPR_ENV_DEVPORTAL_DOMAIN VKPR_DEVPORTAL_VALUES HELM_ARGS;
   formulaInputs
   validateInputs
 
   VKPR_ENV_DEVPORTAL_DOMAIN="devportal.${VKPR_ENV_GLOBAL_DOMAIN}"
   VKPR_DEVPORTAL_VALUES=$(dirname "$0")/utils/devportal.yaml
-  RIT_CREDENTIALS_PATH=~/.rit/credentials/default
 
   startInfos
   settingDevportal
@@ -31,8 +30,7 @@ formulaInputs() {
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "devportal.namespace" "DEVPORTAL_NAMESPACE"
 }
 
-validateInputs() {
-}
+#validateInputs() {}
 
 settingDevportal() {
   local YQ_VALUES=".ingress.enabled = true |
@@ -42,11 +40,11 @@ settingDevportal() {
     .ingress.ingressClassName = \"$VKPR_ENV_DEVPORTAL_INGRESS_CLASS_NAME\" |
     .appConfig.app.baseUrl = \"http://$VKPR_ENV_DEVPORTAL_DOMAIN/\" |
     .appConfig.backend.baseUrl = \"http://$VKPR_ENV_DEVPORTAL_DOMAIN/\" |
-    .auth.okta.clientId = \"$(echo -n "$($VKPR_JQ -r .credential.clientid $RIT_CREDENTIALS_PATH/okta)")\" |
-    .auth.okta.clientSecret = \"$(echo -n "$($VKPR_JQ -r .credential.clientsecret $RIT_CREDENTIALS_PATH/okta)")\" |
-    .auth.okta.audience = \"$(echo -n "$($VKPR_JQ -r .credential.audience $RIT_CREDENTIALS_PATH/okta)")\" |
-    .gihubToken = \"$(echo -n "$($VKPR_JQ -r .credential.token $RIT_CREDENTIALS_PATH/github)")\" |
-    .githubSpecHouseURL = \"$(echo -n "$($VKPR_JQ -r .credential.spechouseurl $RIT_CREDENTIALS_PATH/github)")\"
+    .auth.okta.clientId = \"$(echo -n "$($VKPR_JQ -r .credential.clientid $VKPR_CREDENTIAL/okta)")\" |
+    .auth.okta.clientSecret = \"$(echo -n "$($VKPR_JQ -r .credential.clientsecret $VKPR_CREDENTIAL/okta)")\" |
+    .auth.okta.audience = \"$(echo -n "$($VKPR_JQ -r .credential.audience $VKPR_CREDENTIAL/okta)")\" |
+    .gihubToken = \"$(echo -n "$($VKPR_JQ -r .credential.token $VKPR_CREDENTIAL/github)")\" |
+    .githubSpecHouseURL = \"$(echo -n "$($VKPR_JQ -r .credential.spechouseurl $VKPR_CREDENTIAL/github)")\"
   "
 
   if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
