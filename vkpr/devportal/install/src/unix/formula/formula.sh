@@ -40,7 +40,7 @@ settingDevportal() {
     .auth.okta.clientId = \"$(echo -n "$($VKPR_JQ -r .credential.clientid $VKPR_CREDENTIAL/okta)")\" |
     .auth.okta.clientSecret = \"$(echo -n "$($VKPR_JQ -r .credential.clientsecret $VKPR_CREDENTIAL/okta)")\" |
     .auth.okta.audience = \"$(echo -n "$($VKPR_JQ -r .credential.audience $VKPR_CREDENTIAL/okta)")\" |
-    .gihubToken = \"$(echo -n "$($VKPR_JQ -r .credential.token $VKPR_CREDENTIAL/github)")\" |
+    .githubToken = \"$(echo -n "$($VKPR_JQ -r .credential.token $VKPR_CREDENTIAL/github)")\" |
     .githubSpecHouseURL = \"$(echo -n "$($VKPR_JQ -r .credential.spechouseurl $VKPR_CREDENTIAL/github)")\"
   "
 
