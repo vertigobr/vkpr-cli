@@ -1,12 +1,30 @@
 #!/bin/bash
 
 runFormula() {
-  # Global values
-  checkGlobalConfig "$DOMAIN" "localhost" "global.domain" "GLOBAL_DOMAIN"
-  checkGlobalConfig "$SECURE" "false" "global.secure" "GLOBAL_SECURE"
-  checkGlobalConfig "nginx" "nginx" "global.ingressClassName" "GLOBAL_INGRESS_CLASS_NAME"
-  checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "global.namespace" "GLOBAL_NAMESPACE"
+  local VKPR_ENV_MOCKSERVER_DOMAIN VKPR_MOCKSERVER_VALUES HELM_ARGS;
+  formulaInputs
+  validateInputs
 
+  VKPR_ENV_MOCKSERVER_DOMAIN="mockserver.${VKPR_ENV_GLOBAL_DOMAIN}"
+  VKPR_MOCKSERVER_VALUES=$(dirname "$0")/utils/mockserver.yaml
+
+  startInfos
+  settingMockServer
+  [ $DRY_RUN = false ] && registerHelmRepository mockserver https://www.mock-server.com
+  installApplication "mockserver" "mockserver/mockserver" "$VKPR_ENV_MOCKSERVER_NAMESPACE" "$VKPR_MOCKSERVER_VERSION" "$VKPR_MOCKSERVER_VALUES" "$HELM_ARGS"
+}
+
+startInfos() {
+  bold "=============================="
+  boldInfo "VKPR MockServer Install Routine"
+  boldNotice "Domain: $VKPR_ENV_MOCKSERVER_DOMAIN"
+  boldNotice "Secure: $VKPR_ENV_GLOBAL_SECURE"
+  boldNotice "Namespace: $VKPR_ENV_MOCKSERVER_NAMESPACE"
+  boldNotice "Ingress Controller: $VKPR_ENV_MOCKSERVER_INGRESS_CLASS_NAME"
+  bold "=============================="
+}
+
+formulaInputs() {
   # App values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "mockserver.ingressClassName" "MOCKSERVER_INGRESS_CLASS_NAME"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "mockserver.namespace" "MOCKSERVER_NAMESPACE"
@@ -14,52 +32,18 @@ runFormula() {
   checkGlobalConfig "$CRT_FILE" "" "mockserver.ssl.crt" "MOCKSERVER_CERTIFICATE"
   checkGlobalConfig "$KEY_FILE" "" "mockserver.ssl.key" "MOCKSERVER_KEY"
   checkGlobalConfig "" "" "mockserver.ssl.secretName" "MOCKSERVER_SSL_SECRET"
-
-  local VKPR_ENV_MOCKSERVER_DOMAIN="mockserver.${VKPR_ENV_GLOBAL_DOMAIN}"
-  local VKPR_MOCKSERVER_VALUES; VKPR_MOCKSERVER_VALUES=$(dirname "$0")/utils/mockserver.yaml
-  local HELM_NAMESPACE="--create-namespace --namespace $VKPR_ENV_MOCKSERVER_NAMESPACE"
-
-  startInfos
-  addRepoMockServer
-  installMockServer
 }
 
-startInfos() {
-  echo "=============================="
-  info "VKPR MockServer Install Routine"
-  notice "MockServer Domain: $VKPR_ENV_MOCKSERVER_DOMAIN"
-  notice "Ingress Controller: $VKPR_ENV_MOCKSERVER_INGRESS_CLASS_NAME"
-  echo "=============================="
-}
-
-addRepoMockServer() {
-  registerHelmRepository mockserver https://www.mock-server.com
-}
-
-installMockServer() {
-  local YQ_VALUES=".ingress.hosts[0] = \"$VKPR_ENV_MOCKSERVER_DOMAIN\""
-  settingMockServer
-
-  if [[ $DRY_RUN == true ]]; then
-    echoColor "bold" "---"
-    mergeVkprValuesHelmArgs "mockserver" "$VKPR_MOCKSERVER_VALUES"
-    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_MOCKSERVER_VALUES"
-  else
-    info "Installing MockServer..."
-    $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_MOCKSERVER_VALUES"
-    mergeVkprValuesHelmArgs "mockserver" "$VKPR_MOCKSERVER_VALUES"
-    # shellcheck disable=SC2086
-    $VKPR_HELM upgrade -i --version "$VKPR_MOCKSERVER_VERSION" $HELM_NAMESPACE \
-      --wait -f "$VKPR_MOCKSERVER_VALUES" mockserver mockserver/mockserver
-  fi
-}
+#validateInputs() {}
 
 settingMockServer() {
   YQ_VALUES="$YQ_VALUES |
     .ingress.enabled = true |
     .ingress.ingressClass.enabled = true |
+    .ingress.hosts[0] = \"$VKPR_ENV_MOCKSERVER_DOMAIN\" |
     .ingress.ingressClass.name = \"$VKPR_ENV_MOCKSERVER_INGRESS_CLASS_NAME\"
   "
+
   if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
     YQ_VALUES="$YQ_VALUES |
       .ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
@@ -82,16 +66,15 @@ settingMockServer() {
   fi
 
   settingMockServerProvider
+
+  debug "YQ_CONTENT = $YQ_VALUES"
 }
 
 settingMockServerProvider() {
-  ACTUAL_CONTEXT=$($VKPR_KUBECTL config get-contexts --no-headers | grep "\*" | xargs | awk -F " " '{print $2}')
-  if [[ "$VKPR_ENV_GLOBAL_PROVIDER" == "okteto" ]] || [[ $ACTUAL_CONTEXT == "cloud_okteto_com" ]]; then
-    OKTETO_NAMESPACE=$($VKPR_KUBECTL config get-contexts --no-headers | grep "\*" | xargs | awk -F " " '{print $NF}')
-    HELM_NAMESPACE=""
+  if [[ "$VKPR_ENVIRONMENT" == "okteto" ]]; then
+    HELM_ARGS="--cleanup-on-fail"
     YQ_VALUES="$YQ_VALUES |
-      .ingress.enabled = \"false\" |
-      .ingress.hosts[0] = \"mockserver-${OKTETO_NAMESPACE}.cloud.okteto.net\" |
+      .ingress.enabled = false |
       .service.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\" |
       .app.proxyRemoteHost = \"localhost\" |
       .app.proxyRemotePort = \"1080\"
