@@ -3,9 +3,11 @@
 runFormula() {
   info "Removing nginx ingress..."
 
-  INGRESS_NAMESPACE=$($VKPR_KUBECTL get po -A -l app.kubernetes.io/instance=ingress-nginx,vkpr=true -o=yaml |\
-                      $VKPR_YQ e ".items[].metadata.namespace" - |\
-                      head -n1)
+  HELM_FLAG="-A"
+  [[ "$VKPR_ENVIRONMENT" == "okteto" ]] && HELM_FLAG=""
+  INGRESS_NAMESPACE=$($VKPR_HELM ls -o=json $HELM_FLAG |\
+                     $VKPR_JQ -r '.[] | select(.name | contains("ingress-nginx")) | .namespace' |\
+                     head -n1)
 
   $VKPR_HELM uninstall --namespace "$INGRESS_NAMESPACE" ingress-nginx 2> /dev/null || error "VKPR ingress-nginx not found"
 }
