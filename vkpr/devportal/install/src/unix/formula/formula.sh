@@ -37,7 +37,7 @@ addRepoDevportal() {
 installDevportal() {
   local YQ_VALUES=".ingress.hosts[0].host = \"$VKPR_ENV_DEVPORTAL_DOMAIN\" |
    .ingress.hosts[0].paths[0].path = \"/\"|
-    .ingress.hosts[0].paths[0].pathType = \"ImplementationSpecific\"
+    .ingress.hosts[0].paths[0].pathType = \"Prefix\"
   "
   settingDevportal
 
@@ -74,7 +74,7 @@ settingDevportal() {
     .auth.okta.clientId = \"$(echo -n "$($VKPR_JQ -r .credential.clientid $RIT_CREDENTIALS_PATH/okta)")\" |
     .auth.okta.clientSecret = \"$(echo -n "$($VKPR_JQ -r .credential.clientsecret $RIT_CREDENTIALS_PATH/okta)")\" |
     .auth.okta.audience = \"$(echo -n "$($VKPR_JQ -r .credential.audience $RIT_CREDENTIALS_PATH/okta)")\" |
-    .gihubToken = \"$(echo -n "$($VKPR_JQ -r .credential.token $RIT_CREDENTIALS_PATH/github)")\" |
+    .githubToken = \"$(echo -n "$($VKPR_JQ -r .credential.token $RIT_CREDENTIALS_PATH/github)")\" |
     .githubSpecHouseURL = \"$(echo -n "$($VKPR_JQ -r .credential.spechouseurl $RIT_CREDENTIALS_PATH/github)")\"
   "
 
