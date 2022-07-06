@@ -1,10 +1,14 @@
 #!/bin/bash
 
 runFormula() {
-  echo "=============================="
-  info "VKPR Local Infra Stop Routine"
-  echo "=============================="
+  startInfos
   stopCluster
+}
+
+startInfos() {
+  bold "=============================="
+  boldInfo "VKPR Local Infra Stop Routine"
+  bold "=============================="
 }
 
 stopCluster() {
