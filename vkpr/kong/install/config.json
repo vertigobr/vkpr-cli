@@ -136,11 +136,6 @@
         "true",
         "false"
       ]
-    },
-    {
-      "tutorial": "Specifies the Postgresql password",
-      "name": "password",
-      "type": "CREDENTIAL_POSTGRES_PASSWORD"
     }
   ],
   "template": "shell-bat",
