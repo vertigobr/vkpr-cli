@@ -44,6 +44,13 @@ settingDevportal() {
     .githubSpecHouseURL = \"$(echo -n "$($VKPR_JQ -r .credential.spechouseurl $VKPR_CREDENTIAL/github)")\"
   "
 
+  if [[ $VKPR_ENV_GLOBAL_DOMAIN == "localhost" ]]; then
+    YQ_VALUES="$YQ_VALUES |
+      .appConfig.app.baseUrl = \"http://$VKPR_ENV_DEVPORTAL_DOMAIN:8000/\" |
+      .appConfig.backend.baseUrl = \"http://$VKPR_ENV_DEVPORTAL_DOMAIN:8000/\"
+    "
+  fi
+
   if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
     YQ_VALUES="$YQ_VALUES |
       .ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
