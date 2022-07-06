@@ -3,7 +3,7 @@
 runFormula() {
   local VKPR_ENV_DEVPORTAL_DOMAIN VKPR_DEVPORTAL_VALUES HELM_ARGS;
   formulaInputs
-  validateInputs
+#  validateInputs
 
   VKPR_ENV_DEVPORTAL_DOMAIN="devportal.${VKPR_ENV_GLOBAL_DOMAIN}"
   VKPR_DEVPORTAL_VALUES=$(dirname "$0")/utils/devportal.yaml
@@ -33,10 +33,7 @@ formulaInputs() {
 #validateInputs() {}
 
 settingDevportal() {
-  local YQ_VALUES=".ingress.enabled = true |
-    .ingress.hosts[0].host = \"$VKPR_ENV_DEVPORTAL_DOMAIN\" |
-    .ingress.hosts[0].paths[0].path = \"/\"|
-    .ingress.hosts[0].paths[0].pathType = \"ImplementationSpecific\" |
+  YQ_VALUES=".ingress.hosts[0].host = \"$VKPR_ENV_DEVPORTAL_DOMAIN\" |
     .ingress.ingressClassName = \"$VKPR_ENV_DEVPORTAL_INGRESS_CLASS_NAME\" |
     .appConfig.app.baseUrl = \"http://$VKPR_ENV_DEVPORTAL_DOMAIN/\" |
     .appConfig.backend.baseUrl = \"http://$VKPR_ENV_DEVPORTAL_DOMAIN/\" |

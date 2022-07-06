@@ -19,8 +19,9 @@ installApplication() {
   if [[ $DRY_RUN == true ]]; then
     trace "App install with dry-run"
     bold "---"
+    $VKPR_YQ eval -i "$YQ_VALUES" "$APP_VALUES"
     mergeVkprValuesHelmArgs "$APP_NAME" "$APP_VALUES"
-    $VKPR_YQ eval "$YQ_VALUES" "$APP_VALUES"
+    $VKPR_YQ eval $APP_VALUES
     return
   fi
 
