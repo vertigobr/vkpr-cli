@@ -1,12 +1,30 @@
 #!/bin/bash
 
 runFormula() {
-  # Global values
-  checkGlobalConfig "$DOMAIN" "localhost" "global.domain" "GLOBAL_DOMAIN"
-  checkGlobalConfig "$SECURE" "false" "global.secure" "GLOBAL_SECURE"
-  checkGlobalConfig "nginx" "nginx" "global.ingressClassName" "GLOBAL_INGRESS_CLASS_NAME"
-  checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "global.namespace" "GLOBAL_NAMESPACE"
+  local VKPR_ENV_JAEGER_DOMAIN VKPR_JAEGER_VALUES HELM_ARGS;
+  formulaInputs
+  #validateInputs
 
+  VKPR_ENV_JAEGER_DOMAIN="jaeger.${VKPR_ENV_GLOBAL_DOMAIN}"
+  VKPR_JAEGER_VALUES=$(dirname "$0")/utils/jaeger.yaml
+
+  startInfos
+  settingJaeger
+  [ $DRY_RUN = false ] && registerHelmRepository jaegertracing https://jaegertracing.github.io/helm-charts
+  installApplication "jaeger" "jaegertracing/jaeger" "$VKPR_ENV_JAEGER_NAMESPACE" "$VKPR_JAEGER_VERSION" "$VKPR_JAEGER_VALUES" "$HELM_ARGS"
+}
+
+startInfos() {
+  bold "=============================="
+  boldInfo "VKPR Jaeger Install Routine"
+  boldNotice "Domain: $VKPR_ENV_JAEGER_DOMAIN"
+  boldNotice "Secure: $VKPR_ENV_GLOBAL_SECURE"
+  boldNotice "Namespace: $VKPR_ENV_JAEGER_NAMESPACE"
+  boldNotice "Ingress Controller: $VKPR_ENV_JAEGER_INGRESS_CLASS_NAME"
+  bold "=============================="
+}
+
+formulaInputs() {
   # App values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "jaeger.ingressClassName" "JAEGER_INGRESS_CLASS_NAME"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "jaeger.namespace" "JAEGER_NAMESPACE"
@@ -15,49 +33,15 @@ runFormula() {
   checkGlobalConfig "$CRT_FILE" "" "jaeger.ssl.crt" "JAEGER_CERTIFICATE"
   checkGlobalConfig "$KEY_FILE" "" "jaeger.ssl.key" "JAEGER_KEY"
   checkGlobalConfig "" "" "jaeger.ssl.secretName" "JAEGER_SSL_SECRET"
-
-  local VKPR_ENV_JAEGER_DOMAIN="jaeger.${VKPR_ENV_GLOBAL_DOMAIN}"
-  local VKPR_JAEGER_VALUES; VKPR_JAEGER_VALUES=$(dirname "$0")/utils/jaeger.yaml
-
-  startInfos
-  addRepoJaeger
-  installJaeger
 }
 
-startInfos() {
-  echo "=============================="
-  info "VKPR Jaeger Install Routine"
-  notice "Jaeger Domain: $VKPR_ENV_JAEGER_DOMAIN"
-  notice "Ingress Controller: $VKPR_ENV_JAEGER_INGRESS_CLASS_NAME"
-  echo "=============================="
-}
-
-addRepoJaeger() {
-  registerHelmRepository jaegertracing https://jaegertracing.github.io/helm-charts
-}
-
-installJaeger() {
-  local YQ_VALUES=".query.ingress.hosts[0] = \"$VKPR_ENV_JAEGER_DOMAIN\""
-  settingJaeger
-
-  if [[ $DRY_RUN == true ]]; then
-    echoColor "bold" "---"
-    mergeVkprValuesHelmArgs "jaeger" "$VKPR_JAEGER_VALUES"
-    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_JAEGER_VALUES"
-  else
-    info "Installing Jaeger..."
-    $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_JAEGER_VALUES"
-    mergeVkprValuesHelmArgs "jaeger" "$VKPR_JAEGER_VALUES"
-    $VKPR_HELM upgrade -i --version "$VKPR_JAEGER_VERSION" \
-      --namespace "$VKPR_ENV_JAEGER_NAMESPACE" --create-namespace \
-      --wait -f "$VKPR_JAEGER_VALUES" jaeger jaegertracing/jaeger
-  fi
-}
+#validateInputs() {}
 
 settingJaeger() {
-  YQ_VALUES="$YQ_VALUES |
+  YQ_VALUES=".query.ingress.hosts[0] = \"$VKPR_ENV_JAEGER_DOMAIN\" |
     .query.ingress.ingressClassName = \"$VKPR_ENV_JAEGER_INGRESS_CLASS_NAME\"
   "
+
   if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
     YQ_VALUES="$YQ_VALUES |
       .query.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
@@ -84,5 +68,16 @@ settingJaeger() {
       .query.ingress.tls[0].hosts[0] = \"$VKPR_ENV_JAEGER_DOMAIN\" |
       .query.ingress.tls[0].secretName = \"$VKPR_ENV_JAEGER_NAMESPACE/$VKPR_ENV_JAEGER_SSL_SECRET\"
      "
+  fi
+
+  settingJaegerEnvironment
+
+  debug "YQ_CONTENT = $YQ_VALUES"
+}
+
+settingJaegerEnvironment() {
+  if [[ "$VKPR_ENVIRONMENT" == "okteto" ]]; then
+    HELM_ARGS="--cleanup-on-fail"
+    YQ_VALUES="$YQ_VALUES"
   fi
 }
