@@ -55,3 +55,11 @@ validateNumber(){
   fi
   echo "false"
 }
+
+validateNamespace(){
+  if [[ $1 =~ ^([a-z0-9]([-a-z0-9]*[a-z0-9])?)$ ]]; then
+    echo "true"
+    return
+  fi
+  echo "false"
+}
