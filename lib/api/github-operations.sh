@@ -23,7 +23,7 @@ githubActionsGetPublicKey(){
     echo "$BODY" | jq -c '.'
     return 0
   else
-    echoColor red "Something wrong while getting public key from github"
+    error "Something wrong while getting public key from github"
     exit 13
   fi
 
@@ -49,7 +49,7 @@ githubActionsCreateUpdateSecret(){
   KEY_ID=$(echo "$VAR_PUBLIC_KEY" | jq -r '.key_id')
   KEY_VALUE=$(echo "$VAR_PUBLIC_KEY" | jq -r '.key')
 
-  SECRET=$(python3 src/github-secret-encrpty.py "${KEY_VALUE}" "${VAR_SECRET_VALUE}")
+  SECRET=$(python3 src/lib/api/utils/github-secret-encrpty.py "${KEY_VALUE}" "${VAR_SECRET_VALUE}")
 
   # https://docs.github.com/en/rest/reference/actions#create-or-update-a-repository-secret
   VARIABLE_RESPONSE_CODE=$(curl -o /dev/null -w "%{http_code}" -sX PUT \
@@ -60,13 +60,13 @@ githubActionsCreateUpdateSecret(){
 
   case $VARIABLE_RESPONSE_CODE in
     201)
-      echoColor yellow "Variable \"$VAR_SECRET_NAME\" created."
+      info "Variable \"$VAR_SECRET_NAME\" created."
       ;;
     204)
-      echoColor yellow "Variable \"$VAR_SECRET_NAME\" updated."
+      info "Variable \"$VAR_SECRET_NAME\" updated."
       ;;
     *)
-      echoColor red "Something wrong while saving \"$VAR_SECRET_NAME\""
+      error "Something wrong while saving \"$VAR_SECRET_NAME\""
       ;;
   esac
 }

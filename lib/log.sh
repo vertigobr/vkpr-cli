@@ -41,25 +41,3 @@ boldTrace() { log "${LOG_TRACE:-}" "${C[boldcyan]}$*${NC}"; }
 warn() { log "${LOG_DEBUG:-}" "${C[yellow]}$*${NC}"; }
 boldWarn() { log "${LOG_DEBUG:-}" "${C[boldyellow]}$*${NC}"; }
 debug() { log "${LOG_DEBUG:-}" "${C[red]}${C[red]}[DEBUG]${NC} $*${NC}"; }
-
-echoColor() {
-  case $1 in
-    red)
-      echo "$(printf '\033[31m')$2$(printf '\033[0m')"
-      ;;
-    green)
-      echo "$(printf '\033[32m')$2$(printf '\033[0m')"
-      ;;
-    yellow)
-      echo "$(printf '\033[33m')$2$(printf '\033[0m')"
-      ;;
-    blue)
-      echo "$(printf '\033[34m')$2$(printf '\033[0m')"
-      ;;
-    cyan)
-      echo "$(printf '\033[36m')$2$(printf '\033[0m')"
-      ;;
-    bold)
-      echo "$(printf '\033[1m')$2$(printf '\033[0m')"
-    esac
-}

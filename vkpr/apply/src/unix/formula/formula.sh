@@ -1,7 +1,7 @@
 #!/bin/bash
 
   runFormula() {
-  [[ ! -f "$PATH_TO_FILE" ]] && echoColor "red" "Wrong file" && exit
+  [[ ! -f "$PATH_TO_FILE" ]] && error "Wrong file" && exit
   cp "$PATH_TO_FILE" "$(dirname "$0")"
   VKPR_GLOBAL_CONFIG="$(dirname "$0")"/vkpr.yaml
 
