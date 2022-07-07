@@ -5,4 +5,4 @@ metadata:
   labels:
     app: name-grafana
     grafana_dashboard: "true"
-    vkpr: "true"
+    app.kubernetes.io/managed-by: vkpr

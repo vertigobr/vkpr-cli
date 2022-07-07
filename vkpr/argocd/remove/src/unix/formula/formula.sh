@@ -9,6 +9,6 @@ runFormula() {
                      $VKPR_JQ -r '.[] | select(.name | contains("argocd")) | .namespace' |\
                      head -n1)
 
-  $VKPR_KUBECTL delete secret $HELM_FLAG --ignore-not-found=true -l argocd.argoproj.io/secret-type=repository,vkpr=true > /dev/null
+  $VKPR_KUBECTL delete secret $HELM_FLAG --ignore-not-found=true -l argocd.argoproj.io/secret-type=repository,app.kubernetes.io/managed-by=vkpr > /dev/null
   $VKPR_HELM uninstall argocd -n "$ARGOCD_NAMESPACE" 2> /dev/null || error "VKPR Argocd not found"
 }

@@ -2,4 +2,4 @@ volumePermissions:
   enabled: true
 primary:
   podLabels:
-    vkpr: "true"
+    app.kubernetes.io/managed-by: vkpr
