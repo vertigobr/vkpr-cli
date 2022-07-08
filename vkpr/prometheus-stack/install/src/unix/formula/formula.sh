@@ -3,7 +3,7 @@
 runFormula() {
   local VKPR_ENV_GRAFANA_DOMAIN VKPR_ENV_ALERT_MANAGER_DOMAIN VKPR_PROMETHEUS_VALUES HELM_ARGS;
   formulaInputs
-#  validateInputs
+  validateInputs
 
   VKPR_ENV_GRAFANA_DOMAIN="grafana.${VKPR_ENV_GLOBAL_DOMAIN}"
   VKPR_ENV_ALERT_MANAGER_DOMAIN="alertmanager.${VKPR_ENV_GLOBAL_DOMAIN}"
@@ -22,42 +22,76 @@ startInfos() {
   boldNotice "Secure: $VKPR_ENV_GLOBAL_SECURE"
   boldNotice "Ingress Controller: $VKPR_ENV_PROMETHEUS_INGRESS"
   boldNotice "Grafana password: $VKPR_ENV_GRAFANA_PASSWORD"
-  boldNotice "AlertManager enabled: $VKPR_ENV_PROMETHEUS_ALERT_MANAGER"
+  boldNotice "AlertManager enabled: $VKPR_ENV_ALERTMANAGER"
   bold "=============================="
 }
 
 formulaInputs() {
   # App values
-  checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "prometheus-stack.ingressClassName" "PROMETHEUS_INGRESS"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "prometheus-stack.ingressClassName" "PROMETHEUS_STACK_INGRESS_CLASS_NAME"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "PROMETHEUS_STACK_NAMESPACE"
   ## AlertManager
-  checkGlobalConfig "$ALERTMANAGER" "false" "prometheus-stack.alertManager.enabled" "PROMETHEUS_ALERT_MANAGER"
-  checkGlobalConfig "$HA" "false" "prometheus-stack.alertManager.HA" "PROMETHEUS_ALERT_MANAGER_HA"
-  checkGlobalConfig "$SSL" "false" "prometheus-stack.alertManager.ssl.enabled" "ALERTMANAGER_SSL"
-  checkGlobalConfig "$CRT_FILE" "" "prometheus-stack.alertManager.ssl.crt" "ALERTMANAGER_CERTIFICATE"
-  checkGlobalConfig "$KEY_FILE" "" "prometheus-stack.alertManager.ssl.key" "ALERTMANAGER_KEY"
-  checkGlobalConfig "" "" "prometheus-stack.alertManager.ssl.secretName" "ALERTMANAGER_SSL_SECRET"
+  checkGlobalConfig "$ALERTMANAGER" "false" "prometheus-stack.alertManager.enabled" "ALERTMANAGER"
+  if [[ "$VKPR_ENV_ALERTMANAGER" = true ]]; then 
+    checkGlobalConfig "$HA" "false" "prometheus-stack.alertManager.HA" "ALERTMANAGER_HA"
+    checkGlobalConfig "false" "false" "prometheus-stack.alertManager.ssl.enabled" "ALERTMANAGER_SSL"
+    checkGlobalConfig "" "" "prometheus-stack.alertManager.ssl.crt" "ALERTMANAGER_CERTIFICATE"
+    checkGlobalConfig "" "" "prometheus-stack.alertManager.ssl.key" "ALERTMANAGER_KEY"
+    checkGlobalConfig "" "" "prometheus-stack.alertManager.ssl.secretName" "ALERTMANAGER_SSL_SECRET"
+  fi
   ## Grafana
   checkGlobalConfig "$GRAFANA_PASSWORD" "vkpr123" "prometheus-stack.grafana.adminPassword" "GRAFANA_PASSWORD"
   checkGlobalConfig "false" "false" "prometheus-stack.grafana.k8sExporters" "PROMETHEUS_STACK_K8S_EXPORTERS"
   checkGlobalConfig "false" "false" "prometheus-stack.grafana.persistance" "GRAFANA_PERSISTANCE"
   checkGlobalConfig "$SSL" "false" "prometheus-stack.grafana.ssl.enabled" "GRAFANA_SSL"
-  checkGlobalConfig "$CRT_FILE" "" "prometheus-stack.grafana.ssl.crt" "GRAFANA_CERTIFICATE"
-  checkGlobalConfig "$KEY_FILE" "" "prometheus-stack.grafana.ssl.key" "GRAFANA_KEY"
-  checkGlobalConfig "" "" "prometheus-stack.grafana.ssl.secretName" "GRAFANA_SSL_SECRET"
+  if [[ "$VKPR_ENV_GRAFANA_SSL" = true ]]; then 
+    checkGlobalConfig "$CRT_FILE" "" "prometheus-stack.grafana.ssl.crt" "GRAFANA_CERTIFICATE"
+    checkGlobalConfig "$KEY_FILE" "" "prometheus-stack.grafana.ssl.key" "GRAFANA_KEY"
+    checkGlobalConfig "" "" "prometheus-stack.grafana.ssl.secretName" "GRAFANA_SSL_SECRET"
+  fi
   ## Prometheus
   checkGlobalConfig "false" "false" "prometheus-stack.prometheus.persistance" "PROMETHEUS_PERSISTANCE"
-  
+
+
   # External app values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "loki.namespace" "LOKI_NAMESPACE"
 }
 
-#validateInputs() {}
+validateInputs() {
+  # App values
+  validatePrometheusDomain "$VKPR_ENV_GLOBAL_DOMAIN"
+  validatePrometheusSecure "$VKPR_ENV_GLOBAL_SECURE"
+  validatePrometheusIngressClassName "$VKPR_ENV_PROMETHEUS_STACK_INGRESS_CLASS_NAME"
+  validatePrometheusNamespace "$VKPR_ENV_PROMETHEUS_STACK_NAMESPACE"
+  ## AlertManager
+  validateAlertManagerEnabled "$VKPR_ENV_ALERTMANAGER"
+  if [[ "$VKPR_ENV_ALERTMANAGER" = true ]]; then 
+    validateAlertManagerHA "$VKPR_ENV_ALERTMANAGER_HA"
+    validateAlertManagerSSL "$VKPR_ENV_ALERTMANAGER_SSL"
+    validateAlertManagerCertificate "$VKPR_ENV_ALERTMANAGER_CERTIFICATE"
+    validateAlertManagerKey "$VKPR_ENV_ALERTMANAGER_KEY"
+    validateAlertManagerSecret "$VKPR_ENV_ALERTMANAGER_SSL_SECRET"
+  fi
+  ## Grafana
+  validateGrafanaPwd "$VKPR_ENV_GRAFANA_PASSWORD"
+  validatePrometheusK8S "$VKPR_ENV_PROMETHEUS_STACK_K8S_EXPORTERS"
+  validateGrafanaPersistance "$VKPR_ENV_GRAFANA_PERSISTANCE"
+  validateGrafanaSSL "$VKPR_ENV_GRAFANA_SSL"
+  if [[ "$VKPR_ENV_GRAFANA_SSL" = true ]]; then 
+    validateGrafanaCertificate "$VKPR_ENV_GRAFANA_CERTIFICATE"
+    validateGrafanaKey "$VKPR_ENV_GRAFANA_KEY"
+    validateGrafanaSecret "$VKPR_ENV_GRAFANA_SSL_SECRET"
+  fi
+  ## Prometheus
+  validatePrometheusPersistance "$VKPR_ENV_PROMETHEUS_PERSISTANCE"
+  # External app values
+  validateLokiNamespace "$VKPR_ENV_LOKI_NAMESPACE"
+}
 
 settingPrometheusStack() {
   settingGrafanaValues
   settingPrometheusValues
-  [[ "$VKPR_ENV_PROMETHEUS_ALERT_MANAGER" == true ]] && settingAlertManagerValues
+  [[ "$VKPR_ENV_ALERTMANAGER" == true ]] && settingAlertManagerValues
 
   if [[ "$VKPR_ENV_PROMETHEUS_STACK_K8S_EXPORTERS" == true ]]; then
     YQ_VALUES="$YQ_VALUES |      
@@ -93,7 +127,7 @@ settingPrometheusStack() {
 settingGrafanaValues() {
   YQ_VALUES=".grafana.ingress.hosts[0] = \"$VKPR_ENV_GRAFANA_DOMAIN\" |
    .grafana.adminPassword = \"$VKPR_ENV_GRAFANA_PASSWORD\" |
-   .grafana.ingress.ingressClassName = \"$VKPR_ENV_PROMETHEUS_INGRESS\"
+   .grafana.ingress.ingressClassName = \"$VKPR_ENV_PROMETHEUS_STACK_INGRESS_CLASS_NAME\"
   "
 
   if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
@@ -139,7 +173,7 @@ settingAlertManagerValues() {
     .alertmanager.enabled = true |
     .alertmanager.ingress.enabled = true |
     .alertmanager.ingress.hosts[0] = \"$VKPR_ENV_ALERT_MANAGER_DOMAIN\" |
-    .alertmanager.ingress.ingressClassName = \"$VKPR_ENV_PROMETHEUS_INGRESS\"
+    .alertmanager.ingress.ingressClassName = \"$VKPR_ENV_PROMETHEUS_STACK_INGRESS_CLASS_NAME\"
   "
 
   if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
@@ -150,7 +184,7 @@ settingAlertManagerValues() {
     "
   fi
 
-  if [[ "$PROMETHEUS_ALERT_MANAGER_HA" == true ]]; then
+  if [[ "$VKPR_ENV_ALERTMANAGER_HA" == true ]]; then
     YQ_VALUES="$YQ_VALUES |
       .alertmanager.alertmanagerSpec.replicas = 3 |
       .prometheus.prometheusSpec.replicas = 3
