@@ -21,7 +21,7 @@ bitbucketListRepositoryVariables(){
     echo "$BODY" | jq -c '.'
     return 0
   else
-    echoColor red "Something wrong while getting parameters from bitbucket"
+    error "Something wrong while getting parameters from bitbucket"
     exit 13
   fi
 }
@@ -119,10 +119,10 @@ bitbucketCreateOrUpdateRepositoryVariable(){
 
   local VARIABLE; VARIABLE=$(bitbucketGetRepositoryVariable "$VAR_OWNER_AND_REPO" "$VAR_VARIABLE_KEY" "$VAR_BITBUCKET_USERNAME" "$VAR_BITBUCKET_TOKEN")
   if [ -z "$VARIABLE" ];then
-    echo "create"
+    debug "create"
     bitbucketCreateRepositoryVariable "$VAR_OWNER_AND_REPO" "$VAR_VARIABLE_KEY" "$VAR_VARIABLE_VALUE" "$VAR_VARIABLE_SECURED" "$VAR_BITBUCKET_USERNAME" "$VAR_BITBUCKET_TOKEN"
   else
-    echo "update"
+    debug "update"
     local VARIABLE_UUID; VARIABLE_UUID=$(echo "$VARIABLE" | $VKPR_JQ -r ".uuid")
     bitbucketUpdateRepositoryVariable "$VAR_OWNER_AND_REPO" "$VARIABLE_UUID" "$VAR_VARIABLE_KEY" "$VAR_VARIABLE_VALUE" "$VAR_VARIABLE_SECURED" "$VAR_BITBUCKET_USERNAME" "$VAR_BITBUCKET_TOKEN"
   fi

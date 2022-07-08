@@ -9,6 +9,6 @@ runFormula() {
                      $VKPR_JQ -r '.[] | select(.name | contains("prometheus-stack")) | .namespace' |\
                      head -n1)
 
-  $VKPR_KUBECTL delete cm $HELM_FLAG --ignore-not-found=true -l grafana_dashboard=true,app.kubernetes.io/managed-by=vkpr > /dev/null
+  $VKPR_KUBECTL delete cm $HELM_FLAG --ignore-not-found=true -l grafana_dashboard=1,app.kubernetes.io/managed-by=vkpr > /dev/null
   $VKPR_HELM uninstall -n "$PROMETHEUS_STACK_NAMESPACE" prometheus-stack 2> /dev/null || error "VKPR Prometheus-stack not found"
 } 

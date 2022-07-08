@@ -144,7 +144,7 @@ waitJobComplete(){
   SECONDS=0
   while [[ "$JOB_COMPLETE" != "success" ]]; do
     [[ "$JOB_COMPLETE" == "failed" ]] && break
-    echoColor "yellow" "Job still executing, await more... ${SECONDS}s passed"
+    bold "Job still executing, await more... ${SECONDS}s passed"
     sleep 30
     (( SECONDS + 30 ))
     JOB_COMPLETE=$(curl -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/pipelines/"$PIPELINE_ID"/jobs \
@@ -161,18 +161,19 @@ jobDeployCluster(){
         GITLAB_TOKEN="$4"
 
   if [[ "$BUILD_COMPLETE" == "failed" ]]; then
-    echoColor "red" "Error in pipeline, review the errors in Gitlab"
-  else
-    local DEPLOY_ID;
-    DEPLOY_ID=$(curl -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/pipelines/"$PIPELINE_ID"/jobs \
-      -H "PRIVATE-TOKEN: $GITLAB_TOKEN" |\
-      $VKPR_JQ '.[1].id'
-    )
-
-    curl -sX POST https://gitlab.com/api/v4/projects/"$PROJECT_ID"/jobs/"$DEPLOY_ID"/play \
-      -H "PRIVATE-TOKEN: $GITLAB_TOKEN" > /dev/null
-    echoColor "green" "Deploy job started successfully"
+    error "Error in pipeline, review the errors in Gitlab"
+    exit
   fi
+
+  local DEPLOY_ID;
+  DEPLOY_ID=$(curl -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/pipelines/"$PIPELINE_ID"/jobs \
+    -H "PRIVATE-TOKEN: $GITLAB_TOKEN" |\
+    $VKPR_JQ '.[1].id'
+  )
+
+  curl -sX POST https://gitlab.com/api/v4/projects/"$PROJECT_ID"/jobs/"$DEPLOY_ID"/play \
+    -H "PRIVATE-TOKEN: $GITLAB_TOKEN" > /dev/null
+  info "Deploy job started successfully"
 }
 
 jobDestroyCluster() {
@@ -182,16 +183,17 @@ jobDestroyCluster() {
         GITLAB_TOKEN="$4"
 
   if [[ "$DEPLOY_STATUS" != "success" ]]; then
-    echoColor "red" "Error in pipeline, review the errors in Gitlab"
-  else
-    DESTROY_ID=$(curl -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/pipelines/"$PIPELINE_ID"/jobs \
-      -H "PRIVATE-TOKEN: $GITLAB_TOKEN" |\
-      $VKPR_JQ '.[0].id'
-    )
-    curl -sX POST https://gitlab.com/api/v4/projects/"$PROJECT_ID"/jobs/"$DESTROY_ID"/play \
-      -H "PRIVATE-TOKEN: $GITLAB_TOKEN" > /dev/null
-    echoColor "green" "Destroy job started successfully"
+    error "Error in pipeline, review the errors in Gitlab"
+    exit
   fi
+
+  DESTROY_ID=$(curl -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/pipelines/"$PIPELINE_ID"/jobs \
+    -H "PRIVATE-TOKEN: $GITLAB_TOKEN" |\
+    $VKPR_JQ '.[0].id'
+  )
+  curl -sX POST https://gitlab.com/api/v4/projects/"$PROJECT_ID"/jobs/"$DESTROY_ID"/play \
+    -H "PRIVATE-TOKEN: $GITLAB_TOKEN" > /dev/null
+  info "Destroy job started successfully"
 }
 
 downloadKubeconfig() {
@@ -202,20 +204,21 @@ downloadKubeconfig() {
         DIR_LOCATION="$5"
 
   if [[ "$DEPLOY_COMPLETE" == "failed" ]]; then
-    echoColor "red" "Error in pipeline, review the errors in Gitlab"
-  else
-    local DEPLOY_ID;
-    DEPLOY_ID=$(curl -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/pipelines/"$PIPELINE_ID"/jobs \
-      -H "PRIVATE-TOKEN: $GITLAB_TOKEN" |\
-      $VKPR_JQ '.[1].id'
-    )
-
-    curl --location -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/jobs/"$DEPLOY_ID"/artifacts \
-      -H "PRIVATE-TOKEN: $GITLAB_TOKEN" \
-      -o /tmp/artifacts.zip > /dev/null
-    unzip -q /tmp/artifacts.zip -d /tmp
-    mkdir -p "$VKPR_HOME"/kubeconfig/"$DIR_LOCATION"
-    mv /tmp/kube/* "$VKPR_HOME"/kubeconfig/"$DIR_LOCATION"
-    rm -r /tmp/artifacts.zip /tmp/kube
+    error "Error in pipeline, review the errors in Gitlab"
+    exit
   fi
+
+  local DEPLOY_ID;
+  DEPLOY_ID=$(curl -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/pipelines/"$PIPELINE_ID"/jobs \
+    -H "PRIVATE-TOKEN: $GITLAB_TOKEN" |\
+    $VKPR_JQ '.[1].id'
+  )
+
+  curl --location -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/jobs/"$DEPLOY_ID"/artifacts \
+    -H "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+    -o /tmp/artifacts.zip > /dev/null
+  unzip -q /tmp/artifacts.zip -d /tmp
+  mkdir -p "$VKPR_HOME"/kubeconfig/"$DIR_LOCATION"
+  mv /tmp/kube/* "$VKPR_HOME"/kubeconfig/"$DIR_LOCATION"
+  rm -r /tmp/artifacts.zip /tmp/kube
 }
