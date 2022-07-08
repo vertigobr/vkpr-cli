@@ -35,6 +35,9 @@ formulaInputs() {
   checkGlobalConfig "$CRT_FILE" "" "argocd.ssl.crt" "ARGOCD_SSL_CERTIFICATE"
   checkGlobalConfig "$KEY_FILE" "" "argocd.ssl.key" "ARGOCD_SSL_KEY"
   checkGlobalConfig "" "" "argocd.ssl.secretName" "ARGOCD_SSL_SECRET"
+
+  # External apps values
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "GRAFANA_NAMESPACE"
 }
 
 validateInputs() {
@@ -43,7 +46,7 @@ validateInputs() {
   validateArgoHa "$VKPR_ENV_ARGOCD_HA"
   validateArgoNamespace "$VKPR_ENV_ARGOCD_NAMESPACE"
   validateArgoSsl "$VKPR_ENV_ARGOCD_SSL"
-  if [[ "$VKPR_ENV_ARGOCD_SSL" == true  ]] ; then 
+  if [[ "$VKPR_ENV_ARGOCD_SSL" == true  ]] ; then
     validateArgoSslCrt "$VKPR_ENV_ARGOCD_SSL_CERTIFICATE"
     validateArgoSslKey "$VKPR_ENV_ARGOCD_SSL_KEY"
   fi
@@ -80,6 +83,7 @@ settingArgoCD() {
   fi
 
   if [[ "$VKPR_ENV_ARGOCD_METRICS" == true ]]; then
+    createGrafanaDashboard "argocd" "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
     YQ_VALUES="$YQ_VALUES |
       .controller.metrics.enabled = true |
       .controller.metrics.serviceMonitor.enabled = true |
@@ -92,7 +96,7 @@ settingArgoCD() {
       .server.metrics.serviceMonitor.namespace = \"$VKPR_ENV_ARGOCD_NAMESPACE\" |
       .server.metrics.serviceMonitor.interval = \"30s\" |
       .server.metrics.serviceMonitor.scrapeTimeout = \"30s\" |
-      .server.metrics.serviceMonitor.additionalLabels.release = \"prometheus-stack\" 
+      .server.metrics.serviceMonitor.additionalLabels.release = \"prometheus-stack\"
     "
   fi
 
@@ -102,7 +106,7 @@ settingArgoCD() {
       $VKPR_KUBECTL create secret tls $VKPR_ENV_ARGOCD_SSL_SECRET -n "$VKPR_ENV_ARGOCD_NAMESPACE" \
         --cert="$VKPR_ENV_ARGOCD_CERTIFICATE" \
         --key="$VKPR_ENV_ARGOCD_KEY"
-    fi 
+    fi
     YQ_VALUES="$YQ_VALUES |
       .server.ingress.tls[0].hosts[0] = \"$VKPR_ENV_ARGOCD_DOMAIN\" |
       .server.ingress.tls[0].secretName = \"$VKPR_ENV_ARGOCD_SSL_SECRET\"
