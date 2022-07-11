@@ -1,4 +1,4 @@
 {
-  "short": "",
-  "long": ""
+  "short": "Remove Devportal",
+  "long": "Remove the Devportal and its dependencies from the Kubernetes cluster"
 }
