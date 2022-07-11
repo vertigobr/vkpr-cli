@@ -69,7 +69,7 @@ installArgoCD(){
 installCertManager(){
   CERT_MANAGER_EXISTS=$($VKPR_YQ eval .cert-manager.enabled "$VKPR_GLOBAL_CONFIG")
   if [ "$CERT_MANAGER_EXISTS" == true ]; then
-    local CERT_MANAGER_PROVIDER CERT_MANAGER_SOLVER
+    local CERT_MANAGER_PROVIDER
     CERT_MANAGER_PROVIDER=$($VKPR_YQ eval .global.provider "$VKPR_GLOBAL_CONFIG")
     case $CERT_MANAGER_PROVIDER in
       aws)

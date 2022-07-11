@@ -32,7 +32,7 @@ formulaInputs() {
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "PROMETHEUS_STACK_NAMESPACE"
   ## AlertManager
   checkGlobalConfig "$ALERTMANAGER" "false" "prometheus-stack.alertManager.enabled" "ALERTMANAGER"
-  if [[ "$VKPR_ENV_ALERTMANAGER" = true ]]; then 
+  if [[ "$VKPR_ENV_ALERTMANAGER" = true ]]; then
     checkGlobalConfig "$HA" "false" "prometheus-stack.alertManager.HA" "ALERTMANAGER_HA"
     checkGlobalConfig "false" "false" "prometheus-stack.alertManager.ssl.enabled" "ALERTMANAGER_SSL"
     checkGlobalConfig "" "" "prometheus-stack.alertManager.ssl.crt" "ALERTMANAGER_CERTIFICATE"
@@ -44,7 +44,7 @@ formulaInputs() {
   checkGlobalConfig "false" "false" "prometheus-stack.grafana.k8sExporters" "PROMETHEUS_STACK_K8S_EXPORTERS"
   checkGlobalConfig "false" "false" "prometheus-stack.grafana.persistance" "GRAFANA_PERSISTANCE"
   checkGlobalConfig "$SSL" "false" "prometheus-stack.grafana.ssl.enabled" "GRAFANA_SSL"
-  if [[ "$VKPR_ENV_GRAFANA_SSL" = true ]]; then 
+  if [[ "$VKPR_ENV_GRAFANA_SSL" = true ]]; then
     checkGlobalConfig "$CRT_FILE" "" "prometheus-stack.grafana.ssl.crt" "GRAFANA_CERTIFICATE"
     checkGlobalConfig "$KEY_FILE" "" "prometheus-stack.grafana.ssl.key" "GRAFANA_KEY"
     checkGlobalConfig "" "" "prometheus-stack.grafana.ssl.secretName" "GRAFANA_SSL_SECRET"
@@ -65,7 +65,7 @@ validateInputs() {
   validatePrometheusNamespace "$VKPR_ENV_PROMETHEUS_STACK_NAMESPACE"
   ## AlertManager
   validateAlertManagerEnabled "$VKPR_ENV_ALERTMANAGER"
-  if [[ "$VKPR_ENV_ALERTMANAGER" = true ]]; then 
+  if [[ "$VKPR_ENV_ALERTMANAGER" = true ]]; then
     validateAlertManagerHA "$VKPR_ENV_ALERTMANAGER_HA"
     validateAlertManagerSSL "$VKPR_ENV_ALERTMANAGER_SSL"
     validateAlertManagerCertificate "$VKPR_ENV_ALERTMANAGER_CERTIFICATE"
@@ -77,7 +77,7 @@ validateInputs() {
   validatePrometheusK8S "$VKPR_ENV_PROMETHEUS_STACK_K8S_EXPORTERS"
   validateGrafanaPersistance "$VKPR_ENV_GRAFANA_PERSISTANCE"
   validateGrafanaSSL "$VKPR_ENV_GRAFANA_SSL"
-  if [[ "$VKPR_ENV_GRAFANA_SSL" = true ]]; then 
+  if [[ "$VKPR_ENV_GRAFANA_SSL" = true ]]; then
     validateGrafanaCertificate "$VKPR_ENV_GRAFANA_CERTIFICATE"
     validateGrafanaKey "$VKPR_ENV_GRAFANA_KEY"
     validateGrafanaSecret "$VKPR_ENV_GRAFANA_SSL_SECRET"
@@ -94,7 +94,7 @@ settingPrometheusStack() {
   [[ "$VKPR_ENV_ALERTMANAGER" == true ]] && settingAlertManagerValues
 
   if [[ "$VKPR_ENV_PROMETHEUS_STACK_K8S_EXPORTERS" == true ]]; then
-    YQ_VALUES="$YQ_VALUES |      
+    YQ_VALUES="$YQ_VALUES |
       .kubeApiServer.enabled = true |
       .kubelet.enabled = true |
       .kubeControllerManager.enabled = true |
@@ -197,9 +197,9 @@ settingAlertManagerValues() {
       $VKPR_KUBECTL create secret tls $VKPR_ENV_ALERTMANAGER_SSL_SECRET -n "$VKPR_ENV_ALERTMANAGER_NAMESPACE" \
         --cert="$VKPR_ENV_ALERTMANAGER_CERTIFICATE" \
         --key="$VKPR_ENV_ALERTMANAGER_KEY"
-    fi 
+    fi
     YQ_VALUES="$YQ_VALUES |
-      .alertmanager.ingress.tls[0].hosts[0] = \"$VKPR_ENV_ALERTMANAGER_DOMAIN\" |
+      .alertmanager.ingress.tls[0].hosts[0] = \"$VKPR_ENV_ALERT_MANAGER_DOMAIN\" |
       .alertmanager.ingress.tls[0].secretName = \"$VKPR_ENV_ALERTMANAGER_SSL_SECRET\"
      "
   fi

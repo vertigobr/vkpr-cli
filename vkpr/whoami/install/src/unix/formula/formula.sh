@@ -57,7 +57,7 @@ settingWhoami() {
       $VKPR_KUBECTL create secret tls $VKPR_ENV_WHOAMI_SSL_SECRET -n "$VKPR_ENV_WHOAMI_NAMESPACE" \
         --cert="$VKPR_ENV_WHOAMI_CERTIFICATE" \
         --key="$VKPR_ENV_WHOAMI_KEY"
-    fi 
+    fi
     YQ_VALUES="$YQ_VALUES |
       .ingress.tls[0].hosts[0] = \"$VKPR_ENV_WHOAMI_DOMAIN\" |
       .ingress.tls[0].secretName = \"$VKPR_ENV_WHOAMI_SSL_SECRET\"

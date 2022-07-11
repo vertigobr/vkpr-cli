@@ -1,6 +1,7 @@
 #!/bin/bash
 
-source $(dirname "$0")/utils/dependencies.sh
+# shellcheck source=src/util.sh
+source "$(dirname "$0")"/utils/dependencies.sh
 
 runFormula() {
   boldInfo "VKPR initialization"

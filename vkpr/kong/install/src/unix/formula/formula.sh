@@ -1,6 +1,7 @@
 #!/bin/bash
 
-source $(dirname "$0")/unix/formula/files.sh
+# shellcheck source=src/util.sh
+source "$(dirname "$0")"/unix/formula/files.sh
 
 runFormula() {
   local VKPR_KONG_VALUES KONG_NAMESPACE YQ_VALUES HELM_ARGS;
