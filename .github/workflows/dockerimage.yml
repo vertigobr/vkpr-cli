@@ -1,0 +1,24 @@
+name: Docker Image VKPR
+
+on:
+  push:
+    tags:
+      - "**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --tag ${{ secrets.NEXUS_URL_KEY }}/vkpr:$RELEASE_VERSION
+      - name: Login to Nexus
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ secrets.NEXUS_URL_KEY }}
+          username: ${{ secrets.NEXUS_LOGIN_KEY }}
+          password: ${{ secrets.NEXUS_PASSWORD_KEY }}
+      - name: Docker Push
+        run: docker push ${{ secrets.NEXUS_URL_KEY }}/vkpr:$RELEASE_VERSION

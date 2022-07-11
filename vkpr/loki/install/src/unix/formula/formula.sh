@@ -111,6 +111,6 @@ createGrafanaDatasource() {
   fi
 
   curl -sK -X -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN_API_GRAFANA" \
-  -d @$(dirname "$0")/utils/datasource.json \
+  -d @"$(dirname "$0")"/utils/datasource.json \
   http://$GRAFANA_ADDRESS/api/datasources > /dev/null && info "Loki Datasource Added"
 }

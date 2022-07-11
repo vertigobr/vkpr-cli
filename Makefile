@@ -22,7 +22,7 @@ reload-workspace:
 .PHONY: lint
 application_files = $(shell find ${current_dir}/vkpr/$(app) -name 'formula.sh' -type f 2> /dev/null)
 lint:
-	@shellcheck ${application_files} 2> /dev/null || (echo "Invalid application name"; exit 1)
+	@shellcheck -S warning ${application_files} 2> /dev/null || (echo "Invalid application name"; exit 1)
 
 .PHONY: test
 bats_path = ${vkpr_dir}/bats/bin/bats

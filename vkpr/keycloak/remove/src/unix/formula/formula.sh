@@ -4,7 +4,7 @@ runFormula() {
   info "Removing Keycloak..."
 
   HELM_FLAG="-A"
-  [[ "$VKPR_ENVIRONMENT" == "okteto" ]] && HELM_FLAG=""
+  [ "$VKPR_ENVIRONMENT" = "okteto" ] && HELM_FLAG=""
   KEYCLOAK_NAMESPACE=$($VKPR_HELM ls -o=json $HELM_FLAG |\
                      $VKPR_JQ -r '.[] | select(.name | contains("keycloak")) | .namespace' |\
                      head -n1)
