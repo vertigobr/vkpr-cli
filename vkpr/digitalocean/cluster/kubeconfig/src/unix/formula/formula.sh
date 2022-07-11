@@ -26,5 +26,5 @@ runFormula() {
   downloadKubeconfig "$PROJECT_ID" "$PIPELINE_ID" "$DEPLOY_COMPLETE" "$GITLAB_TOKEN" "digitalocean"
 
   info "Kubeconfig downloaded succefully, to use the Kubeconfig run the following command: "
-  bold "export KUBECONFIG=\$HOME/.vkpr/kubeconfig/digitalocean/kubeconfig_${BRANCH_NAME}"
+  boldNotice "export KUBECONFIG=\$HOME/.vkpr/kubeconfig/digitalocean/kubeconfig_${BRANCH_NAME}"
 }

@@ -1,6 +1,8 @@
 global:
   podLabels:
-    vkpr: "true"
+    app.kubernetes.io/managed-by: vkpr
 server:
+  ingress:
+    enabled: true
   extraArgs:
     - --insecure

@@ -1,5 +1,0 @@
-volumePermissions:
-  enabled: true
-primary:
-  podLabels:
-    vkpr: "true"

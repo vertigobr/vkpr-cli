@@ -1,13 +1,37 @@
 #!/bin/bash
 
 runFormula() {
-  # Global values
-  checkGlobalConfig "$DOMAIN" "localhost" "global.domain" "GLOBAL_DOMAIN"
-  checkGlobalConfig "$SECURE" "false" "global.secure" "GLOBAL_SECURE"
-  checkGlobalConfig "nginx" "nginx" "global.ingressClassName" "GLOBAL_INGRESS_CLASS_NAME"
-  checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "global.namespace" "GLOBAL_NAMESPACE"
-  checkGlobalConfig "" "" "global.provider" "GLOBAL_PROVIDER"
+  local VKPR_ENV_VAULT_DOMAIN VKPR_VAULT_VALUES VKPR_VAULT_CONFIG HELM_ARGS;
+  setCredentials
+  formulaInputs
+  validateInputs
 
+  VKPR_ENV_VAULT_DOMAIN="vault.${VKPR_ENV_GLOBAL_DOMAIN}"
+  VKPR_VAULT_VALUES=$(dirname "$0")/utils/vault.yaml
+  VKPR_VAULT_CONFIG=$(dirname "$0")/utils/config.hcl
+
+  startInfos
+  settingVault
+  if [ $DRY_RUN == false ]; then
+    createStorage
+    registerHelmRepository hashicorp https://helm.releases.hashicorp.com
+  fi
+  installApplication "vault" "hashicorp/vault" "$VKPR_ENV_VAULT_NAMESPACE" "$VKPR_VAULT_VERSION" "$VKPR_VAULT_VALUES" "$HELM_ARGS"
+}
+
+startInfos() {
+  bold "=============================="
+  boldInfo "VKPR Vault Install Routine"
+  boldNotice "Domain: $VKPR_ENV_VAULT_DOMAIN"
+  boldNotice "Secure: $VKPR_ENV_GLOBAL_SECURE"
+  boldNotice "Namespace: $VKPR_ENV_VAULT_NAMESPACE"
+  boldNotice "Ingress Controller: $VKPR_ENV_VAULT_INGRESS_CLASS_NAME"
+  boldNotice "Storage Mode: $VKPR_ENV_VAULT_STORAGE_MODE"
+  boldNotice "Auto Unseal: $VKPR_ENV_VAULT_AUTO_UNSEAL"
+  bold "=============================="
+}
+
+formulaInputs() {
   # App values
   checkGlobalConfig "$VAULT_MODE" "raft" "vault.storageMode" "VAULT_STORAGE_MODE"
   checkGlobalConfig "$VAULT_AUTO_UNSEAL" "false" "vault.autoUnseal" "VAULT_AUTO_UNSEAL"
@@ -17,69 +41,41 @@ runFormula() {
   checkGlobalConfig "$CRT_FILE" "" "vault.ssl.crt" "VAULT_CERTIFICATE"
   checkGlobalConfig "$KEY_FILE" "" "vault.ssl.key" "VAULT_KEY"
   checkGlobalConfig "" "" "vault.ssl.secretName" "VAULT_SSL_SECRET"
-
   # External app values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "consul.namespace" "CONSUL_NAMESPACE"
-
-  local VKPR_ENV_VAULT_DOMAIN="vault.${VKPR_ENV_GLOBAL_DOMAIN}" \
-        RIT_CREDENTIALS_PATH=~/.rit/credentials/default
-
-  local VKPR_VAULT_VALUES; VKPR_VAULT_VALUES=$(dirname "$0")/utils/vault.yaml
-  local VKPR_VAULT_CONFIG; VKPR_VAULT_CONFIG=$(dirname "$0")/utils/config.hcl
-
-  [[ $DRY_RUN == true ]] && DRY_RUN_FLAGS="--dry-run=client -o yaml"
-  local HELM_NAMESPACE="--namespace $VKPR_ENV_VAULT_NAMESPACE --create-namespace"
-  local KUBERNETES_NAMESPACE="-n $VKPR_ENV_VAULT_NAMESPACE"
-
-  startInfos
-  configureRepository
-  installVault
 }
 
-startInfos() {
-  echo "=============================="
-  bold "$(info "VKPR Vault Install Routine")"
-  bold "$(notice "Vault UI Domain:") ${VKPR_ENV_VAULT_DOMAIN}"
-  bold "$(notice "Vault UI HTTPS:") ${VKPR_ENV_GLOBAL_SECURE}"
-  bold "$(notice "Ingress Controller:") ${VKPR_ENV_VAULT_INGRESS_CLASS_NAME}"
-  bold "$(notice "Storage Mode:") ${VKPR_ENV_VAULT_STORAGE_MODE}"
-  bold "$(notice "Auto Unseal:") ${VKPR_ENV_VAULT_AUTO_UNSEAL}"
-  echo "=============================="
+setCredentials() {
+  AWS_REGION=$($VKPR_JQ -r .credential.region "$VKPR_CREDENTIAL"/aws)
+  AWS_ACCESS_KEY=$($VKPR_JQ -r .credential.accesskeyid "$VKPR_CREDENTIAL"/aws)
+  AWS_SECRET_KEY=$($VKPR_JQ -r .credential.secretaccesskey "$VKPR_CREDENTIAL"/aws)
+  VAULT_AWSKMS_SEAL_KEY_ID=$($VKPR_JQ -r .credential.kmskeyid $VKPR_CREDENTIAL/aws)
+
+  AZURE_TENANT_ID=$($VKPR_JQ -r .credential.azuretenantid $VKPR_CREDENTIAL/azure)
+  AZURE_CLIENT_ID=$($VKPR_JQ -r .credential.azureclientid $VKPR_CREDENTIAL/azure)
+  AZURE_CLIENT_SECRET=$($VKPR_JQ -r .credential.azureclientsecret $VKPR_CREDENTIAL/azure)
+  VAULT_AZUREKEYVAULT_VAULT_NAME=$($VKPR_JQ -r .credential.vaultazurekeyvaultvaultname $VKPR_CREDENTIAL/azure)
+  VAULT_AZUREKEYVAULT_KEY_NAME=$($VKPR_JQ -r .credential.vaultazurekeyvaultkeyname $VKPR_CREDENTIAL/azure)
 }
 
-configureRepository() {
-  registerHelmRepository hashicorp https://helm.releases.hashicorp.com
-}
-
-installVault() {
-  local YQ_VALUES=".global.enabled = true"
-  settingVault
-  
-  if [[ $DRY_RUN == true ]]; then
-    bold "---"
-    mergeVkprValuesHelmArgs "vault" "$VKPR_VAULT_VALUES"
-    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_VAULT_VALUES"    
-  else
-    info "Installing Vault..."
-    $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_VAULT_VALUES"
-    mergeVkprValuesHelmArgs "vault" "$VKPR_VAULT_VALUES"
-    # shellcheck disable=SC2086
-    $VKPR_HELM upgrade -i --version "$VKPR_VAULT_VERSION" \
-     $HELM_NAMESPACE \
-      --wait -f "$VKPR_VAULT_VALUES" vault hashicorp/vault
+validateInputs() {
+  if [ $VKPR_ENV_VAULT_AUTO_UNSEAL == "aws" ]; then
+    validateAwsAccessKey "$AWS_ACCESS_KEY"
+    validateAwsSecretKey "$AWS_SECRET_KEY"
+    validateAwsRegion "$AWS_REGION"
   fi
+}
 
-  # shellcheck disable=SC2086
-  if [[ $($VKPR_KUBECTL get secret $KUBERNETES_NAMESPACE | grep vault-storage-config | cut -d " " -f1) != "vault-storage-config" ]]; then
+createStorage() {
+  if [[ $($VKPR_KUBECTL get secret | grep vault-storage-config | cut -d " " -f1) != "vault-storage-config" ]]; then
     info "Creating storage config..."
-    # shellcheck disable=SC2015
-    $VKPR_KUBECTL create secret generic vault-storage-config $KUBERNETES_NAMESPACE --from-file="$VKPR_VAULT_CONFIG" $DRY_RUN_FLAGS && \
-      $VKPR_KUBECTL label secret vault-storage-config vkpr=true app.kubernetes.io/instance=vault -n "$VKPR_ENV_VAULT_NAMESPACE" 2> /dev/null || true
+    $VKPR_KUBECTL create secret generic vault-storage-config -n "$VKPR_ENV_VAULT_NAMESPACE" --from-file="$VKPR_VAULT_CONFIG" && \
+      $VKPR_KUBECTL label secret vault-storage-config app.kubernetes.io/managed-by=vkpr app.kubernetes.io/instance=vault -n "$VKPR_ENV_VAULT_NAMESPACE" 2> /dev/null || true
   fi
 }
 
 settingVault() {
-  YQ_VALUES="$YQ_VALUES |
+  YQ_VALUES=".global.enabled = true |
     .server.ingress.ingressClassName = \"$VKPR_ENV_VAULT_INGRESS_CLASS_NAME\" |
     .server.ingress.hosts[0].host = \"$VKPR_ENV_VAULT_DOMAIN\"
   "
@@ -90,6 +86,43 @@ settingVault() {
       .server.ingress.tls[0].hosts[0] = \"$VKPR_ENV_VAULT_DOMAIN\" |
       .server.ingress.tls[0].secretName = \"vault-cert\"
     "
+  fi
+
+  if [[ "$VKPR_ENV_VAULT_SSL" == "true" ]]; then
+    if [[ "$VKPR_ENV_VAULT_SSL_SECRET" == "" ]]; then
+      VKPR_ENV_VAULT_SSL_SECRET="vault-certificate"
+      $VKPR_KUBECTL create secret tls $VKPR_ENV_VAULT_SSL_SECRET -n "$VKPR_ENV_VAULT_NAMESPACE" \
+        --cert="$VKPR_ENV_VAULT_CERTIFICATE" \
+        --key="$VKPR_ENV_VAULT_KEY"
+    fi 
+    YQ_VALUES="$YQ_VALUES |
+      .server.ingress.tls[0].hosts[0] = \"$VKPR_ENV_VAULT_DOMAIN\" |
+      .server.ingress.tls[0].secretName = \"$VKPR_ENV_VAULT_SSL_SECRET\"
+     "
+  fi
+
+  if [[ "$VKPR_ENV_VAULT_STORAGE_MODE" == "raft" ]]; then
+    YQ_VALUES="$YQ_VALUES |
+      .server.ha.raft.enabled = true
+    "
+    printf 'storage "raft" {
+  path = "/vault/data"
+  performance_multiplier = 1
+  retry_join {
+    leader_api_addr = "http://vault-0.vault-internal:8200"
+  }
+  retry_join {
+    leader_api_addr = "http://vault-1.vault-internal:8200"
+  }
+  retry_join {
+    leader_api_addr = "http://vault-2.vault-internal:8200"
+  }
+}' >> "$VKPR_VAULT_CONFIG"
+    else
+    printf 'storage "consul" {
+  path = "vault"
+  address = "consul-consul-server.%s.svc.cluster.local:8500"
+}' "$VKPR_ENV_CONSUL_NAMESPACE" >> "$VKPR_VAULT_CONFIG"
   fi
 
   if [[ "$VKPR_ENV_VAULT_AUTO_UNSEAL" != false ]]; then
@@ -117,22 +150,16 @@ settingVault() {
           .server.extraSecretEnvironmentVars[4].secretName = \"aws-unseal-vault\" |
           .server.extraSecretEnvironmentVars[4].secretKey = \"AWS_KMS_ENDPOINT\"
         "
-        AWS_ACCESS_KEY=$($VKPR_JQ -r .credential.accesskeyid $RIT_CREDENTIALS_PATH/aws)
-        AWS_SECRET_KEY=$($VKPR_JQ -r .credential.secretaccesskey $RIT_CREDENTIALS_PATH/aws)
-        AWS_REGION=$($VKPR_JQ -r .credential.region $RIT_CREDENTIALS_PATH/aws)
-        validateAwsAccessKey "$AWS_ACCESS_KEY"
-        validateAwsSecretKey "$AWS_SECRET_KEY"
-        validateAwsRegion "$AWS_REGION"
-        echoColor "bold" "$(echoColor "green" "Setting AWS secret...")"
+        boldInfo "Setting AWS secret..."
         # shellcheck disable=SC2086
         $VKPR_YQ eval ".metadata.name = \"aws-unseal-vault\" |
           .metadata.namespace = \"$VKPR_ENV_VAULT_NAMESPACE\" |
           .data.AWS_ACCESS_KEY = \"$(echo -n "$AWS_ACCESS_KEY" | base64)\" |
           .data.AWS_SECRET_KEY = \"$(echo -n "$AWS_SECRET_KEY" | base64)\" |
           .data.AWS_REGION = \"$(echo -n "$AWS_REGION" | base64)\" |
-          .data.VAULT_AWSKMS_SEAL_KEY_ID = \"$(echo -n "$($VKPR_JQ -r .credential.kmskeyid $RIT_CREDENTIALS_PATH/aws)" | base64)\" |
+          .data.VAULT_AWSKMS_SEAL_KEY_ID = \"$(echo -n $VAULT_AWSKMS_SEAL_KEY_ID | base64)\" |
           .data.AWS_KMS_ENDPOINT = \"$(echo -n "kms.$AWS_REGION.amazonaws.com" | base64)\"
-        " "$(dirname "$0")"/utils/auto-unseal.yaml | $VKPR_KUBECTL apply -f - $DRY_RUN_FLAGS
+        " "$(dirname "$0")"/utils/auto-unseal.yaml | $VKPR_KUBECTL apply -f -
         ;;
       azure)
         YQ_VALUES="$YQ_VALUES |
@@ -153,64 +180,28 @@ settingVault() {
           .server.extraSecretEnvironmentVars[4].secretName = \"azure-unseal-vault\" |
           .server.extraSecretEnvironmentVars[4].secretKey = \"VAULT_AZUREKEYVAULT_KEY_NAME\"
         "
-        bold "$(info "Setting Azure secret...")"
+        boldInfo "Setting Azure secret..."
         # shellcheck disable=SC2086
         $VKPR_YQ eval ".metadata.name = \"azure-unseal-vault\" |
           .metadata.namespace = \"$VKPR_ENV_VAULT_NAMESPACE\" |
-          .data.AZURE_TENANT_ID = \"$(echo -n "$($VKPR_JQ -r .credential.azuretenantid $RIT_CREDENTIALS_PATH/azure)" | base64)\" |
-          .data.AZURE_CLIENT_ID = \"$(echo -n "$($VKPR_JQ -r .credential.azureclientid $RIT_CREDENTIALS_PATH/azure)" | base64)\" |
-          .data.AZURE_CLIENT_SECRET = \"$(echo -n "$($VKPR_JQ -r .credential.azureclientsecret $RIT_CREDENTIALS_PATH/azure)" | base64)\" |
-          .data.VAULT_AZUREKEYVAULT_VAULT_NAME = \"$(echo -n "$($VKPR_JQ -r .credential.vaultazurekeyvaultvaultname $RIT_CREDENTIALS_PATH/azure)" | base64)\" |
-          .data.VAULT_AZUREKEYVAULT_KEY_NAME = \"$(echo -n "$($VKPR_JQ -r .credential.vaultazurekeyvaultkeyname $RIT_CREDENTIALS_PATH/azure)" | base64)\"
-        " "$(dirname "$0")"/utils/auto-unseal.yaml | $VKPR_KUBECTL apply -f - $DRY_RUN_FLAGS
+          .data.AZURE_TENANT_ID = \"$(echo -n $AZURE_TENANT_ID | base64)\" |
+          .data.AZURE_CLIENT_ID = \"$(echo -n $AZURE_CLIENT_ID | base64)\" |
+          .data.AZURE_CLIENT_SECRET = \"$(echo -n $AZURE_CLIENT_SECRET | base64)\" |
+          .data.VAULT_AZUREKEYVAULT_VAULT_NAME = \"$(echo -n $VAULT_AZUREKEYVAULT_VAULT_NAME | base64)\" |
+          .data.VAULT_AZUREKEYVAULT_KEY_NAME = \"$(echo -n $VAULT_AZUREKEYVAULT_KEY_NAME | base64)\"
+        " "$(dirname "$0")"/utils/auto-unseal.yaml | $VKPR_KUBECTL apply -f -
         ;;
       esac
   fi
 
-  if [[ "$VKPR_ENV_VAULT_SSL" == "true" ]]; then
-    if [[ "$VKPR_ENV_VAULT_SSL_SECRET" == "" ]]; then
-      VKPR_ENV_VAULT_SSL_SECRET="vault-certificate"
-      $VKPR_KUBECTL create secret tls $VKPR_ENV_VAULT_SSL_SECRET -n "$VKPR_ENV_VAULT_NAMESPACE" \
-        --cert="$VKPR_ENV_VAULT_CERTIFICATE" \
-        --key="$VKPR_ENV_VAULT_KEY"
-    fi 
-    YQ_VALUES="$YQ_VALUES |
-      .server.ingress.tls[0].hosts[0] = \"$VKPR_ENV_VAULT_DOMAIN\" |
-      .server.ingress.tls[0].secretName = \"$VKPR_ENV_VAULT_SSL_SECRET\"
-     "
-  fi
-
-  if [[ "$VKPR_ENV_VAULT_STORAGE_MODE" == "raft" ]]; then
-  YQ_VALUES="$YQ_VALUES |
-    .server.ha.raft.enabled = true
-  "
-    printf 'storage "raft" {
-  path = "/vault/data"
-  performance_multiplier = 1
-  retry_join {
-    leader_api_addr = "http://vault-0.vault-internal:8200"
-  }
-  retry_join {
-    leader_api_addr = "http://vault-1.vault-internal:8200"
-  }
-  retry_join {
-    leader_api_addr = "http://vault-2.vault-internal:8200"
-  }
-}' >> "$VKPR_VAULT_CONFIG"
-    else
-    printf 'storage "consul" {
-  path = "vault"
-  address = "consul-consul-server.%s.svc.cluster.local:8500"
-}' "$VKPR_ENV_CONSUL_NAMESPACE" >> "$VKPR_VAULT_CONFIG"
-  fi
   settingVaultProvider
+
+  debug "YQ_CONTENT = $YQ_VALUES"
 }
 
 settingVaultProvider() {
-  ACTUAL_CONTEXT=$($VKPR_KUBECTL config get-contexts --no-headers | grep "\*" | xargs | awk -F " " '{print $2}')
-  if [[ "$VKPR_ENV_GLOBAL_PROVIDER" == "okteto" ]] || [[ $ACTUAL_CONTEXT == "cloud_okteto_com" ]]; then
-    HELM_NAMESPACE=""
-    KUBERNETES_NAMESPACE=""
+  if [[ "$VKPR_ENVIRONMENT" == "okteto" ]]; then
+    HELM_ARGS="--cleanup-on-fail"
     YQ_VALUES="$YQ_VALUES |
       del(.server) |
       del(.global) |

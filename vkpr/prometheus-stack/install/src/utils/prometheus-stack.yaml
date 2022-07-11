@@ -1,5 +1,5 @@
 commonLabels:
-  vkpr: "true"
+  app.kubernetes.io/managed-by: vkpr
 alertmanager:
   enabled: false
   ingress:

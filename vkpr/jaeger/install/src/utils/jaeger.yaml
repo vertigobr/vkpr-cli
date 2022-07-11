@@ -5,7 +5,7 @@ collector:
 query:
   enabled: true
   podLabels:
-    vkpr: "true"
+    app.kubernetes.io/managed-by: vkpr
   ingress:
     enabled: true
     ingressClassName: nginx

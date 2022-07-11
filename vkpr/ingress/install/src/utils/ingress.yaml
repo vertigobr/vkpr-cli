@@ -1,5 +1,5 @@
 controller:
   labels:
-    vkpr: "true"
+    app.kubernetes.io/managed-by: vkpr
 rbac:
   create: true

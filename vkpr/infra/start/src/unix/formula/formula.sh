@@ -2,17 +2,8 @@
 
 
 runFormula() {
-  checkGlobalConfig "$HTTP_PORT" "8000" "infra.httpPort" "HTTP_PORT"
-  checkGlobalConfig "$HTTPS_PORT" "8001" "infra.httpsPort" "HTTPS_PORT"
-  checkGlobalConfig "$ENABLE_TRAEFIK" "false" "infra.enableTraefik" "TRAEFIK"
-  checkGlobalConfig "1" "1" "infra.resources.masters" "K3D_SERVERS"
-  checkGlobalConfig "$WORKER_NODES" "1" "infra.resources.workers" "K3D_AGENTS"
-  checkGlobalConfig "$ENABLE_VOLUME" "false" "infra.enableVolume" "VOLUME"
-
-  validateInfraHTTP "$VKPR_ENV_HTTP_PORT"
-  validateInfraHTTPS "$VKPR_ENV_HTTPS_PORT"
-  validateInfraNodes "$VKPR_ENV_K3D_AGENTS"
-  validateInfraTraefik "$VKPR_ENV_TRAEFIK"
+  formulaInputs
+  validateInputs
 
   startInfos
   configRegistry
@@ -21,16 +12,32 @@ runFormula() {
 }
 
 startInfos() {
-  echo "=============================="
-  info "VKPR Local Infra Start Routine"
-  notice "Enabled Traefik Ingress Controller: ${VKPR_ENV_TRAEFIK}"
-  notice "Ports Used: ${VKPR_ENV_HTTP_PORT}/http :${VKPR_ENV_HTTPS_PORT}/https"
-  notice "Kubernetes API: 6443"
-  notice "Local Registry: 6000"
-  notice "Docker Hub Registry Mirror (cache): 6001"
-  warn "Using two local unamed Docker Volumes"
-  echo "=============================="
-  
+  bold "=============================="
+  boldInfo "VKPR Local Infra Start Routine"
+  boldNotice "Enabled Traefik Ingress Controller: ${VKPR_ENV_TRAEFIK}"
+  boldNotice "Ports Used: ${VKPR_ENV_HTTP_PORT}/http :${VKPR_ENV_HTTPS_PORT}/https"
+  boldNotice "Kubernetes API: 6443"
+  boldNotice "Local Registry: 6000"
+  boldNotice "Docker Hub Registry Mirror (cache): 6001"
+  boldWarn "Using two local unamed Docker Volumes"
+  bold "==============================" 
+}
+
+formulaInputs() {
+  # app values
+  checkGlobalConfig "$HTTP_PORT" "8000" "infra.httpPort" "HTTP_PORT"
+  checkGlobalConfig "$HTTPS_PORT" "8001" "infra.httpsPort" "HTTPS_PORT"
+  checkGlobalConfig "$ENABLE_TRAEFIK" "false" "infra.enableTraefik" "TRAEFIK"
+  checkGlobalConfig "1" "1" "infra.resources.masters" "K3D_SERVERS"
+  checkGlobalConfig "$WORKER_NODES" "1" "infra.resources.workers" "K3D_AGENTS"
+  checkGlobalConfig "$ENABLE_VOLUME" "false" "infra.enableVolume" "VOLUME"
+}
+
+validateInputs() {
+  validateInfraHTTP "$VKPR_ENV_HTTP_PORT"
+  validateInfraHTTPS "$VKPR_ENV_HTTPS_PORT"
+  validateInfraNodes "$VKPR_ENV_K3D_AGENTS"
+  validateInfraTraefik "$VKPR_ENV_TRAEFIK"
 }
 
 configRegistry() {

@@ -1,72 +1,61 @@
 #!/bin/bash
 
 runFormula() {
-  # Global values
-  checkGlobalConfig "$DOMAIN" "localhost" "global.domain" "GLOBAL_DOMAIN"
-  checkGlobalConfig "$SECURE" "false" "global.secure" "GLOBAL_SECURE"
-  checkGlobalConfig "nginx" "nginx" "global.ingressClassName" "GLOBAL_INGRESS_CLASSNAME"
-  
-  # App values
-  checkGlobalConfig "$HA" "false" "argocd.HA" "ARGOCD_HA"
-  checkGlobalConfig "argocd" "argocd" "argocd.namespace" "ARGOCD_NAMESPACE"
-  checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS_CLASSNAME" "$VKPR_ENV_GLOBAL_INGRESS_CLASSNAME" "argocd.ingressClassName" "ARGOCD_INGRESS_CLASS_NAME"
-  checkGlobalConfig "false" "false" "argocd.metrics" "ARGOCD_METRICS"
-  checkGlobalConfig "false" "false" "argocd.addons.applicationSet" "ARGOCD_ADDONS_APPLICATION_SET"
-  checkGlobalConfig "$SSL" "false" "argocd.ssl.enabled" "ARGOCD_SSL"
-  checkGlobalConfig "$CRT_FILE" "" "argocd.ssl.crt" "ARGOCD_CERTIFICATE"
-  checkGlobalConfig "$KEY_FILE" "" "argocd.ssl.key" "ARGOCD_KEY"
-  checkGlobalConfig "" "" "argocd.ssl.secretName" "ARGOCD_SSL_SECRET"
+  local VKPR_ENV_ARGOCD_DOMAIN VKPR_ARGOCD_VALUES HELM_ARGS;
+  formulaInputs
+  validateInputs
 
-  local VKPR_ENV_ARGOCD_DOMAIN="argocd.${VKPR_ENV_GLOBAL_DOMAIN}"
-  local VKPR_ARGOCD_VALUES; VKPR_ARGOCD_VALUES="$(dirname "$0")"/utils/argocd.yaml
+  VKPR_ENV_ARGOCD_DOMAIN="argocd.${VKPR_ENV_GLOBAL_DOMAIN}"
+  VKPR_ARGOCD_VALUES="$(dirname "$0")"/utils/argocd.yaml
 
   startInfos
-  addRepoArgoCD
-  installArgoCD
+  settingArgoCD
+  [ $DRY_RUN = false ] && registerHelmRepository argo https://argoproj.github.io/argo-helm
+  installApplication "argocd" "argo/argo-cd" "$VKPR_ENV_ARGOCD_NAMESPACE" "$VKPR_ARGOCD_VERSION" "$VKPR_ARGOCD_VALUES" "$HELM_ARGS" && printArgoPassword
 }
 
 startInfos() {
-  echo "=============================="
-  bold "$(info "VKPR ArgoCD Install Routine")"
-  bold "$(notice "ArgoCD Domain:") ${VKPR_ENV_ARGOCD_DOMAIN}"
-  bold "$(notice "ArgoCD HTTPS:") ${VKPR_ENV_GLOBAL_SECURE}"
-  bold "$(notice "HA:") ${VKPR_ENV_ARGOCD_HA}"
-  bold "$(notice "ArgoCD Admin Username:") admin"
-  bold "$(notice "Ingress Controller:") ${VKPR_ENV_ARGOCD_INGRESS}"
-  echo "=============================="
+  bold "=============================="
+  boldInfo "VKPR ArgoCD Install Routine"
+  boldNotice "Domain: $VKPR_ENV_ARGOCD_DOMAIN"
+  boldNotice "Secure: $VKPR_ENV_GLOBAL_SECURE"
+  boldNotice "Namespace: $VKPR_ENV_ARGOCD_NAMESPACE"
+  boldNotice "HA: $VKPR_ENV_ARGOCD_HA"
+  boldNotice "Ingress Controller: $VKPR_ENV_ARGOCD_INGRESS"
+  bold "=============================="
 }
 
-addRepoArgoCD(){
-  registerHelmRepository argo https://argoproj.github.io/argo-helm
+formulaInputs() {
+  # App values
+  checkGlobalConfig "$HA" "false" "argocd.HA" "ARGOCD_HA"
+  checkGlobalConfig "argocd" "argocd" "argocd.namespace" "ARGOCD_NAMESPACE"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "argocd.ingressClassName" "ARGOCD_INGRESS_CLASS_NAME"
+  checkGlobalConfig "false" "false" "argocd.metrics" "ARGOCD_METRICS"
+  checkGlobalConfig "$SSL" "false" "argocd.ssl.enabled" "ARGOCD_SSL"
+  checkGlobalConfig "$CRT_FILE" "" "argocd.ssl.crt" "ARGOCD_SSL_CERTIFICATE"
+  checkGlobalConfig "$KEY_FILE" "" "argocd.ssl.key" "ARGOCD_SSL_KEY"
+  checkGlobalConfig "" "" "argocd.ssl.secretName" "ARGOCD_SSL_SECRET"
+
+  # External apps values
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "GRAFANA_NAMESPACE"
 }
 
-installArgoCD(){
-  local YQ_VALUES=".server.ingress.enabled = true"
-  settingArgoCD
-
-  if [[ $DRY_RUN == true ]]; then
-    bold "---"
-    mergeVkprValuesHelmArgs "argocd" "$VKPR_ARGOCD_VALUES"    
-    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_ARGOCD_VALUES"
-  else
-    bold "$(info "Installing ArgoCD...")"
-    $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_ARGOCD_VALUES"
-    mergeVkprValuesHelmArgs "argocd" "$VKPR_ARGOCD_VALUES"
-    $VKPR_HELM upgrade -i --version "$VKPR_ARGOCD_VERSION" \
-      --namespace "$VKPR_ENV_ARGOCD_NAMESPACE" --create-namespace  \
-      --wait -f "$VKPR_ARGOCD_VALUES" argocd argo/argo-cd
-    printArgoPassword
+validateInputs() {
+  validateArgoDomain "$VKPR_ENV_GLOBAL_DOMAIN"
+  validateArgoSecure "$VKPR_ENV_GLOBAL_SECURE"
+  validateArgoHa "$VKPR_ENV_ARGOCD_HA"
+  validateArgoNamespace "$VKPR_ENV_ARGOCD_NAMESPACE"
+  validateArgoSsl "$VKPR_ENV_ARGOCD_SSL"
+  if [[ "$VKPR_ENV_ARGOCD_SSL" == true  ]] ; then
+    validateArgoSslCrt "$VKPR_ENV_ARGOCD_SSL_CERTIFICATE"
+    validateArgoSslKey "$VKPR_ENV_ARGOCD_SSL_KEY"
   fi
+  validateArgoIngressClassName "$VKPR_ENV_ARGOCD_INGRESS_CLASS_NAME"
+  validateArgoMetrics "$VKPR_ENV_ARGOCD_METRICS"
 }
 
-printArgoPassword(){
-  PASSWORD=$($VKPR_KUBECTL -n "$VKPR_ENV_ARGOCD_NAMESPACE" get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
-  notice "Your ArgoCD Super Admin password is ${PASSWORD}, we recommend that it be changed after the first login"
-}
-
-settingArgoCD(){
-  YQ_VALUES="$YQ_VALUES |
-    .server.ingress.hosts[0] = \"$VKPR_ENV_ARGOCD_DOMAIN\" |
+settingArgoCD() {
+  YQ_VALUES=".server.ingress.hosts[0] = \"$VKPR_ENV_ARGOCD_DOMAIN\" |
     .server.config.url = \"$VKPR_ENV_ARGOCD_DOMAIN\" |
     .server.ingress.annotations.[\"kubernetes.io/ingress.class\"] = \"$VKPR_ENV_ARGOCD_INGRESS_CLASSNAME\"
   "
@@ -79,6 +68,7 @@ settingArgoCD(){
       .server.ingress.https = true
     "
   fi
+
   if [[ "$VKPR_ENV_ARGOCD_HA" == true ]]; then
     YQ_VALUES="$YQ_VALUES |
       .controller.enableStatefulSet = true |
@@ -91,7 +81,9 @@ settingArgoCD(){
       .server.replicas = 3
     "
   fi
+
   if [[ "$VKPR_ENV_ARGOCD_METRICS" == true ]]; then
+    createGrafanaDashboard "argocd" "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
     YQ_VALUES="$YQ_VALUES |
       .controller.metrics.enabled = true |
       .controller.metrics.serviceMonitor.enabled = true |
@@ -104,7 +96,7 @@ settingArgoCD(){
       .server.metrics.serviceMonitor.namespace = \"$VKPR_ENV_ARGOCD_NAMESPACE\" |
       .server.metrics.serviceMonitor.interval = \"30s\" |
       .server.metrics.serviceMonitor.scrapeTimeout = \"30s\" |
-      .server.metrics.serviceMonitor.additionalLabels.release = \"prometheus-stack\" 
+      .server.metrics.serviceMonitor.additionalLabels.release = \"prometheus-stack\"
     "
   fi
 
@@ -114,10 +106,17 @@ settingArgoCD(){
       $VKPR_KUBECTL create secret tls $VKPR_ENV_ARGOCD_SSL_SECRET -n "$VKPR_ENV_ARGOCD_NAMESPACE" \
         --cert="$VKPR_ENV_ARGOCD_CERTIFICATE" \
         --key="$VKPR_ENV_ARGOCD_KEY"
-    fi 
+    fi
     YQ_VALUES="$YQ_VALUES |
       .server.ingress.tls[0].hosts[0] = \"$VKPR_ENV_ARGOCD_DOMAIN\" |
       .server.ingress.tls[0].secretName = \"$VKPR_ENV_ARGOCD_SSL_SECRET\"
      "
   fi
+
+  debug "YQ_CONTENT = $YQ_VALUES"
+}
+
+printArgoPassword(){
+  PASSWORD=$($VKPR_KUBECTL -n "$VKPR_ENV_ARGOCD_NAMESPACE" get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
+  notice "Your ArgoCD Super Admin password is ${PASSWORD}, we recommend that it be changed after the first login"
 }

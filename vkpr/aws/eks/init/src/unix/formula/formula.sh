@@ -1,28 +1,56 @@
 #!/bin/bash
 
 runFormula() {
-  local RIT_CREDENTIALS_PATH=~/.rit/credentials/default
-  AWS_ACCESS_KEY="$($VKPR_JQ -r '.credential.accesskeyid' $RIT_CREDENTIALS_PATH/aws)"
-  AWS_SECRET_KEY="$($VKPR_JQ -r '.credential.secretaccesskey' $RIT_CREDENTIALS_PATH/aws)"
-  AWS_REGION="$($VKPR_JQ -r '.credential.region' $RIT_CREDENTIALS_PATH/aws)"
-  GITLAB_USERNAME="$($VKPR_JQ -r '.credential.username' $RIT_CREDENTIALS_PATH/gitlab)"
-  GITLAB_TOKEN="$($VKPR_JQ -r '.credential.token' $RIT_CREDENTIALS_PATH/gitlab)"
+  local EKS_CLUSTER_NODE_INSTANCE_TYPE PROJECT_ENCODED FORK_RESPONSE_CODE;
+
   #getting real instance type
   EKS_CLUSTER_NODE_INSTANCE_TYPE=${EKS_CLUSTER_NODE_INSTANCE_TYPE// ([^)]*)/}
   EKS_CLUSTER_NODE_INSTANCE_TYPE=${EKS_CLUSTER_NODE_INSTANCE_TYPE// /}
+  
+  formulaInputs
+  setCredentials
+  validateInputs
+  
+  PROJECT_ENCODED=$(rawUrlEncode "${GITLAB_USERNAME}/aws-eks")
+  FORK_RESPONSE_CODE=$(curl -siX POST -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+    "https://gitlab.com/api/v4/projects/$(rawUrlEncode "vkpr/aws-eks")/fork" |\
+    head -n 1 | awk -F' ' '{print $2}'
+  )
 
+  debug "FORK_RESPONSE_CODE=$FORK_RESPONSE_CODE"
+  if [ "$FORK_RESPONSE_CODE" == "409" ];then
+    boldNotice "Project already forked"
+  fi
+  
+  setVariablesGLAB
+  cloneRepository
+}
+
+formulaInputs() {
+  # App values
   checkGlobalConfig "$EKS_CLUSTER_NAME" "eks-sample" "aws.eks.clusterName" "EKS_CLUSTER_NAME"
   checkGlobalConfig "$EKS_K8S_VERSION" "1.20" "aws.eks.version" "EKS_VERSION"
   checkGlobalConfig "$EKS_CLUSTER_NODE_INSTANCE_TYPE" "t3.small" "aws.eks.nodes.instaceType" "EKS_NODES_INSTANCE_TYPE"
   checkGlobalConfig "$EKS_CLUSTER_SIZE" "1" "aws.eks.nodes.quantitySize" "EKS_NODES_QUANTITY_SIZE"
   checkGlobalConfig "$EKS_CAPACITY_TYPE" "on_demand" "aws.eks.nodes.capacityType" "EKS_NODES_CAPACITY_TYPE"
   checkGlobalConfig "$TERRAFORM_STATE" "gitlab" "aws.eks.terraformState" "EKS_TERRAFORM_STATE"
+}
 
+setCredentials() {
+  AWS_ACCESS_KEY="$($VKPR_JQ -r '.credential.accesskeyid' $VKPR_CREDENTIAL/aws)"
+  AWS_SECRET_KEY="$($VKPR_JQ -r '.credential.secretaccesskey' $VKPR_CREDENTIAL/aws)"
+  AWS_REGION="$($VKPR_JQ -r '.credential.region' $VKPR_CREDENTIAL/aws)"
+  GITLAB_USERNAME="$($VKPR_JQ -r '.credential.username' $VKPR_CREDENTIAL/gitlab)"
+  GITLAB_TOKEN="$($VKPR_JQ -r '.credential.token' $VKPR_CREDENTIAL/gitlab)"
+}
+
+validateInputs() {
   validateAwsSecretKey "$AWS_SECRET_KEY"
   validateAwsAccessKey "$AWS_ACCESS_KEY"
   validateAwsRegion "$AWS_REGION"
   validateGitlabUsername "$GITLAB_USERNAME"
   validateGitlabToken "$GITLAB_TOKEN"
+  [[ "$VKPR_ENV_EKS_TERRAFORM_STATE" == "terraform-cloud" ]] && validateTFCloudToken "$TERRAFORMCLOUD_API_TOKEN"
 
   validateEksClusterName "$VKPR_ENV_EKS_CLUSTER_NAME"
   validateEksVersion "$VKPR_ENV_EKS_VERSION"
@@ -30,26 +58,8 @@ runFormula() {
   validateEksClusterSize "$VKPR_ENV_EKS_NODES_QUANTITY_SIZE"
   validateEksCapacityType "$VKPR_ENV_EKS_NODES_CAPACITY_TYPE"
   validateEksStoreTfState "$VKPR_ENV_EKS_TERRAFORM_STATE"
-
-  [[ "$VKPR_ENV_EKS_TERRAFORM_STATE" == "terraform-cloud" ]] && validateTFCloudToken "$TERRAFORMCLOUD_API_TOKEN"
-
-  local PROJECT_ENCODED=$(rawUrlEncode "${GITLAB_USERNAME}/aws-eks")
-  local FORK_RESPONSE_CODE
-  FORK_RESPONSE_CODE=$(curl -siX POST -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
-    "https://gitlab.com/api/v4/projects/$(rawUrlEncode "vkpr/aws-eks")/fork" |\
-    head -n 1 | awk -F' ' '{print $2}'
-  )
-
-  # echo "FORK_RESPONSE_CODE= $FORK_RESPONSE_CODE"
-  if [ "$FORK_RESPONSE_CODE" == "409" ];then
-    echoColor yellow "Project already forked"
-  fi
-  
-  setVariablesGLAB
-  cloneRepository
 }
 
-## Set all input into Gitlab environments
 setVariablesGLAB() {
   [[ "$VKPR_ENV_EKS_TERRAFORM_STATE" == "terraform-cloud" ]] && createOrUpdateVariable "$PROJECT_ENCODED" "TF_CLOUD_TOKEN" "$TF_CLOUD_TOKEN" "yes" "$VKPR_ENV_EKS_CLUSTER_NAME" "$GITLAB_TOKEN"
   createOrUpdateVariable "$PROJECT_ENCODED" "AWS_ACCESS_KEY" "$AWS_ACCESS_KEY" "yes" "$VKPR_ENV_EKS_CLUSTER_NAME" "$GITLAB_TOKEN"

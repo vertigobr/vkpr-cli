@@ -1,0 +1,5 @@
+volumePermissions:
+  enabled: true
+primary:
+  podLabels:
+    app.kubernetes.io/managed-by: vkpr

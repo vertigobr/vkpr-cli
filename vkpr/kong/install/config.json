@@ -92,7 +92,6 @@
       "label": "Type the full path to the license:",
       "name": "license",
       "type": "text",
-      "default": " ",
       "cache": {
         "active": true,
         "qty": 2,

@@ -1,10 +1,27 @@
 #!/bin/bash
 
 runFormula() {
-  # Global values
-  checkGlobalConfig "$DOMAIN" "localhost" "global.domain" "GLOBAL_DOMAIN"
-  checkGlobalConfig "$VKPR_K8S_NAMESPACE" "vkpr" "global.namespace" "GLOBAL_NAMESPACE"
-  
+  local VKPR_LOKI_VALUES HELM_ARGS;
+  formulaInputs
+  #validateInputs
+
+  VKPR_LOKI_VALUES=$(dirname "$0")/utils/loki.yaml
+
+  startInfos
+  settingLoki
+  [ $DRY_RUN = false ] && registerHelmRepository grafana https://grafana.github.io/helm-charts
+  installApplication "loki-stack" "grafana/loki-stack" "$VKPR_ENV_LOKI_NAMESPACE" "$VKPR_LOKI_VERSION" "$VKPR_LOKI_VALUES" "$HELM_ARGS"
+  existGrafana
+}
+
+startInfos() {
+  bold "=============================="
+  boldInfo "VKPR Loki Install Routine"
+  boldNotice "Namespace: $VKPR_ENV_LOKI_NAMESPACE"
+  bold "=============================="
+}
+
+formulaInputs() {
   # App values
   checkGlobalConfig "false" "false" "loki.metrics" "LOKI_METRICS"
   checkGlobalConfig "false" "false" "loki.persistence" "LOKI_PERSISTANCE"
@@ -12,44 +29,13 @@ runFormula() {
 
   # External app values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "GRAFANA_NAMESPACE"
-
-  local VKPR_LOKI_VALUES; VKPR_LOKI_VALUES=$(dirname "$0")/utils/loki.yaml
-
-  startInfos
-  addRepLoki
-  installLoki
 }
 
-startInfos() {
-  echo "=============================="
-  info "VKPR Loki Install Routine"
-  echo "=============================="
-}
-
-addRepLoki(){
-  registerHelmRepository grafana https://grafana.github.io/helm-charts
-}
-
-installLoki(){
-  local YQ_VALUES=".grafana.enabled = false"
-  settingLoki
-
-  if [[ $DRY_RUN == true ]]; then
-    echoColor "bold" "---"
-    mergeVkprValuesHelmArgs "loki" "$VKPR_LOKI_VALUES"
-    $VKPR_YQ eval "$YQ_VALUES" "$VKPR_LOKI_VALUES"    
-  else
-    info "Installing Loki..."
-    $VKPR_YQ eval -i "$YQ_VALUES" "$VKPR_LOKI_VALUES"
-    mergeVkprValuesHelmArgs "loki" "$VKPR_LOKI_VALUES"
-    $VKPR_HELM upgrade -i --version "$VKPR_LOKI_VERSION" \
-      --namespace "$VKPR_ENV_LOKI_NAMESPACE" --create-namespace \
-      --wait -f "$VKPR_LOKI_VALUES" loki-stack grafana/loki-stack
-    existGrafana
-  fi
-}
+#validateInputs() {}
 
 settingLoki() {
+  YQ_VALUES=".grafana.enabled = false"
+
   if [[ "$VKPR_ENV_LOKI_METRICS" == true ]]; then
     YQ_VALUES="$YQ_VALUES |
       .loki.serviceMonitor.enabled = true |
@@ -57,6 +43,7 @@ settingLoki() {
       .loki.serviceMonitor.additionalLabels.release = \"prometheus-stack\" |
       .loki.serviceMonitor.scrapeTimeout = \"30s\"
     "
+    rit vkpr prometheus-stack import
   fi
 
   if [[ "$VKPR_ENV_LOKI_PERSISTANCE" == true ]]; then
@@ -66,46 +53,64 @@ settingLoki() {
       .loki.persistence.size = \"8Gi\"
     "
   fi
+
+  settingLokiEnvironment
+
+  debug "YQ_CONTENT = $YQ_VALUES"
+}
+
+settingLokiEnvironment() {
+  if [[ "$VKPR_ENVIRONMENT" == "okteto" ]]; then
+    HELM_ARGS="--cleanup-on-fail"
+    YQ_VALUES="$YQ_VALUES"
+  fi
 }
 
 existGrafana() {
-  if [[ $(checkPodName "$VKPR_ENV_GRAFANA_NAMESPACE" "prometheus-stack-grafana") == "true" ]]; then
-    local LOGINGRAFANA TOKEN_API_GRAFANA
-    LOGINGRAFANA="$($VKPR_KUBECTL get secret --namespace "$VKPR_ENV_GRAFANA_NAMESPACE" prometheus-stack-grafana -o yaml |\
-                    $VKPR_YQ eval '.data.admin-user' - | base64 -d):$($VKPR_KUBECTL get secret --namespace "$VKPR_ENV_GRAFANA_NAMESPACE" prometheus-stack-grafana -o yaml | $VKPR_YQ eval '.data.admin-password' - | base64 -d)"
+  local LOGIN_GRAFANA PWD_GRAFANA
 
-    TOKEN_API_GRAFANA=$(curl -skX POST \
-      -H "Host: grafana.${VKPR_ENV_GLOBAL_DOMAIN}" -H "Content-Type: application/json" \
-      -d '{"name": "apikeycurl'$RANDOM'","role": "Admin", "secondsToLive": 60}' \
-      http://"$LOGINGRAFANA"@127.0.0.1:8000/api/auth/keys | $VKPR_JQ --raw-output '.key' -
-    )
-
-    if [[ $TOKEN_API_GRAFANA == "" ]]; then
-      error "Ingress is not installed to generate the api token"
-      return
-    fi
-
-    EXIST_LOKI_DATASOURCE=$(curl -skX GET \
-      -H "Host: grafana.${VKPR_ENV_GLOBAL_DOMAIN}" -H "Content-Type: application/json" \
-      -H "Authorization: Bearer $TOKEN_API_GRAFANA" \
-      http://127.0.0.1:8000/api/datasources/name/loki
-    )
-
-    if [[ $EXIST_LOKI_DATASOURCE == "{\"message\":\"Data source not found\"}" ]]; then
-      curl -sK -X \
-      -H "Host: grafana.$VKPR_ENV_GLOBAL_DOMAIN" \
-      -H "Content-Type: application/json" \
-      -H "Authorization: Bearer $TOKEN_API_GRAFANA" \
-      -d '{
-            "name":"loki",
-            "type":"loki",
-            "url":"loki-stack.'"$VKPR_ENV_LOKI_NAMESPACE"'.svc.cluster.local:3100",
-            "access":"proxy",
-            "basicAuth":false,
-            "editable": true
-          }' http://127.0.0.1:8000/api/datasources > /dev/null && info "Loki Datasource Added"
-      else
-      warn "Loki Datasource already created"
-    fi
+  if [[ $(checkPodName "$VKPR_ENV_GRAFANA_NAMESPACE" "prometheus-stack-grafana") == "false" ]]; then
+    warn "Grafana not installed"
+    return
   fi
+
+  LOGIN_GRAFANA=$($VKPR_KUBECTL get secret --namespace "$VKPR_ENV_GRAFANA_NAMESPACE" prometheus-stack-grafana -o=jsonpath="{.data.admin-user}" | base64 -d)
+  PWD_GRAFANA=$($VKPR_KUBECTL get secret --namespace "$VKPR_ENV_GRAFANA_NAMESPACE" prometheus-stack-grafana -o=jsonpath="{.data.admin-password}" | base64 -d)
+  debug "server=grafana login=$LOGIN_GRAFANA password=$PWD_GRAFANA"
+
+  createGrafanaDashboard "loki" "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
+  createGrafanaDatasource "$LOGIN_GRAFANA" "$PWD_GRAFANA"
+}
+
+createGrafanaDatasource() {
+  local LOGIN_GRAFANA=$1 PWD_GRAFANA=$2
+
+  GRAFANA_ADDRESS="grafana.${VKPR_ENV_GLOBAL_DOMAIN}"
+  [[ $VKPR_ENV_GLOBAL_DOMAIN == "localhost" ]] && GRAFANA_ADDRESS="grafana.localhost:8000"
+
+  TOKEN_API_GRAFANA=$(curl -skX POST -H "Content-Type: application/json" \
+    -d '{"name": "apikeycurl'$RANDOM'","role": "Admin", "secondsToLive": 60}' \
+    http://"$LOGIN_GRAFANA":"$PWD_GRAFANA"@$GRAFANA_ADDRESS/api/auth/keys | $VKPR_JQ -r '.key' -
+  )
+  debug "token=$TOKEN_API_GRAFANA"
+
+  if [[ $TOKEN_API_GRAFANA == "" ]]; then
+    error "Ingress is not installed to generate the api token"
+    return
+  fi
+
+  EXIST_LOKI_DATASOURCE=$(curl -skX GET -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $TOKEN_API_GRAFANA" \
+    http://$GRAFANA_ADDRESS/api/datasources/name/loki
+  )
+  debug "$EXIST_LOKI_DATASOURCE"
+
+  if [[ $EXIST_LOKI_DATASOURCE != "{\"message\":\"Data source not found\"}" ]]; then
+    warn "Loki Datasource already created"
+    return
+  fi
+
+  curl -sK -X -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN_API_GRAFANA" \
+  -d @"$(dirname "$0")"/utils/datasource.json \
+  http://$GRAFANA_ADDRESS/api/datasources > /dev/null && info "Loki Datasource Added"
 }

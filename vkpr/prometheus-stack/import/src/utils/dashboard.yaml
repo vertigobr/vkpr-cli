@@ -4,5 +4,6 @@ metadata:
   name: name-dashboard
   labels:
     app: name-grafana
-    grafana_dashboard: "true"
-    vkpr: "true"
+    grafana_dashboard: "1"
+    release: prometheus-stack
+    app.kubernetes.io/managed-by: vkpr

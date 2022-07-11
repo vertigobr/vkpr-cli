@@ -12,7 +12,7 @@ server:
       }
     }
   extraLabels:
-    vkpr: "true"
+    app.kubernetes.io/managed-by: vkpr
 ui:
   enabled: true
   service:

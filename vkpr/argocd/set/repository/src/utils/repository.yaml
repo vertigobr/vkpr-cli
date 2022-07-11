@@ -4,4 +4,4 @@ metadata:
   namespace: argocd
   labels:
     argocd.argoproj.io/secret-type: repository
-    vkpr: "true"
+    app.kubernetes.io/managed-by: vkpr

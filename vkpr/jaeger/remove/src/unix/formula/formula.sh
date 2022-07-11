@@ -3,8 +3,10 @@
 runFormula() {
   info "Removing jaeger..."
 
-  JAEGER_NAMESPACE=$($VKPR_KUBECTL get po -A -l app.kubernetes.io/instance=jaeger,vkpr=true -o=yaml |\
-                     $VKPR_YQ e ".items[].metadata.namespace" - |\
+  HELM_FLAG="-A"
+  [[ "$VKPR_ENVIRONMENT" == "okteto" ]] && HELM_FLAG=""
+  JAEGER_NAMESPACE=$($VKPR_HELM ls -o=json $HELM_FLAG |\
+                     $VKPR_JQ -r '.[] | select(.name | contains("jaeger")) | .namespace' |\
                      head -n1)
 
   $VKPR_HELM uninstall jaeger -n "$JAEGER_NAMESPACE" 2> /dev/null || error "VKPR jaeger not found"

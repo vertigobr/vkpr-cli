@@ -4,7 +4,7 @@ metadata:
   name: certmanager-issuer
   namespace: cert-manager
   labels:
-    vkpr: "true"
+    app.kubernetes.io/managed-by: vkpr
 spec:
   acme:
     solvers:

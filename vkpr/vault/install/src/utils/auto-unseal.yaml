@@ -4,5 +4,5 @@ metadata:
   name: auto-unseal
   labels:
     app.kubernetes.io/instance: vault
-    vkpr: "true"
+    app.kubernetes.io/managed-by: vkpr
 type: Opaque

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-  runFormula() {
-  [[ ! -f "$PATH_TO_FILE" ]] && echoColor "red" "Wrong file" && exit
+runFormula() {
+  [[ ! -f "$PATH_TO_FILE" ]] && error "Wrong file" && exit
   cp "$PATH_TO_FILE" "$(dirname "$0")"
   VKPR_GLOBAL_CONFIG="$(dirname "$0")"/vkpr.yaml
 
@@ -51,6 +51,12 @@ applyConfig(){
 
 #13
   installJaeger
+
+#14
+  installMockserver
+
+#15
+  installDevportal
 }
 
 installArgoCD(){
@@ -63,7 +69,7 @@ installArgoCD(){
 installCertManager(){
   CERT_MANAGER_EXISTS=$($VKPR_YQ eval .cert-manager.enabled "$VKPR_GLOBAL_CONFIG")
   if [ "$CERT_MANAGER_EXISTS" == true ]; then
-    local CERT_MANAGER_PROVIDER CERT_MANAGER_SOLVER
+    local CERT_MANAGER_PROVIDER
     CERT_MANAGER_PROVIDER=$($VKPR_YQ eval .global.provider "$VKPR_GLOBAL_CONFIG")
     case $CERT_MANAGER_PROVIDER in
       aws)
@@ -88,9 +94,6 @@ installCertManager(){
         fi
         rit vkpr cert-manager install digitalocean --default
         ;;
-      custom-ca)
-        rit vkpr cert-manager install custom-ca --default
-        ;;
     esac
   fi
 }
@@ -99,6 +102,13 @@ installConsul(){
   CONSUL_EXISTS=$($VKPR_YQ eval .consul.enabled "$VKPR_GLOBAL_CONFIG")
   if [ "$CONSUL_EXISTS" == true ]; then
     rit vkpr consul install --default
+  fi
+}
+
+installDevportal(){
+  DEVPORTAL_EXISTS=$($VKPR_YQ eval .devportal.enabled "$VKPR_GLOBAL_CONFIG")
+  if [ "$DEVPORTAL_EXISTS" == true ]; then
+    rit vkpr devportal install --default
   fi
 }
 
@@ -128,14 +138,6 @@ installExternalDNS(){
         fi
         rit vkpr external-dns install digitalocean
         ;;
-      powerDNS)
-        CREDENTIALS_PDNS_EXISTS=$($VKPR_YQ eval ".credentials | has(\"powerdns\")" "$VKPR_GLOBAL_CONFIG")
-        if [ "$CREDENTIALS_PDNS_EXISTS" == true ]; then
-          local EXTERNAL_DNS_API_TOKEN; EXTERNAL_DNS_API_TOKEN=$($VKPR_YQ eval .credential.powerDNS.apiKey "$VKPR_GLOBAL_CONFIG")
-          rit set credential --provider="powerDNS" --fields="apikey" --values="$EXTERNAL_DNS_API_TOKEN"
-        fi
-        rit vkpr external-dns install powerdns
-        ;;
     esac
   fi
 }
@@ -154,6 +156,13 @@ installIngress(){
   fi
 }
 
+installJaeger(){
+  JAEGER_EXISTS=$($VKPR_YQ eval .jaeger.enabled "$VKPR_GLOBAL_CONFIG")
+  if [ "$JAEGER_EXISTS" == true ]; then
+    rit vkpr jaeger install --default
+  fi
+}
+
 installKeycloak(){
   KEYCLOAK_EXISTS=$($VKPR_YQ eval .keycloak.enabled "$VKPR_GLOBAL_CONFIG")
   if [ "$KEYCLOAK_EXISTS" == true ]; then
@@ -164,15 +173,7 @@ installKeycloak(){
 installKong(){
   KONG_EXISTS=$($VKPR_YQ eval .kong.enabled "$VKPR_GLOBAL_CONFIG")
   if [ "$KONG_EXISTS" == true ]; then
-    local KONG_ENTERPRISE="" \
-      KONG_ENTERPRISE_LICENSE=""
-
-    if [[ $($VKPR_YQ eval '.kong | has("enterprise")' "$VKPR_GLOBAL_CONFIG") ]]; then
-      KONG_ENTERPRISE=$($VKPR_YQ eval .kong.enterprise.enabled "$VKPR_GLOBAL_CONFIG")
-      KONG_ENTERPRISE_LICENSE=$($VKPR_YQ eval .kong.enterprise.license "$VKPR_GLOBAL_CONFIG")
-    fi
-
-    rit vkpr kong install --enterprise "$KONG_ENTERPRISE" --license "$KONG_ENTERPRISE_LICENSE" --default
+    rit vkpr kong install --default
   fi
 }
 
@@ -180,6 +181,13 @@ installLoki(){
   LOKI_EXISTS=$($VKPR_YQ eval .loki.enabled "$VKPR_GLOBAL_CONFIG")
   if [ "$LOKI_EXISTS" == true ]; then
     rit vkpr loki install --default
+  fi
+}
+
+installMockserver(){
+  MOCKSERVER_EXISTS=$($VKPR_YQ eval .mockserver.enabled "$VKPR_GLOBAL_CONFIG")
+  if [ "$MOCKSERVER_EXISTS" == true ]; then
+    rit vkpr mockserver install --default
   fi
 }
 
@@ -208,12 +216,5 @@ installWhoami(){
   WHOAMI_EXISTS=$($VKPR_YQ eval .whoami.enabled "$VKPR_GLOBAL_CONFIG")
   if [ "$WHOAMI_EXISTS" == true ]; then
     rit vkpr whoami install --default
-  fi
-}
-
-installJaeger(){
-  JAEGER_EXISTS=$($VKPR_YQ eval .jaeger.enabled "$VKPR_GLOBAL_CONFIG")
-  if [ "$JAEGER_EXISTS" == true ]; then
-    rit vkpr jaeger install --default
   fi
 }
