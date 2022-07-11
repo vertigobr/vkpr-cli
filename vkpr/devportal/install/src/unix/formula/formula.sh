@@ -84,9 +84,13 @@ settingDevportal() {
 settingDevportalProvider() {
   if [[ "$VKPR_ENVIRONMENT" == "okteto" ]]; then
     HELM_ARGS="--cleanup-on-fail"
+    OKTETO_NAMESPACE=$($VKPR_KUBECTL config get-contexts --no-headers | grep "*" | xargs | awk -F " " '{print $NF}')
     YQ_VALUES="$YQ_VALUES |
       .ingress.enabled = false |
-      .service.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\"
+      .service.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\" |
+      .appConfig.app.baseUrl = \"https://devportal-$OKTETO_NAMESPACE.cloud.okteto.net/\" |
+      .appConfig.backend.baseUrl = \"https://devportal-$OKTETO_NAMESPACE.cloud.okteto.net/\"
     "
   fi
+   
 }

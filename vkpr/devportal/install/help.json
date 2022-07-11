@@ -1,4 +1,4 @@
 {
-  "short": "",
-  "long": ""
+  "short": "Install Devportal",
+  "long": "Install the Devportal in the Kubernetes cluster"
 }

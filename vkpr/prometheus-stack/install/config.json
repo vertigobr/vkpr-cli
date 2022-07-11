@@ -14,8 +14,8 @@
       "type": "bool",
       "default": "false",
       "items": [
-        "true",
-        "false"
+        "false",
+        "true"
       ]
     },
     {
@@ -23,11 +23,7 @@
       "label": "Type the Grafana Admin password:",
       "name": "grafana_password",
       "type": "text",
-      "default": "vkpr123",
-      "pattern": {
-        "regex": "^([A-Za-z0-9-]{7,})$",
-        "mismatchText": "Password too weak"
-      }
+      "default": "vkpr123"
     },
     {
       "tutorial": "Enable Alert-manager to be installed",
@@ -36,8 +32,8 @@
       "type": "bool",
       "default": "false",
       "items": [
-        "true",
-        "false"
+        "false",
+        "true"
       ]
     },
     {
@@ -52,9 +48,55 @@
       "type": "bool",
       "default": "false",
       "items": [
-        "true",
-        "false"
+        "false",
+        "true"
       ]
+    },
+    {
+      "tutorial": "Specifies if the prometheus-stack will be using internal SSL certificates.",
+      "label": "Do you will use SSL?",
+      "name": "ssl",
+      "type": "bool",
+      "default": "false",
+      "required": true,
+      "items": [
+        "false",
+        "true"
+      ]
+    },
+    {
+      "tutorial": "Specifies the prometheus-stack .crt file path.",
+      "condition": {
+        "variable": "ssl",
+        "operator": "==",
+        "value": "true"
+      },
+      "label": "Type the full path to the .crt file:",
+      "name": "crt_file",
+      "type": "text",
+      "default": "",
+      "cache": {
+        "active": true,
+        "qty": 2,
+        "newLabel": "Type another .crt file path: "
+      }
+    },
+    {
+      "tutorial": "Specifies the prometheus-stack .key file path.",
+      "condition": {
+        "variable": "ssl",
+        "operator": "==",
+        "value": "true"
+      },
+      "label": "Type the full path to the .key file:",
+      "name": "key_file",
+      "type": "text",
+      "default": "",
+      "cache": {
+        "active": true,
+        "qty": 2,
+        "newLabel": "Type another .key file path: "
+      }
     },
     {
       "tutorial": "Specifies if output the values from the application",
@@ -63,8 +105,8 @@
       "type": "bool",
       "default": "false",
       "items": [
-        "true",
-        "false"
+        "false",
+        "true"
       ]
     }
   ],
