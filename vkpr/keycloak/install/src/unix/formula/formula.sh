@@ -45,6 +45,7 @@ formulaInputs() {
 
   # External apps values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "postgresql.namespace" "POSTGRESQL_NAMESPACE"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "GRAFANA_NAMESPACE"
 }
 
 #validateInputs() {}
@@ -100,13 +101,14 @@ settingKeycloak(){
   fi
 
   if [[ $VKPR_ENV_KEYCLOAK_METRICS == "true" ]]; then
+    createGrafanaDashboard "keycloak" "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
     YQ_VALUES="$YQ_VALUES |
       .metrics.enabled = true |
       .metrics.serviceMonitor.enabled = true |
       .metrics.serviceMonitor.namespace = \"$VKPR_ENV_KEYCLOAK_NAMESPACE\" |
       .metrics.serviceMonitor.interval = \"30s\" |
       .metrics.serviceMonitor.scrapeTimeout = \"30s\" |
-      .metrics.serviceMonitor.labels.release = \"prometheus-stack\" 
+      .metrics.serviceMonitor.labels.release = \"prometheus-stack\"
     "
   fi
 

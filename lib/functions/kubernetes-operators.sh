@@ -59,3 +59,13 @@ checkExistingDatabase() {
     --env="PGUSER=$PG_USER" --env="PGPASSWORD=$PG_PASSWORD" --env="PGHOST=${PG_HOST}" --env="PGPORT=5432" --env="PGDATABASE=postgres" \
     --command -- psql -lqt | cut -d \| -f 1 | grep "$DATABASE_NAME" | sed -e 's/^[ \t]*//'
 }
+
+createGrafanaDashboard() {
+  local DASHBOARD_NAME=$1 DASHBOARD_FILE=$2 NAMESPACE=$3
+
+  $VKPR_KUBECTL create cm $DASHBOARD_NAME-grafana --from-file="$DASHBOARD_FILE" --dry-run=client -o yaml |\
+    $VKPR_YQ eval ".metadata.labels.app = \"$DASHBOARD_NAME\" |
+      .metadata.labels.grafana_dashboard = \"1\" |
+      .metadata.labels.release = \"prometheus-stack\" |
+      .metadata.labels.[\"app.kubernetes.io/managed-by\"] = \"vkpr\"" - | $VKPR_KUBECTL apply -n $3 -f -
+}

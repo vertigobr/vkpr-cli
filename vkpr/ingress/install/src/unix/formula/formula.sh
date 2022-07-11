@@ -7,7 +7,7 @@ runFormula() {
   #validateInputs
 
   VKPR_INGRESS_VALUES="$(dirname "$0")"/utils/ingress.yaml
-  
+
   startInfos
   settingIngress
   [ $DRY_RUN = false ] && registerHelmRepository ingress-nginx https://kubernetes.github.io/ingress-nginx
@@ -29,6 +29,9 @@ formulaInputs() {
   checkGlobalConfig "$CRT_FILE" "" "ingress.ssl.crt" "INGRESS_CERTIFICATE"
   checkGlobalConfig "$KEY_FILE" "" "ingress.ssl.key" "INGRESS_KEY"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "ingress.namespace" "INGRESS_NAMESPACE"
+
+  # External apps values
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "GRAFANA_NAMESPACE"
 }
 
 #validateInputs() {}
@@ -45,6 +48,7 @@ settingIngress() {
   fi
 
   if [[ "$VKPR_ENV_INGRESS_METRICS" == "true" ]]; then
+    createGrafanaDashboard "nginx" "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
     YQ_VALUES="$YQ_VALUES |
       .controller.metrics.enabled = true |
       .controller.metrics.service.annotations.[\"prometheus.io/scrape\"] = \"true\" |

@@ -8,7 +8,7 @@ runFormula() {
   validateInputs
 
   $VKPR_KUBECTL create ns "$VKPR_ENV_KONG_NAMESPACE" > /dev/null
-  
+
   startInfos
   addKongDependencies
   if [[ $DRY_RUN == false ]]; then
@@ -48,7 +48,7 @@ formulaInputs() {
 
   # External apps values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "postgresql.namespace" "POSTGRESQL_NAMESPACE"
-  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "PROMETHEUS_STACK_NAMESPACE" 
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "GRAFANA_NAMESPACE"
 }
 
 validateInputs() {
@@ -176,6 +176,7 @@ settingKong() {
   fi
 
   if [[ "$VKPR_ENV_KONG_METRICS" == "true" ]]; then
+    createGrafanaDashboard "kong" "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
     YQ_VALUES="$YQ_VALUES |
       .serviceMonitor.enabled = \"true\" |
       .serviceMonitor.namespace = \"$VKPR_ENV_KONG_NAMESPACE\" |
@@ -189,8 +190,8 @@ settingKong() {
         .env.vitals = \"on\" |
         .env.vitals_strategy = \"prometheus\" |
         .env.vitals_statsd_address = \"statsd-kong:9125\" |
-        .env.vitals_tsdb_address = \"prometheus-stack-kube-prom-prometheus:9090\" |      
-        .env.vitals_statsd_prefix = \"kong-vitals\" 
+        .env.vitals_tsdb_address = \"prometheus-stack-kube-prom-prometheus:9090\" |
+        .env.vitals_statsd_prefix = \"kong-vitals\"
       "
       $VKPR_KUBECTL apply $KONG_NAMESPACE -f "$(dirname "$0")/utils/kong-service-monitor.yaml"
     fi
@@ -268,7 +269,7 @@ settingKongProvider(){
         del(.portal.ingress) |
         del(.admin.ingress) |
         del(.portalapi.ingress) |
-        del(.manager.ingress) |                       
+        del(.manager.ingress) |
         del(.ingressController) |
         .ingressController.enabled = false |
         .ingressController.installCRDs = false |
@@ -287,10 +288,10 @@ settingKongProvider(){
         .env.admin_api_uri = \"https://kong-kong-admin-$OKTETO_NAMESPACE.cloud.okteto.net\" |
         .env.portal_gui_host = \"kong-kong-portal-$OKTETO_NAMESPACE.cloud.okteto.net\" |
         .env.proxy_url = \"https://kong-kong-proxy-$OKTETO_NAMESPACE.cloud.okteto.net\" |
-        .env.portal_api_url = \"https://kong-kong-portalapi-$OKTETO_NAMESPACE.cloud.okteto.net\" | 
+        .env.portal_api_url = \"https://kong-kong-portalapi-$OKTETO_NAMESPACE.cloud.okteto.net\" |
         .env.portal_gui_protocol = \"https\" |
         .env.pg_host = \"postgres-postgresql\" |
-        .env.pg_password.valueFrom.secretKeyRef.key = \"postgres-password\" 
+        .env.pg_password.valueFrom.secretKeyRef.key = \"postgres-password\"
       "
-  fi  
+  fi
 }
