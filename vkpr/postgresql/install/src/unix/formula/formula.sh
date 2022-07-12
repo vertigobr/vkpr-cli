@@ -2,11 +2,12 @@
 
 runFormula() {
   local VKPR_POSTGRESQL_VALUES PG_PASSWORD HELM_ARGS;
+  PG_PASSWORD=$($VKPR_JQ -r '.credential.password' "$VKPR_CREDENTIAL"/postgres)
+
   formulaInputs
   validateInputs
 
   VKPR_POSTGRESQL_VALUES=$(dirname "$0")/utils/postgres.yaml
-  PG_PASSWORD=$($VKPR_JQ -r '.credential.password' "$VKPR_CREDENTIAL"/postgres)
 
   startInfos
   [ $DRY_RUN = false ] && registerHelmRepository bitnami https://charts.bitnami.com/bitnami
@@ -39,21 +40,22 @@ validateInputs() {
   validatePostgresqlPassword "$PG_PASSWORD"
   validatePostgresqlHA "$VKPR_ENV_POSTGRESQL_HA"
   validatePostgresqlMetrics "$VKPR_ENV_POSTGRESQL_METRICS"
+  validatePostgresqlNamespace "$VKPR_ENV_POSTGRESQL_NAMESPACE"
 }
 
 settingPostgresql() {
   YQ_VALUES=".fullnameOverride = \"postgres-postgresql\" |
     .global.postgresql.auth.postgresPassword = \"$PG_PASSWORD\" |
-    .primary.podLabels.[\"app.kubernetes.io/managed-by\"] = \"vkpr\"
+    .global.postgresql.auth.database = \"postgres\" 
   "
   
   if [[ "$VKPR_ENV_POSTGRESQL_METRICS" == "true" ]]; then
     YQ_VALUES="$YQ_VALUES |
-      .metrics.enabled = \"true\" |
-      .metrics.serviceMonitor.enabled = \"true\" |
+      .metrics.enabled = true |
+      .metrics.serviceMonitor.enabled = true |
       .metrics.serviceMonitor.namespace = \"$VKPR_ENV_POSTGRESQL_NAMESPACE\" |
       .metrics.serviceMonitor.interval = \"1m\" |
-      .metrics.serviceMonitor.scrapeTimeout = \"30m\"
+      .metrics.serviceMonitor.scrapeTimeout = \"30m\" |
       .metrics.serviceMonitor.additionalLabels.release = \"prometheus-stack\"
     "
   fi
@@ -95,7 +97,7 @@ settingPostgresqlHA() {
       .metrics.serviceMonitor.enabled = \"true\" |
       .metrics.serviceMonitor.namespace = \"$VKPR_ENV_POSTGRESQL_NAMESPACE\" |
       .metrics.serviceMonitor.interval = \"1m\" |
-      .metrics.serviceMonitor.scrapeTimeout = \"30m\"
+      .metrics.serviceMonitor.scrapeTimeout = \"30m\" |
       .metrics.serviceMonitor.selector.release = \"prometheus-stack\"
     "
   fi
