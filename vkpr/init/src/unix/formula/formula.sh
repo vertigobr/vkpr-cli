@@ -78,7 +78,7 @@ installHelm() {
     info "Installing Helm..."
     # patches download script in order to change BINLOCATION
     curl -fsSL -o /tmp/get_helm0.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-    sed 's|\/usr\/local\/bin|$\HOME/\.vkpr\/bin|g' /tmp/get_helm0.sh > /tmp/get_helm.sh
+    sed 's|\/usr\/local\/bin|$\HOME/\.vkpr\/bin|g; 251,259s/^/#/; 325s/^/#/' /tmp/get_helm0.sh > /tmp/get_helm.sh
     chmod +x /tmp/get_helm.sh
     rm /tmp/get_helm0.sh
     /tmp/get_helm.sh --version $VKPR_TOOLS_HELM --no-sudo 2> /dev/null
