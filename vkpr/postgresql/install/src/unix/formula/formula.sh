@@ -46,17 +46,17 @@ validateInputs() {
 settingPostgresql() {
   YQ_VALUES=".fullnameOverride = \"postgres-postgresql\" |
     .global.postgresql.auth.postgresPassword = \"$PG_PASSWORD\" |
-    .global.postgresql.auth.database = \"postgres\" 
+    .global.postgresql.auth.database = \"postgres\"
   "
-  
+
   if [[ "$VKPR_ENV_POSTGRESQL_METRICS" == "true" ]]; then
     YQ_VALUES="$YQ_VALUES |
       .metrics.enabled = true |
       .metrics.serviceMonitor.enabled = true |
       .metrics.serviceMonitor.namespace = \"$VKPR_ENV_POSTGRESQL_NAMESPACE\" |
       .metrics.serviceMonitor.interval = \"1m\" |
-      .metrics.serviceMonitor.scrapeTimeout = \"30m\" |
-      .metrics.serviceMonitor.additionalLabels.release = \"prometheus-stack\"
+      .metrics.serviceMonitor.scrapeTimeout = \"1m\" |
+      .metrics.serviceMonitor.labels.release = \"prometheus-stack\"
     "
   fi
 
@@ -97,7 +97,7 @@ settingPostgresqlHA() {
       .metrics.serviceMonitor.enabled = \"true\" |
       .metrics.serviceMonitor.namespace = \"$VKPR_ENV_POSTGRESQL_NAMESPACE\" |
       .metrics.serviceMonitor.interval = \"1m\" |
-      .metrics.serviceMonitor.scrapeTimeout = \"30m\" |
+      .metrics.serviceMonitor.scrapeTimeout = \"1m\"
       .metrics.serviceMonitor.selector.release = \"prometheus-stack\"
     "
   fi
