@@ -23,14 +23,8 @@ checkPodName(){
 # 3 - DATABASE_NAME
 # 4 - POSTGRESQL_POD_NAMESPACE
 createDatabase(){
-  local PG_USER="$1" PG_PASSWORD="$2" \
-        DATABASE_NAME="$3" NAMESPACE="$4"
-
-  local PG_HOST="postgres-postgresql"
-
-  if $VKPR_KUBECTL get pod -n "$NAMESPACE" | grep -q pgpool; then
-    PG_HOST="postgres-postgresql-pgpool"
-  fi
+  local PG_USER="$1" PG_HOST="$2" PG_PASSWORD="$3" \
+        DATABASE_NAME="$4" NAMESPACE="$5"
 
   $VKPR_KUBECTL run init-db --rm -it --restart="Never" --namespace "$NAMESPACE" \
     --image docker.io/bitnami/postgresql-repmgr:11.14.0-debian-10-r12 \
@@ -45,14 +39,8 @@ createDatabase(){
 # 3 - DATABASE_NAME
 # 4 - POSTGRESQL_POD_NAMESPACE
 checkExistingDatabase() {
-  local PG_USER="$1" PG_PASSWORD="$2" \
-        DATABASE_NAME="$3" NAMESPACE="$4"
-
-  local PG_HOST="postgres-postgresql"
-
-  if $VKPR_KUBECTL get pod -n "$NAMESPACE" | grep -q "pgpool"; then
-    PG_HOST="postgres-postgresql-pgpool"
-  fi
+  local PG_USER="$1" PG_HOST="$2" PG_PASSWORD="$3" \
+        DATABASE_NAME="$4" NAMESPACE="$5"
 
   $VKPR_KUBECTL run check-db --rm -it --restart='Never' --namespace "$NAMESPACE" \
     --image docker.io/bitnami/postgresql-repmgr:11.14.0-debian-10-r12 \

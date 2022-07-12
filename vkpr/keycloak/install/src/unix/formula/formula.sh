@@ -3,7 +3,7 @@
 runFormula() {
   local VKPR_ENV_KEYCLOAK_DOMAIN VKPR_KEYCLOAK_VALUES PG_USER PG_DATABASE_NAME PG_HA PG_HOST HELM_ARGS;
   formulaInputs
-  validateInputs
+  #validateInputs
 
   VKPR_ENV_KEYCLOAK_DOMAIN="keycloak.${VKPR_ENV_GLOBAL_DOMAIN}"
   VKPR_KEYCLOAK_VALUES=$(dirname "$0")/utils/keycloak.yaml
@@ -14,7 +14,7 @@ runFormula() {
     registerHelmRepository bitnami https://charts.bitnami.com/bitnami
   fi
   settingKeycloak
-  installApplication "keycloak" "bitnami/keycloak" "$VKPR_ENV_KEYCLOAK_INGRESS_CLASS_NAME" "$VKPR_KEYCLOAK_VERSION" "$VKPR_KEYCLOAK_VALUES" "$HELM_ARGS"
+  installApplication "keycloak" "bitnami/keycloak" "$VKPR_ENV_KEYCLOAK_NAMESPACE" "$VKPR_KEYCLOAK_VERSION" "$VKPR_KEYCLOAK_VALUES" "$HELM_ARGS"
 }
 
 startInfos() {
@@ -22,9 +22,9 @@ startInfos() {
   boldInfo "VKPR Keycloak Install Routine"
   boldNotice "Domain: $VKPR_ENV_KEYCLOAK_DOMAIN"
   boldNotice "Secure: $VKPR_ENV_GLOBAL_SECURE"
-  boldNotice "Namespace: $VKPR_ENV_WHOAMI_NAMESPACE"
-  boldNotice "HA: $VKPR_ENV_HA"
-  boldNotice "Ingress Controller: $VKPR_ENV_WHOAMI_INGRESS_CLASS_NAME"
+  boldNotice "Namespace: $VKPR_ENV_KEYCLOAK_NAMESPACE"
+  boldNotice "HA: $VKPR_ENV_KEYCLOAK_HA"
+  boldNotice "Ingress Controller: $VKPR_ENV_KEYCLOAK_INGRESS_CLASS_NAME"
   boldNotice "Keycloak Admin Username: $VKPR_ENV_KEYCLOAK_ADMIN_USER"
   boldNotice "Keycloak Admin Password: $VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD"
   bold "=============================="
@@ -35,7 +35,7 @@ formulaInputs() {
   checkGlobalConfig "$HA" "false" "keycloak.HA" "KEYCLOAK_HA"
   checkGlobalConfig "$ADMIN_USER" "admin" "keycloak.adminUser" "KEYCLOAK_ADMIN_USER"
   checkGlobalConfig "$ADMIN_PASSWORD" "vkpr123" "keycloak.adminPassword" "KEYCLOAK_ADMIN_PASSWORD"
-  checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS" "$VKPR_ENV_GLOBAL_INGRESS" "keycloak.ingressClassName" "KEYCLOAK_INGRESS_CLASS_NAME"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "keycloak.ingressClassName" "KEYCLOAK_INGRESS_CLASS_NAME"
   checkGlobalConfig "false" "false" "keycloak.metrics" "KEYCLOAK_METRICS"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "keycloak.namespace" "KEYCLOAK_NAMESPACE"
   checkGlobalConfig "$SSL" "false" "keycloak.ssl.enabled" "KEYCLOAK_SSL"
@@ -53,6 +53,7 @@ formulaInputs() {
 configureKeycloakDB(){
   PG_USER="postgres"
   PG_DATABASE_NAME="keycloak"
+  PG_PASSWORD="$($VKPR_JQ -r '.credential.password' $VKPR_CREDENTIAL/postgres)"
 
   PG_HOST="postgres-postgresql.$VKPR_ENV_POSTGRESQL_NAMESPACE"
   $VKPR_KUBECTL get pod -n "$VKPR_ENV_POSTGRESQL_NAMESPACE" | grep -q pgpool && PG_HOST="postgres-postgresql-pgpool.$VKPR_ENV_POSTGRESQL_NAMESPACE"
@@ -68,7 +69,7 @@ configureKeycloakDB(){
 
   if [[ $(checkExistingDatabase "$PG_USER" "$PG_PASSWORD" "$PG_DATABASE_NAME" "$VKPR_ENV_POSTGRESQL_NAMESPACE") != "keycloak" ]]; then
     info "Creating Database Instance in postgresql..."
-    createDatabase "$PG_USER" "$PG_PASSWORD" "$PG_DATABASE_NAME" "$VKPR_ENV_POSTGRESQL_NAMESPACE"
+    createDatabase "$PG_USER" "$PG_HOST" "$PG_PASSWORD" "$PG_DATABASE_NAME" "$VKPR_ENV_POSTGRESQL_NAMESPACE"
   fi
 }
 
