@@ -14,8 +14,8 @@
       "type": "bool",
       "default": "false",
       "items": [
-        "true",
-        "false"
+        "false",
+        "true"
       ]
     },
     {
@@ -25,9 +25,9 @@
       "type": "text",
       "default": "dbless",
       "items": [
+        "dbless",
         "standard",
-        "hybrid",
-        "dbless"
+        "hybrid"
       ]
     },
     {
@@ -78,8 +78,8 @@
       "default": "true",
       "required": true,
       "items": [
-        "true",
-        "false"
+        "false",
+        "true"
       ]
     },
     {
@@ -121,8 +121,8 @@
       "type": "bool",
       "default": "false",
       "items": [
-        "true",
-        "false"
+        "false",
+        "true"
       ]
     },
     {
@@ -132,8 +132,8 @@
       "type": "bool",
       "default": "false",
       "items": [
-        "true",
-        "false"
+        "false",
+        "true"
       ]
     }
   ],
