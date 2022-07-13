@@ -59,10 +59,13 @@ validateInputs() {
   validateKongEnterprise "$VKPR_ENV_KONG_ENTERPRISE"
   validateKongHA "$VKPR_ENV_KONG_HA"
   validateKongMetrics "$VKPR_ENV_KONG_METRICS"
+  validateKongNamespace "$VKPR_ENV_KONG_NAMESPACE"
+
   if [[ $VKPR_ENV_KONG_ENTERPRISE = true ]]; then
     validateKongEnterpriseLicensePath "$VKPR_ENV_KONG_ENTERPRISE_LICENSE"
     validateKongRBACPwd "$VKPR_ENV_KONG_RBAC_ADMIN_PASSWORD"
   fi
+
 }
 
 createKongSecrets() {

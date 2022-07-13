@@ -2,6 +2,7 @@
 
 validateKongDomain() {
   if $(validateDomain $1); then
+  echo "$1"
     return
   else
     error "Please correctly enter the domain to be used "
@@ -11,6 +12,7 @@ validateKongDomain() {
 
 validateKongSecure() {
   if $(validateBool "$1"); then
+  echo "$1"
     return
   else
     error "It was not possible to identify if the application will have HTTPS"
@@ -20,6 +22,7 @@ validateKongSecure() {
 
 validateKongHA(){
   if $(validateBool $1); then
+  echo "$1"
     return
   else
     error "It was not possible to identify if the application will have High Availability "
@@ -29,6 +32,7 @@ validateKongHA(){
 
 validateKongMetrics(){
   if $(validateBool $1); then
+  echo "$1"
     return
   else
     error "It was not possible to identify if the application will have Metrics"
@@ -38,6 +42,7 @@ validateKongMetrics(){
 
 validateKongEnterprise() {
   if $(validateBool $1); then
+  echo "$1"
     return
   else
     error "It was not possible to identify if the application will use enterprise license!"
@@ -47,6 +52,7 @@ validateKongEnterprise() {
 
 validateKongEnterpriseLicensePath() {
   if $(validatePath $1); then
+  echo "$1"
     return
   else
     error "Invalid path"
@@ -56,6 +62,7 @@ validateKongEnterpriseLicensePath() {
 
 validateKongRBACPwd() {
   if $(validatePwd $1); then
+  echo "$1"
     return
   else
     error "Invalid password"
@@ -65,9 +72,20 @@ validateKongRBACPwd() {
 
 validateKongDeployment() {
   if [[ "$1" =~ ^(standard|hybrid|dbless)$ ]]; then
+  echo "$1"
     return
   else
     error "It was not possible to identify the type of deployment of Kong"
+    exit
+  fi
+}
+
+validateKongNamespace() {
+  if  $(validateNamespace $1); then
+  echo "$1"
+    return
+  else
+    error "Invalid namespace"
     exit
   fi
 }
