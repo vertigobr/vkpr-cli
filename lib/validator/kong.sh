@@ -71,3 +71,12 @@ validateKongDeployment() {
     exit
   fi
 }
+
+validateKongNamespace() {
+  if  $(validateNamespace $1); then
+    return
+  else
+    error "Invalid namespace"
+    exit
+  fi
+}
