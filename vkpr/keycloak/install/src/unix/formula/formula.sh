@@ -3,7 +3,7 @@
 runFormula() {
   local VKPR_ENV_KEYCLOAK_DOMAIN VKPR_KEYCLOAK_VALUES PG_USER PG_DATABASE_NAME PG_HA PG_HOST HELM_ARGS;
   formulaInputs
-  #validateInputs
+  validateInputs
 
   VKPR_ENV_KEYCLOAK_DOMAIN="keycloak.${VKPR_ENV_GLOBAL_DOMAIN}"
   VKPR_KEYCLOAK_VALUES=$(dirname "$0")/utils/keycloak.yaml
@@ -48,7 +48,27 @@ formulaInputs() {
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "GRAFANA_NAMESPACE"
 }
 
-#validateInputs() {}
+validateInputs() {
+
+  validateKeycloakDomain "$DOMAIN"
+  validateKeycloakSecure "$SECURE"
+
+  validateKeycloakHa "$VKPR_ENV_KEYCLOAK_HA"
+  validateKeycloakAdminUser "$VKPR_ENV_KEYCLOAK_ADMIN_USER"
+  validateKeycloakAdminPwd "$VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD"
+  validateKeycloakIngresClassName "$VKPR_ENV_KEYCLOAK_INGRESS_CLASS_NAME"
+
+  validateKeycloakNamespace "$VKPR_ENV_KEYCLOAK_NAMESPACE"
+  validateKeycloakMetrics "$VKPR_ENV_KEYCLOAK_METRICS"
+  validateKeycloakSsl "$VKPR_ENV_KEYCLOAK_SSL"
+  if [[ $VKPR_ENV_KEYCLOAK_SSL == true ]]; then
+    validateKeycloakCrt "$VKPR_ENV_KEYCLOAK_CERTIFICATE"
+    validateKeycloakKey "$VKPR_ENV_KEYCLOAK_KEY"
+  fi
+  validatePostgresqlNamespace "$VKPR_ENV_POSTGRESQL_NAMESPACE"
+  validatePrometheusNamespace "$VKPR_ENV_GRAFANA_NAMESPACE"
+
+}
 
 configureKeycloakDB(){
   PG_USER="postgres"
