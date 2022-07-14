@@ -36,8 +36,8 @@ env:
         name: kong-session-config
         key: portal_session_conf
 image:
-  repository: kong
-  tag: "2.7"
+  repository: kong/kong-gateway
+  tag: "2.8.0.0-alpine"
 admin:
   enabled: true
   type: ClusterIP
