@@ -6,6 +6,7 @@ runFormula() {
   formulaInputs
   validateInputs
 
+  $VKPR_KUBECTL create ns "$VKPR_ENV_CERT_MANAGER_NAMESPACE" > /dev/null
   VKPR_CERT_MANAGER_VALUES="$(dirname "$0")"/utils/cert-manager.yaml
   VKPR_ISSUER_VALUES="$(dirname "$0")"/utils/issuer.yaml
 
@@ -55,7 +56,7 @@ validateInputs() {
 
 installCRDS() {
   info "Installing cert-manager CRDS beforehand..."
-  $VKPR_KUBECTL apply -f "https://github.com/jetstack/cert-manager/releases/download/$VKPR_CERT_VERSION/cert-manager.crds.yaml"
+  $VKPR_KUBECTL apply -f "https://github.com/jetstack/cert-manager/releases/download/$VKPR_CERT_MANAGER_VERSION/cert-manager.crds.yaml"
 }
 
 settingCertManager() {
