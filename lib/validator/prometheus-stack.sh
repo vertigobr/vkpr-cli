@@ -32,7 +32,7 @@ validatePrometheusIngressClassName(){
 }
 
 validatePrometheusNamespace(){
-  if [[ "$1" =~ ^[a-z0-9]([-a-z0-9]*[a-z0-9])? ]]; then
+  if $(validateNamespace "$1"); then
     return
   else
     error "It was not possible to identify the namespace."
