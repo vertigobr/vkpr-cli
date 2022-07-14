@@ -15,7 +15,7 @@ runFormula() {
   if [[ $DRY_RUN == false ]]; then
     registerHelmRepository kong https://charts.konghq.com
     createKongSecrets
-    installDB
+  [[ $VKPR_ENV_KONG_MODE != 'dbless' ]] && installDB
   fi
   settingKong
   installKong
@@ -39,7 +39,7 @@ formulaInputs() {
   checkGlobalConfig "$HA" "false" "kong.HA" "KONG_HA"
   checkGlobalConfig "false" "false" "kong.metrics" "KONG_METRICS"
   checkGlobalConfig "false" "false" "kong.vitals.prometheusStrategy" "KONG_VITALS_STRATEGY"
-  checkGlobalConfig "$ENTERPRISE" "true" "kong.enterprise.enabled" "KONG_ENTERPRISE"
+  # checkGlobalConfig "$ENTERPRISE" "true" "kong.enterprise.enabled" "KONG_ENTERPRISE"
   checkGlobalConfig "$LICENSE" " " "kong.enterprise.license" "KONG_ENTERPRISE_LICENSE"
   checkGlobalConfig "$RBAC_PASSWORD" "vkpr123" "kong.rbac.adminPassword" "KONG_RBAC_ADMIN_PASSWORD"
   ## Due to a Ritchie variable limitation, we can't deliver those values through vkpr.yaml
@@ -56,13 +56,10 @@ validateInputs() {
   validateKongDomain "$VKPR_ENV_GLOBAL_DOMAIN"
   validateKongSecure "$VKPR_ENV_GLOBAL_SECURE"
   validateKongDeployment "$VKPR_ENV_KONG_MODE"
-  validateKongEnterprise "$VKPR_ENV_KONG_ENTERPRISE"
+  # validateKongEnterprise "$VKPR_ENV_KONG_ENTERPRISE"
   validateKongHA "$VKPR_ENV_KONG_HA"
   validateKongMetrics "$VKPR_ENV_KONG_METRICS"
-  validateKongNamespace "$VKPR_ENV_KONG_NAMESPACE"
-
-  if [[ $VKPR_ENV_KONG_ENTERPRISE = true ]]; then
-    validateKongEnterpriseLicensePath "$VKPR_ENV_KONG_ENTERPRISE_LICENSE"
+  if [[ $VKPR_ENV_KONG_ENTERPRISE_LICENSE != "" ]]; then
     validateKongRBACPwd "$VKPR_ENV_KONG_RBAC_ADMIN_PASSWORD"
   fi
 

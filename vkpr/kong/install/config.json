@@ -71,24 +71,7 @@
       "default": "kong-kong-clustertelemetry.vkpr.svc.cluster.local:8006"
     },
     {
-      "tutorial": "Specifies if the Kong will be using Enterprise License",
-      "label": "Do you will use enterprise?",
-      "name": "enterprise",
-      "type": "bool",
-      "default": "true",
-      "required": true,
-      "items": [
-        "false",
-        "true"
-      ]
-    },
-    {
       "tutorial": "Specifies the Kong Enterprise License path",
-      "condition": {
-        "variable": "enterprise",
-        "operator": "==",
-        "value": "true"
-      },
       "label": "Type the full path to the license:",
       "name": "license",
       "type": "text",
@@ -101,9 +84,9 @@
     {
       "tutorial": "Specifies the RBAC Super Admin Password. Has no effect on hybrid data plane installations.",
       "condition": {
-        "variable": "enterprise",
-        "operator": "==",
-        "value": "true"
+        "variable": "license",
+        "operator": "!=",
+        "value": ""
       },
       "label": "Type the RBAC Admin Password. Has no effect on hybrid data plane installations:",
       "name": "rbac_password",
