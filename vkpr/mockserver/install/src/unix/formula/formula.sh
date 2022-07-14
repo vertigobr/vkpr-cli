@@ -3,7 +3,7 @@
 runFormula() {
   local VKPR_ENV_MOCKSERVER_DOMAIN VKPR_MOCKSERVER_VALUES HELM_ARGS;
   formulaInputs
-  validateInputs
+  #validateInputs
 
   VKPR_ENV_MOCKSERVER_DOMAIN="mockserver.${VKPR_ENV_GLOBAL_DOMAIN}"
   VKPR_MOCKSERVER_VALUES=$(dirname "$0")/utils/mockserver.yaml
@@ -37,10 +37,7 @@ formulaInputs() {
 #validateInputs() {}
 
 settingMockServer() {
-  YQ_VALUES="$YQ_VALUES |
-    .ingress.enabled = true |
-    .ingress.ingressClass.enabled = true |
-    .ingress.hosts[0] = \"$VKPR_ENV_MOCKSERVER_DOMAIN\" |
+  YQ_VALUES=".ingress.hosts[0] = \"$VKPR_ENV_MOCKSERVER_DOMAIN\" |
     .ingress.ingressClass.name = \"$VKPR_ENV_MOCKSERVER_INGRESS_CLASS_NAME\"
   "
 
@@ -58,7 +55,7 @@ settingMockServer() {
       $VKPR_KUBECTL create secret tls $VKPR_ENV_MOCKSERVER_SSL_SECRET -n "$VKPR_ENV_MOCKSERVER_NAMESPACE" \
         --cert="$VKPR_ENV_MOCKSERVER_CERTIFICATE" \
         --key="$VKPR_ENV_MOCKSERVER_KEY"
-    fi 
+    fi
     YQ_VALUES="$YQ_VALUES |
       .ingress.tls[0].hosts[0] = \"$VKPR_ENV_MOCKSERVER_DOMAIN\" |
       .ingress.tls[0].secretName = \"$VKPR_ENV_MOCKSERVER_SSL_SECRET\"
