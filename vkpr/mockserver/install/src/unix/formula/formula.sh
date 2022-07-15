@@ -10,8 +10,8 @@ runFormula() {
 
   startInfos
   settingMockServer
-  [ $DRY_RUN = false ] && registerHelmRepository mockserver https://www.mock-server.com
-  installApplication "mockserver" "mockserver/mockserver" "$VKPR_ENV_MOCKSERVER_NAMESPACE" "$VKPR_MOCKSERVER_VERSION" "$VKPR_MOCKSERVER_VALUES" "$HELM_ARGS"
+  [ $DRY_RUN = false ] && registerHelmRepository veecode-platform https://vfipaas.github.io/public-charts/
+  installApplication "mockserver" "veecode-platform/mockserver" "$VKPR_ENV_MOCKSERVER_NAMESPACE" "$VKPR_MOCKSERVER_VERSION" "$VKPR_MOCKSERVER_VALUES" "$HELM_ARGS"
 }
 
 startInfos() {

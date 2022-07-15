@@ -62,18 +62,20 @@ settingDevportal() {
     .githubSpecHouseURL = \"$GITHUB_SPECHOUSEURL\"
   "
 
-  if [[ $VKPR_ENV_GLOBAL_DOMAIN == "localhost" ]]; then
-    YQ_VALUES="$YQ_VALUES |
-      .appConfig.app.baseUrl = \"http://$VKPR_ENV_DEVPORTAL_DOMAIN:8000/\" |
-      .appConfig.backend.baseUrl = \"http://$VKPR_ENV_DEVPORTAL_DOMAIN:8000/\"
-    "
-  fi
-
   if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
     YQ_VALUES="$YQ_VALUES |
       .ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
       .ingress.tls[0].hosts[0] = \"$VKPR_ENV_DEVPORTAL_DOMAIN\" |
-      .ingress.tls[0].secretName = \"devportal-cert\"
+      .ingress.tls[0].secretName = \"devportal-cert\"|
+      .appConfig.app.baseUrl = \"https://$VKPR_ENV_DEVPORTAL_DOMAIN/\" |
+      .appConfig.backend.baseUrl = \"https://$VKPR_ENV_DEVPORTAL_DOMAIN/\"
+    "
+  fi
+
+  if [[ $VKPR_ENV_GLOBAL_DOMAIN == "localhost" ]]; then
+    YQ_VALUES="$YQ_VALUES |
+      .appConfig.app.baseUrl = \"http://$VKPR_ENV_DEVPORTAL_DOMAIN:8000/\" |
+      .appConfig.backend.baseUrl = \"http://$VKPR_ENV_DEVPORTAL_DOMAIN:8000/\"
     "
   fi
 
