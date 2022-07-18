@@ -14,7 +14,7 @@ validateOktaClientId (){
 }
 
 validateOktaClientSecret (){
-  if [[ $1 =~ ^([a-zA-Z0-9]{40})$ ]]; then
+  if [[ $1 =~ ^([a-zA-Z0-9_\-]{40})$ ]]; then
       return
   else
       error 'Please correctly enter the Okta client secret, fix the credential with the command  "rit set credential"'
