@@ -3,7 +3,7 @@
 runFormula() {
   local VKPR_ENV_JAEGER_DOMAIN VKPR_JAEGER_VALUES HELM_ARGS;
   formulaInputs
-  #validateInputs
+  validateInputs
 
   VKPR_ENV_JAEGER_DOMAIN="jaeger.${VKPR_ENV_GLOBAL_DOMAIN}"
   VKPR_JAEGER_VALUES=$(dirname "$0")/utils/jaeger.yaml
@@ -35,7 +35,21 @@ formulaInputs() {
   checkGlobalConfig "" "" "jaeger.ssl.secretName" "JAEGER_SSL_SECRET"
 }
 
-#validateInputs() {}
+validateInputs() {
+
+  validateJaegerDomain "$VKPR_ENV_GLOBAL_DOMAIN"
+  validateJaegerSecure "$VKPR_ENV_GLOBAL_SECURE"
+
+  validateJaegerIngressClassName "$VKPR_ENV_JAEGER_INGRESS_CLASS_NAME"
+  validateJaegerNamespace "$VKPR_ENV_JAEGER_NAMESPACE"
+  validateJaegerPersistance "$VKPR_ENV_JAEGER_PERSISTANCE"
+
+  validateJaegerSsl "$VKPR_ENV_JAEGER_SSL"
+  if [[ $VKPR_ENV_JAEGER_SSL == true ]]; then
+    validateJaegerSslCrtPath "$VKPR_ENV_JAEGER_CERTIFICATE"
+    validateJaegerSslKeyPath "$VKPR_ENV_JAEGER_KEY"
+  fi
+}
 
 settingJaeger() {
   YQ_VALUES=".query.ingress.hosts[0] = \"$VKPR_ENV_JAEGER_DOMAIN\" |
