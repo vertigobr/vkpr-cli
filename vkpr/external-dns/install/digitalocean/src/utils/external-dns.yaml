@@ -1,7 +1,16 @@
+interval: 5m
 sources:
-  - ingress
   - service
-interval: "1m"
-policy: sync
+  - ingress
+policy: upsert-only
+registry: txt
+txtOwnerId: "vkpr"
 podLabels:
   app.kubernetes.io/managed-by: vkpr
+provider: digitalocean
+env:
+  - name: DO_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: vkpr-do-credential
+        key: api-token

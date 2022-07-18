@@ -16,6 +16,18 @@ checkPodName(){
   echo false
 }
 
+checkSecretName(){
+  local SECRET_NAMESPACE="$1" SECRET_NAME="$2"
+
+  for secret in $($VKPR_KUBECTL get secrets -n "$SECRET_NAMESPACE" --ignore-not-found  | awk 'NR>1{print $1}'); do
+    if [[ "$secret" == "$SECRET_NAME"* ]]; then
+      echo true  # secret name found a match, then returns True
+      return
+    fi
+  done
+  echo false
+}
+
 ## Create a new Postgresql database
 # Parameters:
 # 1 - POSTGRESQL_USER
@@ -56,4 +68,25 @@ createGrafanaDashboard() {
       .metadata.labels.grafana_dashboard = \"1\" |
       .metadata.labels.release = \"prometheus-stack\" |
       .metadata.labels.[\"app.kubernetes.io/managed-by\"] = \"vkpr\"" - | $VKPR_KUBECTL apply -n $3 -f -
+}
+
+createAWSCredentialSecret() {
+  if [[ $(checkSecretName $1 "vkpr-aws-credential") == true ]]; then
+    notice "Using already created vkpr-aws-credential"
+    return
+  fi
+
+  $VKPR_KUBECTL create secret generic vkpr-aws-credential -n $1 \
+    --from-literal=access-key=$2 \
+    --from-literal=secret-key=$3 \
+    --from-literal=region=$4
+}
+
+createDOCredentialSecret() {
+  if [[ $(checkSecretName $1 "vkpr-do-credential") == true ]]; then
+    notice "Using already created vkpr-do-credential"
+    return
+  fi
+
+  $VKPR_KUBECTL create secret generic vkpr-do-credential -n $1 --from-literal=api-token=$2
 }

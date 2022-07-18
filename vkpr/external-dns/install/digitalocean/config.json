@@ -1,14 +1,21 @@
 {
   "inputs": [
     {
+      "tutorial": "Specifies the domain to create records in DNS provider",
+      "label": "Type the external-dns domain filter:",
+      "name": "domain",
+      "type": "text",
+      "required": true
+    },
+    {
       "tutorial": "Specifies if output the values from the application",
       "label": "Dry-run ?",
       "name": "dry_run",
       "type": "bool",
       "default": "false",
       "items": [
-        "true",
-        "false"
+        "false",
+        "true"
       ]
     },
     {

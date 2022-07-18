@@ -1,7 +1,26 @@
+interval: 5m
 sources:
-  - ingress
   - service
-interval: "1m"
-policy: sync
+  - ingress
+policy: upsert-only
+registry: txt
+txtOwnerId: "vkpr"
 podLabels:
   app.kubernetes.io/managed-by: vkpr
+provider: aws
+env:
+  - name: AWS_REGION
+    valueFrom:
+      secretKeyRef:
+        name: vkpr-aws-credential
+        key: region
+  - name: AWS_ACCESS_KEY_ID
+    valueFrom:
+      secretKeyRef:
+        name: vkpr-aws-credential
+        key: access-key
+  - name: AWS_SECRET_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: vkpr-aws-credential
+        key: secret-key
