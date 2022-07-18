@@ -7,6 +7,7 @@ runFormula() {
 
   VKPR_ENV_GRAFANA_DOMAIN="grafana.${VKPR_ENV_GLOBAL_DOMAIN}"
   VKPR_ENV_ALERT_MANAGER_DOMAIN="alertmanager.${VKPR_ENV_GLOBAL_DOMAIN}"
+  VKPR_ENV_PROMETHEUS_DOMAIN="prometheus.${VKPR_ENV_GLOBAL_DOMAIN}"
   VKPR_PROMETHEUS_VALUES=$(dirname "$0")/utils/prometheus-stack.yaml
 
   startInfos
@@ -50,6 +51,13 @@ formulaInputs() {
     checkGlobalConfig "" "" "prometheus-stack.grafana.ssl.secretName" "GRAFANA_SSL_SECRET"
   fi
   ## Prometheus
+  checkGlobalConfig "false" "false" "prometheus-stack.prometheus.enabled" "PROMETHEUS"
+  if [[ "$VKPR_ENV_PROMETHEUS" = true ]]; then
+    checkGlobalConfig "false" "false" "prometheus-stack.prometheus.ssl.enabled" "PROMETHEUS_SSL"
+    checkGlobalConfig "" "" "prometheus-stack.prometheus.ssl.crt" "PROMETHEUS_CERTIFICATE"
+    checkGlobalConfig "" "" "prometheus-stack.prometheus.ssl.key" "PROMETHEUS_KEY"
+    checkGlobalConfig "" "" "prometheus-stack.prometheus.ssl.secretName" "PROMETHEUS_SSL_SECRET"
+  fi
   checkGlobalConfig "false" "false" "prometheus-stack.prometheus.persistance" "PROMETHEUS_PERSISTANCE"
 
 
@@ -68,9 +76,11 @@ validateInputs() {
   if [[ "$VKPR_ENV_ALERTMANAGER" = true ]]; then
     validateAlertManagerHA "$VKPR_ENV_ALERTMANAGER_HA"
     validateAlertManagerSSL "$VKPR_ENV_ALERTMANAGER_SSL"
-    validateAlertManagerCertificate "$VKPR_ENV_ALERTMANAGER_CERTIFICATE"
-    validateAlertManagerKey "$VKPR_ENV_ALERTMANAGER_KEY"
-    validateAlertManagerSecret "$VKPR_ENV_ALERTMANAGER_SSL_SECRET"
+    if [[ "$VKPR_ENV_ALERTMANAGER_SSL" = true ]]; then
+      validateAlertManagerCertificate "$VKPR_ENV_ALERTMANAGER_CERTIFICATE"
+      validateAlertManagerKey "$VKPR_ENV_ALERTMANAGER_KEY"
+      validateAlertManagerSecret "$VKPR_ENV_ALERTMANAGER_SSL_SECRET"
+    fi
   fi
   ## Grafana
   validateGrafanaPwd "$VKPR_ENV_GRAFANA_PASSWORD"
@@ -83,6 +93,15 @@ validateInputs() {
     validateGrafanaSecret "$VKPR_ENV_GRAFANA_SSL_SECRET"
   fi
   ## Prometheus
+  validatePrometheusEnabled "$VKPR_ENV_PROMETHEUS"
+  if [[ "$VKPR_ENV_PROMETHEUS" = true ]]; then
+    validatePrometheusSSL "$VKPR_ENV_PROMETHEUS_SSL"
+    if [[ "$VKPR_ENV_PROMETHEUS_SSL" = true ]]; then
+      validatePrometheusCertificate "$VKPR_ENV_PROMETHEUS_CERTIFICATE"
+      validatePrometheusKey "$VKPR_ENV_PROMETHEUS_KEY"
+      validatePrometheusSecret "$VKPR_ENV_PROMETHEUS_SSL_SECRET"
+    fi
+  fi
   validatePrometheusPersistance "$VKPR_ENV_PROMETHEUS_PERSISTANCE"
   # External app values
   validateLokiNamespace "$VKPR_ENV_LOKI_NAMESPACE"
@@ -160,6 +179,34 @@ settingGrafanaValues() {
 }
 
 settingPrometheusValues() {
+  YQ_VALUES="$YQ_VALUES |
+    .prometheus.enabled = true |
+    .prometheus.ingress.enabled = true |
+    .prometheus.ingress.hosts[0] = \"$VKPR_ENV_PROMETHEUS_DOMAIN\" |
+    .prometheus.ingress.ingressClassName = \"$VKPR_ENV_PROMETHEUS_STACK_INGRESS_CLASS_NAME\"
+  "
+
+  if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
+    YQ_VALUES="$YQ_VALUES |
+      .prometheus.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
+      .prometheus.ingress.tls[0].hosts[0] = \"$VKPR_ENV_PROMETHEUS_DOMAIN\" |
+      .prometheus.ingress.tls[0].secretName = \"prometheus-cert\"
+    "
+  fi
+
+  if [[ "$VKPR_ENV_PROMETHEUS_SSL" == "true" ]]; then
+    if [[ "$VKPR_ENV_PROMETHEUS_SSL_SECRET" == "" ]]; then
+      VKPR_ENV_PROMETHEUS_SSL_SECRET="prometheus-certificate"
+      $VKPR_KUBECTL create secret tls $VKPR_ENV_PROMETHEUS_SSL_SECRET -n "$VKPR_ENV_PROMETHEUS_NAMESPACE" \
+        --cert="$VKPR_ENV_PROMETHEUS_CERTIFICATE" \
+        --key="$VKPR_ENV_PROMETHEUS_KEY"
+    fi
+    YQ_VALUES="$YQ_VALUES |
+      .prometheus.ingress.tls[0].hosts[0] = \"$VKPR_ENV_PROMETHEUS_DOMAIN\" |
+      .prometheus.ingress.tls[0].secretName = \"$VKPR_ENV_PROMETHEUS_SSL_SECRET\"
+     "
+  fi
+
   if [[ "$VKPR_ENV_PROMETHEUS_PERSISTANCE" == true ]]; then
     YQ_VALUES="$YQ_VALUES |
       .prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.accessModes[0] = \"ReadWriteOnce\" |

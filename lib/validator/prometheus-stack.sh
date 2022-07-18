@@ -28,7 +28,7 @@ validatePrometheusIngressClassName(){
   else
     error "Please correctly enter the ingress class name."
     exit
-  fi 
+  fi
 }
 
 validatePrometheusNamespace(){
@@ -37,7 +37,7 @@ validatePrometheusNamespace(){
   else
     error "It was not possible to identify the namespace."
     exit
-  fi 
+  fi
 }
 
 validateAlertManagerEnabled() {
@@ -157,6 +157,51 @@ validateGrafanaSecret(){
   fi
 }
 
+validatePrometheusEnabled() {
+  if $(validateBool "$1"); then
+    return
+  else
+    error "Specifies if the application will have Alert Manager."
+    exit
+  fi
+}
+
+validatePrometheusSSL(){
+  if $(validateBool $1); then
+    return
+  else
+    error "Specifies if the application will have Alert Manager SSL."
+    exit
+  fi
+}
+
+validatePrometheusCertificate(){
+  if $(validatePath $1); then
+    return
+  else
+    error "Invalid path for Prometheus SSL .crt file."
+    exit
+  fi
+}
+
+validatePrometheusKey(){
+  if $(validatePath $1); then
+    return
+  else
+    error "Invalid path for Prometheus SSL .key file."
+    exit
+  fi
+}
+
+validatePrometheusSecret(){
+  if [[ "$1" =~ ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$ ]]; then
+    return
+  else
+    error "Invalid SSL Secret."
+    exit
+  fi
+}
+
 validatePrometheusPersistance(){
   if $(validateBool $1); then
     return
@@ -172,5 +217,5 @@ validateLokiNamespace(){
   else
     error "It was not possible to identify the namespace."
     exit
-  fi 
+  fi
 }
