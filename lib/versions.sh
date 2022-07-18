@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export VKPR_EXTERNAL_DNS_VERSION="6.4.3" \
+export VKPR_EXTERNAL_DNS_VERSION="1.10.1" \
       VKPR_WHOAMI_VERSION="2.5.0" \
       VKPR_KEYCLOAK_VERSION="9.2.12" \
       VKPR_LOKI_VERSION="2.6.3" \

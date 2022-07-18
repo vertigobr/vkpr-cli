@@ -6,18 +6,22 @@ runFormula() {
   formulaInputs
   validateInputs
 
+  $VKPR_KUBECTL create ns $VKPR_ENV_EXTERNAL_DNS_NAMESPACE 2> /dev/null
   VKPR_EXTERNAL_DNS_VALUES="$(dirname "$0")"/utils/external-dns.yaml
 
   startInfos
   settingExternalDNS
-  [[ $DRY_RUN == false ]] && registerHelmRepository bitnami https://charts.bitnami.com/bitnami
-  installApplication "external-dns" "bitnami/external-dns" "$VKPR_ENV_EXTERNAL_DNS_NAMESPACE" "$VKPR_EXTERNAL_DNS_VERSION" "$VKPR_EXTERNAL_DNS_VALUES" "$HELM_ARGS"
+  if [[ $DRY_RUN == false ]]; then
+    registerHelmRepository external-dns https://kubernetes-sigs.github.io/external-dns/
+    createDOCredentialSecret "$VKPR_ENV_EXTERNAL_DNS_NAMESPACE" "$DO_TOKEN"
+  fi
+  installApplication "external-dns" "external-dns/external-dns" "$VKPR_ENV_EXTERNAL_DNS_NAMESPACE" "$VKPR_EXTERNAL_DNS_VERSION" "$VKPR_EXTERNAL_DNS_VALUES" "$HELM_ARGS"
 }
 
 startInfos() {
-  echo "=============================="
-  bold "$(info "VKPR External-DNS Install Digital Ocean Routine")"
-  echo "=============================="
+  bold "=============================="
+  boldInfo "VKPR External-DNS Install Digital Ocean Routine"
+  bold "=============================="
 }
 
 formulaInputs() {
@@ -35,17 +39,13 @@ validateInputs() {
 }
 
 settingExternalDNS() {
-  YQ_VALUES=".provider = \"digitalocean\" |
-    .rbac.create = true |
-    .digitalocean.apiToken = \"$DO_TOKEN\"
-  "
+  YQ_VALUES=".domainFilters[0] = \"$VKPR_ENV_GLOBAL_DOMAIN\""
 
   if [[ $VKPR_ENV_EXTERNAL_DNS_METRICS == true ]]; then
     YQ_VALUES="$YQ_VALUES |
-      .metrics.enabled = true |
-      .metrics.serviceMonitor.enabled = true |
-      .metrics.serviceMonitor.namespace = \"$VKPR_ENV_INGRESS_NAMESPACE\" |
-      .metrics.serviceMonitor.interval = \"1m\"
+      .serviceMonitor.enabled = true |
+      .serviceMonitor.namespace = \"$VKPR_ENV_INGRESS_NAMESPACE\" |
+      .serviceMonitor.interval = \"1m\"
     "
   fi
   settingExternaldnsEnvironment
