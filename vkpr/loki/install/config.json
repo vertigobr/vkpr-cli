@@ -15,8 +15,8 @@
       "type": "bool",
       "default": "false",
       "items": [
-        "true",
-        "false"
+        "false",
+        "true"
       ]
     }
   ],

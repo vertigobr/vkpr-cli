@@ -3,7 +3,7 @@
 runFormula() {
   local VKPR_LOKI_VALUES HELM_ARGS;
   formulaInputs
-  #validateInputs
+  validateInputs
 
   VKPR_LOKI_VALUES=$(dirname "$0")/utils/loki.yaml
 
@@ -24,14 +24,20 @@ startInfos() {
 formulaInputs() {
   # App values
   checkGlobalConfig "false" "false" "loki.metrics" "LOKI_METRICS"
-  checkGlobalConfig "false" "false" "loki.persistence" "LOKI_PERSISTANCE"
+  checkGlobalConfig "false" "false" "loki.persistance" "LOKI_PERSISTANCE"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "loki.namespace" "LOKI_NAMESPACE"
 
   # External app values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "GRAFANA_NAMESPACE"
 }
 
-#validateInputs() {}
+validateInputs() {
+  validateLokiMetrics "$VKPR_ENV_LOKI_METRICS"
+  validateLokiPersistence "$VKPR_ENV_LOKI_PERSISTANCE"
+  validateLokiNamespace "$VKPR_ENV_LOKI_NAMESPACE"
+   
+  validatePrometheusNamespace "$VKPR_ENV_GRAFANA_NAMESPACE"  
+}
 
 settingLoki() {
   YQ_VALUES=".grafana.enabled = false"

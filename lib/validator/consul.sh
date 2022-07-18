@@ -54,14 +54,15 @@ validateConsulSslCrtPath (){
     return
   else
     error "Invalid path for SSL .crt file"
+    exit
   fi
 }
 
 validateConsulSslKeyPath(){
   if $(validatePath $1); then
-    echo "$1"
     return
   else
     error "Invalid path for SSL .key file"
+    exit
   fi
 }
