@@ -223,7 +223,7 @@
             "type": "datasource",
             "uid": "loki"
           },
-          "expr": "{container=\"$container\", pod=~\"$pod\"} |~ \"(?i)$searchable_pattern\" ",
+          "expr": "{container=\"$container\", pod=~\"$pod\"}",
           "hide": false,
           "refId": "A"
         }
