@@ -21,7 +21,7 @@ startInfos() {
   boldInfo "VKPR Prometheus-Stack Install Routine"
   boldNotice "Domain: $VKPR_ENV_GLOBAL_DOMAIN"
   boldNotice "Secure: $VKPR_ENV_GLOBAL_SECURE"
-  boldNotice "Ingress Controller: $VKPR_ENV_PROMETHEUS_INGRESS"
+  boldNotice "Ingress Controller: $VKPR_ENV_PROMETHEUS_STACK_INGRESS_CLASS_NAME"
   boldNotice "Grafana password: $VKPR_ENV_GRAFANA_PASSWORD"
   boldNotice "AlertManager enabled: $VKPR_ENV_ALERTMANAGER"
   bold "=============================="
