@@ -22,17 +22,18 @@ applyConfig(){
 #3
   installPostgres
 
+
 #4
-  installKong
-
-#5
-  installIngress
-
-#6
   installExternalDNS
 
-#7
+#5
   installCertManager
+
+#6
+  installKong
+
+#7
+  installIngress
 
 #8
   installConsul
