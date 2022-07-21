@@ -1,27 +1,39 @@
 #!/bin/bash
 
 runFormula() {
-  local EKS_CLUSTER_NODE_INSTANCE_TYPE PROJECT_ENCODED FORK_RESPONSE_CODE;
+  local PROJECT_ENCODED PROJECT_NAMESPACE PROJECT_PATH FORK_RESPONSE_CODE;
 
-  #getting real instance type
-  EKS_CLUSTER_NODE_INSTANCE_TYPE=${EKS_CLUSTER_NODE_INSTANCE_TYPE// ([^)]*)/}
-  EKS_CLUSTER_NODE_INSTANCE_TYPE=${EKS_CLUSTER_NODE_INSTANCE_TYPE// /}
-  
   formulaInputs
   setCredentials
   validateInputs
-  
+
   PROJECT_ENCODED=$(rawUrlEncode "${GITLAB_USERNAME}/aws-eks")
-  FORK_RESPONSE_CODE=$(curl -siX POST -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
-    "https://gitlab.com/api/v4/projects/$(rawUrlEncode "vkpr/aws-eks")/fork" |\
-    head -n 1 | awk -F' ' '{print $2}'
-  )
+  if [ $EKS_PROJECT_LOCATION == "groups" ]; then
+    FORK_RESPONSE_CODE=$(curl -siX POST -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+      -d "namespace_path=$EKS_PROJECT_LOCATION_PATH" \
+      "https://gitlab.com/api/v4/projects/$(rawUrlEncode "vkpr/aws-eks")/fork" |\
+      head -n1 | awk -F' ' '{print $2}'
+    )
+    GROUP_ID=$(curl -s -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://gitlab.com/api/v4/groups" |\
+      $VKPR_JQ -r ".[] | select(.web_url | contains(\"$EKS_PROJECT_LOCATION_PATH\")) | .id"
+    )
+    debug "GROUP_ID=$GROUP_ID"
+    PROJECT_ID=$(curl -s -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://gitlab.com/api/v4/groups/$GROUP_ID/projects" |\
+      $VKPR_JQ -r ".[] | select(.path_with_namespace | contains(\"$EKS_PROJECT_LOCATION_PATH/aws-eks\")) | .id"
+    )
+    debug "PROJECT_ID=$PROJECT_ID"
+  else
+    FORK_RESPONSE_CODE=$(curl -siX POST -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+      "https://gitlab.com/api/v4/projects/$(rawUrlEncode "vkpr/aws-eks")/fork" |\
+      head -n1 | awk -F' ' '{print $2}'
+    )
+  fi
 
   debug "FORK_RESPONSE_CODE=$FORK_RESPONSE_CODE"
   if [ "$FORK_RESPONSE_CODE" == "409" ];then
     boldNotice "Project already forked"
   fi
-  
+
   setVariablesGLAB
   cloneRepository
 }
@@ -61,14 +73,16 @@ validateInputs() {
 }
 
 setVariablesGLAB() {
-  [[ "$VKPR_ENV_EKS_TERRAFORM_STATE" == "terraform-cloud" ]] && createOrUpdateVariable "$PROJECT_ENCODED" "TF_CLOUD_TOKEN" "$TF_CLOUD_TOKEN" "yes" "$VKPR_ENV_EKS_CLUSTER_NAME" "$GITLAB_TOKEN"
-  createOrUpdateVariable "$PROJECT_ENCODED" "AWS_ACCESS_KEY" "$AWS_ACCESS_KEY" "yes" "$VKPR_ENV_EKS_CLUSTER_NAME" "$GITLAB_TOKEN"
-  createOrUpdateVariable "$PROJECT_ENCODED" "AWS_SECRET_KEY" "$AWS_SECRET_KEY" "yes" "$VKPR_ENV_EKS_CLUSTER_NAME" "$GITLAB_TOKEN"
-  createOrUpdateVariable "$PROJECT_ENCODED" "AWS_REGION" "$AWS_REGION" "no" "$VKPR_ENV_EKS_CLUSTER_NAME" "$GITLAB_TOKEN"
+  [[ $EKS_PROJECT_LOCATION == "groups" ]] && PROJECT_IDENTIFIER=$PROJECT_ID || PROJECT_IDENTIFIER=$PROJECT_ENCODED
+  [[ "$VKPR_ENV_EKS_TERRAFORM_STATE" == "terraform-cloud" ]] && createOrUpdateVariable "$PROJECT_IDENTIFIER" "TF_CLOUD_TOKEN" "$TF_CLOUD_TOKEN" "yes" "$VKPR_ENV_EKS_CLUSTER_NAME" "$GITLAB_TOKEN"
+  createOrUpdateVariable "$PROJECT_IDENTIFIER" "AWS_ACCESS_KEY" "$AWS_ACCESS_KEY" "yes" "$VKPR_ENV_EKS_CLUSTER_NAME" "$GITLAB_TOKEN"
+  createOrUpdateVariable "$PROJECT_IDENTIFIER" "AWS_SECRET_KEY" "$AWS_SECRET_KEY" "yes" "$VKPR_ENV_EKS_CLUSTER_NAME" "$GITLAB_TOKEN"
+  createOrUpdateVariable "$PROJECT_IDENTIFIER" "AWS_REGION" "$AWS_REGION" "no" "$VKPR_ENV_EKS_CLUSTER_NAME" "$GITLAB_TOKEN"
 }
 
 cloneRepository() {
-  git clone -q https://"$GITLAB_USERNAME":"$GITLAB_TOKEN"@gitlab.com/"$GITLAB_USERNAME"/aws-eks.git "$VKPR_HOME"/tmp/aws-eks
+  [[ $EKS_PROJECT_LOCATION == "groups" ]] && PROJECT_PATH="$EKS_PROJECT_LOCATION_PATH" || PROJECT_PATH="$GITLAB_USERNAME"
+  git clone -q https://"$GITLAB_USERNAME":"$GITLAB_TOKEN"@gitlab.com/"$PROJECT_PATH"/aws-eks.git "$VKPR_HOME"/tmp/aws-eks
   cd "$VKPR_HOME"/tmp/aws-eks || exit
   $VKPR_YQ eval -i "del(.node_groups) |
     .cluster_name = \"$VKPR_ENV_EKS_CLUSTER_NAME\" |

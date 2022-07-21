@@ -1,19 +1,33 @@
 {
   "inputs": [
     {
-      "tutorial": "Specifies the AWS Access Key Credential",
-      "name": "aws_access_key",
-      "type": "CREDENTIAL_AWS_ACCESSKEYID"
+      "tutorial": "Specifies the project location to fork",
+      "label": "Project location:",
+      "name": "eks_project_location",
+      "type": "text",
+      "default": "user",
+      "required": true,
+      "items": [
+        "user",
+        "groups"
+      ]
     },
     {
-      "tutorial": "Specifies the AWS Secret Key Credential",
-      "name": "aws_secret_key",
-      "type": "CREDENTIAL_AWS_SECRETACCESSKEY"
-    },
-    {
-      "tutorial": "Specifies the AWS Region to set the environment",
-      "name": "aws_region",
-      "type": "CREDENTIAL_AWS_REGION"
+      "tutorial": "Specifies your group path",
+      "condition": {
+        "variable": "eks_project_location",
+        "operator": "==",
+        "value": "groups"
+      },
+      "label": "Location path:",
+      "name": "eks_project_location_path",
+      "type": "text",
+      "required": false,
+      "cache": {
+        "active": true,
+        "qty": 2,
+        "newLabel": "Type another location path"
+      }
     },
     {
       "tutorial": "Specifies the EKS Cluster name",
@@ -52,15 +66,15 @@
       "label": "Choose nodes instance type:",
       "name": "eks_cluster_node_instance_type",
       "type": "text",
-      "default": "t3.small (vCPU:2, Mem: 2Gib)",
+      "default": "m5.large",
       "required": true,
       "items": [
-        "t3.small (vCPU:2, Mem: 2Gib)",
-        "m5.large (vCPU:2, Mem: 8Gib)",
-        "m5.xlarge (vCPU:4, Mem: 16Gib)",
-        "t4g.small (vCPU:2, Mem: 2Gib)",
-        "m6g.large (vCPU:2, Mem: 8Gib)",
-        "m6g.xlarge (vCPU:4, Mem: 16Gib)"
+        "t3.small",
+        "m5.large",
+        "m5.xlarge",
+        "t4g.small",
+        "m6g.large",
+        "m6g.xlarge"
       ]
     },
     {
@@ -129,6 +143,21 @@
       },
       "name": "gitlab_token",
       "type": "CREDENTIAL_GITLAB_TOKEN"
+    },
+    {
+      "tutorial": "Specifies the AWS Access Key Credential",
+      "name": "aws_access_key",
+      "type": "CREDENTIAL_AWS_ACCESSKEYID"
+    },
+    {
+      "tutorial": "Specifies the AWS Secret Key Credential",
+      "name": "aws_secret_key",
+      "type": "CREDENTIAL_AWS_SECRETACCESSKEY"
+    },
+    {
+      "tutorial": "Specifies the AWS Region to set the environment",
+      "name": "aws_region",
+      "type": "CREDENTIAL_AWS_REGION"
     }
   ],
   "template": "shell-bat",
