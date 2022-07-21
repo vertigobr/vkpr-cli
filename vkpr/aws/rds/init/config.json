@@ -47,19 +47,29 @@
       "tutorial": "Specifies the name of the new database",
       "label": "Type the new database name:",
       "name": "dbname",
-      "type": "text"
+      "type": "text",
+      "required": true,
+      "default": "vkprDb"
     },
     {
       "tutorial": "Specifies the username of the database owner",
       "label": "Type the db user name:",
       "name": "dbuser",
-      "type": "text"
+      "type": "text",
+      "required": true,
+      "default": "vkprUser"
     },
     {
       "tutorial": "Specifies the database owner's user password",
       "label": "Type the db user's password:",
       "name": "dbpassword",
-      "type": "text"
+      "type": "text",
+      "required": true,
+      "default": "vkpr1234",
+      "pattern": {
+        "regex": "^([A-Za-z0-9-]{8,})$",
+        "mismatchText": "Invalid db user's password:"
+      }
     },
     {
       "tutorial": "Specifies the Postgresql password",
