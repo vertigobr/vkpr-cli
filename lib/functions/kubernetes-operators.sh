@@ -61,13 +61,28 @@ checkExistingDatabase() {
 }
 
 createGrafanaDashboard() {
-  local DASHBOARD_NAME=$1 DASHBOARD_FILE=$2 NAMESPACE=$3
+  local DASHBOARD_FILE=$1 GRAFANA_NAMESPACE=$2
 
-  $VKPR_KUBECTL create cm $DASHBOARD_NAME-grafana --from-file="$DASHBOARD_FILE" --dry-run=client -o yaml |\
-    $VKPR_YQ eval ".metadata.labels.app = \"$DASHBOARD_NAME\" |
-      .metadata.labels.grafana_dashboard = \"1\" |
-      .metadata.labels.release = \"prometheus-stack\" |
-      .metadata.labels.[\"app.kubernetes.io/managed-by\"] = \"vkpr\"" - | $VKPR_KUBECTL apply -n $3 -f -
+  LOGIN_GRAFANA=$($VKPR_KUBECTL get secret --namespace "$GRAFANA_NAMESPACE" prometheus-stack-grafana -o=jsonpath="{.data.admin-user}" | base64 -d)
+  PWD_GRAFANA=$($VKPR_KUBECTL get secret --namespace "$GRAFANA_NAMESPACE" prometheus-stack-grafana -o=jsonpath="{.data.admin-password}" | base64 -d)
+
+  echo "{}" | $VKPR_JQ --argjson dashboardContent "$(<$1)" '.dashboard += $dashboardContent | (.dashboard.id, .dashboard.uid) = null' > /tmp/dashboard-grafana.json
+
+  GRAFANA_ADDRESS="grafana.${VKPR_ENV_GLOBAL_DOMAIN}"
+  [[ $VKPR_ENV_GLOBAL_DOMAIN == "localhost" ]] && GRAFANA_ADDRESS="grafana.localhost:8000"
+
+  CREATE_DASHBOARD=$(curl -s -X POST -H "Content-Type: application/json" \
+    -d @/tmp/dashboard-grafana.json http://$LOGIN_GRAFANA:$PWD_GRAFANA@$GRAFANA_ADDRESS/api/dashboards/db |\
+    $VKPR_JQ -r '.status' -
+  )
+  debug "$CREATE_DASHBOARD"
+
+  if [[ $CREATE_DASHBOARD == "name-exists" ]] || [[ $CREATE_DASHBOARD == "" ]]; then
+    error "Dashboard with same name already exists"
+    return
+  fi
+
+  info "Dashboard to prometheus metrics created"
 }
 
 createAWSCredentialSecret() {
