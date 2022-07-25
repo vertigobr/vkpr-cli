@@ -83,7 +83,7 @@ settingArgoCD() {
   fi
 
   if [[ "$VKPR_ENV_ARGOCD_METRICS" == true ]]; then
-    createGrafanaDashboard "argocd" "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
+    createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
     YQ_VALUES="$YQ_VALUES |
       .controller.metrics.enabled = true |
       .controller.metrics.serviceMonitor.enabled = true |

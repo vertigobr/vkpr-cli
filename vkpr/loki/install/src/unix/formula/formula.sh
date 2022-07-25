@@ -35,8 +35,8 @@ validateInputs() {
   validateLokiMetrics "$VKPR_ENV_LOKI_METRICS"
   validateLokiPersistence "$VKPR_ENV_LOKI_PERSISTANCE"
   validateLokiNamespace "$VKPR_ENV_LOKI_NAMESPACE"
-   
-  validatePrometheusNamespace "$VKPR_ENV_GRAFANA_NAMESPACE"  
+
+  validatePrometheusNamespace "$VKPR_ENV_GRAFANA_NAMESPACE"
 }
 
 settingLoki() {
@@ -84,7 +84,7 @@ existGrafana() {
   PWD_GRAFANA=$($VKPR_KUBECTL get secret --namespace "$VKPR_ENV_GRAFANA_NAMESPACE" prometheus-stack-grafana -o=jsonpath="{.data.admin-password}" | base64 -d)
   debug "server=grafana login=$LOGIN_GRAFANA password=$PWD_GRAFANA"
 
-  createGrafanaDashboard "loki" "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
+  createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
   createGrafanaDatasource "$LOGIN_GRAFANA" "$PWD_GRAFANA"
 }
 
