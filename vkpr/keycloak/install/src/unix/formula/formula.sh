@@ -15,6 +15,7 @@ runFormula() {
   fi
   settingKeycloak
   installApplication "keycloak" "bitnami/keycloak" "$VKPR_ENV_KEYCLOAK_NAMESPACE" "$VKPR_KEYCLOAK_VERSION" "$VKPR_KEYCLOAK_VALUES" "$HELM_ARGS"
+  activateMetrics
 }
 
 startInfos() {
@@ -94,12 +95,10 @@ configureKeycloakDB(){
 }
 
 settingKeycloak(){
-  YQ_VALUES=".postgresql.enabled = false |
-    .ingress.hostname = \"$VKPR_ENV_KEYCLOAK_DOMAIN\" |
+  YQ_VALUES=".ingress.hostname = \"$VKPR_ENV_KEYCLOAK_DOMAIN\" |
     .ingress.ingressClassName = \"$VKPR_ENV_KEYCLOAK_INGRESS_CLASS_NAME\" |
     .auth.adminUser = \"$VKPR_ENV_KEYCLOAK_ADMIN_USER\" |
     .auth.adminPassword = \"$VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD\" |
-    .proxy = \"none\" |
     .externalDatabase.host = \"$PG_HOST\" |
     .externalDatabase.port = \"5432\" |
     .externalDatabase.user = \"$PG_USER\" |
@@ -109,7 +108,9 @@ settingKeycloak(){
 
   if [[ $VKPR_ENV_GLOBAL_SECURE = true ]]; then
     YQ_VALUES="$YQ_VALUES |
+      .proxy = \"edge\" |
       .ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
+      .ingress.annotations.[\"cert-manager.io/cluster-issuer\"] = \"certmanager-issuer\" |
       .ingress.tls = true
     "
   fi
@@ -122,14 +123,19 @@ settingKeycloak(){
   fi
 
   if [[ $VKPR_ENV_KEYCLOAK_METRICS == "true" ]]; then
-    createGrafanaDashboard "keycloak" "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
+    createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
+    $VKPR_KUBECTL apply -n $VKPR_ENV_KEYCLOAK_NAMESPACE -f "$(dirname "$0")"/utils/servicemonitor.yaml
     YQ_VALUES="$YQ_VALUES |
       .metrics.enabled = true |
       .metrics.serviceMonitor.enabled = true |
       .metrics.serviceMonitor.namespace = \"$VKPR_ENV_KEYCLOAK_NAMESPACE\" |
       .metrics.serviceMonitor.interval = \"30s\" |
       .metrics.serviceMonitor.scrapeTimeout = \"30s\" |
-      .metrics.serviceMonitor.labels.release = \"prometheus-stack\"
+      .metrics.serviceMonitor.labels.release = \"prometheus-stack\" |
+      .extraEnvVars[0].name = \"URI_METRICS_ENABLED\" |
+      .extraEnvVars[0].value = \"true\" |
+      .extraEnvVars[1].name = \"URI_METRICS_DETAILED\" |
+      .extraEnvVars[1].value = \"true\"
     "
   fi
 
@@ -145,5 +151,17 @@ settingKeycloak(){
       .ingress.secrets[0].key = \"$KEYCLOAK_TLS_KEY\" |
       .ingress.secrets[0].certificate = \"$KEYCLOAK_TLS_CERT\"
      "
+  fi
+}
+
+activateMetrics() {
+  if [[ $VKPR_ENV_KEYCLOAK_METRICS == "true" ]]; then
+    $VKPR_KUBECTL exec -it keycloak-0 -n "$VKPR_ENV_KEYCLOAK_NAMESPACE" -- sh -c "
+      kcadm.sh config credentials --server http://localhost:8080 --realm master \
+        --user $VKPR_ENV_KEYCLOAK_ADMIN_USER --password $VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD --config /tmp/kcadm.config && \
+      kcadm.sh update events/config \
+        -s \"eventsEnabled=true\" -s \"adminEventsEnabled=true\" -s \"eventsListeners+=metrics-listener\" --config /tmp/kcadm.config && \
+      rm -f /tmp/kcadm.config
+    "
   fi
 }

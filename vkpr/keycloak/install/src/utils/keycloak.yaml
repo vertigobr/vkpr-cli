@@ -12,6 +12,7 @@ ingress:
 rbac:
   create: true
 postgresql:
+  enabled: false
   persistence:
     enabled: false
 podLabels:
