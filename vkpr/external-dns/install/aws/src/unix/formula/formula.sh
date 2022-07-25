@@ -37,6 +37,10 @@ setCredentials() {
 }
 
 validateInputs() {
+  validateExternalDNSDomain "$VKPR_ENV_GLOBAL_DOMAIN"
+  validateExternalDNSNamespace "$VKPR_ENV_EXTERNAL_DNS_NAMESPACE"
+  validateExternalDNSMetrics "$VKPR_ENV_EXTERNAL_DNS_METRICS"
+
   validateAwsAccessKey "$AWS_ACCESS_KEY"
   validateAwsSecretKey "$AWS_SECRET_KEY"
   validateAwsRegion "$AWS_REGION"

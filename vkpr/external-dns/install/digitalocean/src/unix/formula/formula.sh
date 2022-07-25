@@ -35,6 +35,10 @@ setCredentials() {
 }
 
 validateInputs() {
+  validateExternalDNSDomain "$VKPR_ENV_GLOBAL_DOMAIN"
+  validateExternalDNSNamespace "$VKPR_ENV_EXTERNAL_DNS_NAMESPACE"
+  validateExternalDNSMetrics "$VKPR_ENV_EXTERNAL_DNS_METRICS"
+
   validateDigitalOceanApiToken "$DO_TOKEN"
 }
 
