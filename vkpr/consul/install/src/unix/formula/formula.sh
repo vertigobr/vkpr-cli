@@ -28,10 +28,14 @@ formulaInputs() {
   # App values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "consul.ingressClassName" "CONSUL_INGRESS_CLASS_NAME"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "consul.namespace" "CONSUL_NAMESPACE"
+  checkGlobalConfig "false" "false" "consul.metrics" "CONSUL_METRICS"
   checkGlobalConfig "$SSL" "false" "consul.ssl.enabled" "CONSUL_SSL"
   checkGlobalConfig "$CRT_FILE" "" "consul.ssl.crt" "CONSUL_CERTIFICATE"
   checkGlobalConfig "$KEY_FILE" "" "consul.ssl.key" "CONSUL_KEY"
   checkGlobalConfig "" "" "consul.ssl.secretName" "CONSUL_SSL_SECRET"
+
+  # External app values
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "GRAFANA_NAMESPACE"
 }
 
 validateInputs() {
@@ -63,19 +67,29 @@ settingConsul() {
     "
   fi
 
+  if [[ "$VKPR_ENV_CONSUL_METRICS" == true ]]; then
+    $VKPR_KUBECTL apply -n $VKPR_ENV_CONSUL_NAMESPACE -f $(dirname "$0")/utils/servicemonitor.yaml
+    createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
+    YQ_VALUES="$YQ_VALUES |
+      .global.metrics.enabled = true |
+      .global.metrics.enableAgentMetrics = true |
+      .global.metrics.agentMetricsRetentionTime = \"72h\"
+    "
+  fi
+
   if [[ "$VKPR_ENV_CONSUL_SSL" == "true" ]]; then
     if [[ "$VKPR_ENV_CONSUL_SSL_SECRET" == "" ]]; then
       VKPR_ENV_CONSUL_SSL_SECRET="consul-certificate"
       $VKPR_KUBECTL create secret tls $VKPR_ENV_CONSUL_SSL_SECRET -n "$VKPR_ENV_CONSUL_NAMESPACE" \
         --cert="$VKPR_ENV_CONSUL_CERTIFICATE" \
         --key="$VKPR_ENV_CONSUL_KEY"
-    fi 
+    fi
     YQ_VALUES="$YQ_VALUES |
       .ui.ingress.tls[0].hosts[0] = \"$VKPR_ENV_CONSUL_DOMAIN\" |
       .ui.ingress.tls[0].secretName = \"$VKPR_ENV_CONSUL_SSL_SECRET\"
      "
   fi
-  
+
   settingConsulEnvironment
 
   debug "YQ_CONTENT = $YQ_VALUES"
