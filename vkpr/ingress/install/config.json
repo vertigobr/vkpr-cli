@@ -1,18 +1,6 @@
 {
   "inputs": [
     {
-      "tutorial": "Define the Loadbalancer type in AWS",
-      "label": "Which type of LoadBalancer do you prefer ?",
-      "name": "lb_type",
-      "type": "text",
-      "default": "Classic",
-      "required": false,
-      "items": [
-        "Classic",
-        "NLB"
-      ]
-    },
-    {
       "tutorial": "Specifies if the nginx will be using internal SSL certificates.",
       "label": "Do you will use SSL?",
       "name": "ssl",
