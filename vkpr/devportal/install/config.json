@@ -30,6 +30,14 @@
       ]
     },
     {
+      "label": "Specifies your Github SpecHouse URL",
+      "tutorial": "Specifies your Github SpecHouse URL",
+      "name": "github_spechouseurl",
+      "default": "localhost",
+      "required": true,
+      "type": "text"
+    },
+    {
       "tutorial": "Specifies the Okta Client ID",
       "name": "okta_client_id",
       "type": "CREDENTIAL_OKTA_CLIENTID"
@@ -48,11 +56,6 @@
       "tutorial": "Specifies your Github personal access token",
       "name": "github_token",
       "type": "CREDENTIAL_GITHUB_TOKEN"
-    },
-    {
-      "tutorial": "Specifies your Github SpecHouse URL",
-      "name": "github_spechouseurl",
-      "type": "CREDENTIAL_GITHUB_SPECHOUSEURL"
     }
   ],
   "template": "shell-bat",
