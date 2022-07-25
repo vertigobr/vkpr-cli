@@ -91,7 +91,11 @@ settingIssuer() {
   fi
 
   if [[ "$VKPR_ENV_CERT_MANAGER_ISSUER_SOLVER" == "DNS01" ]]; then
-    configureDNS01
+    createDOCredentialSecret $VKPR_ENV_CERT_MANAGER_NAMESPACE $DO_TOKEN
+    YQ_ISSUER_VALUES="$YQ_ISSUER_VALUES |
+      .spec.acme.solvers[0].dns01.digitalocean.tokenSecretRef.name = \"vkpr-do-credential\" |
+      .spec.acme.solvers[0].dns01.digitalocean.tokenSecretRef.key = \"api-token\"
+    "
   else
     YQ_ISSUER_VALUES="$YQ_ISSUER_VALUES |
       .spec.acme.solvers[0].http01.ingress.class = \"$VKPR_ENV_CERT_MANAGER_ISSUER_INGRESS\"
@@ -99,15 +103,4 @@ settingIssuer() {
   fi
 
   debug "YQ_ISSUER_CONTENT = $YQ_ISSUER_VALUES"
-}
-
-configureDNS01() {
-  info "Setting DO secret..."
-  $VKPR_KUBECTL create secret generic digitalocean-secret -n "$VKPR_ENV_CERT_MANAGER_NAMESPACE" --from-literal="access-token=$DO_TOKEN" && \
-    $VKPR_KUBECTL label secret digitalocean-secret -n "$VKPR_ENV_CERT_MANAGER_NAMESPACE" app.kubernetes.io/managed-by=vkpr app.kubernetes.io/instance=cert-manager
-
-  YQ_ISSUER_VALUES="$YQ_ISSUER_VALUES |
-    .spec.acme.solvers[0].dns01.digitalocean.tokenSecretRef.name = \"digitalocean-secret\" |
-    .spec.acme.solvers[0].dns01.digitalocean.tokenSecretRef.key = \"access-token\"
-  "
 }
