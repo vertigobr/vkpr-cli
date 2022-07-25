@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: vkpr
+    release: prometheus-stack
+  name: vault
+spec:
+  endpoints:
+    - honorLabels: true
+      port: http
+      path: /v1/sys/metrics
+      scrapeTimeout: 30s
+  namespaceSelector:
+    matchNames:
+      - vkpr
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: vault
+      app.kubernetes.io/name: vault
