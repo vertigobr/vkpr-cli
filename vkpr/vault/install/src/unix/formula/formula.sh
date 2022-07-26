@@ -38,6 +38,7 @@ formulaInputs() {
   checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "vault.ingressClassName" "VAULT_INGRESS_CLASS_NAME"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "vault.namespace" "VAULT_NAMESPACE"
   checkGlobalConfig "$SSL" "false" "vault.ssl.enabled" "VAULT_SSL"
+  if [[ "$VKPR_ENV_VAULT_SSL" = true ]]; then
   checkGlobalConfig "$CRT_FILE" "" "vault.ssl.crt" "VAULT_CERTIFICATE"
   checkGlobalConfig "$KEY_FILE" "" "vault.ssl.key" "VAULT_KEY"
   checkGlobalConfig "" "" "vault.ssl.secretName" "VAULT_SSL_SECRET"
@@ -59,10 +60,26 @@ setCredentials() {
 }
 
 validateInputs() {
+  #App Values
+  validateVaultDomain "$VKPR_ENV_GLOBAL_DOMAIN"
+  validateVaultSecure "$VKPR_ENV_GLOBAL_SECURE"
+  validateVaultStorageMode "$VKPR_ENV_VAULT_STORAGE_MODE"
+  validateVaultSSL "$VKPR_ENV_VAULT_SSL"
+  validateVaultCertificate "$VKPR_ENV_VAULT_CERTIFICATE"
+  validateVaultKey "$VKPR_ENV_VAULT_KEY"
+
   if [ $VKPR_ENV_VAULT_AUTO_UNSEAL == "aws" ]; then
     validateAwsAccessKey "$AWS_ACCESS_KEY"
     validateAwsSecretKey "$AWS_SECRET_KEY"
     validateAwsRegion "$AWS_REGION"
+  fi
+
+  if [ $VKPR_ENV_VAULT_AUTO_UNSEAL == "azure" ]; then
+  validateAzureTenantID "$AZURE_TENANT_ID"
+  validateAzureClienteID "$AZURE_CLIENT_ID"
+  validateAzureClientSecret "$AZURE_CLIENT_SECRET"
+  validateAzureVaultName "$VAULT_AZUREKEYVAULT_VAULT_NAME"
+  validateAzureVaultKey "$VAULT_AZUREKEYVAULT_KEY_NAME"
   fi
 }
 
