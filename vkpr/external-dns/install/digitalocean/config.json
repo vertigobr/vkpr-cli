@@ -5,7 +5,7 @@
       "label": "Type the external-dns domain filter:",
       "name": "domain",
       "type": "text",
-      "required": true
+      "default": "localhost"
     },
     {
       "tutorial": "Specifies if output the values from the application",
