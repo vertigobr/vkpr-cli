@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: proxy-kong-cert
+  labels:
+    app.kubernetes.io/managed-by: "vkpr"
+    app.kubernetes.io/instance: "kong"
+spec:
+  issuerRef:
+    group: cert-manager.io
+    kind: ClusterIssuer
+    name: certmanager-issuer
+  secretName: proxy-kong-cert

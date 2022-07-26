@@ -40,8 +40,8 @@ formulaInputs() {
   checkGlobalConfig "false" "false" "kong.metrics" "KONG_METRICS"
   checkGlobalConfig "false" "false" "kong.vitals.prometheusStrategy" "KONG_VITALS_STRATEGY"
   # checkGlobalConfig "$ENTERPRISE" "true" "kong.enterprise.enabled" "KONG_ENTERPRISE"
-  checkGlobalConfig "$LICENSE" " " "kong.enterprise.license" "KONG_ENTERPRISE_LICENSE"
-  checkGlobalConfig "$RBAC_PASSWORD" "vkpr123" "kong.rbac.adminPassword" "KONG_RBAC_ADMIN_PASSWORD"
+  checkGlobalConfig "${LICENSE:-null}" "null" "kong.enterprise.license" "KONG_ENTERPRISE_LICENSE"
+  checkGlobalConfig "${RBAC_PASSWORD:-"vkpr123"}" "vkpr123" "kong.rbac.adminPassword" "KONG_RBAC_ADMIN_PASSWORD"
   ## Due to a Ritchie variable limitation, we can't deliver those values through vkpr.yaml
   # checkGlobalConfig "$KONG_CP_URL" "kong-kong-cluster.vkpr.svc.cluster.local:8005" "kong.hybrid.dataPlane.controlPlaneEndpoint" "KONG_CP_ENDPOINT"
   # checkGlobalConfig "$KONG_TELEMETRY_URL" "kong-kong-clustertelemetry.vkpr.svc.cluster.local:8006" "kong.hybrid.dataPlane.telemetryEndpoint" "KONG_TELEMETRY_URL"
@@ -59,7 +59,7 @@ validateInputs() {
   # validateKongEnterprise "$VKPR_ENV_KONG_ENTERPRISE"
   validateKongHA "$VKPR_ENV_KONG_HA"
   validateKongMetrics "$VKPR_ENV_KONG_METRICS"
-  if [[ $VKPR_ENV_KONG_ENTERPRISE_LICENSE != "" ]]; then
+  if [[ $VKPR_ENV_KONG_ENTERPRISE_LICENSE != " " ]]; then
     validateKongRBACPwd "$VKPR_ENV_KONG_RBAC_ADMIN_PASSWORD"
   fi
 
@@ -71,9 +71,8 @@ createKongSecrets() {
   [[ "$VKPR_ENVIRONMENT" != "okteto" ]] && KONG_NAMESPACE="-n=$VKPR_ENV_KONG_NAMESPACE"
 
   ## Create license (enable manager)
-  LICENSE_CONTENT=${LICENSE:-null}
   $VKPR_KUBECTL create secret generic kong-enterprise-license \
-    --from-literal="license=$(cat $LICENSE_CONTENT 2> /dev/null)" $KONG_NAMESPACE && \
+    --from-literal="license=$(cat $VKPR_ENV_KONG_ENTERPRISE_LICENSE 2> /dev/null)" $KONG_NAMESPACE && \
     $VKPR_KUBECTL label secret kong-enterprise-license app.kubernetes.io/instance=kong app.kubernetes.io/managed-by=vkpr $KONG_NAMESPACE 2> /dev/null
 
   if [[ "$VKPR_ENV_KONG_MODE" != "dbless" ]] && [[ "$KONG_PLANE" != "data" ]]; then
@@ -149,35 +148,42 @@ settingKong() {
       .admin.ingress.hostname = \"api.manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
       .manager.ingress.hostname = \"manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
       .portal.ingress.hostname = \"portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
-      .portalapi.ingress.hostname = \"api.portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
-      .env.admin_gui_url = \"https://manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
-      .env.admin_api_uri = \"https://api.manager.$VKPR_ENV_GLOBAL_DOMAIN\"|
-      .env.portal_gui_host = \"https://portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
-      .env.portal_api_url = \"https://api.portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
-      .env.portal_gui_protocol = \"https\"
+      .portalapi.ingress.hostname = \"api.portal.$VKPR_ENV_GLOBAL_DOMAIN\"
     "
   fi
 
   if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
+    info "Creating proxy certificate..."
+    $VKPR_YQ eval ".spec.dnsNames[0] = \"$VKPR_ENV_GLOBAL_DOMAIN\"" "$(dirname "$0")"/utils/proxy-certificate.yaml |\
+      $VKPR_KUBECTL apply -n $VKPR_ENV_KONG_NAMESPACE -f -
     YQ_VALUES="$YQ_VALUES |
-      .env.portal_gui_protocol = \"https\" |
+      .secretVolumes[0] = \"proxy-kong-cert\" |
+      .env.ssl_cert = \"/etc/secrets/proxy-kong-cert/tls.crt\" |
+      .env.ssl_cert_key = \"/etc/secrets/proxy-kong-cert/tls.key\" |
+      .env.proxy_url = \"https://$VKPR_ENV_GLOBAL_DOMAIN\" |
       .env.admin_gui_url = \"https://manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
       .env.admin_api_uri = \"https://api.manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
       .env.portal_api_url = \"https://api.portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
       .env.portal_gui_host = \"portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
+      .env.portal_gui_protocol = \"https\" |
+      .proxy.annotations.[\"external-dns.alpha.kubernetes.io/hostname\"] = \"$VKPR_ENV_GLOBAL_DOMAIN\" |
       .admin.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
-      .manager.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
-      .portal.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
-      .portalapi.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
+      .admin.ingress.annotations.[\"konghq.com/protocols\"] = \"https\" |
       .admin.ingress.tls = \"admin-kong-cert\" |
+      .manager.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
+      .manager.ingress.annotations.[\"konghq.com/protocols\"] = \"https\" |
       .manager.ingress.tls = \"manager-kong-cert\" |
+      .portal.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
+      .portal.ingress.annotations.[\"konghq.com/protocols\"] = \"https\" |
       .portal.ingress.tls = \"portal-kong-cert\" |
+      .portalapi.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
+      .portalapi.ingress.annotations.[\"konghq.com/protocols\"] = \"https\" |
       .portalapi.ingress.tls = \"portalapi-kong-cert\"
     "
   fi
 
   if [[ "$VKPR_ENV_KONG_METRICS" == "true" ]]; then
-    createGrafanaDashboard "kong" "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
+    createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
     YQ_VALUES="$YQ_VALUES |
       .serviceMonitor.enabled = \"true\" |
       .serviceMonitor.namespace = \"$VKPR_ENV_KONG_NAMESPACE\" |
