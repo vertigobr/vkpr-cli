@@ -1,9 +1,10 @@
 #!/bin/bash
 runFormula() {
+  installAWS
   setCredentials
   validateInputs
 
-  info "Destroying db instance..."
+  info "Create db instance..."
   aws rds create-db-instance \
     --db-instance-identifier "$RDS_INSTANCE_NAME" \
     --db-instance-class "$RDS_INSTANCE_TYPE" \
@@ -12,6 +13,18 @@ runFormula() {
     --master-user-password "$DBPASSWORD" \
     --allocated-storage 20 1> /dev/null && boldNotice "Database created"
     
+}
+
+installAWS() {
+  if [[ -f "$VKPR_AWS" ]]; then
+    notice "AWS already installed. Skipping..."
+  else
+    info "Installing AWS..."
+    # patches download script in order to change BINLOCATION
+    curl https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o /tmp/awscliv2.zip
+    unzip -q /tmp/awscliv2.zip -d /tmp
+    /tmp/aws/install -i ~/.vkpr/bin -b ~/.vkpr/bin
+  fi
 }
 
 setCredentials() {
