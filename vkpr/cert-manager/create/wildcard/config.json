@@ -1,0 +1,19 @@
+{
+  "inputs": [
+    {
+      "tutorial": "Specifies the domain to create the certificate",
+      "label": "Type the certificate domain:",
+      "name": "domain",
+      "type": "text"
+    },
+    {
+      "tutorial": "Specifies the namespace to the cert-manager create the secret with certificates",
+      "label": "Type the certificate namespace:",
+      "name": "namespace",
+      "type": "text",
+      "default": "vkpr"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease": "2.17.1"
+}
