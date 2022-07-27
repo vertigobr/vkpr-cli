@@ -36,7 +36,6 @@ setCredentials() {
   OKTA_CLIENT_SECRET="$($VKPR_JQ -r '.credential.clientsecret' $VKPR_CREDENTIAL/okta)"
   OKTA_CLIENT_AUDIENCE="$($VKPR_JQ -r '.credential.audience' $VKPR_CREDENTIAL/okta)"
   GITHUB_TOKEN="$($VKPR_JQ -r '.credential.token' $VKPR_CREDENTIAL/github)"
-  GITHUB_SPECHOUSEURL="$($VKPR_JQ -r '.credential.spechouseurl' $VKPR_CREDENTIAL/github)"
 }
 
 validateInputs() {
