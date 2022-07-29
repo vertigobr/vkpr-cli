@@ -5,7 +5,6 @@
 # -----------------------------------------------------------------------------
 
 validateWhoamiSecure(){
-  echo "$1"
   if $(validateBool $1); then
     return 
   else
@@ -15,7 +14,6 @@ validateWhoamiSecure(){
 }
 
 validateWhoamiDomain (){
-  echo "$1"
   if  $(validateDomain $1); then
     return
   else
@@ -25,7 +23,6 @@ validateWhoamiDomain (){
 }
 
 validateWhoamiSecure (){
-  echo "$1"
   if $(validateBool $1); then
     return
   else
@@ -35,7 +32,6 @@ validateWhoamiSecure (){
 }
 
 validateWhoamiSsl (){
-  echo "$1"
   if $(validateBool $1); then
     return
   else
@@ -45,7 +41,6 @@ validateWhoamiSsl (){
 }
 
 validateWhoamiSslCrtPath (){
-  echo "$1"
   if $(validatePath $1); then
     return
   else
@@ -55,7 +50,6 @@ validateWhoamiSslCrtPath (){
 }
 
 validateWhoamiSslKeyPath (){
-  echo "$1"
   if $(validatePath $1); then
     return
   else
