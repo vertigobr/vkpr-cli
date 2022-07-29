@@ -14,7 +14,7 @@ env:
   log_level: notice
 image:
   repository: kong/kong-gateway
-  tag: "2.7.1.2-alpine"
+  tag: "2.8.0.0-alpine"
 admin:
   enabled: false
 proxy:

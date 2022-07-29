@@ -75,6 +75,7 @@
       "label": "Type the full path to the license:",
       "name": "license",
       "type": "text",
+      "default": "null",
       "cache": {
         "active": true,
         "qty": 2,
@@ -86,16 +87,12 @@
       "condition": {
         "variable": "license",
         "operator": "!=",
-        "value": ""
+        "value": "null"
       },
       "label": "Type the RBAC Admin Password. Has no effect on hybrid data plane installations:",
       "name": "rbac_password",
       "type": "text",
-      "default": "vkpr123",
-      "pattern": {
-        "regex": "^([A-Za-z0-9-]{7,})$",
-        "mismatchText": "Password too weak"
-      }
+      "default": "vkpr123"
     },
     {
       "tutorial": "Specifies if the application will have High Availability",

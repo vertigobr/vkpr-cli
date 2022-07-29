@@ -43,8 +43,7 @@ admin:
   ingress:
     enabled: true
     hostname: api.manager.localhost
-    annotations:
-      kubernetes.io/ingress.class: "kong"
+    ingressClassName: "kong"
     path: /
   tls:
     enabled: false
@@ -64,9 +63,6 @@ proxy:
 # -----------------------------------------------------------------------------
 ingressController:
   enabled: true
-  image:
-    repository: kong/kubernetes-ingress-controller
-    tag: "2.1"
   env:
     kong_admin_tls_skip_verify: true
   ingressClass: kong
@@ -101,8 +97,7 @@ manager:
   ingress:
     enabled: true
     hostname: manager.localhost
-    annotations:
-      kubernetes.io/ingress.class: "kong"
+    ingressClassName: "kong"
     path: /
   tls:
     enabled: false
@@ -116,8 +111,7 @@ portal:
   ingress:
     enabled: true
     hostname: portal.localhost
-    annotations:
-      kubernetes.io/ingress.class: "kong"
+    ingressClassName: "kong"
     path: /
   tls:
     enabled: false
@@ -131,8 +125,7 @@ portalapi:
   ingress:
     enabled: true
     hostname: api.portal.localhost
-    annotations:
-      kubernetes.io/ingress.class: "kong"
+    ingressClassName: "kong"
     path: /
   tls:
     enabled: false

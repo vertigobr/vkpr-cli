@@ -49,7 +49,6 @@ settingLoki() {
       .loki.serviceMonitor.additionalLabels.release = \"prometheus-stack\" |
       .loki.serviceMonitor.scrapeTimeout = \"30s\"
     "
-    rit vkpr prometheus-stack import
   fi
 
   if [[ "$VKPR_ENV_LOKI_PERSISTANCE" == true ]]; then
