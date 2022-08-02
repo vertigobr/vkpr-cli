@@ -12,6 +12,7 @@ runFormula() {
   startInfos
   settingExternalDNS
   if [[ $DRY_RUN == false ]]; then
+    installCRDS
     registerHelmRepository external-dns https://kubernetes-sigs.github.io/external-dns/
     createAWSCredentialSecret "$VKPR_ENV_EXTERNAL_DNS_NAMESPACE" "$AWS_ACCESS_KEY" "$AWS_SECRET_KEY" "$AWS_REGION"
   fi
@@ -44,6 +45,11 @@ validateInputs() {
   validateAwsAccessKey "$AWS_ACCESS_KEY"
   validateAwsSecretKey "$AWS_SECRET_KEY"
   validateAwsRegion "$AWS_REGION"
+}
+
+installCRDS() {
+  info "Installing external-dns CRDS beforehand..."
+  $VKPR_KUBECTL apply -f "https://raw.githubusercontent.com/kubernetes-sigs/external-dns/master/docs/contributing/crd-source/crd-manifest.yaml"
 }
 
 settingExternalDNS() {

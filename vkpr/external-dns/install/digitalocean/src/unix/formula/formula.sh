@@ -12,6 +12,7 @@ runFormula() {
   startInfos
   settingExternalDNS
   if [[ $DRY_RUN == false ]]; then
+    installCRDS
     registerHelmRepository external-dns https://kubernetes-sigs.github.io/external-dns/
     createDOCredentialSecret "$VKPR_ENV_EXTERNAL_DNS_NAMESPACE" "$DO_TOKEN"
   fi
@@ -40,6 +41,11 @@ validateInputs() {
   validateExternalDNSMetrics "$VKPR_ENV_EXTERNAL_DNS_METRICS"
 
   validateDigitalOceanApiToken "$DO_TOKEN"
+}
+
+installCRDS() {
+  info "Installing external-dns CRDS beforehand..."
+  $VKPR_KUBECTL apply -f "https://raw.githubusercontent.com/kubernetes-sigs/external-dns/master/docs/contributing/crd-source/crd-manifest.yaml"
 }
 
 settingExternalDNS() {
