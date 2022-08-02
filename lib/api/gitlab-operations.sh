@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 ## Create a new variable setting cluster-name as environment
 ## If var already exist, just update your value

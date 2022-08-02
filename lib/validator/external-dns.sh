@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 validateExternalDNSDomain() {
   if $(validateDomain $1); then

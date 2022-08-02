@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   local PROJECT_ENCODED PROJECT_NAMESPACE PROJECT_PATH FORK_RESPONSE_CODE;

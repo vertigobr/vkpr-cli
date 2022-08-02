@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 validateCertManagerEmail() {
   if $(validateEmail $1); then

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 validatePostgresqlPassword() {
   if $(validatePwd $1); then

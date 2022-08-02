@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   local DO_CLUSTER_NODE_INSTANCE_TYPE PROJECT_ENCODED FORK_RESPONSE_CODE;
@@ -6,11 +6,11 @@ runFormula() {
   #getting real instance type
   DO_CLUSTER_NODE_INSTANCE_TYPE=${DO_CLUSTER_NODE_INSTANCE_TYPE// ([^)]*)/}
   DO_CLUSTER_NODE_INSTANCE_TYPE=${DO_CLUSTER_NODE_INSTANCE_TYPE// /}
-  
+
   formulaInputs
   setCredentials
   validateInputs
-  
+
   PROJECT_ENCODED=$(rawUrlEncode "${GITLAB_USERNAME}/aws-eks")
   FORK_RESPONSE_CODE=$(curl -siX POST -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
     "https://gitlab.com/api/v4/projects/$(rawUrlEncode "vkpr/aws-eks")/fork" |\
@@ -21,7 +21,7 @@ runFormula() {
   if [ "$FORK_RESPONSE_CODE" == "409" ];then
     boldNotice "Project already forked"
   fi
-  
+
   setVariablesGLAB
   cloneRepository
 }

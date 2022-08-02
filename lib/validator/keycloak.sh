@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # -----------------------------------------------------------------------------
 # Keycloak validators
@@ -10,7 +10,7 @@ validateKeycloakDomain (){
   else
     error "It was not possible to identify if the application will have High Availability "
     exit
-  fi  
+  fi
 }
 
 validateKeycloakSecure (){
@@ -19,7 +19,7 @@ validateKeycloakSecure (){
   else
     error "It was not possible to identify if the application will use HTTPS"
     exit
-  fi  
+  fi
 }
 
 validateKeycloakHa () {
@@ -28,16 +28,16 @@ validateKeycloakHa () {
   else
     error "It was not possible to identify if the application will have High Availability "
     exit
-  fi    
+  fi
 }
 
-validateKeycloakAdminUser (){ 
+validateKeycloakAdminUser (){
   if [[ "$1" =~ ^([A-Za-z0-9-]{1,}) ]]; then
     return
   else
     error "Invalid input to Super Admin username"
     exit
-  fi    
+  fi
 }
 
 validateKeycloakAdminPwd (){
@@ -46,7 +46,7 @@ validateKeycloakAdminPwd (){
   else
     error "Invalid Super Admin password"
     exit
-  fi    
+  fi
 }
 
 validateKeycloakIngresClassName (){
@@ -55,7 +55,7 @@ validateKeycloakIngresClassName (){
   else
     error "Please correctly enter the ingress class name"
     exit
-  fi 
+  fi
 }
 
 validateKeycloakNamespace (){
@@ -64,7 +64,7 @@ validateKeycloakNamespace (){
   else
     error "It was not possible to identify the namespace"
     exit
-  fi 
+  fi
 }
 
 validateKeycloakSsl (){

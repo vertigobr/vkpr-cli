@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   local PROJECT_ID PIPELINE_ID DEPLOY_STATUS;

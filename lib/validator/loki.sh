@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # -----------------------------------------------------------------------------
 # Loki validators
@@ -19,7 +19,7 @@ validateLokiPersistence (){
   else
     error "It was not possible to identify if the application will have persistance"
     exit
-  fi   
+  fi
 }
 
 validateLokiNamespace (){
@@ -28,5 +28,5 @@ validateLokiNamespace (){
   else
     error "It was not possible to identify the namespace"
     exit
-  fi 
+  fi
 }

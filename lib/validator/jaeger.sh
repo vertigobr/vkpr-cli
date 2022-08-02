@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # -----------------------------------------------------------------------------
 # Jaeger validators
@@ -29,7 +29,7 @@ validateJaegerIngressClassName (){
     else
         error "Please correctly enter the ingress class name"
         exit
-    fi 
+    fi
 }
 
 validateJaegerNamespace (){
@@ -38,7 +38,7 @@ validateJaegerNamespace (){
     else
         error "It was not possible to identify the namespace"
         exit
-    fi 
+    fi
 }
 
 validateJaegerPersistance (){

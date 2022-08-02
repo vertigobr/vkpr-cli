@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   local VKPR_ENV_JAEGER_DOMAIN VKPR_JAEGER_VALUES HELM_ARGS;
@@ -77,7 +77,7 @@ settingJaeger() {
       $VKPR_KUBECTL create secret tls $VKPR_ENV_JAEGER_SSL_SECRET -n "$VKPR_ENV_JAEGER_NAMESPACE" \
         --cert="$VKPR_ENV_JAEGER_CERTIFICATE" \
         --key="$VKPR_ENV_JAEGER_KEY"
-    fi 
+    fi
     YQ_VALUES="$YQ_VALUES |
       .query.ingress.tls[0].hosts[0] = \"$VKPR_ENV_JAEGER_DOMAIN\" |
       .query.ingress.tls[0].secretName = \"$VKPR_ENV_JAEGER_NAMESPACE/$VKPR_ENV_JAEGER_SSL_SECRET\"

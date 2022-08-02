@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   local VKPR_POSTGRESQL_VALUES PG_PASSWORD HELM_ARGS;
