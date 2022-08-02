@@ -67,7 +67,7 @@ updateVariable(){
     --form "value=$PARAMETER_VALUE" \
     --form "masked=$PARAMETER_MASKED" |\
     head -n 1 |\
-    awk -F' ' '{print "$2"}'
+    awk -F' ' '{print $2}'
   )
   debug "UPDATE_CODE= $UPDATE_CODE"
 
