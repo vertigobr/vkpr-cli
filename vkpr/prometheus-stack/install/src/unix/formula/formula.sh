@@ -34,7 +34,7 @@ formulaInputs() {
   ## AlertManager
   checkGlobalConfig "$ALERTMANAGER" "false" "prometheus-stack.alertManager.enabled" "ALERTMANAGER"
   if [[ "$VKPR_ENV_ALERTMANAGER" = true ]]; then
-    checkGlobalConfig "$HA" "false" "prometheus-stack.alertManager.HA" "ALERTMANAGER_HA"
+    checkGlobalConfig "${HA-:false}" "false" "prometheus-stack.alertManager.HA" "ALERTMANAGER_HA"
     checkGlobalConfig "false" "false" "prometheus-stack.alertManager.ssl.enabled" "ALERTMANAGER_SSL"
     checkGlobalConfig "" "" "prometheus-stack.alertManager.ssl.crt" "ALERTMANAGER_CERTIFICATE"
     checkGlobalConfig "" "" "prometheus-stack.alertManager.ssl.key" "ALERTMANAGER_KEY"
