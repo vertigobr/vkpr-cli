@@ -42,6 +42,11 @@ setCredentials() {
 }
 
 validateInputs() {
+  validateDigitalOceanClusterName "$DO_CLUSTER_NAME"
+  validateDigitalOceanClusterVersion "$DO_CLUSTER_VERSION"
+  validateDigitalOceanClusterRegion "$DO_CLUSTER_REGION"
+  validateDigitalOceanInstanceType "$DO_CLUSTER_NODE_INSTANCE_TYPE"
+  validateDigitalOceanClusterSize "$DO_CLUSTER_SIZE"
   validateDigitalOceanApiToken "$DO_TOKEN"
   validateGitlabUsername "$GITLAB_USERNAME"
   validateGitlabToken "$GITLAB_TOKEN"
