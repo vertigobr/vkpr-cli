@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 validateIngressMetrics() {
   if $(validateBool $1); then

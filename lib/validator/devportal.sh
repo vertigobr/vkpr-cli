@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # -----------------------------------------------------------------------------
 # DevPortal validators
@@ -28,7 +28,7 @@ validateDevportalIngressClassName (){
   else
       error "Please correctly enter the ingress class name"
       exit
-  fi 
+  fi
 }
 
 validateDevportalNamespace (){
@@ -37,5 +37,5 @@ validateDevportalNamespace (){
   else
       error "It was not possible to identify the namespace"
       exit
-  fi 
+  fi
 }

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   local VKPR_REPO_VALUES REPO_NAME;
@@ -10,7 +10,7 @@ runFormula() {
 
   validateGitlabUsername "$GITLAB_USERNAME"
   validateGitlabToken "$GITLAB_TOKEN"
-  
+
   info "Connecting repository in Argocd"
   $VKPR_YQ eval ".metadata.name = \"${REPO_NAME}-repo\" |
     .metadata.namespace = \"$VKPR_ENV_ARGOCD_NAMESPACE\" |

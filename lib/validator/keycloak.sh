@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # -----------------------------------------------------------------------------
 # Keycloak validators
@@ -10,7 +10,7 @@ validateKeycloakDomain (){
   else
     error "The value used for VKPR_ENV_KEYCLOAK_DOMAIN "$VKPR_ENV_KEYCLOAK_DOMAIN" is invalid:  the VKPR_ENV_KEYCLOAK_DOMAIN must consist of a lower case alphanumeric  characters, '-' or '.', and must start and end with an alphanumeric character (e.g. 'keycloak.localhost', regex used for validation is '^([a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9].)+([a-zA-Z]{2,})|localhost$')"
     exit
-  fi  
+  fi
 }
 
 validateKeycloakSecure (){
@@ -19,7 +19,7 @@ validateKeycloakSecure (){
   else
     error "The value used for GLOBAL_SECURE "$VKPR_ENV_GLOBAL_SECURE" is invalid:  the GLOBAL_SECURE must consist of a boolean value."
     exit
-  fi  
+  fi
 }
 
 validateKeycloakHa () {
@@ -28,7 +28,7 @@ validateKeycloakHa () {
   else
     error "The value used for VKPR_ENV_KEYCLOAK_HA "$VKPR_ENV_KEYCLOAK_HA" is invalid:  the VKPR_ENV_KEYCLOAK_HA must consist of a boolean value."
     exit
-  fi    
+  fi
 }
 
 validateKeycloakAdminUser (){ 
@@ -37,7 +37,7 @@ validateKeycloakAdminUser (){
   else
     error "The value used for VKPR_ENV_KEYCLOAK_ADMIN_USER "$VKPR_ENV_KEYCLOAK_ADMIN_USER" is invalid: VKPR_ENV_KEYCLOAK_ADMIN_USER must consist of lowercase, uppercase or '-' alphanumeric characters, (e.g. 'admin', regex used for validation is ^([A-Za-z0-9-]{1,})$')"
     exit
-  fi    
+  fi
 }
 
 validateKeycloakAdminPwd (){
@@ -46,7 +46,7 @@ validateKeycloakAdminPwd (){
   else
     error "The value used for VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD "$VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD" is invalid: VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD must consist of lowercase, uppercase or alphanumeric characters, (e.g. 'vkpr123', regex used for validation is ^([A-Za-z0-9-]{7,})$')"
     exit
-  fi    
+  fi
 }
 
 validateKeycloakIngresClassName (){
@@ -55,7 +55,7 @@ validateKeycloakIngresClassName (){
   else
     error "The value used for VKPR_ENV_KEYCLOAK_INGRESS_CLASS_NAME "$VKPR_ENV_KEYCLOAK_INGRESS_CLASS_NAME" is invalid: VKPR_ENV_KEYCLOAK_INGRESS_CLASS_NAME must consist of lowercase, (e.g. 'keycloak', regex used for validation is ^([a-z]+)$')"
     exit
-  fi 
+  fi
 }
 
 validateKeycloakNamespace (){
@@ -64,7 +64,7 @@ validateKeycloakNamespace (){
   else
     error "The value used for VKPR_ENV_KEYCLOAK_NAMESPACE "$VKPR_ENV_KEYCLOAK_NAMESPACE" is invalid: VKPR_ENV_KEYCLOAK_NAMESPACE must consist of lowercase, uppercase or '-' alphanumeric characters, (e.g. 'kong', regex used for validation is ^([A-Za-z0-9-]+)$')"
     exit
-  fi 
+  fi
 }
 
 validateKeycloakSsl (){

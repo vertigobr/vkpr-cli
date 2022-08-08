@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   local VKPR_CERT_MANAGER_VALUES VKPR_ISSUER_VALUES YQ_VALUES YQ_ISSUER_VALUES HELM_ARGS;

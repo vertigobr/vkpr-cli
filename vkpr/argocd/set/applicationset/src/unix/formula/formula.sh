@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   local VKPR_APPLICATIONSET_VALUES REPO_NAME;

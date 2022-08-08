@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # -----------------------------------------------------------------------------
 # Consul validators
@@ -28,7 +28,7 @@ validateConsulIngressClassName(){
   else
     error "Please correctly enter the ingress class name"
     exit
-  fi 
+  fi
 }
 
 validateConsulNamespace(){
@@ -37,7 +37,7 @@ validateConsulNamespace(){
   else
     error "It was not possible to identify the namespace"
     exit
-  fi 
+  fi
 }
 
 validateConsulSsl(){

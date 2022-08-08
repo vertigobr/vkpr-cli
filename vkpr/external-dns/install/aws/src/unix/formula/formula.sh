@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   local VKPR_EXTERNAL_DNS_VALUES YQ_VALUES HELM_ARGS;

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   local VKPR_ENV_CONSUL_DOMAIN VKPR_CONSUL_VALUES HELM_ARGS;

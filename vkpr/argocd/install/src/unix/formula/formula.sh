@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   local VKPR_ENV_ARGOCD_DOMAIN VKPR_ARGOCD_VALUES HELM_ARGS;

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # -----------------------------------------------------------------------------
 # Argocd validators
@@ -37,7 +37,7 @@ validateArgoNamespace (){
   else
     error "It was not possible to identify the namespace"
     exit
-  fi 
+  fi
 }
 
 validateArgoIngressClassName (){
@@ -46,7 +46,7 @@ validateArgoIngressClassName (){
   else
     error "Please correctly enter the ingress class name"
     exit
-  fi 
+  fi
 }
 
 validateArgoMetrics (){
@@ -90,5 +90,5 @@ validateArgoSecretName(){
   else
     error "Please correctly enter the argocd secret name"
     exit
-  fi  
+  fi
 }

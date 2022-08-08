@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 ## GITHUB API REFERENCE: https://docs.github.com/en/rest/reference
 
@@ -55,7 +55,7 @@ githubActionsCreateUpdateSecret(){
   -H "Authorization: token ${VAR_GITHUB_TOKEN}" \
   "https://api.github.com/repos/${VAR_OWNER_AND_REPO}/actions/secrets/${VAR_SECRET_NAME}" \
   -d "{\"encrypted_value\": \"${SECRET}\", \"key_id\": \"${KEY_ID}\"}")
-  
+
   case $VARIABLE_RESPONSE_CODE in
     201)
       info "Variable \"$VAR_SECRET_NAME\" created."

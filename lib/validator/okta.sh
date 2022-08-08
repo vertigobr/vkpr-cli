@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # -----------------------------------------------------------------------------
 # Okta validators
@@ -10,7 +10,7 @@ validateOktaClientId (){
   else
       error 'Please correctly enter the Okta client id, fix the credential with the command  "rit set credential"'
       exit
-  fi 
+  fi
 }
 
 validateOktaClientSecret (){
@@ -19,7 +19,7 @@ validateOktaClientSecret (){
   else
       error 'Please correctly enter the Okta client secret, fix the credential with the command  "rit set credential"'
       exit
-  fi 
+  fi
 }
 
 validateOktaClientAudience (){
@@ -28,6 +28,6 @@ validateOktaClientAudience (){
   else
       error 'Please correctly enter the Okta client audience, fix the credential with the command  "rit set credential"'
       exit
-  fi 
+  fi
 }
 
