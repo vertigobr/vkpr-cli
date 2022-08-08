@@ -53,7 +53,7 @@ validateDigitalOceanApiToken() {
   if [[ "$1" =~ ^([a-z]+_v1_[A-Za-z0-9]{64})$ ]]; then
   return
     else
-  error "The value used for DO_TOKEN "$DO_TOKEN" is invalid: DO_TOKEN must consist of lowercase, uppercase or '-' alphanumeric characters, (regex used for validation is ^([a-z]+_v1_[A-Za-z0-9]{64})$.)"
+  error "The value used for DO_TOKEN \"$1\" is invalid: DO_TOKEN must consist of lowercase, uppercase or '-' alphanumeric characters, (regex used for validation is ^([a-z]+_v1_[A-Za-z0-9]{64})$.)"
     exit
   fi
 }
