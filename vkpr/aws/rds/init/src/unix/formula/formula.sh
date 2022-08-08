@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 runFormula() {
   setCredentials
   formulaInputs
@@ -15,7 +15,7 @@ runFormula() {
     --master-username "$VKPR_ENV_RDS_DB_USER" \
     --master-user-password "$VKPR_ENV_RDS_DB_PASSWORD" \
     --allocated-storage 20 1> /dev/null && boldNotice "Database created"
-    
+
 }
 
 startInfos() {

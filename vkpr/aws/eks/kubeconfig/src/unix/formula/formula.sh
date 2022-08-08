@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   local PROJECT_ID BRANCH_NAME PIPELINE_ID DEPLOY_COMPLETE;
 
   validateGitlabUsername "$GITLAB_USERNAME"
   validateGitlabToken "$GITLAB_TOKEN"
-  
+
   PROJECT_ID=$(curl -s https://gitlab.com/api/v4/users/"$GITLAB_USERNAME"/projects |\
     $VKPR_JQ '.[] | select(.name == "aws-eks").id'
   )

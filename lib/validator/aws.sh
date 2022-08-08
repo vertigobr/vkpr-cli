@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # -----------------------------------------------------------------------------
 # AWS Credential validators
@@ -59,7 +59,7 @@ validateEksNodeInstanceType() {
   else
     error "Invalid EKS Node Instance type."
     exit
-  fi    
+  fi
 }
 
 validateEksClusterSize() {
@@ -86,7 +86,7 @@ validateEksStoreTfState() {
   else
     error "It was not possible to identify where you want to store the TF state"
     exit
-  fi 
+  fi
 }
 
 
@@ -110,7 +110,7 @@ validateAwsRdsInstanceType (){
   else
     error "Invalid RDS Instance type."
     exit
-  fi  
+  fi
 
 }
 

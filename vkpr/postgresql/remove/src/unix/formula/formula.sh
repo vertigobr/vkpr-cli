@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   removePostgres
@@ -20,7 +20,7 @@ removePostgres(){
 removePVC(){
   if [[ $DELETE_PVC == true ]]; then
     info "Removing PVC..."
-    
+
     $VKPR_KUBECTL delete pvc -A -l app.kubernetes.io/instance=postgresql
   fi
 }

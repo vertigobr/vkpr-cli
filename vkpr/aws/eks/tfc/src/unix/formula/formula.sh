@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   local TF_CLOUD_RESPONSE_ORGANIZATION TF_CLOUD_RESPONSE_WORKSPACE TERRAFORM_ORGANIZATION_TOKEN TF_CLOUD_WORKSPACE_ID;
@@ -83,7 +83,7 @@ generateTokens() {
   -H "Authorization: Bearer ${TERRAFORMCLOUD_API_TOKEN}" \
   -H "Content-Type: application/vnd.api+json" \
     https://app.terraform.io/api/v2/organizations/vkpr/authentication-token | $VKPR_JQ -r '.data.attributes.token')
-  
+
   TF_CLOUD_WORKSPACE_ID=$(curl -s \
   -H "Authorization: Bearer ${TERRAFORM_ORGANIZATION_TOKEN}" \
   -H "Content-Type: application/vnd.api+json" \

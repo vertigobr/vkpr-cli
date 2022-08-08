@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   local APP_NAME REAL_FORMULA REAL_WORKSPACE_PATH REAL_FORMULA_PATH REAL_WORKSPACE_NAME;
@@ -18,7 +18,7 @@ runFormula() {
 
   cat << EOF |
   {
-    "formulaCmd":"$REAL_FORMULA", 
+    "formulaCmd":"$REAL_FORMULA",
     "lang":"shell-bat",
     "workspace": { "name": "$REAL_WORKSPACE_NAME", "dir": "$REAL_WORKSPACE_PATH" },
     "formulaPath":"$REAL_FORMULA_PATH"
@@ -113,7 +113,7 @@ changeBuildFile() {
   done
 
   cat > "${formulaPath}"/build.sh.tmp <<EOF
-#!/bin/bash
+#!/usr/bin/env bash
 
 BIN_FOLDER=bin
 BINARY_NAME_UNIX=run.sh
@@ -135,7 +135,7 @@ EOF
 
 changeMainFile() {
   cat > "${formulaPath}"/src/main.sh.tmp <<EOF
-#!/bin/bash
+#!/usr/bin/env bash
 
 # shellcheck source=/dev/null
 source src/lib/load.sh "validator"
@@ -182,7 +182,7 @@ EOF
 
 changeFormulaInstall() {
   cat > "${formulaPath}"/src/unix/formula/formula.sh.tmp <<EOF
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   local VKPR_${APP_NAME^^}_VALUES HELM_ARGS;
@@ -238,7 +238,7 @@ EOF
 
 changeFormulaRemove() {
   cat > "${formulaPath}"/src/unix/formula/formula.sh.tmp <<EOF
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   info "Removing ${APP_NAME^}..."
@@ -258,7 +258,7 @@ EOF
 
 changeFormula() {
   cat > "${formulaPath}"/src/unix/formula/formula.sh.tmp <<EOF
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   info "Hello World!"

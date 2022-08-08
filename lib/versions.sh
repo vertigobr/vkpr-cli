@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 export VKPR_EXTERNAL_DNS_VERSION="1.10.1" \
       VKPR_WHOAMI_VERSION="2.5.0" \

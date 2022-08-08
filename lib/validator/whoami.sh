@@ -1,17 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # -----------------------------------------------------------------------------
 # Whoami validators
 # -----------------------------------------------------------------------------
-
-validateWhoamiSecure(){
-  if $(validateBool $1); then
-    return 
-  else
-    error "Specifies if the application will have HTTPS."
-    exit
-  fi
-}
 
 validateWhoamiDomain (){
   if  $(validateDomain $1); then
@@ -57,4 +48,3 @@ validateWhoamiSslKeyPath (){
     exit
   fi
 }
-

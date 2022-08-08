@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # shellcheck source=src/util.sh
 source "$(dirname "$0")"/utils/dependencies.sh
