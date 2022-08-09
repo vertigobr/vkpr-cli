@@ -26,7 +26,7 @@ validateOktaClientAudience (){
   if [[ $1 =~ ^(http|https):\/\/[a-z0-9-]+\.(okta.com).* ]]; then
       return
   else
-      error "The value used for OKTA_CLIENT_ID \"$1\" is invalid: OKTA_CLIENT_ID must consist of lowercase, uppercase or '-' alphanumeric characters, (e.g. 'https://example.okta.com', regex used for validation is ^(http|https):\/\/[a-z0-9-]+\.(okta.com).*')"'
+      error "The value used for OKTA_CLIENT_ID \"$1\" is invalid: OKTA_CLIENT_ID must consist of lowercase, uppercase or '-' alphanumeric characters, (e.g. 'https://example.okta.com', regex used for validation is ^(http|https):\/\/[a-z0-9-]+\.(okta.com).*')"
       exit
   fi
 }
