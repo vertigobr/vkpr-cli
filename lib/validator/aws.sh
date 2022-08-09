@@ -1,14 +1,14 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # -----------------------------------------------------------------------------
 # AWS Credential validators
 # -----------------------------------------------------------------------------
 
 validateAwsSecretKey() {
-  if [[ "$1" =~ ^([a-zA-Z0-9+/]{8,})$ ]]; then
+  if [[ "$1" =~ ^([a-zA-Z0-9+/]{40})$ ]]; then
     return
   else
-    error "The value used for AWS_SECRET_KEY \"$1\" is invalid:  the AWS_SECRET_KEY must consist of a lowercase, uppercase alphanumeric  characters, '-' or '.' (e.g. 'Aa1Bb2Cc', regex used for validation is '^([a-zA-Z0-9+/]{8,})$')"
+    error "The value used for AWS_SECRET_KEY \"$1\" is invalid:  the AWS_SECRET_KEY must consist of a lowercase, uppercase alphanumeric  characters, '-' or '.' (e.g. 'Aa1Bb2Cc3Dd4Ee5Ff6Gg7Hh8Ii9Jj10Kk11Ll12M', regex used for validation is '^([a-zA-Z0-9+/]{40})$')"
     exit
   fi
 }
@@ -75,7 +75,7 @@ validateEksCapacityType() {
   if [[  "$1" =~ ^(on_demand|spot)$ ]]; then
     return
   else
-    error "The value used for VKPR_ENV_EKS_NODES_CAPACITY_TYPE \"$1\" is invalid: VKPR_ENV_EKS_NODES_CAPACITY_TYPE must consist of on_demand or spot-cloud value"
+    error "The value used for VKPR_ENV_EKS_NODES_CAPACITY_TYPE \"$1\" is invalid: VKPR_ENV_EKS_NODES_CAPACITY_TYPE must consist of ON_DEMAND or SPOT value"
     exit
   fi
 }

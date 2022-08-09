@@ -26,7 +26,7 @@ validateLokiNamespace (){
   if $(validateNamespace $1); then
       return
   else
-    error "The value used for VKPR_ENV_LOKI_NAMESPACE \"$1\" is invalid: VKPR_ENV_LOKI_NAMESPACE must consist of lowercase, uppercase or '-' alphanumeric characters, (e.g. 'loki', regex used for validation is ^([A-Za-z0-9-]+)$')"
+    error "The value used for VKPR_ENV_LOKI_NAMESPACE \"$1\" is invalid: VKPR_ENV_LOKI_NAMESPACE must consist of lowercase, uppercase or '-' alphanumeric characters, (e.g. 'loki', regex used for validation is ^([A-Za-z0-9-]+)$)"
     exit
   fi
 }
