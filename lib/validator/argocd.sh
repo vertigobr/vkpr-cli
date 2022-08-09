@@ -8,7 +8,7 @@ validateArgoDomain (){
   if  $(validateDomain $1); then
     return
   else
-    error "The value used for DOMAIN \"$1\" is invalid:  the DOMAIN must consist of a lower case alphanumeric  characters, '-' or '.', and must start and end with an alphanumeric character (e.g. 'example-vkpr.com', regex used for validation is '^([a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9].)+([a-zA-Z]{2,})|localhost$')"
+    error "The value used for GLOBAL_DOMAIN \"$1\" is invalid:  the GLOBAL_DOMAIN must consist of a lower case alphanumeric  characters, '-' or '.', and must start and end with an alphanumeric character (e.g. 'example-vkpr.com', regex used for validation is '^([a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9].)+([a-zA-Z]{2,})|localhost$')"
     exit
   fi
 }
