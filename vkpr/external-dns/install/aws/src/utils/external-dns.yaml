@@ -1,5 +1,6 @@
 interval: 5m
 sources:
+  - crd
   - service
   - ingress
 policy: upsert-only
@@ -24,3 +25,6 @@ env:
       secretKeyRef:
         name: vkpr-aws-credential
         key: secret-key
+extraArgs:
+  - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
+  - --crd-source-kind=DNSEndpoint

@@ -11,14 +11,17 @@ bitbucketListRepositoryVariables(){
   local VAR_BITBUCKET_USERNAME=$2
   local VAR_BITBUCKET_TOKEN=$3
 
-  {
-    IFS= read -rd '' BODY
-    IFS= read -rd '' HTTP_CODE
-  } < <({ out=$(curl -sSL -o /dev/stderr -w "%{http_code}" -H "Accept: application/json" -u "${VAR_BITBUCKET_USERNAME}":"${VAR_BITBUCKET_TOKEN}" "https://api.bitbucket.org/2.0/repositories/\"${VAR_OWNER_AND_REPO}\"/pipelines_config/variables/"); } 2>&1; printf '\0%s' "$out" "$?")
+  REQUEST=$(curl -sSL -w "|%{http_code}" \
+    -H "Accept: application/json" \
+    -u "${VAR_BITBUCKET_USERNAME}":"${VAR_BITBUCKET_TOKEN}" \
+    "https://api.bitbucket.org/2.0/repositories/${VAR_OWNER_AND_REPO}/pipelines_config/variables/")
 
-  if [ "${HTTP_CODE}" == "200" ]; then
+  REQUEST_BODY=$(echo $REQUEST | cut -d "|" -f1)
+  REQUEST_HTTP_CODE=$(echo $REQUEST | cut -d "|" -f2)
+
+  if [ "${REQUEST_HTTP_CODE}" == "200" ]; then
     ## return json compacted
-    echo "$BODY" | jq -c '.'
+    echo "$REQUEST_BODY" | jq -c '.'
     return 0
   else
     error "Something wrong while getting parameters from bitbucket"
@@ -65,12 +68,10 @@ bitbucketCreateRepositoryVariable(){
 
   local ENVIRONMENT_UUID; ENVIRONMENT_UUID=$(uuidgen)
 
-  curl -s --request POST \
-    --user "${VAR_BITBUCKET_USERNAME}":"${VAR_BITBUCKET_TOKEN}" \
-    --url "https://api.bitbucket.org/2.0/repositories/${VAR_OWNER_AND_REPO}/pipelines_config/variables/" \
-    --header 'Accept: application/json' \
-    --header 'Content-Type: application/json' \
-    --data "{\"type\": \"string\", \"uuid\": \"${ENVIRONMENT_UUID}\",\"key\": \"${VAR_VARIABLE_KEY}\", \"value\": \"${VAR_VARIABLE_VALUE}\", \"secured\": ${VAR_VARIABLE_SECURED} }"
+  curl -s -X POST -u "${VAR_BITBUCKET_USERNAME}":"${VAR_BITBUCKET_TOKEN}" \
+    -H 'Content-Type: application/json' \
+    -d "{\"type\":\"string\",\"uuid\":\"${ENVIRONMENT_UUID}\",\"key\":\"${VAR_VARIABLE_KEY}\",\"value\":\"${VAR_VARIABLE_VALUE}\",\"secured\":${VAR_VARIABLE_SECURED}}" \
+    "https://api.bitbucket.org/2.0/repositories/${VAR_OWNER_AND_REPO}/pipelines_config/variables/" 1> /dev/null && notice "Variable $VAR_VARIABLE_KEY created"
 }
 
 ## Update a variable
@@ -91,12 +92,10 @@ bitbucketUpdateRepositoryVariable(){
   local VAR_BITBUCKET_USERNAME=$6
   local VAR_BITBUCKET_TOKEN=$7
 
-  curl --request PUT \
-    --user "${VAR_BITBUCKET_USERNAME}":"${VAR_BITBUCKET_TOKEN}" \
-    --url "https://api.bitbucket.org/2.0/repositories/${VAR_OWNER_AND_REPO}/pipelines_config/variables/${VAR_VARIABLE_UUID}" \
-    --header 'Accept: application/json' \
-    --header 'Content-Type: application/json' \
-    --data "{ \"type\": \"string\",\"uuid\": \"${VAR_VARIABLE_UUID}\", \"key\": \"${VAR_VARIABLE_KEY}\", \"value\": \"${VAR_VARIABLE_VALUE}\", \"secured\": ${VAR_VARIABLE_SECURED} }"
+  curl -s -X PUT -u "${VAR_BITBUCKET_USERNAME}":"${VAR_BITBUCKET_TOKEN}" \
+    -H 'Content-Type: application/json' \
+    -d "{\"key\":\"${VAR_VARIABLE_KEY}\",\"value\":\"${VAR_VARIABLE_VALUE}\",\"secured\":${VAR_VARIABLE_SECURED}}" \
+    "https://api.bitbucket.org/2.0/repositories/${VAR_OWNER_AND_REPO}/pipelines_config/variables/%7B${VAR_VARIABLE_UUID}%7D" 1> /dev/null && notice "Variable $VAR_VARIABLE_KEY updated"
 }
 
 
@@ -123,7 +122,8 @@ bitbucketCreateOrUpdateRepositoryVariable(){
     bitbucketCreateRepositoryVariable "$VAR_OWNER_AND_REPO" "$VAR_VARIABLE_KEY" "$VAR_VARIABLE_VALUE" "$VAR_VARIABLE_SECURED" "$VAR_BITBUCKET_USERNAME" "$VAR_BITBUCKET_TOKEN"
   else
     debug "update"
-    local VARIABLE_UUID; VARIABLE_UUID=$(echo "$VARIABLE" | $VKPR_JQ -r ".uuid")
+    local VARIABLE_UUID; VARIABLE_UUID=$(echo "$VARIABLE" | $VKPR_JQ -r ".uuid" | sed 's/\({\|\}\)//g')
+    debug "VARIABLE_UUID=$VARIABLE_UUID"
     bitbucketUpdateRepositoryVariable "$VAR_OWNER_AND_REPO" "$VARIABLE_UUID" "$VAR_VARIABLE_KEY" "$VAR_VARIABLE_VALUE" "$VAR_VARIABLE_SECURED" "$VAR_BITBUCKET_USERNAME" "$VAR_BITBUCKET_TOKEN"
   fi
 }
