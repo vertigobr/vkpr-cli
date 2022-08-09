@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   info "Creating new secret ${PARAMETER_NAME}"
   setCredentials
   validateInputs
-  
+
   #getting public key to encrypt secret value
   PUBLIC_KEY=$(githubActionsGetPublicKey "$PROJECT_NAME" "$GITHUB_USERNAME" "$GITHUB_TOKEN")
 

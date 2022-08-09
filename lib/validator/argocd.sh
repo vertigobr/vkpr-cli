@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # -----------------------------------------------------------------------------
 # Argocd validators
@@ -37,7 +37,7 @@ validateArgoNamespace (){
   else
     error "The value used for ARGO_NAMESPACE \"$1\" is invalid: ARGO_NAMESPACE must consist of lowercase, uppercase or '-' alphanumeric characters, (e.g. 'argocd', regex used for validation is ^([A-Za-z0-9-]+)$')"
     exit
-  fi 
+  fi
 }
 
 validateArgoIngressClassName (){
@@ -46,7 +46,7 @@ validateArgoIngressClassName (){
   else
     error "The value used for ARGOCD_INGRESS_CLASS_NAME \"$1\" is invalid: ARGOCD_INGRESS_CLASS_NAME must consist of lowercase alphanumeric characters, (e.g. 'argo', regex used for validation is ^([a-z]+)$')"
     exit
-  fi 
+  fi
 }
 
 validateArgoMetrics (){
@@ -84,11 +84,12 @@ validateArgoSslKey (){
     exit
   fi
 }
+
 validateArgoSecretName(){
   if [[ $1 =~ ^([A-Za-z0-9-])$ ]]; then
     return
   else
     error "The value used for VKPR_ENV_ARGOCD_SSL_SECRET \"$1\" is invalid: VKPR_ENV_ARGOCD_SSL_SECRET must consist of lowercase, uppercase or alphanumeric characters, (e.g. 'argocd', regex used for validation is ^([A-Za-z0-9-])$')"
     exit
-  fi  
+  fi
 }

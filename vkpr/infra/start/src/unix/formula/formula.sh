@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 
 runFormula() {
@@ -20,7 +20,7 @@ startInfos() {
   boldNotice "Local Registry: 6000"
   boldNotice "Docker Hub Registry Mirror (cache): 6001"
   boldWarn "Using two local unamed Docker Volumes"
-  bold "==============================" 
+  bold "=============================="
 }
 
 formulaInputs() {

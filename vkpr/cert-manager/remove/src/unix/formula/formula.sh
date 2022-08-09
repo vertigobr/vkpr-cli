@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   bold "$(info "Removing cert-manager...")"
-  
+
   HELM_FLAG="-A"
   [[ "$VKPR_ENVIRONMENT" == "okteto" ]] && HELM_FLAG=""
   CERT_MANAGER_NAMESPACE=$($VKPR_HELM ls -o=json $HELM_FLAG |\

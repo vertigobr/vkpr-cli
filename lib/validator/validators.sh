@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 validateDomain() {
   if [[ $1 =~ ^([a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]\.)+([a-zA-Z]{2,})|localhost$ ]]; then

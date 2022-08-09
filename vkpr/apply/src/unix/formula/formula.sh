@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   [[ ! -f "$PATH_TO_FILE" ]] && error "Wrong file" && exit

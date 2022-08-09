@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 declare -Agr C=(
   [red]=$(echo -e '\033[31m')

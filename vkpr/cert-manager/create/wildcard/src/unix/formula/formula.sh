@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   checkGlobalConfig "$NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "cert-manager.certNamespace" "CERTIFICATE_NAMESPACE"

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 addKongDependencies(){
   mkdir -p /tmp/config/
