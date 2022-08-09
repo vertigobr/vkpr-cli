@@ -35,6 +35,12 @@ env:
       secretKeyRef:
         name: kong-session-config
         key: portal_session_conf
+  enforce_rbac: "on"
+  password:
+    valueFrom:
+      secretKeyRef:
+        name: kong-enterprise-superuser-password
+        key: password
 image:
   repository: kong/kong-gateway
   tag: "2.8.0.0-alpine"
@@ -62,6 +68,11 @@ ingressController:
   installCRDs: false
   env:
     kong_admin_tls_skip_verify: true
+    kong_admin_token:
+      valueFrom:
+        secretKeyRef:
+          name: kong-enterprise-superuser-password
+          key: password
   ingressClass: kong
   rbac:
     create: true
