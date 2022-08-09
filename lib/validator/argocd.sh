@@ -35,7 +35,11 @@ validateArgoNamespace (){
   if [[ "$1" =~ ^([A-Za-z0-9-]+)$ ]]; then
     return
   else
+<<<<<<< HEAD
     error "The value used for VKPR_ENV_ARGO_NAMESPACE \"$1\" is invalid: VKPR_ENV_ARGO_NAMESPACE must consist of lowercase, uppercase or '-' alphanumeric characters, (e.g. 'argocd', regex used for validation is ^([A-Za-z0-9-]+)$)"
+=======
+    error "The value used for VKPR_ENV_ARGO_NAMESPACE \"$1\" is invalid: ARGO_NAMESPACE must consist of lowercase, uppercase or '-' alphanumeric characters, (e.g. 'argocd', regex used for validation is ^([A-Za-z0-9-]+)$)"
+>>>>>>> 5e45344803bc3b70cea1519b239870eeabfaea2f
     exit
   fi
 }
@@ -44,7 +48,11 @@ validateArgoIngressClassName (){
   if [[ "$1" =~ ^([a-z]+)$ ]]; then
     return
   else
+<<<<<<< HEAD
     error "The value used for VKPR_ENV_ARGOCD_INGRESS_CLASS_NAME \"$1\" is invalid: VKPR_ENV_ARGOCD_INGRESS_CLASS_NAME must consist of lowercase alphanumeric characters, (e.g. 'nginx', regex used for validation is ^([a-z]+)$)"
+=======
+    error "The value used for VKPR_ENV_ARGOCD_INGRESS_CLASS_NAME \"$1\" is invalid: ARGOCD_INGRESS_CLASS_NAME must consist of lowercase alphanumeric characters, (e.g. 'nginx', regex used for validation is ^([a-z]+)$)"
+>>>>>>> 5e45344803bc3b70cea1519b239870eeabfaea2f
     exit
   fi
 }
