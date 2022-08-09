@@ -26,7 +26,7 @@ validateJaegerMetrics (){
     if $(validateBool $1); then
         return
     else
-        error "The value used for JAEGER_METRICS \"$VKPR_ENV_JAEGER_METRICS\" is invalid: the JAEGER_METRICS must consist of a boolean value."
+        error "The value used for JAEGER_METRICS \"$1\" is invalid: the JAEGER_METRICS must consist of a boolean value."
         exit
     fi
 }
