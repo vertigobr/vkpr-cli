@@ -22,6 +22,15 @@ validateJaegerSecure (){
     fi
 }
 
+validateJaegerMetrics (){
+    if $(validateBool $1); then
+        return
+    else
+        error "The value used for VKPR_ENV_JAEGER_METRICS \"$1\" is invalid: the VKPR_ENV_JAEGER_METRICS must consist of a boolean value."
+        exit
+    fi
+}
+
 
 validateJaegerIngressClassName (){
     if [[ "$1" =~ ^([a-z]+)$ ]]; then
