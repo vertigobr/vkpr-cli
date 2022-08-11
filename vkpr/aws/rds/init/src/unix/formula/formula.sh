@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 runFormula() {
+  installAWS
   setCredentials
   formulaInputs
   validateInputs
