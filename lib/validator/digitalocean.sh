@@ -35,7 +35,7 @@ validateDigitalOceanInstanceType() {
   if [[ "$1" =~ ^([a-z]{1}\-[a-z0-9]{5}\-[a-z0-9]{3})$ ]]; then
     return
   else
-    error "The value used for VKPR_ENV_DO_CLUSTER_NODE_INSTANCE_TYPE \"$VKPR_ENV_DO_CLUSTER_NODE_INSTANCE_TYPE\" is invalid: VKPR_ENV_DO_CLUSTER_NODE_INSTANCE_TYPE must consist of lowercase and alphanumeric characters, (e.g. 's-2vcpu-2gb', regex used for validation is ^([a-z]{1}\-[a-z0-9]{5}\-[a-z0-9]{3})$)."
+    error "The value used for VKPR_ENV_DO_CLUSTER_NODES_INSTANCE_TYPE \"$VKPR_ENV_DO_CLUSTER_NODES_INSTANCE_TYPE\" is invalid: VKPR_ENV_DO_CLUSTER_NODES_INSTANCE_TYPE must consist of lowercase and alphanumeric characters, (e.g. 's-2vcpu-2gb', regex used for validation is ^([a-z]{1}\-[a-z0-9]{5}\-[a-z0-9]{3})$)."
     exit
   fi
 }
@@ -44,7 +44,7 @@ validateDigitalOceanClusterSize() {
   if [[ "$1" =~ ^([0-9])$ ]]; then
     return
   else
-    error "The value used for VKPR_ENV_DO_CLUSTER_SIZE \"$VKPR_ENV_DO_CLUSTER_SIZE\" is invalid: VKPR_ENV_DO_CLUSTER_SIZE must consist of number, (e.g. '1', regex used for validation is ^([0-9])$."
+    error "The value used for VKPR_ENV_DO_CLUSTER_QUANTITY_SIZE \"$VKPR_ENV_DO_CLUSTER_QUANTITY_SIZE\" is invalid: VKPR_ENV_DO_CLUSTER_QUANTITY_SIZE must consist of number, (e.g. '1', regex used for validation is ^([0-9])$."
     exit
   fi
 }
