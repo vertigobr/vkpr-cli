@@ -97,7 +97,7 @@ waitJobComplete(){
     (( SECONDS + 30 ))
     JOB_COMPLETE=$(curl -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/pipelines/"$PIPELINE_ID"/jobs \
       -H "PRIVATE-TOKEN: $GITLAB_TOKEN" |\
-      $VKPR_JQ -r ".[] | select(.name == "$JOB_TYPE").status"
+      $VKPR_JQ -r ".[] | select(.name == \"$JOB_TYPE\").status"
     )
     debug "JOB_COMPLETE=$JOB_COMPLETE"
   done
