@@ -187,4 +187,15 @@ startupScripts() {
       s/GRAFANA_ADDRESS_BASE/$GRAFANA_ADDRESS_BASE/g" "$(dirname "$0")"/utils/scripts/grafana-oidc.sh
     execScriptsOnPod "$(dirname "$0")"/utils/scripts/grafana-oidc.sh "keycloak-0" "$VKPR_ENV_KEYCLOAK_NAMESPACE"
   fi
+
+  if [[ $VKPR_ENV_KEYCLOAK_OPENID_KONG == "true" ]]; then
+    KONG_ADDRESS="https\:\/\/manager.${VKPR_ENV_GLOBAL_DOMAIN}"
+
+    sed -i "s/LOGIN_USERNAME/$VKPR_ENV_KEYCLOAK_ADMIN_USER/g ;
+      s/LOGIN_PASSWORD/$VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD/g ;
+      s/TEMPORARY_PASSWORD/$VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD/g ;
+      s/CLIENT_SECRET/${VKPR_ENV_KEYCLOAK_OPENID_KONG_CLIENTSECRET:-$(uuidgen)}/g ;
+      s/KONG_DOMAIN/$KONG_ADDRESS/g" "$(dirname "$0")"/utils/scripts/kong-oidc.sh
+    execScriptsOnPod "$(dirname "$0")"/utils/scripts/kong-oidc.sh "keycloak-0" "$VKPR_ENV_KEYCLOAK_NAMESPACE"
+  fi
 }
