@@ -77,8 +77,13 @@ createGrafanaDashboard() {
   )
   debug "$CREATE_DASHBOARD"
 
-  if [[ $CREATE_DASHBOARD == "name-exists" ]] || [[ $CREATE_DASHBOARD == "" ]]; then
+  if [[ $CREATE_DASHBOARD == "name-exists" ]]; then
     error "Dashboard with same name already exists"
+    return
+  fi
+
+  if [[ $CREATE_DASHBOARD == "" ]]; then
+    error "Unreachable grafana api"
     return
   fi
 
