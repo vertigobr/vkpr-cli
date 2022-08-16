@@ -29,6 +29,9 @@ formulaInputs() {
   # App values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "external-dns.namespace" "EXTERNAL_DNS_NAMESPACE"
   checkGlobalConfig "false" "false" "external-dns.metrics" "EXTERNAL_DNS_METRICS"
+
+  # External apps values
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "GRAFANA_NAMESPACE"
 }
 
 setCredentials() {
@@ -56,10 +59,12 @@ settingExternalDNS() {
   YQ_VALUES=".domainFilters[0] = \"$VKPR_ENV_GLOBAL_DOMAIN\""
 
   if [[ $VKPR_ENV_EXTERNAL_DNS_METRICS == true ]]; then
+    createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE" 
     YQ_VALUES="$YQ_VALUES |
       .serviceMonitor.enabled = true |
-      .serviceMonitor.namespace = \"$VKPR_ENV_INGRESS_NAMESPACE\" |
-      .serviceMonitor.interval = \"1m\"
+      .serviceMonitor.namespace = \"$VKPR_ENV_EXTERNAL_DNS_NAMESPACE\" |
+      .serviceMonitor.interval = \"1m\" |
+      .serviceMonitor.additionalLabels.release = \"prometheus-stack\"
     "
   fi
   settingExternaldnsEnvironment
