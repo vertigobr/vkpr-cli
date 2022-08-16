@@ -15,7 +15,7 @@ runFormula() {
   fi
   settingKeycloak
   installApplication "keycloak" "bitnami/keycloak" "$VKPR_ENV_KEYCLOAK_NAMESPACE" "$VKPR_KEYCLOAK_VERSION" "$VKPR_KEYCLOAK_VALUES" "$HELM_ARGS"
-  activateMetrics
+  startupScripts
 }
 
 startInfos() {
@@ -44,13 +44,21 @@ formulaInputs() {
   checkGlobalConfig "$KEY_FILE" "" "keycloak.ssl.key" "KEYCLOAK_KEY"
   checkGlobalConfig "" "" "keycloak.ssl.secretName" "KEYCLOAK_SSL_SECRET"
 
+  # Integrate
+  checkGlobalConfig "false" "false" "keycloak.openid.grafana.enabled" "KEYCLOAK_OPENID_GRAFANA"
+  checkGlobalConfig "" "" "keycloak.openid.grafana.clientSecret" "KEYCLOAK_OPENID_GRAFANA_CLIENTSECRET"
+  checkGlobalConfig "" "" "keycloak.openid.grafana.identityProviders" "KEYCLOAK_OPENID_GRAFANA_IDENTITY_PROVIDERS"
+
+  checkGlobalConfig "false" "false" "keycloak.openid.kong.enabled" "KEYCLOAK_OPENID_KONG"
+  checkGlobalConfig "" "" "keycloak.openid.kong.clientSecret" "KEYCLOAK_OPENID_KONG_CLIENTSECRET"
+  checkGlobalConfig "" "" "keycloak.openid.kong.identityProviders" "KEYCLOAK_OPENID_KONG_IDENTITY_PROVIDERS"
+
   # External apps values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "postgresql.namespace" "POSTGRESQL_NAMESPACE"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "GRAFANA_NAMESPACE"
 }
 
 validateInputs() {
-
   validateKeycloakDomain "$DOMAIN"
   validateKeycloakSecure "$SECURE"
 
@@ -154,14 +162,29 @@ settingKeycloak(){
   fi
 }
 
-activateMetrics() {
+startupScripts() {
   if [[ $VKPR_ENV_KEYCLOAK_METRICS == "true" ]]; then
-    $VKPR_KUBECTL exec -it keycloak-0 -n "$VKPR_ENV_KEYCLOAK_NAMESPACE" -- sh -c "
-      kcadm.sh config credentials --server http://localhost:8080 --realm master \
-        --user $VKPR_ENV_KEYCLOAK_ADMIN_USER --password $VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD --config /tmp/kcadm.config && \
-      kcadm.sh update events/config \
-        -s \"eventsEnabled=true\" -s \"adminEventsEnabled=true\" -s \"eventsListeners+=metrics-listener\" --config /tmp/kcadm.config && \
-      rm -f /tmp/kcadm.config
-    "
+    sed -i "s/LOGIN_USERNAME/$VKPR_ENV_KEYCLOAK_ADMIN_USER/g ;
+      s/LOGIN_PASSWORD/$VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD/g
+    " "$(dirname "$0")"/utils/scripts/enable-metrics.sh
+    execScriptsOnPod "$(dirname "$0")"/utils/scripts/enable-metrics.sh "keycloak-0" "$VKPR_ENV_KEYCLOAK_NAMESPACE"
+  fi
+
+  if [[ $VKPR_ENV_KEYCLOAK_OPENID_GRAFANA == "true" ]]; then
+    if [[ $VKPR_ENV_GLOBAL_DOMAIN == "localhost" ]]; then
+      GRAFANA_ADDRESS="http\:\/\/grafana.localhost\:8000"
+      GRAFANA_ADDRESS_BASE="http\:\/\/grafana.localhost"
+    else
+      GRAFANA_ADDRESS="https\:\/\/grafana.${VKPR_ENV_GLOBAL_DOMAIN}"
+      GRAFANA_ADDRESS_BASE="http\:\/\/grafana.${VKPR_ENV_GLOBAL_DOMAIN}"
+    fi
+
+    sed -i "s/LOGIN_USERNAME/$VKPR_ENV_KEYCLOAK_ADMIN_USER/g ;
+      s/LOGIN_PASSWORD/$VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD/g ;
+      s/TEMPORARY_PASSWORD/$VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD/g ;
+      s/CLIENT_SECRET/${VKPR_ENV_KEYCLOAK_OPENID_GRAFANA_CLIENTSECRET:-$(uuidgen)}/g ;
+      s/GRAFANA_DOMAIN/$GRAFANA_ADDRESS/g ;
+      s/GRAFANA_ADDRESS_BASE/$GRAFANA_ADDRESS_BASE/g" "$(dirname "$0")"/utils/scripts/grafana-oidc.sh
+    execScriptsOnPod "$(dirname "$0")"/utils/scripts/grafana-oidc.sh "keycloak-0" "$VKPR_ENV_KEYCLOAK_NAMESPACE"
   fi
 }

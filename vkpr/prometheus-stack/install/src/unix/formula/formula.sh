@@ -60,9 +60,13 @@ formulaInputs() {
   fi
   checkGlobalConfig "false" "false" "prometheus-stack.prometheus.persistance" "PROMETHEUS_PERSISTANCE"
 
+  # Integrate
+  checkGlobalConfig "false" "false" "prometheus-stack.grafana.openid.enabled" "GRAFANA_KEYCLOAK_OPENID"
+  checkGlobalConfig "" "" "prometheus-stack.grafana.openid.clientSecret" "GRAFANA_KEYCLOAK_OPENID_CLIENTSECRET"
 
   # External app values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "loki.namespace" "LOKI_NAMESPACE"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "keycloak.namespace" "KEYCLOAK_NAMESPACE"
 }
 
 validateInputs() {
@@ -174,6 +178,35 @@ settingGrafanaValues() {
     YQ_VALUES="$YQ_VALUES |
       .grafana.persistence.enabled = true |
       .grafana.persistence.size = \"8Gi\"
+    "
+  fi
+
+  if [[ $VKPR_ENV_GRAFANA_KEYCLOAK_OPENID == "true" ]] && [[ ! -z $VKPR_ENV_GRAFANA_KEYCLOAK_OPENID_CLIENTSECRET ]]; then
+    if [[ $VKPR_ENV_GLOBAL_DOMAIN == "localhost" ]]; then
+      KEYCLOAK_ADDRESS="http://keycloak.localhost:8000"
+      GRAFANA_ADDRESS="grafana.localhost:8000"
+    else
+      KEYCLOAK_ADDRESS="https://keycloak.${VKPR_ENV_GLOBAL_DOMAIN}"
+      GRAFANA_ADDRESS="grafana.${VKPR_ENV_GLOBAL_DOMAIN}"
+      GRAFANA_HTTPS="https"
+    fi
+
+    YQ_VALUES="$YQ_VALUES |
+      .grafana.env.GF_SERVER_ROOT_URL = \"${GRAFANA_HTTPS:-http}://${GRAFANA_ADDRESS}/\" |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_ENABLED = true |
+      .grafana.env.GF_AUTH_DISABLE_LOGIN_FORM = false |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP = true |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_AUTO_LOGIN = false |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_TLS_SKIP_VERIFY_INSECURE = true |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_NAME = \"Keycloak\" |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_CLIENT_ID = \"grafana\" |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET = \"$VKPR_ENV_GRAFANA_KEYCLOAK_OPENID_CLIENTSECRET\" |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_SCOPES = \"openid profile email\" |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH = \"contains(roles[], 'admin') && 'Admin' || contains(roles[], 'editor') && 'Editor' || 'Viewer'\" |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_AUTH_URL = \"${KEYCLOAK_ADDRESS}/realms/grafana/protocol/openid-connect/auth\" |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_TOKEN_URL = \"http://keycloak.${VKPR_ENV_KEYCLOAK_NAMESPACE}:80/realms/grafana/protocol/openid-connect/token\" |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_API_URL = \"http://keycloak.${VKPR_ENV_KEYCLOAK_NAMESPACE}:80/realms/grafana/protocol/openid-connect/userinfo\" |
+      .grafana.env.GF_AUTH_SIGNOUT_REDIRECT_URL = \"${KEYCLOAK_ADDRESS}/realms/grafana/protocol/openid-connect/logout?redirect_uri=${GRAFANA_HTTPS:-http}%3A%2F%2F${GRAFANA_ADDRESS}%2Flogin\"
     "
   fi
 }
