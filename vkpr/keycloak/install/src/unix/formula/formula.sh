@@ -186,6 +186,23 @@ startupScripts() {
       s/GRAFANA_DOMAIN/$GRAFANA_ADDRESS/g ;
       s/GRAFANA_ADDRESS_BASE/$GRAFANA_ADDRESS_BASE/g" "$(dirname "$0")"/utils/scripts/grafana-oidc.sh
     execScriptsOnPod "$(dirname "$0")"/utils/scripts/grafana-oidc.sh "keycloak-0" "$VKPR_ENV_KEYCLOAK_NAMESPACE"
+    if [[ $VKPR_ENV_KEYCLOAK_OPENID_GRAFANA_IDENTITY_PROVIDERS != "" ]]; then
+      IDP_LENGTH=$(echo $VKPR_ENV_KEYCLOAK_OPENID_GRAFANA_IDENTITY_PROVIDERS | $VKPR_YQ eval '. | length' -)
+      ((IDP_LENGTH--))
+      for i in $(seq 0 $IDP_LENGTH); do
+        IDP_NAME=$(echo $VKPR_ENV_KEYCLOAK_OPENID_GRAFANA_IDENTITY_PROVIDERS | $VKPR_YQ eval ".[$i].name" -)
+        IDP_CLIENTID=$(echo $VKPR_ENV_KEYCLOAK_OPENID_GRAFANA_IDENTITY_PROVIDERS | $VKPR_YQ eval ".[$i].clientID" -)
+        IDP_CLIENTSECRET=$(echo $VKPR_ENV_KEYCLOAK_OPENID_GRAFANA_IDENTITY_PROVIDERS | $VKPR_YQ eval ".[$i].clientSecret" -)
+
+        sed "s/LOGIN_USERNAME/$VKPR_ENV_KEYCLOAK_ADMIN_USER/g ;
+          s/LOGIN_PASSWORD/$VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD/g ;
+          s/REALM_NAME/grafana/g ;
+          s/PROVIDER_NAME/$IDP_NAME/g ;
+          s/CLIENT_ID/$IDP_CLIENTID/g ;
+          s/CLIENT_SECRET/$IDP_CLIENTSECRET/g" "$(dirname "$0")"/utils/scripts/identity-providers.sh > "$(dirname "$0")"/utils/scripts/identity-providers-$i.sh
+        execScriptsOnPod "$(dirname "$0")"/utils/scripts/identity-providers-$i.sh "keycloak-0" "$VKPR_ENV_KEYCLOAK_NAMESPACE"
+      done
+    fi
   fi
 
   if [[ $VKPR_ENV_KEYCLOAK_OPENID_KONG == "true" ]]; then
@@ -197,5 +214,22 @@ startupScripts() {
       s/CLIENT_SECRET/${VKPR_ENV_KEYCLOAK_OPENID_KONG_CLIENTSECRET:-$(uuidgen)}/g ;
       s/KONG_DOMAIN/$KONG_ADDRESS/g" "$(dirname "$0")"/utils/scripts/kong-oidc.sh
     execScriptsOnPod "$(dirname "$0")"/utils/scripts/kong-oidc.sh "keycloak-0" "$VKPR_ENV_KEYCLOAK_NAMESPACE"
+    if [[ $VKPR_ENV_KEYCLOAK_OPENID_KONG_IDENTITY_PROVIDERS != "" ]]; then
+      IDP_LENGTH=$(echo $VKPR_ENV_KEYCLOAK_OPENID_KONG_IDENTITY_PROVIDERS | $VKPR_YQ eval '. | length' -)
+      ((IDP_LENGTH--))
+      for i in $(seq 0 $IDP_LENGTH); do
+        IDP_NAME=$(echo $VKPR_ENV_KEYCLOAK_OPENID_KONG_IDENTITY_PROVIDERS | $VKPR_YQ eval ".[$i].name" -)
+        IDP_CLIENTID=$(echo $VKPR_ENV_KEYCLOAK_OPENID_KONG_IDENTITY_PROVIDERS | $VKPR_YQ eval ".[$i].clientID" -)
+        IDP_CLIENTSECRET=$(echo $VKPR_ENV_KEYCLOAK_OPENID_KONG_IDENTITY_PROVIDERS | $VKPR_YQ eval ".[$i].clientSecret" -)
+
+        sed "s/LOGIN_USERNAME/$VKPR_ENV_KEYCLOAK_ADMIN_USER/g ;
+          s/LOGIN_PASSWORD/$VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD/g ;
+          s/REALM_NAME/kong/g ;
+          s/PROVIDER_NAME/$IDP_NAME/g ;
+          s/CLIENT_ID/$IDP_CLIENTID/g ;
+          s/CLIENT_SECRET/$IDP_CLIENTSECRET/g" "$(dirname "$0")"/utils/scripts/identity-providers.sh > "$(dirname "$0")"/utils/scripts/identity-providers-$i.sh
+        execScriptsOnPod "$(dirname "$0")"/utils/scripts/identity-providers-$i.sh "keycloak-0" "$VKPR_ENV_KEYCLOAK_NAMESPACE"
+      done
+    fi
   fi
 }
