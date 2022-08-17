@@ -5,6 +5,8 @@ validatePostgresqlPassword() {
     return
   else
     error "The value used for PG_PASSWORD \"$1\" is invalid: PG_PASSWORD must consist of lowercase, uppercase or alphanumeric characters, (e.g. 'vkpr123', regex used for validation is ^([A-Za-z0-9-]{7,})$)"
+    exit
+  fi
 }
 
 validatePostgresqlHA() {

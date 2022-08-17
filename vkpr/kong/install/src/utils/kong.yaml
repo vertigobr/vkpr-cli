@@ -12,6 +12,7 @@ env:
         name: postgres-postgresql
         key: postgres-password
   pg_port: 5432
+  proxy_url: "http://localhost:8000"
   admin_gui_url: "http://manager.localhost:8000"
   admin_api_uri: "http://api.manager.localhost:8000"
   admin_session_conf:
@@ -30,6 +31,12 @@ env:
       secretKeyRef:
         name: kong-session-config
         key: portal_session_conf
+  enforce_rbac: "on"
+  password:
+    valueFrom:
+      secretKeyRef:
+        name: kong-enterprise-superuser-password
+        key: password
 image:
   repository: kong/kong-gateway
   tag: "2.8.0.0-alpine"
@@ -65,6 +72,11 @@ ingressController:
   enabled: true
   env:
     kong_admin_tls_skip_verify: true
+    kong_admin_token:
+      valueFrom:
+        secretKeyRef:
+          name: kong-enterprise-superuser-password
+          key: password
   ingressClass: kong
   rbac:
     create: true
@@ -84,7 +96,9 @@ enterprise:
   portal:
     enabled: true
   rbac:
-    enabled: false
+    enabled: true
+    admin_gui_auth: "basic-auth"
+    session_conf_secret: "kong-session-config"
   smtp:
     enabled: false
 manager:

@@ -84,11 +84,6 @@
     },
     {
       "tutorial": "Specifies the RBAC Super Admin Password. Has no effect on hybrid data plane installations.",
-      "condition": {
-        "variable": "license",
-        "operator": "!=",
-        "value": "null"
-      },
       "label": "Type the RBAC Admin Password. Has no effect on hybrid data plane installations:",
       "name": "rbac_password",
       "type": "text",

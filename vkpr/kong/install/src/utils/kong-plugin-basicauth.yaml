@@ -1,0 +1,21 @@
+apiVersion: configuration.konghq.com/v1
+kind: KongConsumer
+metadata:
+  name: consumer-kong-admin
+  namespace: vkpr
+  annotations:
+    kubernetes.io/ingress.class: kong
+username: kong_admin
+credentials:
+  - kong-admin-basicauth
+---
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: kong-admin-basicauth
+  namespace: vkpr
+  annotations:
+    kubernetes.io/ingress.class: kong
+config:
+  hide_credentials: true
+plugin: basic-auth
