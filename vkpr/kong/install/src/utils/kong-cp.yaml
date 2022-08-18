@@ -43,7 +43,7 @@ env:
         key: password
 image:
   repository: kong/kong-gateway
-  tag: "2.8.0.0-alpine"
+  tag: "2.8.1.3-alpine"
 admin:
   enabled: true
   type: ClusterIP

@@ -110,3 +110,15 @@ createDOCredentialSecret() {
 
   $VKPR_KUBECTL create secret generic vkpr-do-credential -n $1 --from-literal=api-token=$2
 }
+
+execScriptsOnPod() {
+  local SCRIPT_PATH=$1 POD_NAME=$2 \
+    POD_NAMESPACE=$3
+
+  $VKPR_KUBECTL cp "$SCRIPT_PATH" "$POD_NAME":tmp/script.sh -n "$POD_NAMESPACE"
+  $VKPR_KUBECTL exec -it "$POD_NAME" -n "$POD_NAMESPACE" -- sh -c "
+    chmod +x /tmp/script.sh && \
+    sh /tmp/script.sh && \
+    rm /tmp/script.sh
+  "
+}

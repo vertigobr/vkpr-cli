@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# shellcheck source=src/util.sh
-source "$(dirname "$0")"/unix/formula/files.sh
-
 runFormula() {
   local VKPR_KONG_VALUES KONG_NAMESPACE YQ_VALUES HELM_ARGS;
   formulaInputs
@@ -11,7 +8,6 @@ runFormula() {
   [[ "$VKPR_ENVIRONMENT" != "okteto" ]] && $VKPR_KUBECTL create ns "$VKPR_ENV_KONG_NAMESPACE" > /dev/null
 
   startInfos
-  addKongDependencies
   if [[ $DRY_RUN == false ]]; then
     registerHelmRepository kong https://charts.konghq.com
     createKongSecrets
@@ -45,7 +41,11 @@ formulaInputs() {
     "kong.hybrid.dataPlane.controlPlaneEndpoint" "KONG_CP_ENDPOINT"
   checkGlobalConfig "${KONG_TELEMETRY_URL:-"kong-kong-clustertelemetry.vkpr.svc.cluster.local:8006"}" "kong-kong-clustertelemetry.vkpr.svc.cluster.local:8006" \
     "kong.hybrid.dataPlane.telemetryEndpoint" "KONG_TELEMETRY_URL"
-  checkGlobalConfig "$KONG_PLANE" "control" "kong.hybrid.plane" "KONG_PLANE"
+  checkGlobalConfig "${KONG_PLANE:-control}" "control" "kong.hybrid.plane" "KONG_PLANE"
+
+  # Integrate
+  checkGlobalConfig "false" "false" "kong.rbac.openid.enabled" "KONG_KEYCLOAK_OPENID"
+  checkGlobalConfig "" "" "kong.rbac.openid.clientSecret" "KONG_KEYCLOAK_OPENID_CLIENTSECRET"
 
   # External apps values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "postgresql.namespace" "POSTGRESQL_NAMESPACE"
