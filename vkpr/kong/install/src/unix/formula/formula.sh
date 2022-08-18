@@ -8,7 +8,7 @@ runFormula() {
   formulaInputs
   validateInputs
 
-  $VKPR_KUBECTL create ns "$VKPR_ENV_KONG_NAMESPACE" > /dev/null
+  [[ "$VKPR_ENVIRONMENT" != "okteto" ]] && $VKPR_KUBECTL create ns "$VKPR_ENV_KONG_NAMESPACE" > /dev/null
 
   startInfos
   addKongDependencies
@@ -18,7 +18,7 @@ runFormula() {
   fi
   settingKong
   installKong
-  [[ $DRY_RUN == false ]] && installPlugins || true
+  [[ $DRY_RUN == false ]] && [[ "$VKPR_ENVIRONMENT" != "okteto" ]] && installPlugins || true
 }
 
 startInfos() {
