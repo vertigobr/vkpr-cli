@@ -14,11 +14,11 @@ runFormula() {
   settingCertManager
   if [[ $DRY_RUN == false ]]; then
     installCRDS
-    settingIssuer
-    installIssuer
     registerHelmRepository jetstack https://charts.jetstack.io
   fi
   installApplication "cert-manager" "jetstack/cert-manager" "$VKPR_ENV_CERT_MANAGER_NAMESPACE" "$VKPR_CERT_MANAGER_VERSION" "$VKPR_CERT_MANAGER_VALUES" "$HELM_ARGS"
+  settingIssuer
+  installIssuer
 }
 
 startInfos() {
@@ -107,14 +107,14 @@ settingIssuer() {
 
 configureDNS01() {
   info "Setting AWS secret..."
-  $VKPR_KUBECTL create secret generic route53-secret -n "$VKPR_ENV_CERT_MANAGER_NAMESPACE" --from-literal="secret-access-key=$AWS_SECRET_KEY" && \
-    $VKPR_KUBECTL label secret route53-secret -n "$VKPR_ENV_CERT_MANAGER_NAMESPACE" app.kubernetes.io/managed-by=vkpr app.kubernetes.io/instance=cert-manager
+  createAWSCredentialSecret $VKPR_ENV_CERT_MANAGER_NAMESPACE $AWS_ACCESS_KEY $AWS_SECRET_KEY $AWS_REGION
 
   YQ_ISSUER_VALUES="$YQ_ISSUER_VALUES |
     .spec.acme.solvers[0].dns01.route53.region = \"$AWS_REGION\" |
-    .spec.acme.solvers[0].dns01.route53.accessKeyID = \"$AWS_ACCESS_KEY\" |
-    .spec.acme.solvers[0].dns01.route53.secretAccessKeySecretRef.name = \"route53-secret\" |
-    .spec.acme.solvers[0].dns01.route53.secretAccessKeySecretRef.key = \"secret-access-key\" |
+    .spec.acme.solvers[0].dns01.route53.accessKeyIDSecretRef.name = \"vkpr-aws-credential\" |
+    .spec.acme.solvers[0].dns01.route53.accessKeyIDSecretRef.key = \"access-key\" |
+    .spec.acme.solvers[0].dns01.route53.secretAccessKeySecretRef.name = \"vkpr-aws-credential\" |
+    .spec.acme.solvers[0].dns01.route53.secretAccessKeySecretRef.key = \"secret-key\" |
     .spec.acme.solvers[0].dns01.route53.hostedZoneID = \"$AWS_HOSTEDZONE_ID\"
   "
 }

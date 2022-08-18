@@ -14,11 +14,11 @@ runFormula() {
   settingCertManager
   if [[ $DRY_RUN == false ]]; then
     installCRDS
-    settingIssuer
-    installIssuer
     registerHelmRepository jetstack https://charts.jetstack.io
   fi
   installApplication "cert-manager" "jetstack/cert-manager" "$VKPR_ENV_CERT_MANAGER_NAMESPACE" "$VKPR_CERT_MANAGER_VERSION" "$VKPR_CERT_MANAGER_VALUES" "$HELM_ARGS"
+  settingIssuer
+  installIssuer
 }
 
 startInfos() {
