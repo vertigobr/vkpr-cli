@@ -50,9 +50,9 @@ installAWS() {
   else
     info "Installing AWS..."
     # patches download script in order to change BINLOCATION
-    curl https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o /tmp/awscliv2.zip
+    curl -sSL https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o /tmp/awscliv2.zip
     unzip -q /tmp/awscliv2.zip -d /tmp
-    /tmp/aws/install -i ~/.vkpr/bin -b ~/.vkpr/bin
+    /tmp/aws/install -i ~/.vkpr/bin -b ~/.vkpr/bin --update
   fi
 }
 

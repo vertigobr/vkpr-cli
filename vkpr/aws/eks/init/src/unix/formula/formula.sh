@@ -7,7 +7,6 @@ runFormula() {
   EKS_CLUSTER_NODE_INSTANCE_TYPE=${EKS_CLUSTER_NODE_INSTANCE_TYPE// ([^)]*)/}
   EKS_CLUSTER_NODE_INSTANCE_TYPE=${EKS_CLUSTER_NODE_INSTANCE_TYPE// /}
   
-  installAWS
   formulaInputs
   setCredentials
   validateInputs
@@ -25,18 +24,6 @@ runFormula() {
   
   setVariablesGLAB
   cloneRepository
-}
-
-installAWS() {
-  if [[ -f "$VKPR_AWS" ]]; then
-    notice "AWS already installed. Skipping..."
-  else
-    info "Installing AWS..."
-    # patches download script in order to change BINLOCATION
-    curl https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o /tmp/awscliv2.zip
-    unzip -q /tmp/awscliv2.zip -d /tmp
-    /tmp/aws/install -i ~/.vkpr/bin -b ~/.vkpr/bin
-  fi
 }
 
 formulaInputs() {
