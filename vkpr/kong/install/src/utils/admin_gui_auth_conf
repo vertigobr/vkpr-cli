@@ -1,0 +1,21 @@
+{
+  "auth_methods": [
+    "authorization_code"
+  ],
+  "authenticated_groups_claim": [
+    "roles"
+  ],
+  "admin_claim": "email",
+  "scopes": [
+    "openid",
+    "profile",
+    "email"
+  ],
+  "logout_methods": [
+    "GET",
+    "POST",
+    "DELETE"
+  ],
+  "authorization_cookie_samesite": "Lax",
+  "admin_auto_create_rbac_token_disabled": false
+}

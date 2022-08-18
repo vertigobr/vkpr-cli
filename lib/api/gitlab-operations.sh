@@ -87,7 +87,7 @@ waitJobComplete(){
         PIPELINE_ID="$2" \
         JOB_COMPLETE="$3" \
         GITLAB_TOKEN="$4" \
-        JOB_TYPE="$5" # 0- Destroy | 1- Deploy | 2- Build | 3- Validate | 4- Init
+        JOB_TYPE="$5"
 
   SECONDS=0
   while [[ "$JOB_COMPLETE" != "success" ]]; do
@@ -97,8 +97,9 @@ waitJobComplete(){
     (( SECONDS + 30 ))
     JOB_COMPLETE=$(curl -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/pipelines/"$PIPELINE_ID"/jobs \
       -H "PRIVATE-TOKEN: $GITLAB_TOKEN" |\
-      $VKPR_JQ -r ".[$JOB_TYPE].status"
+      $VKPR_JQ -r ".[] | select(.name == \"$JOB_TYPE\").status"
     )
+    debug "JOB_COMPLETE=$JOB_COMPLETE"
   done
 }
 
@@ -116,8 +117,9 @@ jobDeployCluster(){
   local DEPLOY_ID;
   DEPLOY_ID=$(curl -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/pipelines/"$PIPELINE_ID"/jobs \
     -H "PRIVATE-TOKEN: $GITLAB_TOKEN" |\
-    $VKPR_JQ '.[1].id'
+    $VKPR_JQ '.[] | select(.name == "deploy").id'
   )
+  debug "DEPLOY_ID=$DEPLOY_ID"
 
   curl -sX POST https://gitlab.com/api/v4/projects/"$PROJECT_ID"/jobs/"$DEPLOY_ID"/play \
     -H "PRIVATE-TOKEN: $GITLAB_TOKEN" > /dev/null
@@ -137,8 +139,10 @@ jobDestroyCluster() {
 
   DESTROY_ID=$(curl -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/pipelines/"$PIPELINE_ID"/jobs \
     -H "PRIVATE-TOKEN: $GITLAB_TOKEN" |\
-    $VKPR_JQ '.[0].id'
+    $VKPR_JQ '.[] | select(.name == "destroy").id'
   )
+  debug "DESTROY_ID=$DESTROY_ID"
+
   curl -sX POST https://gitlab.com/api/v4/projects/"$PROJECT_ID"/jobs/"$DESTROY_ID"/play \
     -H "PRIVATE-TOKEN: $GITLAB_TOKEN" > /dev/null
   info "Destroy job started successfully"
@@ -159,8 +163,9 @@ downloadKubeconfig() {
   local DEPLOY_ID;
   DEPLOY_ID=$(curl -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/pipelines/"$PIPELINE_ID"/jobs \
     -H "PRIVATE-TOKEN: $GITLAB_TOKEN" |\
-    $VKPR_JQ '.[1].id'
+    $VKPR_JQ '.[] | select(.name == "deploy").id'
   )
+  debug "DEPLOY_ID=$DEPLOY_ID"
 
   curl --location -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/jobs/"$DEPLOY_ID"/artifacts \
     -H "PRIVATE-TOKEN: $GITLAB_TOKEN" \
