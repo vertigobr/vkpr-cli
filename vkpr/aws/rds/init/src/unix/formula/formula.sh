@@ -4,7 +4,7 @@ runFormula() {
   validateInputs
 
   info "Create db instance..."
-  aws rds create-db-instance \
+  $VKPR_AWS rds create-db-instance \
     --db-instance-identifier "$RDS_INSTANCE_NAME" \
     --db-instance-class "$RDS_INSTANCE_TYPE" \
     --engine postgres \
