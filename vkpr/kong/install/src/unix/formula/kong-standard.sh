@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
 createKongSecrets() {
+  # shellcheck source=src/util.sh
+  source "$(dirname "$0")"/unix/formula/files.sh
+
   ## Create Kong cookie config
   $VKPR_KUBECTL create secret generic kong-session-config \
     --from-file=/tmp/config/admin_gui_session_conf \
@@ -18,6 +21,12 @@ createKongSecrets() {
     $VKPR_KUBECTL create secret generic "$PG_SECRET" \
       --from-literal="postgres-password=$PG_PASSWORD" $KONG_NAMESPACE && \
       $VKPR_KUBECTL label secret "$PG_SECRET" app.kubernetes.io/instance=kong app.kubernetes.io/managed-by=vkpr $KONG_NAMESPACE 2> /dev/null
+  fi
+
+  if [[ $VKPR_ENV_KONG_KEYCLOAK_OPENID == "true" ]]; then
+    $VKPR_KUBECTL create secret generic kong-idp-config \
+      --from-file="$(dirname "$0")"/utils/admin_gui_auth_conf $KONG_NAMESPACE && \
+      $VKPR_KUBECTL label secret kong-idp-config app.kubernetes.io/instance=kong app.kubernetes.io/managed-by=vkpr $KONG_NAMESPACE 2> /dev/null
   fi
 }
 
@@ -119,6 +128,13 @@ settingKong() {
     "
   fi
 
+  if [[ "$VKPR_ENV_KONG_KEYCLOAK_OPENID" == "true" ]]; then
+    YQ_VALUES="$YQ_VALUES |
+      .enterprise.rbac.admin_gui_auth = \"openid-connect\" |
+      .enterprise.rbac.admin_gui_auth_conf_secret = \"kong-idp-config\"
+    "
+  fi
+
   settingKongProvider
 
   debug "YQ_CONTENT = $YQ_VALUES"
@@ -161,6 +177,6 @@ settingKongProvider(){
 
 if [[ $DRY_RUN == false ]]; then
   installDB
-  createKongSecrets
+  createKongSecrets $1
 fi
 settingKong

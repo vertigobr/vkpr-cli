@@ -19,7 +19,7 @@ checkGlobalConfig(){
 
   if [ -f "$VKPR_FILE" ] && [ "$($VKPR_YQ eval "$VALUES_LABEL_PATH" "$VKPR_FILE")" != "null" ]; then
     warn "Setting value from config file: $ENV_NAME"
-    eval "$ENV_NAME"="$($VKPR_YQ eval "$VALUES_LABEL_PATH" "$VKPR_FILE")"
+    eval "$ENV_NAME"=\"$($VKPR_YQ eval "$VALUES_LABEL_PATH | . style=\"flow\"" "$VKPR_FILE")\"
     return
   fi
 

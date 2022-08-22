@@ -5,6 +5,14 @@ runFormula() {
   cp "$PATH_TO_FILE" "$(dirname "$0")"
   VKPR_GLOBAL_CONFIG="$(dirname "$0")"/vkpr.yaml
 
+  #Check global.provider and configure rit credentials
+  local GLOBAL_PROVIDER_EXISTS;
+  GLOBAL_PROVIDER_EXISTS=$($VKPR_YQ eval ".global | has(\"provider\")" "$VKPR_GLOBAL_CONFIG")
+  if [ "$GLOBAL_PROVIDER_EXISTS" == true ];then
+    local GLOBAL_PROVIDER; GLOBAL_PROVIDER=$($VKPR_YQ eval .global.provider "$VKPR_GLOBAL_CONFIG")
+    configureProvider "$GLOBAL_PROVIDER"
+  fi
+
   applyConfig
 }
 
@@ -20,9 +28,8 @@ applyConfig(){
   installPrometheusGrafana
 
 #3
-  installPostgres
-
-
+  installPostgresql
+  
 #4
   installExternalDNS
 
@@ -70,32 +77,15 @@ installArgoCD(){
 installCertManager(){
   CERT_MANAGER_EXISTS=$($VKPR_YQ eval .cert-manager.enabled "$VKPR_GLOBAL_CONFIG")
   if [ "$CERT_MANAGER_EXISTS" == true ]; then
-    local CERT_MANAGER_PROVIDER
-    CERT_MANAGER_PROVIDER=$($VKPR_YQ eval .global.provider "$VKPR_GLOBAL_CONFIG")
-    case $CERT_MANAGER_PROVIDER in
-      aws)
-        CREDENTIALS_AWS_EXISTS=$($VKPR_YQ eval ".credentials | has(\"aws\")" "$VKPR_GLOBAL_CONFIG")
-        if [ "$CREDENTIALS_AWS_EXISTS" == true ]; then
-          local CERT_MANAGER_ACCESS_KEY CERT_MANAGER_SECRET_KEY CERT_MANAGER_REGION
-          CERT_MANAGER_ACCESS_KEY=$($VKPR_YQ eval .credential.aws.accessKey "$VKPR_GLOBAL_CONFIG")
-          CERT_MANAGER_SECRET_KEY=$($VKPR_YQ eval .credential.aws.secretKey "$VKPR_GLOBAL_CONFIG")
-          CERT_MANAGER_REGION=$($VKPR_YQ eval .credential.aws.region "$VKPR_GLOBAL_CONFIG")
-          CERT_MANAGER_HOSTEDZONE=$($VKPR_YQ eval .cert-manager.aws.hostedZoneID "$VKPR_GLOBAL_CONFIG")
-          rit set credential --provider="aws" \
-            --fields="accesskeyid,secretaccesskey,region" \
-            --values="$CERT_MANAGER_ACCESS_KEY,$CERT_MANAGER_SECRET_KEY,$CERT_MANAGER_REGION"
-        fi
-        rit vkpr cert-manager install aws --aws_hostedzone_id="$CERT_MANAGER_HOSTEDZONE" --default
+    case $GLOBAL_PROVIDER in
+        aws)
+          local CERT_MANAGER_HOSTEDZONE; CERT_MANAGER_HOSTEDZONE=$($VKPR_YQ eval .cert-manager.hostedZoneID "$VKPR_GLOBAL_CONFIG")
+          rit vkpr cert-manager install aws --aws_hostedzone_id="$CERT_MANAGER_HOSTEDZONE" --default
         ;;
-      digitalocean)
-        CREDENTIALS_DO_EXISTS=$($VKPR_YQ eval ".credentials | has(\"digitalocean\")" "$VKPR_GLOBAL_CONFIG")
-        if [ "$CREDENTIALS_DO_EXISTS" == true ]; then
-          local CERT_MANAGER_API_TOKEN; CERT_MANAGER_API_TOKEN=$($VKPR_YQ eval .credential.digitalocean.apiToken "$VKPR_GLOBAL_CONFIG")
-          rit set credential --provider="digitalocean" --fields="token" --values="$CERT_MANAGER_API_TOKEN"
-        fi
-        rit vkpr cert-manager install digitalocean --default
+        digitalocean)
+          rit vkpr cert-manager install digitalocean --default
         ;;
-    esac
+      esac
   fi
 }
 
@@ -116,30 +106,7 @@ installDevportal(){
 installExternalDNS(){
   EXTERNAL_DNS_EXISTS=$($VKPR_YQ eval .external-dns.enabled "$VKPR_GLOBAL_CONFIG")
   if [ "$EXTERNAL_DNS_EXISTS" == true ]; then
-    local EXTERNAL_DNS_PROVIDER; EXTERNAL_DNS_PROVIDER=$($VKPR_YQ eval .global.provider "$VKPR_GLOBAL_CONFIG")
-    case $EXTERNAL_DNS_PROVIDER in
-      aws)
-        CREDENTIALS_AWS_EXISTS=$($VKPR_YQ eval ".credentials | has(\"aws\")" "$VKPR_GLOBAL_CONFIG")
-        if [ "$CREDENTIALS_AWS_EXISTS" == true ]; then
-          local EXTERNAL_DNS_ACCESS_KEY EXTERNAL_DNS_SECRET_KEY EXTERNAL_DNS_REGION
-          EXTERNAL_DNS_ACCESS_KEY=$($VKPR_YQ eval .credential.aws.accessKey "$VKPR_GLOBAL_CONFIG")
-          EXTERNAL_DNS_SECRET_KEY=$($VKPR_YQ eval .credential.aws.secretKey "$VKPR_GLOBAL_CONFIG")
-          EXTERNAL_DNS_REGION=$($VKPR_YQ eval .credential.aws.region "$VKPR_GLOBAL_CONFIG")
-          rit set credential --provider="aws" \
-            --fields="accesskeyid,secretaccesskey,region" \
-            --values="$EXTERNAL_DNS_ACCESS_KEY,$EXTERNAL_DNS_SECRET_KEY,$EXTERNAL_DNS_REGION"
-        fi
-        rit vkpr external-dns install aws
-        ;;
-      digitalocean)
-        CREDENTIALS_DO_EXISTS=$($VKPR_YQ eval ".credentials | has(\"digitalocean\")" "$VKPR_GLOBAL_CONFIG")
-        if [ "$CREDENTIALS_DO_EXISTS" == true ]; then
-          local EXTERNAL_DNS_API_TOKEN; EXTERNAL_DNS_API_TOKEN=$($VKPR_YQ eval .credential.digitalocean.apiToken "$VKPR_GLOBAL_CONFIG")
-          rit set credential --provider="digitalocean" --fields="token" --values="$EXTERNAL_DNS_API_TOKEN"
-        fi
-        rit vkpr external-dns install digitalocean
-        ;;
-    esac
+    rit vkpr external-dns install "$GLOBAL_PROVIDER" --default
   fi
 }
 
@@ -192,10 +159,10 @@ installMockserver(){
   fi
 }
 
-installPostgres(){
+installPostgresql(){
   POSTGRES_EXISTS=$($VKPR_YQ eval .postgresql.enabled "$VKPR_GLOBAL_CONFIG")
   if [ "$POSTGRES_EXISTS" == true ]; then
-    rit vkpr postgres install --default
+    rit vkpr postgresql install --default
   fi
 }
 
@@ -218,4 +185,31 @@ installWhoami(){
   if [ "$WHOAMI_EXISTS" == true ]; then
     rit vkpr whoami install --default
   fi
+}
+
+configureProvider (){
+  local PROVIDER;
+  PROVIDER=$1
+  case $PROVIDER in
+      aws)
+        CREDENTIALS_AWS_EXISTS=$($VKPR_YQ eval ".credentials | has(\"aws\")" "$VKPR_GLOBAL_CONFIG")
+        if [ "$CREDENTIALS_AWS_EXISTS" == true ]; then
+          local ACCESS_KEY SECRET_KEY REGION
+          ACCESS_KEY=$($VKPR_YQ eval .credentials.aws.accessKey "$VKPR_GLOBAL_CONFIG")
+          SECRET_KEY=$($VKPR_YQ eval .credentials.aws.secretKey "$VKPR_GLOBAL_CONFIG")
+          REGION=$($VKPR_YQ eval .credentials.aws.region "$VKPR_GLOBAL_CONFIG")
+          HOSTEDZONE=$($VKPR_YQ eval .cert-manager.aws.hostedZoneID "$VKPR_GLOBAL_CONFIG")
+          rit set credential --provider="aws" \
+            --fields="accesskeyid,secretaccesskey,region" \
+            --values="$ACCESS_KEY,$SECRET_KEY,$REGION"
+        fi
+      ;;
+      digitalocean)
+        CREDENTIALS_DO_EXISTS=$($VKPR_YQ eval ".credentials | has(\"digitalocean\")" "$VKPR_GLOBAL_CONFIG")
+        if [ "$CREDENTIALS_DO_EXISTS" == true ]; then
+          local API_TOKEN; API_TOKEN=$($VKPR_YQ eval .credentials.digitalocean.apiToken "$VKPR_GLOBAL_CONFIG")
+          rit set credential --provider="digitalocean" --fields="token" --values="$API_TOKEN"
+        fi
+      ;;
+    esac
 }
