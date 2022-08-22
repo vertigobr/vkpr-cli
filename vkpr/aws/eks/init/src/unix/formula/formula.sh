@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 
 runFormula() {
-  local PROJECT_ENCODED PROJECT_NAMESPACE PROJECT_PATH FORK_RESPONSE_CODE;
+  local EKS_CLUSTER_NODE_INSTANCE_TYPE PROJECT_ENCODED FORK_RESPONSE_CODE;
 
+  #getting real instance type
+  EKS_CLUSTER_NODE_INSTANCE_TYPE=${EKS_CLUSTER_NODE_INSTANCE_TYPE// ([^)]*)/}
+  EKS_CLUSTER_NODE_INSTANCE_TYPE=${EKS_CLUSTER_NODE_INSTANCE_TYPE// /}
+  
+  installAWS
   formulaInputs
   setCredentials
   validateInputs
