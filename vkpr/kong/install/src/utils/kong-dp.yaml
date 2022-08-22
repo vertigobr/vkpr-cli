@@ -12,9 +12,10 @@ env:
   cluster_telemetry_endpoint: kong-kong-clustertelemetry.vkpr.svc.cluster.local:8006
   status_listen: 0.0.0.0:8100
   log_level: notice
+  proxy_url: "http://localhost:8000"
 image:
   repository: kong/kong-gateway
-  tag: "2.7.1.2-alpine"
+  tag: "2.8.1.3-alpine"
 admin:
   enabled: false
 proxy:

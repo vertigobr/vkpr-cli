@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   local VKPR_EXTERNAL_DNS_VALUES YQ_VALUES HELM_ARGS;
@@ -6,17 +6,22 @@ runFormula() {
   formulaInputs
   validateInputs
 
+  $VKPR_KUBECTL create ns $VKPR_ENV_EXTERNAL_DNS_NAMESPACE 2> /dev/null
   VKPR_EXTERNAL_DNS_VALUES="$(dirname "$0")"/utils/external-dns.yaml
 
   startInfos
   settingExternalDNS
-  [[ $DRY_RUN == false ]] && registerHelmRepository bitnami https://charts.bitnami.com/bitnami
-  installApplication "external-dns" "bitnami/external-dns" "$VKPR_ENV_EXTERNAL_DNS_NAMESPACE" "$VKPR_EXTERNAL_DNS_VERSION" "$VKPR_EXTERNAL_DNS_VALUES" "$HELM_ARGS"
+  if [[ $DRY_RUN == false ]]; then
+    installCRDS
+    registerHelmRepository external-dns https://kubernetes-sigs.github.io/external-dns/
+    createAWSCredentialSecret "$VKPR_ENV_EXTERNAL_DNS_NAMESPACE" "$AWS_ACCESS_KEY" "$AWS_SECRET_KEY" "$AWS_REGION"
+  fi
+  installApplication "external-dns" "external-dns/external-dns" "$VKPR_ENV_EXTERNAL_DNS_NAMESPACE" "$VKPR_EXTERNAL_DNS_VERSION" "$VKPR_EXTERNAL_DNS_VALUES" "$HELM_ARGS"
 }
 
 startInfos() {
   bold "=============================="
-  boldNotice "$(info "VKPR External-DNS Install AWS Routine")"
+  boldInfo "VKPR External-DNS Install AWS Routine"
   bold "=============================="
 }
 
@@ -24,6 +29,9 @@ formulaInputs() {
   # App values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "external-dns.namespace" "EXTERNAL_DNS_NAMESPACE"
   checkGlobalConfig "false" "false" "external-dns.metrics" "EXTERNAL_DNS_METRICS"
+
+  # External apps values
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "GRAFANA_NAMESPACE"
 }
 
 setCredentials() {
@@ -33,25 +41,30 @@ setCredentials() {
 }
 
 validateInputs() {
+  validateExternalDNSDomain "$VKPR_ENV_GLOBAL_DOMAIN"
+  validateExternalDNSNamespace "$VKPR_ENV_EXTERNAL_DNS_NAMESPACE"
+  validateExternalDNSMetrics "$VKPR_ENV_EXTERNAL_DNS_METRICS"
+
   validateAwsAccessKey "$AWS_ACCESS_KEY"
   validateAwsSecretKey "$AWS_SECRET_KEY"
   validateAwsRegion "$AWS_REGION"
 }
 
+installCRDS() {
+  info "Installing external-dns CRDS beforehand..."
+  $VKPR_KUBECTL apply -f "https://raw.githubusercontent.com/kubernetes-sigs/external-dns/master/docs/contributing/crd-source/crd-manifest.yaml"
+}
+
 settingExternalDNS() {
-  YQ_VALUES=".provider = \"aws\" |
-    .rbac.create = true |
-    .aws.credentials.accessKey = \"$AWS_ACCESS_KEY\" |
-    .aws.credentials.secretKey = \"$AWS_SECRET_KEY\" |
-    .aws.region = \"$AWS_REGION\"
-  "
+  YQ_VALUES=".domainFilters[0] = \"$VKPR_ENV_GLOBAL_DOMAIN\""
 
   if [[ $VKPR_ENV_EXTERNAL_DNS_METRICS == true ]]; then
+    createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE" 
     YQ_VALUES="$YQ_VALUES |
-      .metrics.enabled = true |
-      .metrics.serviceMonitor.enabled = true |
-      .metrics.serviceMonitor.namespace = \"$VKPR_ENV_INGRESS_NAMESPACE\" |
-      .metrics.serviceMonitor.interval = \"1m\"
+      .serviceMonitor.enabled = true |
+      .serviceMonitor.namespace = \"$VKPR_ENV_EXTERNAL_DNS_NAMESPACE\" |
+      .serviceMonitor.interval = \"1m\" |
+      .serviceMonitor.additionalLabels.release = \"prometheus-stack\"
     "
   fi
   settingExternaldnsEnvironment

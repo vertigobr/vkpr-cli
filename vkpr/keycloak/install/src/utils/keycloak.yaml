@@ -12,8 +12,12 @@ ingress:
 rbac:
   create: true
 postgresql:
+  enabled: false
   persistence:
     enabled: false
 podLabels:
   app.kubernetes.io/managed-by: vkpr
 proxy: none
+extraEnvVars:
+  - name: KEYCLOAK_EXTRA_ARGS
+    value: "--spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true"

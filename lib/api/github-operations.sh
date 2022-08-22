@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 ## GITHUB API REFERENCE: https://docs.github.com/en/rest/reference
 
@@ -16,11 +16,10 @@ githubActionsGetPublicKey(){
   {
     IFS= read -rd '' BODY
     IFS= read -rd '' HTTP_CODE
-  } < <({ out=$(curl -sSL -o /dev/stderr -w "%{http_code}" -H "Accept: application/vnd.github.v3+json" -u "${VAR_GITHUB_USERNAME}":"${VAR_GITHUB_TOKEN}" "https://api.github.com/repos/\"${VAR_OWNER_AND_REPO}\"/actions/secrets/public-key"); } 2>&1; printf '\0%s' "$out" "$?")
-
+  } < <({ out=$(curl -sSL -o /dev/stderr -w "%{http_code}" -H "Accept: application/vnd.github+json" -H "Authorization: token ${VAR_GITHUB_TOKEN}" "https://api.github.com/repos/${VAR_OWNER_AND_REPO}/actions/secrets/public-key"); } 2>&1; printf '\0%s' "$out" "$?")
   if [ "${HTTP_CODE}" == "200" ]; then
     ## return json compacted
-    echo "$BODY" | jq -c '.'
+    echo "$BODY" | $VKPR_JQ -c '.'
     return 0
   else
     error "Something wrong while getting public key from github"
@@ -46,16 +45,15 @@ githubActionsCreateUpdateSecret(){
   local VAR_GITHUB_USERNAME=$5
   local VAR_GITHUB_TOKEN=$6
 
-  KEY_ID=$(echo "$VAR_PUBLIC_KEY" | jq -r '.key_id')
-  KEY_VALUE=$(echo "$VAR_PUBLIC_KEY" | jq -r '.key')
+  KEY_ID=$(echo "$VAR_PUBLIC_KEY" | $VKPR_JQ -r '.key_id')
+  KEY_VALUE=$(echo "$VAR_PUBLIC_KEY" | $VKPR_JQ -r '.key')
 
-  SECRET=$(python3 src/lib/api/utils/github-secret-encrpty.py "${KEY_VALUE}" "${VAR_SECRET_VALUE}")
-
+  SECRET=$(python3 src/lib/api/utils/github-secret-encrypt.py "${KEY_VALUE}" "${VAR_SECRET_VALUE}")
   # https://docs.github.com/en/rest/reference/actions#create-or-update-a-repository-secret
   VARIABLE_RESPONSE_CODE=$(curl -o /dev/null -w "%{http_code}" -sX PUT \
-  -H "Accept: application/vnd.github.v3+json" \
-  -u "${VAR_GITHUB_USERNAME}":"${VAR_GITHUB_TOKEN}" \
-  https://api.github.com/repos/"${VAR_OWNER_AND_REPO}"/actions/secrets/"${VAR_SECRET_NAME}" \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: token ${VAR_GITHUB_TOKEN}" \
+  "https://api.github.com/repos/${VAR_OWNER_AND_REPO}/actions/secrets/${VAR_SECRET_NAME}" \
   -d "{\"encrypted_value\": \"${SECRET}\", \"key_id\": \"${KEY_ID}\"}")
 
   case $VARIABLE_RESPONSE_CODE in

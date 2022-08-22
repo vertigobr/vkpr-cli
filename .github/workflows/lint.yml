@@ -2,11 +2,11 @@ name: Lint code
 
 on:
   push:
-    branches: [main]
+    branches: [stage]
     paths:
       - vkpr/**/*.sh
   pull_request:
-    branches: [main]
+    branches: [stage]
     paths:
       - vkpr/**/*.sh
 

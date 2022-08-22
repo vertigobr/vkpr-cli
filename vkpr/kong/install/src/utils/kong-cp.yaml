@@ -35,9 +35,15 @@ env:
       secretKeyRef:
         name: kong-session-config
         key: portal_session_conf
+  enforce_rbac: "on"
+  password:
+    valueFrom:
+      secretKeyRef:
+        name: kong-enterprise-superuser-password
+        key: password
 image:
-  repository: kong
-  tag: "2.7"
+  repository: kong/kong-gateway
+  tag: "2.8.1.3-alpine"
 admin:
   enabled: true
   type: ClusterIP
@@ -48,8 +54,7 @@ admin:
   ingress:
     enabled: true
     hostname: api.manager.localhost
-    annotations:
-      kubernetes.io/ingress.class: "kong"
+    ingressClassName: "kong"
     path: /
   tls:
     enabled: false
@@ -61,11 +66,13 @@ proxy:
 ingressController:
   enabled: true
   installCRDs: false
-  image:
-    repository: kong/kubernetes-ingress-controller
-    tag: "2.1"
   env:
     kong_admin_tls_skip_verify: true
+    kong_admin_token:
+      valueFrom:
+        secretKeyRef:
+          name: kong-enterprise-superuser-password
+          key: password
   ingressClass: kong
   rbac:
     create: true
@@ -100,8 +107,7 @@ manager:
   ingress:
     enabled: true
     hostname: manager.localhost
-    annotations:
-      kubernetes.io/ingress.class: "kong"
+    ingressClassName: "kong"
     path: /
   tls:
     enabled: false
@@ -115,8 +121,7 @@ portal:
   ingress:
     enabled: true
     hostname: portal.localhost
-    annotations:
-      kubernetes.io/ingress.class: "kong"
+    ingressClassName: "kong"
     path: /
   tls:
     enabled: false
@@ -130,8 +135,7 @@ portalapi:
   ingress:
     enabled: true
     hostname: api.portal.localhost
-    annotations:
-      kubernetes.io/ingress.class: "kong"
+    ingressClassName: "kong"
     path: /
   tls:
     enabled: false

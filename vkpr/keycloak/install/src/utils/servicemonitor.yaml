@@ -1,0 +1,21 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: vkpr
+    release: prometheus-stack
+  name: keycloak-realm
+spec:
+  endpoints:
+    - honorLabels: true
+      port: http
+      path: /realms/master/metrics
+      scrapeTimeout: 30s
+  namespaceSelector:
+    matchNames:
+      - vkpr
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: metrics
+      app.kubernetes.io/instance: keycloak
+      app.kubernetes.io/name: keycloak

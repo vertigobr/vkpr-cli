@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   local VKPR_ENV_DEVPORTAL_DOMAIN VKPR_DEVPORTAL_VALUES HELM_ARGS;
@@ -36,7 +36,6 @@ setCredentials() {
   OKTA_CLIENT_SECRET="$($VKPR_JQ -r '.credential.clientsecret' $VKPR_CREDENTIAL/okta)"
   OKTA_CLIENT_AUDIENCE="$($VKPR_JQ -r '.credential.audience' $VKPR_CREDENTIAL/okta)"
   GITHUB_TOKEN="$($VKPR_JQ -r '.credential.token' $VKPR_CREDENTIAL/github)"
-  GITHUB_SPECHOUSEURL="$($VKPR_JQ -r '.credential.spechouseurl' $VKPR_CREDENTIAL/github)"
 }
 
 validateInputs() {
@@ -62,18 +61,20 @@ settingDevportal() {
     .githubSpecHouseURL = \"$GITHUB_SPECHOUSEURL\"
   "
 
-  if [[ $VKPR_ENV_GLOBAL_DOMAIN == "localhost" ]]; then
-    YQ_VALUES="$YQ_VALUES |
-      .appConfig.app.baseUrl = \"http://$VKPR_ENV_DEVPORTAL_DOMAIN:8000/\" |
-      .appConfig.backend.baseUrl = \"http://$VKPR_ENV_DEVPORTAL_DOMAIN:8000/\"
-    "
-  fi
-
   if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
     YQ_VALUES="$YQ_VALUES |
       .ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
       .ingress.tls[0].hosts[0] = \"$VKPR_ENV_DEVPORTAL_DOMAIN\" |
-      .ingress.tls[0].secretName = \"devportal-cert\"
+      .ingress.tls[0].secretName = \"devportal-cert\"|
+      .appConfig.app.baseUrl = \"https://$VKPR_ENV_DEVPORTAL_DOMAIN/\" |
+      .appConfig.backend.baseUrl = \"https://$VKPR_ENV_DEVPORTAL_DOMAIN/\"
+    "
+  fi
+
+  if [[ $VKPR_ENV_GLOBAL_DOMAIN == "localhost" ]]; then
+    YQ_VALUES="$YQ_VALUES |
+      .appConfig.app.baseUrl = \"http://$VKPR_ENV_DEVPORTAL_DOMAIN:8000/\" |
+      .appConfig.backend.baseUrl = \"http://$VKPR_ENV_DEVPORTAL_DOMAIN:8000/\"
     "
   fi
 

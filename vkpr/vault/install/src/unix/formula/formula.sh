@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   local VKPR_ENV_VAULT_DOMAIN VKPR_VAULT_VALUES VKPR_VAULT_CONFIG HELM_ARGS;
@@ -6,6 +6,7 @@ runFormula() {
   formulaInputs
   validateInputs
 
+  $VKPR_KUBECTL create ns $VKPR_ENV_VAULT_NAMESPACE 2> /dev/null
   VKPR_ENV_VAULT_DOMAIN="vault.${VKPR_ENV_GLOBAL_DOMAIN}"
   VKPR_VAULT_VALUES=$(dirname "$0")/utils/vault.yaml
   VKPR_VAULT_CONFIG=$(dirname "$0")/utils/config.hcl
@@ -35,34 +36,57 @@ formulaInputs() {
   # App values
   checkGlobalConfig "$VAULT_MODE" "raft" "vault.storageMode" "VAULT_STORAGE_MODE"
   checkGlobalConfig "$VAULT_AUTO_UNSEAL" "false" "vault.autoUnseal" "VAULT_AUTO_UNSEAL"
+  checkGlobalConfig "false" "false" "vault.metrics" "VAULT_METRICS"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "vault.ingressClassName" "VAULT_INGRESS_CLASS_NAME"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "vault.namespace" "VAULT_NAMESPACE"
   checkGlobalConfig "$SSL" "false" "vault.ssl.enabled" "VAULT_SSL"
+  if [[ "$VKPR_ENV_VAULT_SSL" = true ]]; then
   checkGlobalConfig "$CRT_FILE" "" "vault.ssl.crt" "VAULT_CERTIFICATE"
   checkGlobalConfig "$KEY_FILE" "" "vault.ssl.key" "VAULT_KEY"
   checkGlobalConfig "" "" "vault.ssl.secretName" "VAULT_SSL_SECRET"
   # External app values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "consul.namespace" "CONSUL_NAMESPACE"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "GRAFANA_NAMESPACE"
 }
 
 setCredentials() {
-  AWS_REGION=$($VKPR_JQ -r .credential.region "$VKPR_CREDENTIAL"/aws)
-  AWS_ACCESS_KEY=$($VKPR_JQ -r .credential.accesskeyid "$VKPR_CREDENTIAL"/aws)
-  AWS_SECRET_KEY=$($VKPR_JQ -r .credential.secretaccesskey "$VKPR_CREDENTIAL"/aws)
-  VAULT_AWSKMS_SEAL_KEY_ID=$($VKPR_JQ -r .credential.kmskeyid $VKPR_CREDENTIAL/aws)
+  if [ $VKPR_ENV_VAULT_AUTO_UNSEAL == "aws" ]; then
+    AWS_REGION=$($VKPR_JQ -r .credential.region "$VKPR_CREDENTIAL"/aws)
+    AWS_ACCESS_KEY=$($VKPR_JQ -r .credential.accesskeyid "$VKPR_CREDENTIAL"/aws)
+    AWS_SECRET_KEY=$($VKPR_JQ -r .credential.secretaccesskey "$VKPR_CREDENTIAL"/aws)
+    VAULT_AWSKMS_SEAL_KEY_ID=$($VKPR_JQ -r .credential.kmskeyid $VKPR_CREDENTIAL/aws)
+  fi
 
-  AZURE_TENANT_ID=$($VKPR_JQ -r .credential.azuretenantid $VKPR_CREDENTIAL/azure)
-  AZURE_CLIENT_ID=$($VKPR_JQ -r .credential.azureclientid $VKPR_CREDENTIAL/azure)
-  AZURE_CLIENT_SECRET=$($VKPR_JQ -r .credential.azureclientsecret $VKPR_CREDENTIAL/azure)
-  VAULT_AZUREKEYVAULT_VAULT_NAME=$($VKPR_JQ -r .credential.vaultazurekeyvaultvaultname $VKPR_CREDENTIAL/azure)
-  VAULT_AZUREKEYVAULT_KEY_NAME=$($VKPR_JQ -r .credential.vaultazurekeyvaultkeyname $VKPR_CREDENTIAL/azure)
+  if [ $VKPR_ENV_VAULT_AUTO_UNSEAL == "azure" ]; then
+    AZURE_TENANT_ID=$($VKPR_JQ -r .credential.azuretenantid $VKPR_CREDENTIAL/azure)
+    AZURE_CLIENT_ID=$($VKPR_JQ -r .credential.azureclientid $VKPR_CREDENTIAL/azure)
+    AZURE_CLIENT_SECRET=$($VKPR_JQ -r .credential.azureclientsecret $VKPR_CREDENTIAL/azure)
+    VAULT_AZUREKEYVAULT_VAULT_NAME=$($VKPR_JQ -r .credential.vaultazurekeyvaultvaultname $VKPR_CREDENTIAL/azure)
+    VAULT_AZUREKEYVAULT_KEY_NAME=$($VKPR_JQ -r .credential.vaultazurekeyvaultkeyname $VKPR_CREDENTIAL/azure)
+  fi
 }
 
 validateInputs() {
+  #App Values
+  validateVaultDomain "$VKPR_ENV_GLOBAL_DOMAIN"
+  validateVaultSecure "$VKPR_ENV_GLOBAL_SECURE"
+  validateVaultStorageMode "$VKPR_ENV_VAULT_STORAGE_MODE"
+  validateVaultSSL "$VKPR_ENV_VAULT_SSL"
+  validateVaultCertificate "$VKPR_ENV_VAULT_CERTIFICATE"
+  validateVaultKey "$VKPR_ENV_VAULT_KEY"
+
   if [ $VKPR_ENV_VAULT_AUTO_UNSEAL == "aws" ]; then
     validateAwsAccessKey "$AWS_ACCESS_KEY"
     validateAwsSecretKey "$AWS_SECRET_KEY"
     validateAwsRegion "$AWS_REGION"
+  fi
+
+  if [ $VKPR_ENV_VAULT_AUTO_UNSEAL == "azure" ]; then
+  validateAzureTenantID "$AZURE_TENANT_ID"
+  validateAzureClienteID "$AZURE_CLIENT_ID"
+  validateAzureClientSecret "$AZURE_CLIENT_SECRET"
+  validateAzureVaultName "$VAULT_AZUREKEYVAULT_VAULT_NAME"
+  validateAzureVaultKey "$VAULT_AZUREKEYVAULT_KEY_NAME"
   fi
 }
 
@@ -88,13 +112,21 @@ settingVault() {
     "
   fi
 
+  if [[ "$VKPR_ENV_VAULT_METRICS" == true ]]; then
+    $VKPR_KUBECTL apply -n $VKPR_ENV_VAULT_NAMESPACE -f $(dirname "$0")/utils/servicemonitor.yaml
+    createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
+    YQ_VALUES="$YQ_VALUES |
+      .injector.metrics.enabled = true
+    "
+  fi
+
   if [[ "$VKPR_ENV_VAULT_SSL" == "true" ]]; then
     if [[ "$VKPR_ENV_VAULT_SSL_SECRET" == "" ]]; then
       VKPR_ENV_VAULT_SSL_SECRET="vault-certificate"
       $VKPR_KUBECTL create secret tls $VKPR_ENV_VAULT_SSL_SECRET -n "$VKPR_ENV_VAULT_NAMESPACE" \
         --cert="$VKPR_ENV_VAULT_CERTIFICATE" \
         --key="$VKPR_ENV_VAULT_KEY"
-    fi 
+    fi
     YQ_VALUES="$YQ_VALUES |
       .server.ingress.tls[0].hosts[0] = \"$VKPR_ENV_VAULT_DOMAIN\" |
       .server.ingress.tls[0].secretName = \"$VKPR_ENV_VAULT_SSL_SECRET\"

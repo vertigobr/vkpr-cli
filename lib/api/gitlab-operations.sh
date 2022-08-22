@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 ## Create a new variable setting cluster-name as environment
 ## If var already exist, just update your value
@@ -19,8 +19,7 @@ createOrUpdateVariable(){
     "https://gitlab.com/api/v4/projects/${PROJECT_ENCODED}/variables" \
     --form "key=$PARAMETER_KEY" \
     --form "value=$PARAMETER_VALUE" \
-    --form "masked=$PARAMETER_MASKED" \
-    --form "environment_scope=$ENVIRONMENT_SCOPE" |\
+    --form "masked=$PARAMETER_MASKED" |\
     head -n 1 |\
     awk -F' ' '{print $2}'
   )
@@ -44,7 +43,6 @@ createOrUpdateVariable(){
   esac
 }
 
-
 ## Update gitlab variable
 # Parameters:
 # 1 - PROJECT_ENCODED
@@ -65,11 +63,11 @@ updateVariable(){
 
   # Documentation: https://docs.gitlab.com/ee/api/project_level_variables.html#update-variable
   UPDATE_CODE=$(curl -siX PUT -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
-    "https://gitlab.com/api/v4/projects/${PROJECT_ENCODED}/variables/${PARAMETER_KEY}?filter\[environment_scope\]=${ENVIRONMENT_SCOPE}" \
+    "https://gitlab.com/api/v4/projects/${PROJECT_ENCODED}/variables/${PARAMETER_KEY}" \
     --form "value=$PARAMETER_VALUE" \
     --form "masked=$PARAMETER_MASKED" |\
     head -n 1 |\
-    awk -F' ' '{print "$2"}'
+    awk -F' ' '{print $2}'
   )
   debug "UPDATE_CODE= $UPDATE_CODE"
 
@@ -78,56 +76,6 @@ updateVariable(){
   else
     error "error while updating $PARAMETER_KEY, $UPDATE_CODE"
   fi
-}
-
-
-## Create a new branch using eks-cluster-name as branch's name, or just start a new pipeline
-# Parameters:
-# 1 - PROJECT_ENCODED
-# 2 - BRANCH_NAME
-# 3 - GITLAB_TOKEN
-createBranch(){
-  local PROJECT_ENCODED="$1" \
-        BRANCH_NAME="$2" \
-        GITLAB_TOKEN="$3"
-
-  local CREATE_BRANCH_CODE
-
-  info "Creating branch named $BRANCH_NAME or justing starting a new pipeline"
-  debug "https://gitlab.com/api/v4/projects/${PROJECT_ID}/repository/branches?branch="$1"&ref=master"
-
-  # Documentation: https://docs.gitlab.com/ee/api/branches.html#create-repository-branch
-  CREATE_BRANCH_CODE=$(curl -siX POST -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
-    "https://gitlab.com/api/v4/projects/${PROJECT_ENCODED}/repository/branches?branch=$BRANCH_NAME&ref=master" |\
-    head -n 1 |\
-    awk -F' ' '{print "$2"}'
-  )
-  debug "CREATE_BRANCH_CODE: $CREATE_BRANCH_CODE"
-
-  if [ "$CREATE_BRANCH_CODE" == "400" ];then
-    createPipeline "$@"
-  fi
-}
-
-## Create a new pipeline
-# Parameters:
-# 1 - PROJECT_ENCODED
-# 2 - BRANCH_NAME
-# 3 - GITLAB_TOKEN
-createPipeline(){
-  local PROJECT_ENCODED="$1" \
-        BRANCH_NAME="$2" \
-        GITLAB_TOKEN="$3"
-
-  local RESPONSE_PIPE
-
-  # Documentation: https://docs.gitlab.com/ee/api/pipelines.html#create-a-new-pipeline
-  RESPONSE_PIPE=$(curl -sX POST -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
-    "https://gitlab.com/api/v4/projects/${PROJECT_ENCODED}/pipeline?ref=$BRANCH_NAME"
-  )
-  debug "RESPONSE_PIPE: $RESPONSE_PIPE"
-
-  info "Pipeline url: $(echo "$RESPONSE_PIPE" | $VKPR_JQ -r '.web_url')"
 }
 
 # -----------------------------------------------------------------------------
@@ -139,7 +87,7 @@ waitJobComplete(){
         PIPELINE_ID="$2" \
         JOB_COMPLETE="$3" \
         GITLAB_TOKEN="$4" \
-        JOB_TYPE="$5" # 0- Destroy | 1- Deploy | 2- Build | 3- Validate | 4- Init
+        JOB_TYPE="$5"
 
   SECONDS=0
   while [[ "$JOB_COMPLETE" != "success" ]]; do
@@ -149,8 +97,9 @@ waitJobComplete(){
     (( SECONDS + 30 ))
     JOB_COMPLETE=$(curl -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/pipelines/"$PIPELINE_ID"/jobs \
       -H "PRIVATE-TOKEN: $GITLAB_TOKEN" |\
-      $VKPR_JQ -r ".[$JOB_TYPE].status"
+      $VKPR_JQ -r ".[] | select(.name == \"$JOB_TYPE\").status"
     )
+    debug "JOB_COMPLETE=$JOB_COMPLETE"
   done
 }
 
@@ -168,8 +117,9 @@ jobDeployCluster(){
   local DEPLOY_ID;
   DEPLOY_ID=$(curl -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/pipelines/"$PIPELINE_ID"/jobs \
     -H "PRIVATE-TOKEN: $GITLAB_TOKEN" |\
-    $VKPR_JQ '.[1].id'
+    $VKPR_JQ '.[] | select(.name == "deploy").id'
   )
+  debug "DEPLOY_ID=$DEPLOY_ID"
 
   curl -sX POST https://gitlab.com/api/v4/projects/"$PROJECT_ID"/jobs/"$DEPLOY_ID"/play \
     -H "PRIVATE-TOKEN: $GITLAB_TOKEN" > /dev/null
@@ -189,8 +139,10 @@ jobDestroyCluster() {
 
   DESTROY_ID=$(curl -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/pipelines/"$PIPELINE_ID"/jobs \
     -H "PRIVATE-TOKEN: $GITLAB_TOKEN" |\
-    $VKPR_JQ '.[0].id'
+    $VKPR_JQ '.[] | select(.name == "destroy").id'
   )
+  debug "DESTROY_ID=$DESTROY_ID"
+
   curl -sX POST https://gitlab.com/api/v4/projects/"$PROJECT_ID"/jobs/"$DESTROY_ID"/play \
     -H "PRIVATE-TOKEN: $GITLAB_TOKEN" > /dev/null
   info "Destroy job started successfully"
@@ -211,8 +163,9 @@ downloadKubeconfig() {
   local DEPLOY_ID;
   DEPLOY_ID=$(curl -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/pipelines/"$PIPELINE_ID"/jobs \
     -H "PRIVATE-TOKEN: $GITLAB_TOKEN" |\
-    $VKPR_JQ '.[1].id'
+    $VKPR_JQ '.[] | select(.name == "deploy").id'
   )
+  debug "DEPLOY_ID=$DEPLOY_ID"
 
   curl --location -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/jobs/"$DEPLOY_ID"/artifacts \
     -H "PRIVATE-TOKEN: $GITLAB_TOKEN" \

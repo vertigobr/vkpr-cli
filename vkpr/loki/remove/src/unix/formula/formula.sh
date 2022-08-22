@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   info "Removing Loki..."
-  
+
   HELM_FLAG="-A"
   [[ "$VKPR_ENVIRONMENT" == "okteto" ]] && HELM_FLAG=""
   LOKI_NAMESPACE=$($VKPR_HELM ls -o=json $HELM_FLAG |\

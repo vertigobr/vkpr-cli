@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   local VKPR_LOKI_VALUES HELM_ARGS;
   formulaInputs
-  #validateInputs
+  validateInputs
 
   VKPR_LOKI_VALUES=$(dirname "$0")/utils/loki.yaml
 
@@ -24,14 +24,20 @@ startInfos() {
 formulaInputs() {
   # App values
   checkGlobalConfig "false" "false" "loki.metrics" "LOKI_METRICS"
-  checkGlobalConfig "false" "false" "loki.persistence" "LOKI_PERSISTANCE"
+  checkGlobalConfig "false" "false" "loki.persistance" "LOKI_PERSISTANCE"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "loki.namespace" "LOKI_NAMESPACE"
 
   # External app values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "GRAFANA_NAMESPACE"
 }
 
-#validateInputs() {}
+validateInputs() {
+  validateLokiMetrics "$VKPR_ENV_LOKI_METRICS"
+  validateLokiPersistence "$VKPR_ENV_LOKI_PERSISTANCE"
+  validateLokiNamespace "$VKPR_ENV_LOKI_NAMESPACE"
+
+  validatePrometheusNamespace "$VKPR_ENV_GRAFANA_NAMESPACE"
+}
 
 settingLoki() {
   YQ_VALUES=".grafana.enabled = false"
@@ -43,7 +49,6 @@ settingLoki() {
       .loki.serviceMonitor.additionalLabels.release = \"prometheus-stack\" |
       .loki.serviceMonitor.scrapeTimeout = \"30s\"
     "
-    rit vkpr prometheus-stack import
   fi
 
   if [[ "$VKPR_ENV_LOKI_PERSISTANCE" == true ]]; then
@@ -78,7 +83,7 @@ existGrafana() {
   PWD_GRAFANA=$($VKPR_KUBECTL get secret --namespace "$VKPR_ENV_GRAFANA_NAMESPACE" prometheus-stack-grafana -o=jsonpath="{.data.admin-password}" | base64 -d)
   debug "server=grafana login=$LOGIN_GRAFANA password=$PWD_GRAFANA"
 
-  createGrafanaDashboard "loki" "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
+  createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
   createGrafanaDatasource "$LOGIN_GRAFANA" "$PWD_GRAFANA"
 }
 

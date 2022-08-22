@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   local VKPR_ENV_GRAFANA_DOMAIN VKPR_ENV_ALERT_MANAGER_DOMAIN VKPR_PROMETHEUS_VALUES HELM_ARGS;
@@ -7,6 +7,7 @@ runFormula() {
 
   VKPR_ENV_GRAFANA_DOMAIN="grafana.${VKPR_ENV_GLOBAL_DOMAIN}"
   VKPR_ENV_ALERT_MANAGER_DOMAIN="alertmanager.${VKPR_ENV_GLOBAL_DOMAIN}"
+  VKPR_ENV_PROMETHEUS_DOMAIN="prometheus.${VKPR_ENV_GLOBAL_DOMAIN}"
   VKPR_PROMETHEUS_VALUES=$(dirname "$0")/utils/prometheus-stack.yaml
 
   startInfos
@@ -20,7 +21,7 @@ startInfos() {
   boldInfo "VKPR Prometheus-Stack Install Routine"
   boldNotice "Domain: $VKPR_ENV_GLOBAL_DOMAIN"
   boldNotice "Secure: $VKPR_ENV_GLOBAL_SECURE"
-  boldNotice "Ingress Controller: $VKPR_ENV_PROMETHEUS_INGRESS"
+  boldNotice "Ingress Controller: $VKPR_ENV_PROMETHEUS_STACK_INGRESS_CLASS_NAME"
   boldNotice "Grafana password: $VKPR_ENV_GRAFANA_PASSWORD"
   boldNotice "AlertManager enabled: $VKPR_ENV_ALERTMANAGER"
   bold "=============================="
@@ -33,7 +34,7 @@ formulaInputs() {
   ## AlertManager
   checkGlobalConfig "$ALERTMANAGER" "false" "prometheus-stack.alertManager.enabled" "ALERTMANAGER"
   if [[ "$VKPR_ENV_ALERTMANAGER" = true ]]; then
-    checkGlobalConfig "$HA" "false" "prometheus-stack.alertManager.HA" "ALERTMANAGER_HA"
+    checkGlobalConfig "${HA-:false}" "false" "prometheus-stack.alertManager.HA" "ALERTMANAGER_HA"
     checkGlobalConfig "false" "false" "prometheus-stack.alertManager.ssl.enabled" "ALERTMANAGER_SSL"
     checkGlobalConfig "" "" "prometheus-stack.alertManager.ssl.crt" "ALERTMANAGER_CERTIFICATE"
     checkGlobalConfig "" "" "prometheus-stack.alertManager.ssl.key" "ALERTMANAGER_KEY"
@@ -50,11 +51,22 @@ formulaInputs() {
     checkGlobalConfig "" "" "prometheus-stack.grafana.ssl.secretName" "GRAFANA_SSL_SECRET"
   fi
   ## Prometheus
+  checkGlobalConfig "false" "false" "prometheus-stack.prometheus.enabled" "PROMETHEUS"
+  if [[ "$VKPR_ENV_PROMETHEUS" = true ]]; then
+    checkGlobalConfig "false" "false" "prometheus-stack.prometheus.ssl.enabled" "PROMETHEUS_SSL"
+    checkGlobalConfig "" "" "prometheus-stack.prometheus.ssl.crt" "PROMETHEUS_CERTIFICATE"
+    checkGlobalConfig "" "" "prometheus-stack.prometheus.ssl.key" "PROMETHEUS_KEY"
+    checkGlobalConfig "" "" "prometheus-stack.prometheus.ssl.secretName" "PROMETHEUS_SSL_SECRET"
+  fi
   checkGlobalConfig "false" "false" "prometheus-stack.prometheus.persistance" "PROMETHEUS_PERSISTANCE"
 
+  # Integrate
+  checkGlobalConfig "false" "false" "prometheus-stack.grafana.openid.enabled" "GRAFANA_KEYCLOAK_OPENID"
+  checkGlobalConfig "" "" "prometheus-stack.grafana.openid.clientSecret" "GRAFANA_KEYCLOAK_OPENID_CLIENTSECRET"
 
   # External app values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "loki.namespace" "LOKI_NAMESPACE"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "keycloak.namespace" "KEYCLOAK_NAMESPACE"
 }
 
 validateInputs() {
@@ -68,9 +80,11 @@ validateInputs() {
   if [[ "$VKPR_ENV_ALERTMANAGER" = true ]]; then
     validateAlertManagerHA "$VKPR_ENV_ALERTMANAGER_HA"
     validateAlertManagerSSL "$VKPR_ENV_ALERTMANAGER_SSL"
-    validateAlertManagerCertificate "$VKPR_ENV_ALERTMANAGER_CERTIFICATE"
-    validateAlertManagerKey "$VKPR_ENV_ALERTMANAGER_KEY"
-    validateAlertManagerSecret "$VKPR_ENV_ALERTMANAGER_SSL_SECRET"
+    if [[ "$VKPR_ENV_ALERTMANAGER_SSL" = true ]]; then
+      validateAlertManagerCertificate "$VKPR_ENV_ALERTMANAGER_CERTIFICATE"
+      validateAlertManagerKey "$VKPR_ENV_ALERTMANAGER_KEY"
+      validateAlertManagerSecret "$VKPR_ENV_ALERTMANAGER_SSL_SECRET"
+    fi
   fi
   ## Grafana
   validateGrafanaPwd "$VKPR_ENV_GRAFANA_PASSWORD"
@@ -83,6 +97,15 @@ validateInputs() {
     validateGrafanaSecret "$VKPR_ENV_GRAFANA_SSL_SECRET"
   fi
   ## Prometheus
+  validatePrometheusEnabled "$VKPR_ENV_PROMETHEUS"
+  if [[ "$VKPR_ENV_PROMETHEUS" = true ]]; then
+    validatePrometheusSSL "$VKPR_ENV_PROMETHEUS_SSL"
+    if [[ "$VKPR_ENV_PROMETHEUS_SSL" = true ]]; then
+      validatePrometheusCertificate "$VKPR_ENV_PROMETHEUS_CERTIFICATE"
+      validatePrometheusKey "$VKPR_ENV_PROMETHEUS_KEY"
+      validatePrometheusSecret "$VKPR_ENV_PROMETHEUS_SSL_SECRET"
+    fi
+  fi
   validatePrometheusPersistance "$VKPR_ENV_PROMETHEUS_PERSISTANCE"
   # External app values
   validateLokiNamespace "$VKPR_ENV_LOKI_NAMESPACE"
@@ -157,9 +180,66 @@ settingGrafanaValues() {
       .grafana.persistence.size = \"8Gi\"
     "
   fi
+
+  if [[ $VKPR_ENV_GRAFANA_KEYCLOAK_OPENID == "true" ]] && [[ ! -z $VKPR_ENV_GRAFANA_KEYCLOAK_OPENID_CLIENTSECRET ]]; then
+    if [[ $VKPR_ENV_GLOBAL_DOMAIN == "localhost" ]]; then
+      KEYCLOAK_ADDRESS="http://keycloak.localhost:8000"
+      GRAFANA_ADDRESS="grafana.localhost:8000"
+    else
+      KEYCLOAK_ADDRESS="https://keycloak.${VKPR_ENV_GLOBAL_DOMAIN}"
+      GRAFANA_ADDRESS="grafana.${VKPR_ENV_GLOBAL_DOMAIN}"
+      GRAFANA_HTTPS="https"
+    fi
+
+    YQ_VALUES="$YQ_VALUES |
+      .grafana.env.GF_SERVER_ROOT_URL = \"${GRAFANA_HTTPS:-http}://${GRAFANA_ADDRESS}/\" |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_ENABLED = true |
+      .grafana.env.GF_AUTH_DISABLE_LOGIN_FORM = false |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP = true |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_AUTO_LOGIN = false |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_TLS_SKIP_VERIFY_INSECURE = true |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_NAME = \"Keycloak\" |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_CLIENT_ID = \"grafana\" |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET = \"$VKPR_ENV_GRAFANA_KEYCLOAK_OPENID_CLIENTSECRET\" |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_SCOPES = \"openid profile email\" |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH = \"contains(roles[], 'admin') && 'Admin' || contains(roles[], 'editor') && 'Editor' || 'Viewer'\" |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_AUTH_URL = \"${KEYCLOAK_ADDRESS}/realms/grafana/protocol/openid-connect/auth\" |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_TOKEN_URL = \"http://keycloak.${VKPR_ENV_KEYCLOAK_NAMESPACE}:80/realms/grafana/protocol/openid-connect/token\" |
+      .grafana.env.GF_AUTH_GENERIC_OAUTH_API_URL = \"http://keycloak.${VKPR_ENV_KEYCLOAK_NAMESPACE}:80/realms/grafana/protocol/openid-connect/userinfo\" |
+      .grafana.env.GF_AUTH_SIGNOUT_REDIRECT_URL = \"${KEYCLOAK_ADDRESS}/realms/grafana/protocol/openid-connect/logout?redirect_uri=${GRAFANA_HTTPS:-http}%3A%2F%2F${GRAFANA_ADDRESS}%2Flogin\"
+    "
+  fi
 }
 
 settingPrometheusValues() {
+  YQ_VALUES="$YQ_VALUES |
+    .prometheus.enabled = true |
+    .prometheus.ingress.enabled = true |
+    .prometheus.ingress.hosts[0] = \"$VKPR_ENV_PROMETHEUS_DOMAIN\" |
+    .prometheus.ingress.ingressClassName = \"$VKPR_ENV_PROMETHEUS_STACK_INGRESS_CLASS_NAME\"
+  "
+
+  if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
+    YQ_VALUES="$YQ_VALUES |
+      .prometheus.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
+      .prometheus.ingress.tls[0].hosts[0] = \"$VKPR_ENV_PROMETHEUS_DOMAIN\" |
+      .prometheus.ingress.tls[0].secretName = \"prometheus-cert\"
+    "
+  fi
+
+  if [[ "$VKPR_ENV_PROMETHEUS_SSL" == "true" ]]; then
+    if [[ "$VKPR_ENV_PROMETHEUS_SSL_SECRET" == "" ]]; then
+      VKPR_ENV_PROMETHEUS_SSL_SECRET="prometheus-certificate"
+      $VKPR_KUBECTL create secret tls $VKPR_ENV_PROMETHEUS_SSL_SECRET -n "$VKPR_ENV_PROMETHEUS_NAMESPACE" \
+        --cert="$VKPR_ENV_PROMETHEUS_CERTIFICATE" \
+        --key="$VKPR_ENV_PROMETHEUS_KEY"
+    fi
+    YQ_VALUES="$YQ_VALUES |
+      .prometheus.ingress.tls[0].hosts[0] = \"$VKPR_ENV_PROMETHEUS_DOMAIN\" |
+      .prometheus.ingress.tls[0].secretName = \"$VKPR_ENV_PROMETHEUS_SSL_SECRET\"
+     "
+  fi
+
   if [[ "$VKPR_ENV_PROMETHEUS_PERSISTANCE" == true ]]; then
     YQ_VALUES="$YQ_VALUES |
       .prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.accessModes[0] = \"ReadWriteOnce\" |

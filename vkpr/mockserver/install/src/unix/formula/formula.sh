@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   local VKPR_ENV_MOCKSERVER_DOMAIN VKPR_MOCKSERVER_VALUES HELM_ARGS;
@@ -10,8 +10,8 @@ runFormula() {
 
   startInfos
   settingMockServer
-  [ $DRY_RUN = false ] && registerHelmRepository mockserver https://www.mock-server.com
-  installApplication "mockserver" "mockserver/mockserver" "$VKPR_ENV_MOCKSERVER_NAMESPACE" "$VKPR_MOCKSERVER_VERSION" "$VKPR_MOCKSERVER_VALUES" "$HELM_ARGS"
+  [ $DRY_RUN = false ] && registerHelmRepository veecode-platform https://vfipaas.github.io/public-charts/
+  installApplication "mockserver" "veecode-platform/mockserver" "$VKPR_ENV_MOCKSERVER_NAMESPACE" "$VKPR_MOCKSERVER_VERSION" "$VKPR_MOCKSERVER_VALUES" "$HELM_ARGS"
 }
 
 startInfos() {
@@ -34,13 +34,22 @@ formulaInputs() {
   checkGlobalConfig "" "" "mockserver.ssl.secretName" "MOCKSERVER_SSL_SECRET"
 }
 
-#validateInputs() {}
+validateInputs() {
+  # App values
+  validateMockServerDomain "$VKPR_ENV_GLOBAL_DOMAIN"
+  validateMockServerSecure "$VKPR_ENV_GLOBAL_SECURE"
+  validateMockServerIngressClassName "$VKPR_ENV_MOCKSERVER_INGRESS_CLASS_NAME"
+  validateMockServerNamespace "$VKPR_ENV_MOCKSERVER_NAMESPACE"
+
+  validateMockServerSSL "$VKPR_ENV_MOCKSERVER_SSL"
+  if [[ "$VKPR_ENV_MOCKSERVER_SSL" = true ]]; then
+    validateMockServerCertificate "$VKPR_ENV_MOCKSERVER_CERTIFICATE"
+    validateMockServerKey "$VKPR_ENV_MOCKSERVER_KEY"
+  fi
+}
 
 settingMockServer() {
-  YQ_VALUES="$YQ_VALUES |
-    .ingress.enabled = true |
-    .ingress.ingressClass.enabled = true |
-    .ingress.hosts[0] = \"$VKPR_ENV_MOCKSERVER_DOMAIN\" |
+  YQ_VALUES=".ingress.hosts[0] = \"$VKPR_ENV_MOCKSERVER_DOMAIN\" |
     .ingress.ingressClass.name = \"$VKPR_ENV_MOCKSERVER_INGRESS_CLASS_NAME\"
   "
 
@@ -58,7 +67,7 @@ settingMockServer() {
       $VKPR_KUBECTL create secret tls $VKPR_ENV_MOCKSERVER_SSL_SECRET -n "$VKPR_ENV_MOCKSERVER_NAMESPACE" \
         --cert="$VKPR_ENV_MOCKSERVER_CERTIFICATE" \
         --key="$VKPR_ENV_MOCKSERVER_KEY"
-    fi 
+    fi
     YQ_VALUES="$YQ_VALUES |
       .ingress.tls[0].hosts[0] = \"$VKPR_ENV_MOCKSERVER_DOMAIN\" |
       .ingress.tls[0].secretName = \"$VKPR_ENV_MOCKSERVER_SSL_SECRET\"

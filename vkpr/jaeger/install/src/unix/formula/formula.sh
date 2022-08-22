@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   local VKPR_ENV_JAEGER_DOMAIN VKPR_JAEGER_VALUES HELM_ARGS;
   formulaInputs
-  #validateInputs
+  validateInputs
 
   VKPR_ENV_JAEGER_DOMAIN="jaeger.${VKPR_ENV_GLOBAL_DOMAIN}"
   VKPR_JAEGER_VALUES=$(dirname "$0")/utils/jaeger.yaml
@@ -29,18 +29,44 @@ formulaInputs() {
   checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "jaeger.ingressClassName" "JAEGER_INGRESS_CLASS_NAME"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "jaeger.namespace" "JAEGER_NAMESPACE"
   checkGlobalConfig "false" "false" "jaeger.persistence" "JAEGER_PERSISTANCE"
+  checkGlobalConfig "false" "false" "jaeger.metrics" "JAEGER_METRICS"
   checkGlobalConfig "$SSL" "false" "jaeger.ssl.enabled" "JAEGER_SSL"
   checkGlobalConfig "$CRT_FILE" "" "jaeger.ssl.crt" "JAEGER_CERTIFICATE"
   checkGlobalConfig "$KEY_FILE" "" "jaeger.ssl.key" "JAEGER_KEY"
   checkGlobalConfig "" "" "jaeger.ssl.secretName" "JAEGER_SSL_SECRET"
+
+  # External apps values
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "GRAFANA_NAMESPACE"
 }
 
-#validateInputs() {}
+validateInputs() {
+
+  validateJaegerDomain "$VKPR_ENV_GLOBAL_DOMAIN"
+  validateJaegerSecure "$VKPR_ENV_GLOBAL_SECURE"
+  validateJaegerMetrics "$VKPR_ENV_JAEGER_METRICS"
+
+  validateJaegerIngressClassName "$VKPR_ENV_JAEGER_INGRESS_CLASS_NAME"
+  validateJaegerNamespace "$VKPR_ENV_JAEGER_NAMESPACE"
+  validateJaegerPersistance "$VKPR_ENV_JAEGER_PERSISTANCE"
+
+  validateJaegerSsl "$VKPR_ENV_JAEGER_SSL"
+  if [[ $VKPR_ENV_JAEGER_SSL == true ]]; then
+    validateJaegerSslCrtPath "$VKPR_ENV_JAEGER_CERTIFICATE"
+    validateJaegerSslKeyPath "$VKPR_ENV_JAEGER_KEY"
+  fi
+}
 
 settingJaeger() {
   YQ_VALUES=".query.ingress.hosts[0] = \"$VKPR_ENV_JAEGER_DOMAIN\" |
     .query.ingress.ingressClassName = \"$VKPR_ENV_JAEGER_INGRESS_CLASS_NAME\"
   "
+  if [[ "$VKPR_ENV_JAEGER_METRICS" == true ]]; then
+    createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE" 
+    YQ_VALUES="$YQ_VALUES |
+      .query.serviceMonitor.enabled= true |
+      .query.serviceMonitor.additionalLabels.release = \"prometheus-stack\"
+    "
+  fi
 
   if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
     YQ_VALUES="$YQ_VALUES |
@@ -63,7 +89,7 @@ settingJaeger() {
       $VKPR_KUBECTL create secret tls $VKPR_ENV_JAEGER_SSL_SECRET -n "$VKPR_ENV_JAEGER_NAMESPACE" \
         --cert="$VKPR_ENV_JAEGER_CERTIFICATE" \
         --key="$VKPR_ENV_JAEGER_KEY"
-    fi 
+    fi
     YQ_VALUES="$YQ_VALUES |
       .query.ingress.tls[0].hosts[0] = \"$VKPR_ENV_JAEGER_DOMAIN\" |
       .query.ingress.tls[0].secretName = \"$VKPR_ENV_JAEGER_NAMESPACE/$VKPR_ENV_JAEGER_SSL_SECRET\"

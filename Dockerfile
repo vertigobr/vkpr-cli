@@ -3,7 +3,7 @@ ARG version
 #-----------------------------------------------
 # INSTALL DEPENDENCIES
 #-----------------------------------------------
-RUN apk add --no-cache bash curl && \
+RUN apk add --no-cache bash curl openssl && \
   rm -rf /var/cache/apk/*
 
 #-----------------------------------------------

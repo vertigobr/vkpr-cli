@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: vkpr
+    release: prometheus-stack
+  name: consul
+spec:
+  endpoints:
+    - honorLabels: true
+      port: http
+      path: /v1/agent/metrics
+      scrapeTimeout: 30s
+  namespaceSelector:
+    matchNames:
+      - vkpr
+  selector:
+    matchLabels:
+      app: consul
+      release: consul

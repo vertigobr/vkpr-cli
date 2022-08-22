@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 
 runFormula() {
   local VKPR_INGRESS_VALUES HELM_ARGS;
   formulaInputs
-  #validateInputs
+  validateInputs
 
   VKPR_INGRESS_VALUES="$(dirname "$0")"/utils/ingress.yaml
 
@@ -22,33 +22,34 @@ startInfos() {
 
 formulaInputs() {
   # App values
-  checkGlobalConfig "$LB_TYPE" "Classic" "ingress.loadBalancerType" "INGRESS_LB_TYPE"
+  checkGlobalConfig "localhost" "localhost" "global.domain" "GLOBAL_DOMAIN"
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "ingress.namespace" "INGRESS_NAMESPACE"
   checkGlobalConfig "false" "false" "ingress.metrics" "INGRESS_METRICS"
   checkGlobalConfig "$SSL" "false" "ingress.ssl.enabled" "INGRESS_SSL"
-  checkGlobalConfig "nginx-cert" "nginx-cert" "ingress.ssl.secretName" "INGRESS_SSL_SECRET"
   checkGlobalConfig "$CRT_FILE" "" "ingress.ssl.crt" "INGRESS_CERTIFICATE"
   checkGlobalConfig "$KEY_FILE" "" "ingress.ssl.key" "INGRESS_KEY"
-  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "ingress.namespace" "INGRESS_NAMESPACE"
+  checkGlobalConfig "nginx-cert" "nginx-cert" "ingress.ssl.secretName" "INGRESS_SSL_SECRET"
 
   # External apps values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "GRAFANA_NAMESPACE"
 }
 
-#validateInputs() {}
+validateInputs() {
+  validateIngressNamespace "$VKPR_ENV_INGRESS_NAMESPACE"
+  validateIngressMetrics "$VKPR_ENV_INGRESS_METRICS"
+
+  validateIngressSSL "$VKPR_ENV_INGRESS_SSL"
+  if [[ "$VKPR_ENV_INGRESS_SSL" = true ]]; then
+    validateIngressCertificate "$VKPR_ENV_INGRESS_CERTIFICATE"
+    validateIngressKey "$VKPR_ENV_INGRESS_KEY"
+  fi
+}
 
 settingIngress() {
   YQ_VALUES=".rbac.create = true"
 
-  if [[ "$VKPR_ENV_INGRESS_LB_TYPE" == "NLB" ]]; then
-    YQ_VALUES="
-      .controller.service.annotations.[\"service.beta.kubernetes.io/aws-load-balancer-backend-protocol\"] = \"tcp\" |
-      .controller.service.annotations.[\"service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled\"] = \"true\" |
-      .controller.service.annotations.[\"service.beta.kubernetes.io/aws-load-balancer-type\"] = \"nlb\"
-    "
-  fi
-
   if [[ "$VKPR_ENV_INGRESS_METRICS" == "true" ]]; then
-    createGrafanaDashboard "nginx" "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
+    createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
     YQ_VALUES="$YQ_VALUES |
       .controller.metrics.enabled = true |
       .controller.metrics.service.annotations.[\"prometheus.io/scrape\"] = \"true\" |

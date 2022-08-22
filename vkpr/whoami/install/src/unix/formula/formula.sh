@@ -1,12 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   local VKPR_ENV_WHOAMI_DOMAIN VKPR_WHOAMI_VALUES HELM_ARGS;
-  formulaInputs
-  validateInputs
-
+  
   VKPR_ENV_WHOAMI_DOMAIN="whoami.${VKPR_ENV_GLOBAL_DOMAIN}"
   VKPR_WHOAMI_VALUES=$(dirname "$0")/utils/whoami.yaml
+  
+  formulaInputs
+  validateInputs
 
   startInfos
   settingWhoami
@@ -35,7 +36,13 @@ formulaInputs() {
 }
 
 validateInputs() {
+  validateWhoamiDomain "$VKPR_ENV_WHOAMI_DOMAIN"
   validateWhoamiSecure "$VKPR_ENV_GLOBAL_SECURE"
+  validateWhoamiSsl "$VKPR_ENV_WHOAMI_SSL"
+  if [[ "$VKPR_ENV_WHOAMI_SSL" == true  ]] ; then
+    validateWhoamiSslCrtPath "$VKPR_ENV_WHOAMI_SSL_CERTIFICATE"
+    validateWhoamiSslKeyPath "$VKPR_ENV_WHOAMI_SSL_KEY"
+  fi
 }
 
 settingWhoami() {

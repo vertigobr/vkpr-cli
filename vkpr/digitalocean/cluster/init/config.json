@@ -1,6 +1,35 @@
 {
   "inputs": [
     {
+      "tutorial": "Specifies the project location to fork",
+      "label": "Project location:",
+      "name": "cluster_project_location",
+      "type": "text",
+      "default": "user",
+      "required": true,
+      "items": [
+        "user",
+        "groups"
+      ]
+    },
+    {
+      "tutorial": "Specifies your group path",
+      "condition": {
+        "variable": "cluster_project_location",
+        "operator": "==",
+        "value": "groups"
+      },
+      "label": "Location path:",
+      "name": "cluster_project_location_path",
+      "type": "text",
+      "required": false,
+      "cache": {
+        "active": true,
+        "qty": 2,
+        "newLabel": "Type another location path"
+      }
+    },
+    {
       "tutorial": "Specifies the Cluster name",
       "label": "Type the Cluster name:",
       "name": "do_cluster_name",
@@ -47,12 +76,12 @@
       "label": "Choose nodes instance type:",
       "name": "do_cluster_node_instance_type",
       "type": "text",
-      "default": "s-2vcpu-2gb (vCPU:2, Mem: 2Gib)",
+      "default": "s-2vcpu-2gb",
       "required": true,
       "items": [
-        "s-2vcpu-2gb (vCPU:2, Mem: 2Gib)",
-        "s-2vcpu-4gb (vCPU:2, Mem: 4Gib)",
-        "s-4vcpu-8gb (vCPU:4, Mem: 8Gib)"
+        "s-2vcpu-2gb",
+        "s-2vcpu-4gb",
+        "s-4vcpu-8gb"
       ]
     },
     {

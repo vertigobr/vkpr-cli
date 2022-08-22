@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 export VKPR_HOME=~/.vkpr \
   VKPR_CONFIG=~/.vkpr/config \

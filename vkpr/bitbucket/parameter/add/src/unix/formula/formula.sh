@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 runFormula() {
   info "Creating new secret ${PARAMETER_NAME}"

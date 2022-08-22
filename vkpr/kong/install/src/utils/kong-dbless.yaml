@@ -4,23 +4,27 @@ env:
   database: "off"
   log_level: notice
   admin_gui_url: "http://manager.localhost:8000"
-  admin_api_uri: "http://api.manager.localhost:8000"
+  admin_api_uri: "http://manager.localhost:8000/api"
+  proxy_url: "http://localhost:8000"
 image:
-  repository: kong
-  tag: "2.7"
+  repository: kong/kong-gateway
+  tag: "2.8.1.3-alpine"
 admin:
   enabled: true
   type: ClusterIP
+  annotations:
+    konghq.com/plugins: kong-admin-basicauth
   http:
     enabled: true
     servicePort: 8001
     containerPort: 8001
   ingress:
     enabled: true
-    hostname: api.manager.localhost
     annotations:
-      kubernetes.io/ingress.class: "kong"
-    path: /
+      konghq.com/strip-path: true
+    hostname: manager.localhost
+    ingressClassName: "kong"
+    path: /api
   tls:
     enabled: false
 proxy:
@@ -31,16 +35,15 @@ proxy:
     servicePort: 80
     containerPort: 8000
   tls:
-    enabled: false
+    enabled: true
+    servicePort: 443
+    containerPort: 8443
 # -----------------------------------------------------------------------------
 # Ingress Controller parameters
 # -----------------------------------------------------------------------------
 ingressController:
   enabled: true
   installCRDs: false
-  image:
-    repository: kong/kubernetes-ingress-controller
-    tag: "2.1"
   env:
     kong_admin_tls_skip_verify: true
   ingressClass: kong
@@ -51,6 +54,7 @@ ingressController:
 # -----------------------------------------------------------------------------
 enterprise:
   enabled: true
+  license_secret: "kong-enterprise-license"
 manager:
   enabled: true
   type: ClusterIP
@@ -61,8 +65,7 @@ manager:
   ingress:
     enabled: true
     hostname: manager.localhost
-    annotations:
-      kubernetes.io/ingress.class: "kong"
+    ingressClassName: "kong"
     path: /
   tls:
     enabled: false
