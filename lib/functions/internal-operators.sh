@@ -37,8 +37,8 @@ checkGlobalConfig(){
 }
 
 globalInputs() {
-  checkGlobalConfig "$DOMAIN" "localhost" "global.domain" "GLOBAL_DOMAIN"
-  checkGlobalConfig "$SECURE" "false" "global.secure" "GLOBAL_SECURE"
+  checkGlobalConfig "${DOMAIN:-localhost}" "localhost" "global.domain" "GLOBAL_DOMAIN"
+  checkGlobalConfig "${SECURE:-false}" "false" "global.secure" "GLOBAL_SECURE"
   checkGlobalConfig "nginx" "nginx" "global.ingressClassName" "GLOBAL_INGRESS_CLASS_NAME"
   checkGlobalConfig "vkpr" "vkpr" "global.namespace" "GLOBAL_NAMESPACE"
   checkGlobalConfig "" "" "global.provider" "GLOBAL_PROVIDER"
