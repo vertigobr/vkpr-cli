@@ -59,7 +59,7 @@ validateInputs() {
   validateDigitalOceanClusterVersion "$VKPR_ENV_DO_CLUSTER_VERSION"
   validateDigitalOceanClusterRegion "$VKPR_ENV_DO_CLUSTER_REGION"
   validateDigitalOceanInstanceType "$VKPR_ENV_DO_CLUSTER_NODES_INSTANCE_TYPE"
-  validateDigitalOceanClusterSize "$VKPR_ENV_DO_CLUSTER_QUANTIFY_SIZE"
+  validateDigitalOceanClusterSize "$VKPR_ENV_DO_CLUSTER_QUANTITY_SIZE"
   validateDigitalOceanApiToken "$DO_TOKEN"
   validateGitlabUsername "$GITLAB_USERNAME"
   validateGitlabToken "$GITLAB_TOKEN"
