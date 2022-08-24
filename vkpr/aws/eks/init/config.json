@@ -66,7 +66,7 @@
       "label": "Choose nodes instance type:",
       "name": "eks_cluster_node_instance_type",
       "type": "text",
-      "default": "m5.large",
+      "default": "t3.small",
       "required": true,
       "items": [
         "t3.small",
