@@ -1,0 +1,47 @@
+{
+  "inputs": [
+    {
+      "tutorial": "Specifies the realm name to be imported",
+      "label": "Type the realm name:",
+      "name": "realm_name",
+      "type": "text"
+    },
+    {
+      "tutorial": "Specifies the Keycloak Super admin username",
+      "label": "Type the keycloak super admin username:",
+      "name": "keycloak_username",
+      "type": "text"
+    },
+    {
+      "tutorial": "Specifies the Keycloak Super admin password",
+      "label": "Type the keycloak super admin password:",
+      "name": "keycloak_password",
+      "type": "password"
+    },
+    {
+      "tutorial": "Specifies which provider will be configured",
+      "label": "Which provider will be used:",
+      "name": "provider_name",
+      "type": "text",
+      "default": "google",
+      "items": [
+        "google",
+        "github"
+      ]
+    },
+    {
+      "tutorial": "Specifies the Provider ClientID",
+      "label": "Type the Provider ClientID:",
+      "name": "clientid",
+      "type": "text"
+    },
+    {
+      "tutorial": "Specifies the Provider Client Secret",
+      "label": "Type the Provider Client Secret:",
+      "name": "clientsecret",
+      "type": "password"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease": "2.17.1"
+}
