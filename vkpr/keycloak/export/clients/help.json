@@ -1,4 +1,0 @@
-{
-  "short": "Export all clients from the realm specified in Keycloak database",
-  "long": "Export all clients from the realm specified in Keycloak database"
-}

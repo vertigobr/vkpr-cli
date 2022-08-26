@@ -34,6 +34,9 @@ formulaInputs() {
   checkGlobalConfig "$HA" "false" "postgresql.HA" "POSTGRESQL_HA"
   checkGlobalConfig "false" "false" "postgresql.metrics" "POSTGRESQL_METRICS"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "postgresql.namespace" "POSTGRESQL_NAMESPACE"
+
+  # External apps values
+  checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "GRAFANA_NAMESPACE"
 }
 
 validateInputs() {
@@ -50,6 +53,7 @@ settingPostgresql() {
   "
 
   if [[ "$VKPR_ENV_POSTGRESQL_METRICS" == "true" ]]; then
+    createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE" 
     YQ_VALUES="$YQ_VALUES |
       .metrics.enabled = true |
       .metrics.serviceMonitor.enabled = true |
@@ -92,6 +96,7 @@ settingPostgresqlHA() {
   "
 
   if [[ "$VKPR_ENV_POSTGRESQL_METRICS" == "true" ]]; then
+    createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE" 
     YQ_VALUES="$YQ_VALUES |
       .metrics.enabled = \"true\" |
       .metrics.serviceMonitor.enabled = \"true\" |

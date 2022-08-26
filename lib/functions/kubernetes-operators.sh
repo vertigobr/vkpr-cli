@@ -70,12 +70,13 @@ createGrafanaDashboard() {
 
   GRAFANA_ADDRESS="grafana.${VKPR_ENV_GLOBAL_DOMAIN}"
   [[ $VKPR_ENV_GLOBAL_DOMAIN == "localhost" ]] && GRAFANA_ADDRESS="grafana.localhost:8000"
-
+  debug "GRAFANA ADDRESS = $GRAFANA_ADDRESS"
   CREATE_DASHBOARD=$(curl -s -X POST -H "Content-Type: application/json" \
     -d @/tmp/dashboard-grafana.json http://$LOGIN_GRAFANA:$PWD_GRAFANA@$GRAFANA_ADDRESS/api/dashboards/db |\
     $VKPR_JQ -r '.status' -
   )
-  debug "$CREATE_DASHBOARD"
+  
+  debug "STATUS = $CREATE_DASHBOARD"
 
   if [[ $CREATE_DASHBOARD == "name-exists" ]]; then
     error "Dashboard with same name already exists"
