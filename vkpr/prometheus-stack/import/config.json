@@ -1,13 +1,6 @@
 {
   "inputs": [
     {
-      "tutorial": "Specifies the name of the Dashboard to be imported",
-      "label": "Type the name of the dashboard: ",
-      "name": "dashboard_name",
-      "type": "text",
-      "required": true
-    },
-    {
       "tutorial": "Specifies the path from dashboard file",
       "label": "Type the full path from the dashboard file: ",
       "name": "dashboard_path",

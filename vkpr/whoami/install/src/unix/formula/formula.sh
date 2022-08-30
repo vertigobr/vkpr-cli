@@ -2,10 +2,10 @@
 
 runFormula() {
   local VKPR_ENV_WHOAMI_DOMAIN VKPR_WHOAMI_VALUES HELM_ARGS;
-  
+
   VKPR_ENV_WHOAMI_DOMAIN="whoami.${VKPR_ENV_GLOBAL_DOMAIN}"
   VKPR_WHOAMI_VALUES=$(dirname "$0")/utils/whoami.yaml
-  
+
   formulaInputs
   validateInputs
 
@@ -28,8 +28,8 @@ startInfos() {
 formulaInputs() {
   # App values
   checkGlobalConfig "$SSL" "false" "whoami.ssl.enabled" "WHOAMI_SSL"
-  checkGlobalConfig "$CRT_FILE" "" "whoami.ssl.crt" "WHOAMI_CERTIFICATE"
-  checkGlobalConfig "$KEY_FILE" "" "whoami.ssl.key" "WHOAMI_KEY"
+  checkGlobalConfig "$CRT_FILE" "" "whoami.ssl.crt" "WHOAMI_SSL_CERTIFICATE"
+  checkGlobalConfig "$KEY_FILE" "" "whoami.ssl.key" "WHOAMI_SSL_KEY"
   checkGlobalConfig "" "" "whoami.ssl.secretName" "WHOAMI_SSL_SECRET"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "whoami.ingressClassName" "WHOAMI_INGRESS_CLASS_NAME"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "whoami.namespace" "WHOAMI_NAMESPACE"
@@ -62,8 +62,8 @@ settingWhoami() {
     if [[ "$VKPR_ENV_WHOAMI_SSL_SECRET" == "" ]]; then
       VKPR_ENV_WHOAMI_SSL_SECRET="whoami-certificate"
       $VKPR_KUBECTL create secret tls $VKPR_ENV_WHOAMI_SSL_SECRET -n "$VKPR_ENV_WHOAMI_NAMESPACE" \
-        --cert="$VKPR_ENV_WHOAMI_CERTIFICATE" \
-        --key="$VKPR_ENV_WHOAMI_KEY"
+        --cert="$VKPR_ENV_WHOAMI_SSL_CERTIFICATE" \
+        --key="$VKPR_ENV_WHOAMI_SSL_KEY"
     fi
     YQ_VALUES="$YQ_VALUES |
       .ingress.tls[0].hosts[0] = \"$VKPR_ENV_WHOAMI_DOMAIN\" |

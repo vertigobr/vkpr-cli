@@ -3,7 +3,7 @@
     {
       "tutorial": "Specifies the project location to fork",
       "label": "Project location:",
-      "name": "eks_project_location",
+      "name": "project_location",
       "type": "text",
       "default": "user",
       "required": true,
@@ -15,12 +15,12 @@
     {
       "tutorial": "Specifies your group path",
       "condition": {
-        "variable": "eks_project_location",
+        "variable": "project_location",
         "operator": "==",
         "value": "groups"
       },
       "label": "Location path:",
-      "name": "eks_project_location_path",
+      "name": "project_location_path",
       "type": "text",
       "required": false,
       "cache": {
@@ -32,7 +32,7 @@
     {
       "tutorial": "Specifies the EKS Cluster name",
       "label": "EKS cluster name:",
-      "name": "eks_cluster_name",
+      "name": "cluster_name",
       "type": "text",
       "default": "eks-sample",
       "required": true,
@@ -49,7 +49,7 @@
     {
       "tutorial": "Specifies the EKS Kubernetes Version",
       "label": "K8s version",
-      "name": "eks_k8s_version",
+      "name": "k8s_version",
       "type": "text",
       "default": "1.20",
       "required": true,
@@ -64,7 +64,7 @@
     {
       "tutorial": "Specifies the EKS Node instance type",
       "label": "Choose nodes instance type:",
-      "name": "eks_cluster_node_instance_type",
+      "name": "cluster_node_instance_type",
       "type": "text",
       "default": "t3.small",
       "required": true,
@@ -80,7 +80,7 @@
     {
       "tutorial": "Specifies the number of Nodes",
       "label": "Desired number of nodes:",
-      "name": "eks_cluster_size",
+      "name": "cluster_size",
       "type": "text",
       "default": "1",
       "required": true,
@@ -92,7 +92,7 @@
     {
       "tutorial": "Specifies the Node Group capacity type",
       "label": "Choose the capacity type from the nodes:",
-      "name": "eks_capacity_type",
+      "name": "capacity_type",
       "type": "text",
       "default": "on_demand",
       "required": true,

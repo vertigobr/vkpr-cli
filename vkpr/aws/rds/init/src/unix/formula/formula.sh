@@ -7,8 +7,8 @@ runFormula() {
 
   info "Create db instance..."
   $VKPR_AWS rds create-db-instance \
-    --db-instance-identifier "$RDS_INSTANCE_NAME" \
-    --db-instance-class "$RDS_INSTANCE_TYPE" \
+    --db-instance-identifier "$VKPR_ENV_RDS_INSTANCE_NAME" \
+    --db-instance-class "$VKPR_ENV_RDS_INSTANCE_TYPE" \
     --db-name "$VKPR_ENV_RDS_DB_NAME" \
     --engine postgres \
     --master-username "$VKPR_ENV_RDS_DB_USER" \
@@ -30,8 +30,8 @@ startInfos() {
 
 formulaInputs() {
   # App values
-  checkGlobalConfig "$RDS_INSTANCE_NAME" "rds-sample" "aws.rds.instanceName" "RDS_INSTANCE_NAME"
-  checkGlobalConfig "$RDS_INSTANCE_TYPE" "db.t3.micro" "aws.rds.instanceType" "RDS_INSTANCE_TYPE"
+  checkGlobalConfig "$INSTANCE_NAME" "rds-sample" "aws.rds.instanceName" "RDS_INSTANCE_NAME"
+  checkGlobalConfig "$INSTANCE_TYPE" "db.t3.micro" "aws.rds.instanceType" "RDS_INSTANCE_TYPE"
   checkGlobalConfig "$DBNAME" "vkprDb" "aws.rds.dbName" "RDS_DB_NAME"
   checkGlobalConfig "$DBUSER" "vkprUser" "aws.rds.dbUser" "RDS_DB_USER"
   checkGlobalConfig "$DBPASSWORD" "vkpr1234" "aws.rds.dbPassword" "RDS_DB_PASSWORD"

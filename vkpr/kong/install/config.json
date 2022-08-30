@@ -21,7 +21,7 @@
     {
       "tutorial": "Specifies the type of Kong Deployment",
       "label": "Kong Mode: (Hybrid only available in Kong Enterprise)",
-      "name": "kong_mode",
+      "name": "mode",
       "type": "text",
       "default": "dbless",
       "items": [
@@ -33,12 +33,12 @@
     {
       "tutorial": "Specifies the Plane to install on Hybrid Mode",
       "condition": {
-        "variable": "kong_mode",
+        "variable": "mode",
         "operator": "==",
         "value": "hybrid"
       },
       "label": "Select the plane to install",
-      "name": "kong_plane",
+      "name": "plane",
       "type": "text",
       "default": "control",
       "items": [
@@ -49,24 +49,24 @@
     {
       "tutorial": "Specifies which Kong CP to point at",
       "condition": {
-        "variable": "kong_plane",
+        "variable": "plane",
         "operator": "==",
         "value": "data"
       },
       "label": "Kong Control Plane",
-      "name": "kong_cp_url",
+      "name": "cp_url",
       "type": "text",
       "default": "kong-kong-cluster.vkpr.svc.cluster.local:8005"
     },
     {
       "tutorial": "Specifies which telemetry endpoint to point at",
       "condition": {
-        "variable": "kong_plane",
+        "variable": "plane",
         "operator": "==",
         "value": "data"
       },
       "label": "Kong Telemetry Endpoint",
-      "name": "kong_telemetry_url",
+      "name": "telemetry_url",
       "type": "text",
       "default": "kong-kong-clustertelemetry.vkpr.svc.cluster.local:8006"
     },
@@ -101,7 +101,7 @@
       ]
     },
     {
-      "tutorial": "Specifies if output the values from the application",
+      "tutorial": "Simulate an install",
       "label": "Dry-run ?",
       "name": "dry_run",
       "type": "bool",

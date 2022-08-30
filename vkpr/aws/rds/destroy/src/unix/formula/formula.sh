@@ -13,7 +13,7 @@ runFormula() {
 
 formulaInputs() {
   # App values
-  checkGlobalConfig "$RDS_INSTANCE_NAME" "rds-sample" "aws.rds.instanceName" "RDS_INSTANCE_NAME"
+  checkGlobalConfig "$INSTANCE_NAME" "rds-sample" "aws.rds.instanceName" "RDS_INSTANCE_NAME"
 }
 
 setCredentials() {

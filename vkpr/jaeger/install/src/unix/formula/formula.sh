@@ -28,11 +28,11 @@ formulaInputs() {
   # App values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "jaeger.ingressClassName" "JAEGER_INGRESS_CLASS_NAME"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "jaeger.namespace" "JAEGER_NAMESPACE"
-  checkGlobalConfig "false" "false" "jaeger.persistence" "JAEGER_PERSISTANCE"
+  checkGlobalConfig "false" "false" "jaeger.persistence" "JAEGER_PERSISTENCE"
   checkGlobalConfig "false" "false" "jaeger.metrics" "JAEGER_METRICS"
   checkGlobalConfig "$SSL" "false" "jaeger.ssl.enabled" "JAEGER_SSL"
-  checkGlobalConfig "$CRT_FILE" "" "jaeger.ssl.crt" "JAEGER_CERTIFICATE"
-  checkGlobalConfig "$KEY_FILE" "" "jaeger.ssl.key" "JAEGER_KEY"
+  checkGlobalConfig "$CRT_FILE" "" "jaeger.ssl.crt" "JAEGER_SSL_CERTIFICATE"
+  checkGlobalConfig "$KEY_FILE" "" "jaeger.ssl.key" "JAEGER_SSL_KEY"
   checkGlobalConfig "" "" "jaeger.ssl.secretName" "JAEGER_SSL_SECRET"
 
   # External apps values
@@ -51,8 +51,8 @@ validateInputs() {
 
   validateJaegerSsl "$VKPR_ENV_JAEGER_SSL"
   if [[ $VKPR_ENV_JAEGER_SSL == true ]]; then
-    validateJaegerSslCrtPath "$VKPR_ENV_JAEGER_CERTIFICATE"
-    validateJaegerSslKeyPath "$VKPR_ENV_JAEGER_KEY"
+    validateJaegerSslCrtPath "$VKPR_ENV_JAEGER_SSL_CERTIFICATE"
+    validateJaegerSslKeyPath "$VKPR_ENV_JAEGER_SSL_KEY"
   fi
 }
 
@@ -60,8 +60,8 @@ settingJaeger() {
   YQ_VALUES=".query.ingress.hosts[0] = \"$VKPR_ENV_JAEGER_DOMAIN\" |
     .query.ingress.ingressClassName = \"$VKPR_ENV_JAEGER_INGRESS_CLASS_NAME\"
   "
-  if [[ "$VKPR_ENV_JAEGER_METRICS" == true ]]; then
-    createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE" 
+  if [[ "$VKPR_ENV_JAEGER_METRICS" == true ]] && [[ $(checkPodName "$VKPR_ENV_GRAFANA_NAMESPACE" "prometheus-stack-grafana") == "true" ]]; then
+    createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
     YQ_VALUES="$YQ_VALUES |
       .query.serviceMonitor.enabled= true |
       .query.serviceMonitor.additionalLabels.release = \"prometheus-stack\"
@@ -87,8 +87,8 @@ settingJaeger() {
     if [[ "$VKPR_ENV_JAEGER_SSL_SECRET" == "" ]]; then
       VKPR_ENV_JAEGER_SSL_SECRET="jaeger-certificate"
       $VKPR_KUBECTL create secret tls $VKPR_ENV_JAEGER_SSL_SECRET -n "$VKPR_ENV_JAEGER_NAMESPACE" \
-        --cert="$VKPR_ENV_JAEGER_CERTIFICATE" \
-        --key="$VKPR_ENV_JAEGER_KEY"
+        --cert="$VKPR_ENV_JAEGER_SSL_CERTIFICATE" \
+        --key="$VKPR_ENV_JAEGER_SSL_KEY"
     fi
     YQ_VALUES="$YQ_VALUES |
       .query.ingress.tls[0].hosts[0] = \"$VKPR_ENV_JAEGER_DOMAIN\" |

@@ -22,12 +22,11 @@ startInfos() {
 
 formulaInputs() {
   # App values
-  checkGlobalConfig "localhost" "localhost" "global.domain" "GLOBAL_DOMAIN"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "ingress.namespace" "INGRESS_NAMESPACE"
   checkGlobalConfig "false" "false" "ingress.metrics" "INGRESS_METRICS"
   checkGlobalConfig "$SSL" "false" "ingress.ssl.enabled" "INGRESS_SSL"
-  checkGlobalConfig "$CRT_FILE" "" "ingress.ssl.crt" "INGRESS_CERTIFICATE"
-  checkGlobalConfig "$KEY_FILE" "" "ingress.ssl.key" "INGRESS_KEY"
+  checkGlobalConfig "$CRT_FILE" "" "ingress.ssl.crt" "INGRESS_SSL_CERTIFICATE"
+  checkGlobalConfig "$KEY_FILE" "" "ingress.ssl.key" "INGRESS_SSL_KEY"
   checkGlobalConfig "nginx-cert" "nginx-cert" "ingress.ssl.secretName" "INGRESS_SSL_SECRET"
 
   # External apps values
@@ -40,15 +39,15 @@ validateInputs() {
 
   validateIngressSSL "$VKPR_ENV_INGRESS_SSL"
   if [[ "$VKPR_ENV_INGRESS_SSL" = true ]]; then
-    validateIngressCertificate "$VKPR_ENV_INGRESS_CERTIFICATE"
-    validateIngressKey "$VKPR_ENV_INGRESS_KEY"
+    validateIngressCertificate "$VKPR_ENV_INGRESS_SSL_CERTIFICATE"
+    validateIngressKey "$VKPR_ENV_INGRESS_SSL_KEY"
   fi
 }
 
 settingIngress() {
   YQ_VALUES=".rbac.create = true"
 
-  if [[ "$VKPR_ENV_INGRESS_METRICS" == "true" ]]; then
+  if [[ "$VKPR_ENV_INGRESS_METRICS" == "true" ]] && [[ $(checkPodName "$VKPR_ENV_GRAFANA_NAMESPACE" "prometheus-stack-grafana") == "true" ]]; then
     createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
     YQ_VALUES="$YQ_VALUES |
       .controller.metrics.enabled = true |
@@ -62,8 +61,8 @@ settingIngress() {
 
   if [[ "$VKPR_ENV_INGRESS_SSL" == "true" ]]; then
     [[ "$VKPR_ENV_INGRESS_SSL_SECRET" == "nginx-cert" ]] && $VKPR_KUBECTL create secret tls nginx-cert -n "$VKPR_ENV_INGRESS_NAMESPACE" \
-      --cert="$VKPR_ENV_INGRESS_CERTIFICATE" \
-      --key="$VKPR_ENV_INGRESS_KEY"
+      --cert="$VKPR_ENV_INGRESS_SSL_CERTIFICATE" \
+      --key="$VKPR_ENV_INGRESS_SSL_KEY"
     YQ_VALUES="$YQ_VALUES |
       .controller.extraArgs.default-ssl-certificate = \"$VKPR_ENV_INGRESS_NAMESPACE/$VKPR_ENV_INGRESS_SSL_SECRET\"
      "

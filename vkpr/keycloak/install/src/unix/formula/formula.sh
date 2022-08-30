@@ -40,8 +40,8 @@ formulaInputs() {
   checkGlobalConfig "false" "false" "keycloak.metrics" "KEYCLOAK_METRICS"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "keycloak.namespace" "KEYCLOAK_NAMESPACE"
   checkGlobalConfig "$SSL" "false" "keycloak.ssl.enabled" "KEYCLOAK_SSL"
-  checkGlobalConfig "$CRT_FILE" "" "keycloak.ssl.crt" "KEYCLOAK_CERTIFICATE"
-  checkGlobalConfig "$KEY_FILE" "" "keycloak.ssl.key" "KEYCLOAK_KEY"
+  checkGlobalConfig "$CRT_FILE" "" "keycloak.ssl.crt" "KEYCLOAK_SSL_CERTIFICATE"
+  checkGlobalConfig "$KEY_FILE" "" "keycloak.ssl.key" "KEYCLOAK_SSL_KEY"
   checkGlobalConfig "" "" "keycloak.ssl.secretName" "KEYCLOAK_SSL_SECRET"
 
   # Integrate
@@ -71,8 +71,8 @@ validateInputs() {
   validateKeycloakMetrics "$VKPR_ENV_KEYCLOAK_METRICS"
   validateKeycloakSsl "$VKPR_ENV_KEYCLOAK_SSL"
   if [[ $VKPR_ENV_KEYCLOAK_SSL == true ]]; then
-    validateKeycloakCrt "$VKPR_ENV_KEYCLOAK_CERTIFICATE"
-    validateKeycloakKey "$VKPR_ENV_KEYCLOAK_KEY"
+    validateKeycloakCrt "$VKPR_ENV_KEYCLOAK_SSL_CERTIFICATE"
+    validateKeycloakKey "$VKPR_ENV_KEYCLOAK_SSL_KEY"
   fi
   validatePostgresqlNamespace "$VKPR_ENV_POSTGRESQL_NAMESPACE"
   validatePrometheusNamespace "$VKPR_ENV_GRAFANA_NAMESPACE"
@@ -130,7 +130,7 @@ settingKeycloak(){
     "
   fi
 
-  if [[ $VKPR_ENV_KEYCLOAK_METRICS == "true" ]]; then
+  if [[ $VKPR_ENV_KEYCLOAK_METRICS == "true" ]] && [[ $(checkPodName "$VKPR_ENV_GRAFANA_NAMESPACE" "prometheus-stack-grafana") == "true" ]]; then
     createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
     $VKPR_KUBECTL apply -n $VKPR_ENV_KEYCLOAK_NAMESPACE -f "$(dirname "$0")"/utils/servicemonitor.yaml
     YQ_VALUES="$YQ_VALUES |
@@ -148,8 +148,8 @@ settingKeycloak(){
   fi
 
   if [[ "$VKPR_ENV_KEYCLOAK_SSL" == "true" ]]; then
-    KEYCLOAK_TLS_KEY=$(cat $VKPR_ENV_KEYCLOAK_KEY)
-    KEYCLOAK_TLS_CERT=$(cat $VKPR_ENV_KEYCLOAK_CERTIFICATE)
+    KEYCLOAK_TLS_KEY=$(cat $VKPR_ENV_KEYCLOAK_SSL_KEY)
+    KEYCLOAK_TLS_CERT=$(cat $VKPR_ENV_KEYCLOAK_SSL_CERTIFICATE)
     if [[ "$VKPR_ENV_KEYCLOAK_SSL_SECRET" != "" ]]; then
       KEYCLOAK_TLS_KEY=$($VKPR_KUBECTL get secret $VKPR_ENV_KEYCLOAK_SSL_SECRET -o=jsonpath="{.data.tls\.key}" -n $VKPR_ENV_KEYCLOAK_NAMESPACE | base64 -d)
       KEYCLOAK_TLS_CERT=$($VKPR_KUBECTL get secret $VKPR_ENV_KEYCLOAK_SSL_SECRET -o=jsonpath="{.data.tls\.crt}" -n $VKPR_ENV_KEYCLOAK_NAMESPACE | base64 -d)

@@ -21,7 +21,7 @@
     {
       "tutorial": "Specifies the Vault storage mode",
       "label": "Vault storage mode:",
-      "name": "vault_mode",
+      "name": "mode",
       "type": "text",
       "default": "raft",
       "items": [
@@ -32,7 +32,7 @@
     {
       "tutorial": "Enable to Auto Unseal the Vault with a Cloud provider",
       "label": "Use Auto Unseal?",
-      "name": "vault_auto_unseal",
+      "name": "auto_unseal",
       "type": "text",
       "default": "false",
       "required": true,
@@ -89,7 +89,7 @@
       }
     },
     {
-      "tutorial": "Specifies if output the values from the application",
+      "tutorial": "Simulate an install",
       "label": "Dry-run ?",
       "name": "dry_run",
       "type": "bool",
@@ -102,7 +102,7 @@
     {
       "tutorial": "Specifies the AWS Access Key Credential",
       "condition": {
-        "variable": "vault_auto_unseal",
+        "variable": "auto_unseal",
         "operator": "==",
         "value": "aws"
       },
@@ -112,7 +112,7 @@
     {
       "tutorial": "Specifies the AWS Secret Key Credential",
       "condition": {
-        "variable": "vault_auto_unseal",
+        "variable": "auto_unseal",
         "operator": "==",
         "value": "aws"
       },
@@ -122,7 +122,7 @@
     {
       "tutorial": "Specifies the AWS Region to set the environment",
       "condition": {
-        "variable": "vault_auto_unseal",
+        "variable": "auto_unseal",
         "operator": "==",
         "value": "aws"
       },
@@ -132,7 +132,7 @@
     {
       "tutorial": "Specifies the AWS KMS ID",
       "condition": {
-        "variable": "vault_auto_unseal",
+        "variable": "auto_unseal",
         "operator": "==",
         "value": "aws"
       },
@@ -142,7 +142,7 @@
     {
       "tutorial": "Specifies the AWS KMS Endpoint",
       "condition": {
-        "variable": "vault_auto_unseal",
+        "variable": "auto_unseal",
         "operator": "==",
         "value": "aws"
       },
@@ -152,7 +152,7 @@
     {
       "tutorial": "Specifies the Azure Tenant ID",
       "condition": {
-        "variable": "vault_auto_unseal",
+        "variable": "auto_unseal",
         "operator": "==",
         "value": "azure"
       },
@@ -162,7 +162,7 @@
     {
       "tutorial": "Specifies the Azure Client ID",
       "condition": {
-        "variable": "vault_auto_unseal",
+        "variable": "auto_unseal",
         "operator": "==",
         "value": "azure"
       },
@@ -172,7 +172,7 @@
     {
       "tutorial": "Specifies the Azure Client Secret",
       "condition": {
-        "variable": "vault_auto_unseal",
+        "variable": "auto_unseal",
         "operator": "==",
         "value": "azure"
       },
@@ -182,7 +182,7 @@
     {
       "tutorial": "Specifies the Azure Key Vault Name",
       "condition": {
-        "variable": "vault_auto_unseal",
+        "variable": "auto_unseal",
         "operator": "==",
         "value": "azure"
       },
@@ -192,7 +192,7 @@
     {
       "tutorial": "Specifies the Azure Key Vault Key Name",
       "condition": {
-        "variable": "vault_auto_unseal",
+        "variable": "auto_unseal",
         "operator": "==",
         "value": "azure"
       },

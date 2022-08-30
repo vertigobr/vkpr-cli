@@ -54,8 +54,8 @@ installCRDS() {
 settingExternalDNS() {
   YQ_VALUES=".domainFilters[0] = \"$VKPR_ENV_GLOBAL_DOMAIN\""
 
-  if [[ $VKPR_ENV_EXTERNAL_DNS_METRICS == true ]]; then
-    createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE" 
+  if [[ $VKPR_ENV_EXTERNAL_DNS_METRICS == true ]] && [[ $(checkPodName "$VKPR_ENV_GRAFANA_NAMESPACE" "prometheus-stack-grafana") == "true" ]]; then
+    createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
     YQ_VALUES="$YQ_VALUES |
       .serviceMonitor.enabled = true |
       .serviceMonitor.namespace = \"$VKPR_ENV_EXTERNAL_DNS_NAMESPACE\" |

@@ -30,8 +30,8 @@ formulaInputs() {
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "consul.namespace" "CONSUL_NAMESPACE"
   checkGlobalConfig "false" "false" "consul.metrics" "CONSUL_METRICS"
   checkGlobalConfig "$SSL" "false" "consul.ssl.enabled" "CONSUL_SSL"
-  checkGlobalConfig "$CRT_FILE" "" "consul.ssl.crt" "CONSUL_CERTIFICATE"
-  checkGlobalConfig "$KEY_FILE" "" "consul.ssl.key" "CONSUL_KEY"
+  checkGlobalConfig "$CRT_FILE" "" "consul.ssl.crt" "CONSUL_SSL_CERTIFICATE"
+  checkGlobalConfig "$KEY_FILE" "" "consul.ssl.key" "CONSUL_SSL_KEY"
   checkGlobalConfig "" "" "consul.ssl.secretName" "CONSUL_SSL_SECRET"
 
   # External app values
@@ -46,8 +46,8 @@ validateInputs() {
   validateConsulNamespace "$VKPR_ENV_CONSUL_NAMESPACE"
   validateConsulSsl "$VKPR_ENV_CONSUL_SSL"
   if [[ "$VKPR_ENV_CONSUL_SSL" == true ]]; then
-    validateConsulSslCrtPath "$VKPR_ENV_CONSUL_CERTIFICATE"
-    validateConsulSslKeyPath "$VKPR_ENV_CONSUL_KEY"
+    validateConsulSslCrtPath "$VKPR_ENV_CONSUL_SSL_CERTIFICATE"
+    validateConsulSslKeyPath "$VKPR_ENV_CONSUL_SSL_KEY"
   fi
 }
 
@@ -67,7 +67,7 @@ settingConsul() {
     "
   fi
 
-  if [[ "$VKPR_ENV_CONSUL_METRICS" == true ]]; then
+  if [[ "$VKPR_ENV_CONSUL_METRICS" == true ]] && [[ $(checkPodName "$VKPR_ENV_GRAFANA_NAMESPACE" "prometheus-stack-grafana") == "true" ]]; then
     $VKPR_KUBECTL apply -n $VKPR_ENV_CONSUL_NAMESPACE -f $(dirname "$0")/utils/servicemonitor.yaml
     createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
     YQ_VALUES="$YQ_VALUES |
@@ -81,8 +81,8 @@ settingConsul() {
     if [[ "$VKPR_ENV_CONSUL_SSL_SECRET" == "" ]]; then
       VKPR_ENV_CONSUL_SSL_SECRET="consul-certificate"
       $VKPR_KUBECTL create secret tls $VKPR_ENV_CONSUL_SSL_SECRET -n "$VKPR_ENV_CONSUL_NAMESPACE" \
-        --cert="$VKPR_ENV_CONSUL_CERTIFICATE" \
-        --key="$VKPR_ENV_CONSUL_KEY"
+        --cert="$VKPR_ENV_CONSUL_SSL_CERTIFICATE" \
+        --key="$VKPR_ENV_CONSUL_SSL_KEY"
     fi
     YQ_VALUES="$YQ_VALUES |
       .ui.ingress.tls[0].hosts[0] = \"$VKPR_ENV_CONSUL_DOMAIN\" |

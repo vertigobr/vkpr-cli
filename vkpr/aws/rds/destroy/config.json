@@ -18,7 +18,7 @@
     {
       "tutorial": "Specifies the RDS instance name to destroy",
       "label": "RDS instance name:",
-      "name": "rds_instance_name",
+      "name": "instance_name",
       "type": "text",
       "default": "rds-sample",
       "required": true,

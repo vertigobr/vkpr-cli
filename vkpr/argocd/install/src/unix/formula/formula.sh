@@ -57,7 +57,7 @@ validateInputs() {
 settingArgoCD() {
   YQ_VALUES=".server.ingress.hosts[0] = \"$VKPR_ENV_ARGOCD_DOMAIN\" |
     .server.config.url = \"$VKPR_ENV_ARGOCD_DOMAIN\" |
-    .server.ingress.annotations.[\"kubernetes.io/ingress.class\"] = \"$VKPR_ENV_ARGOCD_INGRESS_CLASSNAME\"
+    .server.ingress.annotations.[\"kubernetes.io/ingress.class\"] = \"$VKPR_ENV_ARGOCD_INGRESS_CLASS_NAME\"
   "
 
   if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
@@ -82,7 +82,7 @@ settingArgoCD() {
     "
   fi
 
-  if [[ "$VKPR_ENV_ARGOCD_METRICS" == true ]]; then
+  if [[ "$VKPR_ENV_ARGOCD_METRICS" == true ]] && [[ $(checkPodName "$VKPR_ENV_GRAFANA_NAMESPACE" "prometheus-stack-grafana") == "true" ]]; then
     createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
     YQ_VALUES="$YQ_VALUES |
       .controller.metrics.enabled = true |
@@ -104,8 +104,8 @@ settingArgoCD() {
     if [[ "$VKPR_ENV_ARGOCD_SSL_SECRET" == "" ]]; then
       VKPR_ENV_ARGOCD_SSL_SECRET="argocd-certificate"
       $VKPR_KUBECTL create secret tls $VKPR_ENV_ARGOCD_SSL_SECRET -n "$VKPR_ENV_ARGOCD_NAMESPACE" \
-        --cert="$VKPR_ENV_ARGOCD_CERTIFICATE" \
-        --key="$VKPR_ENV_ARGOCD_KEY"
+        --cert="$VKPR_ENV_ARGOCD_SSL_CERTIFICATE" \
+        --key="$VKPR_ENV_ARGOCD_SSL_KEY"
     fi
     YQ_VALUES="$YQ_VALUES |
       .server.ingress.tls[0].hosts[0] = \"$VKPR_ENV_ARGOCD_DOMAIN\" |

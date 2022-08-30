@@ -8,18 +8,18 @@ runFormula() {
   validateInputs
 
   PROJECT_ENCODED=$(rawUrlEncode "${GITLAB_USERNAME}/k8s-digitalocean")
-  if [ $CLUSTER_PROJECT_LOCATION == "groups" ]; then
+  if [ $PROJECT_LOCATION == "groups" ]; then
     FORK_RESPONSE_CODE=$(curl -siX POST -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
-      -d "namespace_path=$CLUSTER_PROJECT_LOCATION_PATH" \
+      -d "namespace_path=$PROJECT_LOCATION_PATH" \
       "https://gitlab.com/api/v4/projects/$(rawUrlEncode "vkpr/k8s-digitalocean")/fork" |\
       head -n1 | awk -F' ' '{print $2}'
     )
     GROUP_ID=$(curl -s -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://gitlab.com/api/v4/groups" |\
-      $VKPR_JQ -r ".[] | select(.web_url | contains(\"$CLUSTER_PROJECT_LOCATION_PATH\")) | .id"
+      $VKPR_JQ -r ".[] | select(.web_url | contains(\"$PROJECT_LOCATION_PATH\")) | .id"
     )
     debug "GROUP_ID=$GROUP_ID"
     PROJECT_ID=$(curl -s -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://gitlab.com/api/v4/groups/$GROUP_ID/projects" |\
-      $VKPR_JQ -r ".[] | select(.path_with_namespace | contains(\"$CLUSTER_PROJECT_LOCATION_PATH/k8s-digitalocean\")) | .id"
+      $VKPR_JQ -r ".[] | select(.path_with_namespace | contains(\"$PROJECT_LOCATION_PATH/k8s-digitalocean\")) | .id"
     )
     debug "PROJECT_ID=$PROJECT_ID"
   else
@@ -41,11 +41,11 @@ runFormula() {
 
 formulaInputs() {
   # App values
-  checkGlobalConfig "$DO_CLUSTER_NAME" "do-sample" "digitalocean.cluster.name" "DO_CLUSTER_NAME"
-  checkGlobalConfig "$DO_K8S_VERSION" "1.22" "digitalocean.cluster.version" "DO_CLUSTER_VERSION"
-  checkGlobalConfig "$DO_CLUSTER_REGION" "nyc1" "digitalocean.cluster.region" "DO_CLUSTER_REGION"
-  checkGlobalConfig "$DO_CLUSTER_NODE_INSTANCE_TYPE" "s-2vcpu-2gb" "digitalocean.cluster.nodes.instaceType" "DO_CLUSTER_NODES_INSTANCE_TYPE"
-  checkGlobalConfig "$DO_CLUSTER_SIZE" "1" "digitalocean.cluster.nodes.quantitySize" "DO_CLUSTER_QUANTITY_SIZE"
+  checkGlobalConfig "$CLUSTER_NAME" "do-sample" "digitalocean.cluster.name" "DO_CLUSTER_NAME"
+  checkGlobalConfig "$K8S_VERSION" "1.22" "digitalocean.cluster.version" "DO_CLUSTER_VERSION"
+  checkGlobalConfig "$CLUSTER_REGION" "nyc1" "digitalocean.cluster.region" "DO_CLUSTER_REGION"
+  checkGlobalConfig "$CLUSTER_NODE_INSTANCE_TYPE" "s-2vcpu-2gb" "digitalocean.cluster.nodes.instaceType" "DO_CLUSTER_NODES_INSTANCE_TYPE"
+  checkGlobalConfig "$CLUSTER_SIZE" "1" "digitalocean.cluster.nodes.quantitySize" "DO_CLUSTER_QUANTITY_SIZE"
 }
 
 setCredentials() {
@@ -66,13 +66,13 @@ validateInputs() {
 }
 
 setVariablesGLAB() {
-  [[ $CLUSTER_PROJECT_LOCATION == "groups" ]] && PROJECT_IDENTIFIER=$PROJECT_ID || PROJECT_IDENTIFIER=$PROJECT_ENCODED
+  [[ $PROJECT_LOCATION == "groups" ]] && PROJECT_IDENTIFIER=$PROJECT_ID || PROJECT_IDENTIFIER=$PROJECT_ENCODED
   createOrUpdateVariable "$PROJECT_IDENTIFIER" "DO_TOKEN" "$DO_TOKEN" "yes" "$VKPR_ENV_DO_CLUSTER_NAME" "$GITLAB_TOKEN"
   createOrUpdateVariable "$PROJECT_IDENTIFIER" "CI_GITLAB_TOKEN" "$GITLAB_TOKEN" "yes" "$VKPR_ENV_EKS_CLUSTER_NAME" "$GITLAB_TOKEN"
 }
 
 cloneRepository() {
-  [[ $CLUSTER_PROJECT_LOCATION == "groups" ]] && PROJECT_PATH="$CLUSTER_PROJECT_LOCATION_PATH" || PROJECT_PATH="$GITLAB_USERNAME"
+  [[ $PROJECT_LOCATION == "groups" ]] && PROJECT_PATH="$PROJECT_LOCATION_PATH" || PROJECT_PATH="$GITLAB_USERNAME"
   git clone -q https://"$GITLAB_USERNAME":"$GITLAB_TOKEN"@gitlab.com/"$PROJECT_PATH"/k8s-digitalocean.git "$VKPR_HOME"/tmp/k8s-digitalocean
   cd "$VKPR_HOME"/tmp/k8s-digitalocean || exit
   $VKPR_YQ eval -i ".cluster_region = \"$VKPR_ENV_DO_CLUSTER_REGION\" |
