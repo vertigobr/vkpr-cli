@@ -29,8 +29,8 @@ formulaInputs() {
   checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "mockserver.ingressClassName" "MOCKSERVER_INGRESS_CLASS_NAME"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "mockserver.namespace" "MOCKSERVER_NAMESPACE"
   checkGlobalConfig "$SSL" "false" "mockserver.ssl.enabled" "MOCKSERVER_SSL"
-  checkGlobalConfig "$CRT_FILE" "" "mockserver.ssl.crt" "MOCKSERVER_CERTIFICATE"
-  checkGlobalConfig "$KEY_FILE" "" "mockserver.ssl.key" "MOCKSERVER_KEY"
+  checkGlobalConfig "$CRT_FILE" "" "mockserver.ssl.crt" "MOCKSERVER_SSL_CERTIFICATE"
+  checkGlobalConfig "$KEY_FILE" "" "mockserver.ssl.key" "MOCKSERVER_SSL_KEY"
   checkGlobalConfig "" "" "mockserver.ssl.secretName" "MOCKSERVER_SSL_SECRET"
 }
 
@@ -43,8 +43,8 @@ validateInputs() {
 
   validateMockServerSSL "$VKPR_ENV_MOCKSERVER_SSL"
   if [[ "$VKPR_ENV_MOCKSERVER_SSL" = true ]]; then
-    validateMockServerCertificate "$VKPR_ENV_MOCKSERVER_CERTIFICATE"
-    validateMockServerKey "$VKPR_ENV_MOCKSERVER_KEY"
+    validateMockServerCertificate "$VKPR_ENV_MOCKSERVER_SSL_CERTIFICATE"
+    validateMockServerKey "$VKPR_ENV_MOCKSERVER_SSL_KEY"
   fi
 }
 
@@ -61,12 +61,12 @@ settingMockServer() {
     "
   fi
 
-  if [[ "$VKPR_ENV_MOCKSERVER_SSL" == "true" ]]; then
+  if [[ "$VKPR_ENV_MOCKSERVER_SSL" == "true" ]] && [[ $(checkPodName "$VKPR_ENV_GRAFANA_NAMESPACE" "prometheus-stack-grafana") == "true" ]]; then
     if [[ "$VKPR_ENV_MOCKSERVER_SSL_SECRET" == "" ]]; then
       VKPR_ENV_MOCKSERVER_SSL_SECRET="mockserver-certificate"
       $VKPR_KUBECTL create secret tls $VKPR_ENV_MOCKSERVER_SSL_SECRET -n "$VKPR_ENV_MOCKSERVER_NAMESPACE" \
-        --cert="$VKPR_ENV_MOCKSERVER_CERTIFICATE" \
-        --key="$VKPR_ENV_MOCKSERVER_KEY"
+        --cert="$VKPR_ENV_MOCKSERVER_SSL_CERTIFICATE" \
+        --key="$VKPR_ENV_MOCKSERVER_SSL_KEY"
     fi
     YQ_VALUES="$YQ_VALUES |
       .ingress.tls[0].hosts[0] = \"$VKPR_ENV_MOCKSERVER_DOMAIN\" |

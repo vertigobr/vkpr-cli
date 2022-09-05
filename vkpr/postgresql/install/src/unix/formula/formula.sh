@@ -52,8 +52,8 @@ settingPostgresql() {
     .global.postgresql.auth.database = \"postgres\"
   "
 
-  if [[ "$VKPR_ENV_POSTGRESQL_METRICS" == "true" ]]; then
-    createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE" 
+  if [[ "$VKPR_ENV_POSTGRESQL_METRICS" == "true" ]] && [[ $(checkPodName "$VKPR_ENV_GRAFANA_NAMESPACE" "prometheus-stack-grafana") == "true" ]]; then
+    createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
     YQ_VALUES="$YQ_VALUES |
       .metrics.enabled = true |
       .metrics.serviceMonitor.enabled = true |
@@ -95,8 +95,8 @@ settingPostgresqlHA() {
     .pgpool.replicaCount = \"3\"
   "
 
-  if [[ "$VKPR_ENV_POSTGRESQL_METRICS" == "true" ]]; then
-    createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE" 
+  if [[ "$VKPR_ENV_POSTGRESQL_METRICS" == "true" ]] && [[ $(checkPodName "$VKPR_ENV_GRAFANA_NAMESPACE" "prometheus-stack-grafana") == "true" ]]; then
+    createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
     YQ_VALUES="$YQ_VALUES |
       .metrics.enabled = \"true\" |
       .metrics.serviceMonitor.enabled = \"true\" |

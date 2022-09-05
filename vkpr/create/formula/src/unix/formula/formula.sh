@@ -160,7 +160,7 @@ changeConfigInstall() {
   {
   "inputs": [
     {
-      "tutorial": "Specifies if output the values from the application",
+      "tutorial": "Simulate an install",
       "label": "Dry-run ?",
       "name": "dry_run",
       "type": "bool",

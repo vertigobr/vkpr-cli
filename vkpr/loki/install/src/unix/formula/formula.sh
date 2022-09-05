@@ -10,8 +10,8 @@ runFormula() {
   startInfos
   settingLoki
   [ $DRY_RUN = false ] && registerHelmRepository grafana https://grafana.github.io/helm-charts
-  installApplication "loki-stack" "grafana/loki-stack" "$VKPR_ENV_LOKI_NAMESPACE" "$VKPR_LOKI_VERSION" "$VKPR_LOKI_VALUES" "$HELM_ARGS"
-  existGrafana
+  installApplication "loki" "grafana/loki-stack" "$VKPR_ENV_LOKI_NAMESPACE" "$VKPR_LOKI_VERSION" "$VKPR_LOKI_VALUES" "$HELM_ARGS"
+  [ $DRY_RUN = false ] && existGrafana || true
 }
 
 startInfos() {
@@ -24,7 +24,7 @@ startInfos() {
 formulaInputs() {
   # App values
   checkGlobalConfig "false" "false" "loki.metrics" "LOKI_METRICS"
-  checkGlobalConfig "false" "false" "loki.persistance" "LOKI_PERSISTANCE"
+  checkGlobalConfig "false" "false" "loki.persistence" "LOKI_PERSISTENCE"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "loki.namespace" "LOKI_NAMESPACE"
 
   # External app values
@@ -33,7 +33,7 @@ formulaInputs() {
 
 validateInputs() {
   validateLokiMetrics "$VKPR_ENV_LOKI_METRICS"
-  validateLokiPersistence "$VKPR_ENV_LOKI_PERSISTANCE"
+  validateLokiPersistence "$VKPR_ENV_LOKI_PERSISTENCE"
   validateLokiNamespace "$VKPR_ENV_LOKI_NAMESPACE"
 
   validatePrometheusNamespace "$VKPR_ENV_GRAFANA_NAMESPACE"
@@ -42,7 +42,7 @@ validateInputs() {
 settingLoki() {
   YQ_VALUES=".grafana.enabled = false"
 
-  if [[ "$VKPR_ENV_LOKI_METRICS" == true ]]; then
+  if [[ "$VKPR_ENV_LOKI_METRICS" == true ]] && [[ $(checkPodName "$VKPR_ENV_GRAFANA_NAMESPACE" "prometheus-stack-grafana") == "true" ]]; then
     YQ_VALUES="$YQ_VALUES |
       .loki.serviceMonitor.enabled = true |
       .loki.serviceMonitor.interval = \"30s\" |
@@ -51,7 +51,7 @@ settingLoki() {
     "
   fi
 
-  if [[ "$VKPR_ENV_LOKI_PERSISTANCE" == true ]]; then
+  if [[ "$VKPR_ENV_LOKI_PERSISTENCE" == true ]]; then
     YQ_VALUES="$YQ_VALUES |
       .loki.persistence.enabled = true |
       .loki.persistence.accessModes[0] = \"ReadWriteOnce\" |

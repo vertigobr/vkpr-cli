@@ -9,18 +9,18 @@ runFormula() {
   validateInputs
 
   PROJECT_ENCODED=$(rawUrlEncode "${GITLAB_USERNAME}/aws-eks")
-  if [ $EKS_PROJECT_LOCATION == "groups" ]; then
+  if [ $PROJECT_LOCATION == "groups" ]; then
     FORK_RESPONSE_CODE=$(curl -siX POST -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
-      -d "namespace_path=$EKS_PROJECT_LOCATION_PATH" \
+      -d "namespace_path=$PROJECT_LOCATION_PATH" \
       "https://gitlab.com/api/v4/projects/$(rawUrlEncode "vkpr/aws-eks")/fork" |\
       head -n1 | awk -F' ' '{print $2}'
     )
     GROUP_ID=$(curl -s -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://gitlab.com/api/v4/groups" |\
-      $VKPR_JQ -r ".[] | select(.web_url | contains(\"$EKS_PROJECT_LOCATION_PATH\")) | .id"
+      $VKPR_JQ -r ".[] | select(.web_url | contains(\"$PROJECT_LOCATION_PATH\")) | .id"
     )
     debug "GROUP_ID=$GROUP_ID"
     PROJECT_ID=$(curl -s -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "https://gitlab.com/api/v4/groups/$GROUP_ID/projects" |\
-      $VKPR_JQ -r ".[] | select(.path_with_namespace | contains(\"$EKS_PROJECT_LOCATION_PATH/aws-eks\")) | .id"
+      $VKPR_JQ -r ".[] | select(.path_with_namespace | contains(\"$PROJECT_LOCATION_PATH/aws-eks\")) | .id"
     )
     debug "PROJECT_ID=$PROJECT_ID"
   else
@@ -41,11 +41,11 @@ runFormula() {
 
 formulaInputs() {
   # App values
-  checkGlobalConfig "$EKS_CLUSTER_NAME" "eks-sample" "aws.eks.clusterName" "EKS_CLUSTER_NAME"
-  checkGlobalConfig "$EKS_K8S_VERSION" "1.20" "aws.eks.version" "EKS_VERSION"
-  checkGlobalConfig "$EKS_CLUSTER_NODE_INSTANCE_TYPE" "t3.small" "aws.eks.nodes.instanceType" "EKS_NODES_INSTANCE_TYPE"
-  checkGlobalConfig "$EKS_CLUSTER_SIZE" "1" "aws.eks.nodes.quantitySize" "EKS_NODES_QUANTITY_SIZE"
-  checkGlobalConfig "$EKS_CAPACITY_TYPE" "on_demand" "aws.eks.nodes.capacityType" "EKS_NODES_CAPACITY_TYPE"
+  checkGlobalConfig "$CLUSTER_NAME" "eks-sample" "aws.eks.clusterName" "EKS_CLUSTER_NAME"
+  checkGlobalConfig "$K8S_VERSION" "1.20" "aws.eks.version" "EKS_VERSION"
+  checkGlobalConfig "$CLUSTER_NODE_INSTANCE_TYPE" "t3.small" "aws.eks.nodes.instanceType" "EKS_NODES_INSTANCE_TYPE"
+  checkGlobalConfig "$CLUSTER_SIZE" "1" "aws.eks.nodes.quantitySize" "EKS_NODES_QUANTITY_SIZE"
+  checkGlobalConfig "$CAPACITY_TYPE" "on_demand" "aws.eks.nodes.capacityType" "EKS_NODES_CAPACITY_TYPE"
   checkGlobalConfig "$TERRAFORM_STATE" "gitlab" "aws.eks.terraformState" "EKS_TERRAFORM_STATE"
 }
 
@@ -75,7 +75,7 @@ validateInputs() {
 }
 
 setVariablesGLAB() {
-  [[ $EKS_PROJECT_LOCATION == "groups" ]] && PROJECT_IDENTIFIER=$PROJECT_ID || PROJECT_IDENTIFIER=$PROJECT_ENCODED
+  [[ $PROJECT_LOCATION == "groups" ]] && PROJECT_IDENTIFIER=$PROJECT_ID || PROJECT_IDENTIFIER=$PROJECT_ENCODED
   [[ "$VKPR_ENV_EKS_TERRAFORM_STATE" == "terraform-cloud" ]] && createOrUpdateVariable "$PROJECT_IDENTIFIER" "TF_CLOUD_TOKEN" "$TF_CLOUD_TOKEN" "yes" "$VKPR_ENV_EKS_CLUSTER_NAME" "$GITLAB_TOKEN"
   createOrUpdateVariable "$PROJECT_IDENTIFIER" "AWS_ACCESS_KEY" "$AWS_ACCESS_KEY" "yes" "$VKPR_ENV_EKS_CLUSTER_NAME" "$GITLAB_TOKEN"
   createOrUpdateVariable "$PROJECT_IDENTIFIER" "AWS_SECRET_KEY" "$AWS_SECRET_KEY" "yes" "$VKPR_ENV_EKS_CLUSTER_NAME" "$GITLAB_TOKEN"
@@ -84,7 +84,7 @@ setVariablesGLAB() {
 }
 
 cloneRepository() {
-  [[ $EKS_PROJECT_LOCATION == "groups" ]] && PROJECT_PATH="$EKS_PROJECT_LOCATION_PATH" || PROJECT_PATH="$GITLAB_USERNAME"
+  [[ $PROJECT_LOCATION == "groups" ]] && PROJECT_PATH="$PROJECT_LOCATION_PATH" || PROJECT_PATH="$GITLAB_USERNAME"
   git clone -q https://"$GITLAB_USERNAME":"$GITLAB_TOKEN"@gitlab.com/"$PROJECT_PATH"/aws-eks.git "$VKPR_HOME"/tmp/aws-eks
   cd "$VKPR_HOME"/tmp/aws-eks || exit
   $VKPR_YQ eval -i "del(.node_groups) |
