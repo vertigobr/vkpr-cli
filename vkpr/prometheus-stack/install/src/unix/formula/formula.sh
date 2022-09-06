@@ -88,7 +88,7 @@ validateInputs() {
   fi
   ## Grafana
   validateGrafanaPwd "$VKPR_ENV_GRAFANA_PASSWORD"
-  validatePrometheusK8S "$VKPR_ENV_PROMETHEUS_STACK_K8S_EXPORTERS"
+  validatePrometheusK8S "$VKPR_ENV_PROMETHEUS_STACK_EXPORTERS"
   validateGrafanaPersistance "$VKPR_ENV_GRAFANA_PERSISTENCE"
   validateGrafanaSSL "$VKPR_ENV_GRAFANA_SSL"
   if [[ "$VKPR_ENV_GRAFANA_SSL" = true ]]; then
@@ -116,7 +116,7 @@ settingPrometheusStack() {
   settingPrometheusValues
   [[ "$VKPR_ENV_ALERTMANAGER" == true ]] && settingAlertManagerValues
 
-  if [[ "$VKPR_ENV_PROMETHEUS_STACK_K8S_EXPORTERS" == true ]]; then
+  if [[ "$VKPR_ENV_PROMETHEUS_STACK_EXPORTERS" == true ]]; then
     YQ_VALUES="$YQ_VALUES |
       .kubeApiServer.enabled = true |
       .kubelet.enabled = true |

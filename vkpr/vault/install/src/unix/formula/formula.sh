@@ -2,8 +2,8 @@
 
 runFormula() {
   local VKPR_ENV_VAULT_DOMAIN VKPR_VAULT_VALUES VKPR_VAULT_CONFIG HELM_ARGS;
-  setCredentials
   formulaInputs
+  setCredentials
   validateInputs
 
   $VKPR_KUBECTL create ns $VKPR_ENV_VAULT_NAMESPACE 2> /dev/null
@@ -159,7 +159,6 @@ settingVault() {
   fi
 
   if [[ "$VKPR_ENV_VAULT_AUTO_UNSEAL" != false ]]; then
-    $VKPR_KUBECTL create ns "$VKPR_ENV_VAULT_NAMESPACE" 2> /dev/null
     YQ_VALUES="$YQ_VALUES |
       .server.extraEnvironmentVars.VAULT_LOG_LEVEL = \"debug\"
     "
