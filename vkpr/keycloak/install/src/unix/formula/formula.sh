@@ -10,7 +10,7 @@ runFormula() {
 
   startInfos
   if [ $DRY_RUN = false ]; then
-    configureKeycloakDB
+    [[ "$VKPR_ENVIRONMENT" != "okteto" ]] && configureKeycloakDB
     registerHelmRepository bitnami https://charts.bitnami.com/bitnami
   fi
   settingKeycloak
@@ -159,6 +159,24 @@ settingKeycloak(){
       .ingress.secrets[0].key = \"$KEYCLOAK_TLS_KEY\" |
       .ingress.secrets[0].certificate = \"$KEYCLOAK_TLS_CERT\"
      "
+  fi
+
+  settingKeycloakProvider
+
+  debug "YQ_CONTENT = $YQ_VALUES"
+}
+
+settingKeycloakProvider() {
+  if [[ "$VKPR_ENVIRONMENT" == "okteto" ]]; then
+    HELM_ARGS="--cleanup-on-fail"
+    YQ_VALUES="$YQ_VALUES |
+      del(.externalDatabase) |
+      .proxy = \"edge\" |
+      .postgresql.enabled = true |
+      .postgresql.persistence.enabled = true |
+      .postgresql.persistence.size = \"1Gi\" |
+      .service.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\"
+    "
   fi
 }
 
