@@ -1,0 +1,12 @@
+{
+  "inputs": [
+    {
+      "tutorial": "Specifies the name of the realm",
+      "label": "Type the realm name:",
+      "name": "realm_name",
+      "type": "text"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease": "2.17.0"
+}
