@@ -31,6 +31,8 @@ formulaInputs() {
   checkGlobalConfig "1" "1" "infra.resources.masters" "K3D_SERVERS"
   checkGlobalConfig "$WORKER_NODES" "1" "infra.resources.workers" "K3D_AGENTS"
   checkGlobalConfig "$ENABLE_VOLUME" "false" "infra.enableVolume" "VOLUME"
+
+  checkGlobalConfig "$NUMBER_NODEPORTS" "0" "infra.nodePorts" "NUMBER_NODEPORTS"
 }
 
 validateInputs() {
@@ -38,6 +40,8 @@ validateInputs() {
   validateInfraHTTPS "$VKPR_ENV_HTTPS_PORT"
   validateInfraNodes "$VKPR_ENV_K3D_AGENTS"
   validateInfraTraefik "$VKPR_ENV_TRAEFIK"
+
+  validateInfraNodePorts "$VKPR_ENV_NUMBER_NODEPORTS"
 }
 
 configRegistry() {
@@ -81,14 +85,28 @@ startCluster() {
   fi
 
   if ! ${VKPR_K3D} cluster list | grep -q "vkpr-local"; then
-    ${VKPR_K3D} cluster create vkpr-local \
-      -s "${VKPR_ENV_K3D_SERVERS}" -a "${VKPR_ENV_K3D_AGENTS}" --volume="${VOLUME_FLAG}" \
-      -p "${VKPR_ENV_HTTP_PORT}:80@loadbalancer" \
-      -p "${VKPR_ENV_HTTPS_PORT}:443@loadbalancer" \
-      --k3s-arg "${TRAEFIK_FLAG}" \
-      --registry-use k3d-registry.localhost \
-      --registry-config "${VKPR_CONFIG}"/registry.yaml
-  ${VKPR_KUBECTL} config use-context k3d-vkpr-local
+    if [ $VKPR_ENV_NUMBER_NODEPORTS -gt 0 ] ; then
+        local PORT_LOCAL="$(($VKPR_ENV_NUMBER_NODEPORTS+9000))" \
+              PORT_NODE="$(($VKPR_ENV_NUMBER_NODEPORTS+30080))" 
+
+        ${VKPR_K3D} cluster create vkpr-local \
+          -s "${VKPR_ENV_K3D_SERVERS}" -a "${VKPR_ENV_K3D_AGENTS}" --volume="${VOLUME_FLAG}" \
+          -p "${VKPR_ENV_HTTP_PORT}:80@loadbalancer" \
+          -p "${VKPR_ENV_HTTPS_PORT}:443@loadbalancer" \
+          -p "9000-${PORT_LOCAL}:30080-${PORT_NODE}@agent:0" \
+          --k3s-arg "${TRAEFIK_FLAG}" \
+          --registry-use k3d-registry.localhost \
+          --registry-config "${VKPR_CONFIG}"/registry.yaml
+    else
+        ${VKPR_K3D} cluster create vkpr-local \
+          -s "${VKPR_ENV_K3D_SERVERS}" -a "${VKPR_ENV_K3D_AGENTS}" --volume="${VOLUME_FLAG}" \
+          -p "${VKPR_ENV_HTTP_PORT}:80@loadbalancer" \
+          -p "${VKPR_ENV_HTTPS_PORT}:443@loadbalancer" \
+          --k3s-arg "${TRAEFIK_FLAG}" \
+          --registry-use k3d-registry.localhost \
+          --registry-config "${VKPR_CONFIG}"/registry.yaml
+    fi
+    ${VKPR_KUBECTL} config use-context k3d-vkpr-local
   else
     error "Cluster vkpr-local already created."
   fi

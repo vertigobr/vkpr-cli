@@ -42,6 +42,13 @@
         "false",
         "true"
       ]
+    },
+    {
+      "tutorial": "Specifies the number of nodeports to be exposed",
+      "label": "How many nodeports ?",
+      "name": "number_nodeports",
+      "type": "text",
+      "default": "0"
     }
   ],
   "template": "shell-bat",
