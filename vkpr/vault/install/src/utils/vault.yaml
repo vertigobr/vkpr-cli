@@ -17,7 +17,7 @@ server:
   extraArgs: "-config=/vault/userconfig/vault-storage-config/config.hcl"
   ha:
     enabled: true
-    replicas: 3
+    replicas: 4
     config: |
       ui = true
 
@@ -37,6 +37,15 @@ server:
       }
 
       service_registration "kubernetes" {}
+    disruptionBudget:
+      maxUnavailable: 1
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: "kubernetes.io/hostname"
+        whenUnsatisfiable: "ScheduleAnyway"
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/managed-by: vkpr
   ingress:
     enabled: true
     ingressClassName: nginx

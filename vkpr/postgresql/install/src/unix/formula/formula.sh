@@ -79,7 +79,7 @@ settingPostgresqlProvider(){
 }
 
 settingPostgresqlHA() {
-  YQ_VALUES=".fullnameOverride = \"postgres-postgresql\" |
+  YQ_VALUES=".fullnameOverride = \"postgres\" |
     .commonLabels.[\"app.kubernetes.io/managed-by\"] = \"vkpr\" |
     .postgresql.username = \"postgres\" |
     .postgresql.database = \"postgres\" |
@@ -90,9 +90,21 @@ settingPostgresqlHA() {
     .postgresql.postgresPassword = \"$PG_PASSWORD\" |
     .postgresql.replicaCount = \"3\" |
     .postgresql.podLabels.vkpr = \"true\" |
+    .postgresql.topologySpreadConstraints[0].maxSkew = \"1\" |
+    .postgresql.topologySpreadConstraints[0].topologyKey = \"kubernetes.io/hostname\" |
+    .postgresql.topologySpreadConstraints[0].whenUnsatisfiable = \"ScheduleAnyway\" |
+    .postgresql.topologySpreadConstraints[0].labelSelector.matchLabels.[\"app.kubernetes.io/managed-by\"] = \"vkpr\" |
+    .postgresql.pdb.create = \"true\" |
+    .postgresql.pdb.minAvailable = \"1\" |
     .pgpool.adminUsername = \"postgres\" |
     .pgpool.adminPassword = \"$PG_PASSWORD\" |
-    .pgpool.replicaCount = \"3\"
+    .pgpool.replicaCount = \"3\" |
+    .pgpool.topologySpreadConstraints[0].maxSkew = \"1\" |
+    .pgpool.topologySpreadConstraints[0].topologyKey = \"kubernetes.io/hostname\" |
+    .pgpool.topologySpreadConstraints[0].whenUnsatisfiable = \"ScheduleAnyway\" |
+    .pgpool.topologySpreadConstraints[0].labelSelector.matchLabels.[\"app.kubernetes.io/managed-by\"] = \"vkpr\" |
+    .pgpool.pdb.create = \"true\" |
+    .pgpool.pdb.minAvailable = \"1\"
   "
 
   if [[ "$VKPR_ENV_POSTGRESQL_METRICS" == "true" ]] && [[ $(checkPodName "$VKPR_ENV_GRAFANA_NAMESPACE" "prometheus-stack-grafana") == "true" ]]; then

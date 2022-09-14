@@ -82,13 +82,15 @@ validateInputs() {
 configureKeycloakDB(){
   PG_USER="postgres"
   PG_DATABASE_NAME="keycloak"
-  PG_PASSWORD="$($VKPR_JQ -r '.credential.password' $VKPR_CREDENTIAL/postgres)"
 
   PG_HOST="postgres-postgresql.$VKPR_ENV_POSTGRESQL_NAMESPACE"
   $VKPR_KUBECTL get pod -n "$VKPR_ENV_POSTGRESQL_NAMESPACE" | grep -q pgpool && PG_HOST="postgres-postgresql-pgpool.$VKPR_ENV_POSTGRESQL_NAMESPACE"
 
   PG_HA="false"
-  [[ $VKPR_ENV_KEYCLOAK_HA == true ]] && PG_HA="true"
+  if [[ $VKPR_ENV_KEYCLOAK_HA == true ]]; then
+    PG_HA="true"
+    PG_HOST="postgres-pgpool"
+  fi
 
   if [[ $(checkPodName "$VKPR_ENV_POSTGRESQL_NAMESPACE" "postgres-postgresql") != "true" ]]; then
     info "Initializing postgresql to Keycloak"
@@ -96,6 +98,7 @@ configureKeycloakDB(){
     rit vkpr postgresql install --HA="$PG_HA" --default
   fi
 
+  PG_PASSWORD="$($VKPR_JQ -r '.credential.password' $VKPR_CREDENTIAL/postgres)"
   if [[ $(checkExistingDatabase "$PG_USER" "$PG_PASSWORD" "$PG_DATABASE_NAME" "$VKPR_ENV_POSTGRESQL_NAMESPACE") != "keycloak" ]]; then
     info "Creating Database Instance in postgresql..."
     createDatabase "$PG_USER" "$PG_HOST" "$PG_PASSWORD" "$PG_DATABASE_NAME" "$VKPR_ENV_POSTGRESQL_NAMESPACE"
@@ -126,7 +129,13 @@ settingKeycloak(){
   if [[ $VKPR_ENV_KEYCLOAK_HA = true ]]; then
     YQ_VALUES="$YQ_VALUES |
       .replicaCount = 3 |
-      .cache.enabled = true
+      .cache.enabled = true |
+      .pdb.create = true |
+      .pdb.minAvailable = \"1\" |
+      .topologySpreadConstraints[0].maxSkew = \"1\" |
+      .topologySpreadConstraints[0].topologyKey = \"kubernetes.io/hostname\" |
+      .topologySpreadConstraints[0].whenUnsatisfiable = \"ScheduleAnyway\" |
+      .topologySpreadConstraints[0].labelSelector.matchLabels.[\"app.kubernetes.io/managed-by\"] = \"vkpr\"
     "
   fi
 
