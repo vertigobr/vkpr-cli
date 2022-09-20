@@ -3,7 +3,7 @@
     {
     "tutorial": "Specifies the application name to extract logs",
     "label": "Type the application name:",
-    "name": "aplication_name",
+    "name": "application_name",
     "type": "text",
     "required": true,
     "cache": {
@@ -15,25 +15,13 @@
     {
       "tutorial": "Specifies the path where the logs will be generated",
       "label": "Path for the logs:",
-      "name": "aplication_path",
+      "name": "application_path",
       "type": "text",
       "default": "",
       "cache": {
         "active": true,
         "qty": 2,
         "newLabel": "Type another path: "
-      }
-    },
-    {
-      "tutorial": "Specifies the application namespace",
-      "label": "Type the application namespace:",
-      "name": "aplication_namespace",
-      "type": "text",
-      "default": "vkpr",
-      "cache": {
-        "active": true,
-        "qty": 2,
-        "newLabel": "Type another application namespace: "
       }
     }
   ],
