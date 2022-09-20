@@ -7,20 +7,22 @@ runFormula() {
 
   startInfos
 
-  local DIR_NAME="vkpr-logs-$APLICATION_NAME-$(date -I)" \
-        LOGS_PATH="$APLICATION_PATH/$DIR_NAME" 
+  local DIR_NAME="vkpr-logs-$APLICATION_NAME-$(date -I)" 
+  
+  # Making directories to add logs..
+  mkdir -p "$APLICATION_PATH/$DIR_NAME"
 
-  mkdir "$LOGS_PATH"
-
-  listPods 
+  # Extracting logs..
+  checkAplication
+  listPods
   logPods
   describeAplication
   describeNodes
   valuesAplication
 
-  cd $LOGS_PATH
-  zip -r $DIR_NAME.zip $DIR_NAME/
-  # rm -r $LOGS_PATH/
+  # Compressing Logs..
+  zip -r $DIR_NAME.zip "$APLICATION_PATH/$DIR_NAME"/*
+  rm -r "$APLICATION_PATH/$DIR_NAME"
 }
 
 startInfos() {
@@ -39,16 +41,25 @@ validateInputs() {
   validateInfoDumpName "$APLICATION_NAME"
 }
 
+checkAplication(){
+  if $($VKPR_HELM list -n $APLICATION_NAMESPACE | awk 'NR>1{print $1}'| grep -q $APLICATION_NAME) ; then
+    boldInfo "Starting log extraction process..."
+  else
+    error "Application not found or not specified correctly, please check namespace and application name. "
+    exit
+  fi
+}
+
 logPods(){
   declare -i COUNT=0
   for pod in $($VKPR_KUBECTL get pods -l app.kubernetes.io/instance=$APLICATION_NAME,app.kubernetes.io/managed-by=vkpr -A --ignore-not-found  | awk 'NR>1{print $2}'); do
-    $VKPR_KUBECTL logs $pod -n $APLICATION_NAMESPACE --all-containers | tac > $LOGS_PATH/vkpr-logs-pod-$pod-$COUNT.txt
+    $VKPR_KUBECTL logs $pod -n $APLICATION_NAMESPACE --all-containers | tac > $APLICATION_PATH/$DIR_NAME/vkpr-logs-pod-$pod-$COUNT.txt
     ((COUNT++))
   done
 }
 
 listPods(){
-  $VKPR_KUBECTL get pods -l app.kubernetes.io/instance=$APLICATION_NAME,app.kubernetes.io/managed-by=vkpr -A --ignore-not-found > $LOGS_PATH/"vkpr-list-pods".txt
+  $VKPR_KUBECTL get pods -l app.kubernetes.io/instance=$APLICATION_NAME,app.kubernetes.io/managed-by=vkpr -A --ignore-not-found > $APLICATION_PATH/$DIR_NAME/"vkpr-list-pods".txt
 }
 
 describeAplication(){
@@ -56,7 +67,7 @@ describeAplication(){
   for type in pod svc ingress; do
     for resourse in $($VKPR_KUBECTL get $type -n $APLICATION_NAMESPACE --ignore-not-found  | awk 'NR>1{print $1}'); do
       if [[ "$resourse" == *"$APLICATION_NAME"* ]]; then
-        $VKPR_KUBECTL describe "$type/$resourse" -n $APLICATION_NAMESPACE > $LOGS_PATH/"vkpr-describe-$type-$resourse-$COUNT".txt
+        $VKPR_KUBECTL describe "$type/$resourse" -n $APLICATION_NAMESPACE > $APLICATION_PATH/$DIR_NAME/"vkpr-describe-$type-$resourse-$COUNT".txt
         ((COUNT++))
       fi
     done
@@ -67,13 +78,12 @@ describeAplication(){
 describeNodes(){
   declare -i COUNT=0
   for node in $($VKPR_KUBECTL get node -n $APLICATION_NAMESPACE --ignore-not-found  | awk 'NR>1{print $1}'); do
-    $VKPR_KUBECTL describe "node/$node" -n $APLICATION_NAMESPACE > $LOGS_PATH/"vkpr-describe-node-$node-$COUNT".txt
+    $VKPR_KUBECTL describe "node/$node" -n $APLICATION_NAMESPACE > $APLICATION_PATH/$DIR_NAME/"vkpr-describe-node-$node-$COUNT".txt
     ((COUNT++))
   done
   COUNT=0
 }
 
 valuesAplication(){        
-  $VKPR_HELM get values $APLICATION_NAME -n $APLICATION_NAMESPACE > $LOGS_PATH/"vkpr-values-$APLICATION_NAME".txt
+  $VKPR_HELM get values $APLICATION_NAME -n $APLICATION_NAMESPACE > $APLICATION_PATH/$DIR_NAME/"vkpr-values-$APLICATION_NAME".txt
 }
-
