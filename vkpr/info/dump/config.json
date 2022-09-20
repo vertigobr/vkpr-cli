@@ -1,0 +1,42 @@
+{
+  "inputs": [
+    {
+    "tutorial": "Specifies the application name to extract logs",
+    "label": "Type the application name:",
+    "name": "aplication_name",
+    "type": "text",
+    "required": true,
+    "cache": {
+      "active": true,
+      "qty": 2,
+      "newLabel": "Type another application name: "
+      }
+    },
+    {
+      "tutorial": "Specifies the path where the logs will be generated",
+      "label": "Path for the logs:",
+      "name": "aplication_path",
+      "type": "text",
+      "default": "",
+      "cache": {
+        "active": true,
+        "qty": 2,
+        "newLabel": "Type another path: "
+      }
+    },
+    {
+      "tutorial": "Specifies the application namespace",
+      "label": "Type the application namespace:",
+      "name": "aplication_namespace",
+      "type": "text",
+      "default": "vkpr",
+      "cache": {
+        "active": true,
+        "qty": 2,
+        "newLabel": "Type another application namespace: "
+      }
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease": "2.17.1"
+}
