@@ -7,8 +7,8 @@
       "type": "bool",
       "default": "false",
       "items": [
-        "true",
-        "false"
+        "false",
+        "true"
       ]
     },
     {
@@ -18,8 +18,8 @@
       "type": "bool",
       "default": "false",
       "items": [
-        "true",
-        "false"
+        "false",
+        "true"
       ]
     },
     {

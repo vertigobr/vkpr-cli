@@ -1,0 +1,36 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    app.kubernetes.io/instance: "prometheus-stack"
+    app.kubernetes.io/managed-by: "vkpr"
+    release: "prometheus-stack"
+  name: kong-alerts
+spec:
+  groups:
+    - name: kong
+      rules:
+        - alert: kongDown
+          expr: sum(up{pod=~"kong-kong.*"}) < 2
+          for: 30s
+          annotations:
+            message: "kong has disappeared from Prometheus target discovery."
+          labels:
+            provider: vkpr
+            severity: warning
+        - alert: kongGettingMany4xx/5xx
+          expr: sum(rate(kong_http_status{code!~"[4-5].*"}[2m]))/sum(rate(kong_http_status[2m])) < 0.85
+          for: 10m
+          annotations:
+            message: "kong is returning a lot of errors to users, some application may be behaving unexpectedly"
+          labels:
+            provider: vkpr
+            severity: critical
+        - alert: kongDatabaseMissing
+          expr: kong_datastore_reachable{pod=~"kong-kong.*"} == 0
+          for: 1m
+          annotations:
+            message: "kong miss his connection with the Database"
+          labels:
+            provider: vkpr
+            severity: critical
