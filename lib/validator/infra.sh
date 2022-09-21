@@ -35,3 +35,12 @@ validateInfraNodes(){
     exit
   fi
 }
+
+validateInfraNodePorts(){
+  if [[ $1 =~ ^([0-9]{1})$ ]]; then
+    return
+  else
+    error "The value used for VKPR_ENV_NUMBER_NODEPORTS \"$1\" is invalid: VKPR_ENV_NUMBER_NODEPORTS must consist of integer, (e.g. '1', regex used for validation is ^([0-9]{1})$."
+    exit
+  fi
+}
