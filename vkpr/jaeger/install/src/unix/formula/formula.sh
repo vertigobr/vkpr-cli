@@ -47,7 +47,7 @@ validateInputs() {
 
   validateJaegerIngressClassName "$VKPR_ENV_JAEGER_INGRESS_CLASS_NAME"
   validateJaegerNamespace "$VKPR_ENV_JAEGER_NAMESPACE"
-  validateJaegerPersistance "$VKPR_ENV_JAEGER_PERSISTANCE"
+  validateJaegerPersistance "$VKPR_ENV_JAEGER_PERSISTENCE"
 
   validateJaegerSsl "$VKPR_ENV_JAEGER_SSL"
   if [[ $VKPR_ENV_JAEGER_SSL == true ]]; then
