@@ -18,6 +18,6 @@ stopCluster() {
     error "Cluster vkpr-local not running..."
   fi
   if [[ $DELETE_REGISTRY == "true" ]]; then
-    docker rm -f k3d-mirror.localhost k3d-registry.localhost > /dev/null
+    docker rm -f k3d-mirror.localhost > /dev/null
   fi
 }
