@@ -9,12 +9,8 @@ ports:
   - nodeFilters:
       - loadbalancer
 registries:
-  create:
-    name: registry.localhost
-    host: "0.0.0.0"
-    hostPort: "6000"
-    volumes:
-      - vkpr-registry:/var/lib/registry
+  use:
+    - k3d-registry.localhost:6000
   config: |
     mirrors:
       "docker.io":

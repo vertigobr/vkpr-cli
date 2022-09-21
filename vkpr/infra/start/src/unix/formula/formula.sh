@@ -46,14 +46,19 @@ validateInputs() {
 
 # Create the local registry and Docker Hub Mirror
 startRegistry() {
-  if $VKPR_K3D registry list | grep -q "k3d-mirror\.localhost"; then
-    warn "Mirror already started, skipping..."
-    return
+  if ! ${VKPR_K3D} registry list | grep -q "k3d-registry\.localhost"; then
+    ${VKPR_K3D} registry create registry.localhost \
+      -p 6000 -v vkpr-registry:/var/lib/registry
+  else
+    warn "Registry already started, skipping..."
   fi
 
-  ${VKPR_K3D} registry create mirror.localhost \
-    -i vertigo/registry-mirror -p 6001 \
-    -v vkpr-mirror-registry:/var/lib/registry
+  if ! ${VKPR_K3D} registry list | grep -q "k3d-mirror\.localhost"; then
+    ${VKPR_K3D} registry create mirror.localhost -i vertigo/registry-mirror \
+      -p 6001 -v vkpr-mirror-registry:/var/lib/registry
+  else
+    warn "Mirror already started, skipping..."
+  fi
 }
 
 # Starts K8S using Registries
