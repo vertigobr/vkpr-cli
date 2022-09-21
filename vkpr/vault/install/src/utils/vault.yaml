@@ -37,6 +37,15 @@ server:
       }
 
       service_registration "kubernetes" {}
+    disruptionBudget:
+      maxUnavailable: 1
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: "kubernetes.io/hostname"
+        whenUnsatisfiable: "ScheduleAnyway"
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/managed-by: vkpr
   ingress:
     enabled: true
     ingressClassName: nginx

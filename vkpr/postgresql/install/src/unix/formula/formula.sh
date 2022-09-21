@@ -79,7 +79,7 @@ settingPostgresqlProvider(){
 }
 
 settingPostgresqlHA() {
-  YQ_VALUES=".fullnameOverride = \"postgres-postgresql\" |
+  YQ_VALUES=".fullnameOverride = \"postgres\" |
     .commonLabels.[\"app.kubernetes.io/managed-by\"] = \"vkpr\" |
     .postgresql.username = \"postgres\" |
     .postgresql.database = \"postgres\" |
