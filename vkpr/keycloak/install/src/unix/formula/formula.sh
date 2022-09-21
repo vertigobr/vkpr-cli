@@ -16,6 +16,7 @@ runFormula() {
   settingKeycloak
   installApplication "keycloak" "bitnami/keycloak" "$VKPR_ENV_KEYCLOAK_NAMESPACE" "$VKPR_KEYCLOAK_VERSION" "$VKPR_KEYCLOAK_VALUES" "$HELM_ARGS"
   startupScripts
+  checkComands
 }
 
 startInfos() {
@@ -250,6 +251,30 @@ startupScripts() {
           s/CLIENT_SECRET/$IDP_CLIENTSECRET/g" "$(dirname "$0")"/src/lib/scripts/keycloak/identity-providers.sh > "$(dirname "$0")"/src/lib/scripts/keycloak/identity-providers-$i.sh
         execScriptsOnPod "$(dirname "$0")"/src/lib/scripts/keycloak/identity-providers-$i.sh "keycloak-0" "$VKPR_ENV_KEYCLOAK_NAMESPACE"
       done
+    fi
+  fi
+}
+
+checkComands (){
+  bold "=============================="
+  boldInfo "Checking additional keycloak commands..."
+  COMANDS_EXISTS=$($VKPR_YQ eval ".keycloak | has(\"commands\")" "$VKPR_FILE")
+  debug "$COMANDS_EXISTS"
+  if [ "$COMANDS_EXISTS" == true ]; then
+    if [ $($VKPR_YQ eval ".keycloak.commands.realm | has(\"export\")" "$VKPR_FILE") == true ]; then
+      checkGlobalConfig "" "" "keycloak.commands.realm.export" "REALM_NAME"
+      realmExport "$VKPR_ENV_REALM_NAME" "$VKPR_ENV_KEYCLOAK_NAMESPACE"
+    fi
+    if [ $($VKPR_YQ eval ".keycloak.commands.realm | has(\"import\")" "$VKPR_FILE") == true ]; then
+      checkGlobalConfig "" "" "keycloak.commands.realm.import.path" "REALM_PATH"
+      realmImport "$VKPR_ENV_REALM_PATH" "$VKPR_ENV_KEYCLOAK_NAMESPACE" "$VKPR_ENV_KEYCLOAK_ADMIN_USER" "$VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD"
+    fi
+    if [ $($VKPR_YQ eval ".keycloak.commands.realm | has(\"idp\")" "$VKPR_FILE") == true ]; then
+      checkGlobalConfig "" "" "keycloak.commands.realm.idp.provider" "REALM_IDP_PROVIDER"
+      checkGlobalConfig "" "" "keycloak.commands.realm.idp.clientId" "REALM_IDP_CLIENT_ID"
+      checkGlobalConfig "" "" "keycloak.commands.realm.idp.clientSecret" "REALM_IDP_CLIENT_SECRET"
+      checkGlobalConfig "" "" "keycloak.commands.realm.idp.realmeName" "REALM_NAME_IDP"
+      realmIdp "$VKPR_ENV_REALM_NAME_IDP" "$VKPR_ENV_REALM_IDP_PROVIDER" "$VKPR_ENV_KEYCLOAK_NAMESPACE" "$VKPR_ENV_KEYCLOAK_ADMIN_USER" "$VKPR_ENV_KEYCLOAK_ADMIN_PASSWORD" "$VKPR_ENV_REALM_IDP_CLIENT_ID" "$VKPR_ENV_REALM_IDP_CLIENT_SECRET" 
     fi
   fi
 }

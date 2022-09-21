@@ -19,6 +19,7 @@ runFormula() {
   installApplication "cert-manager" "jetstack/cert-manager" "$VKPR_ENV_CERT_MANAGER_NAMESPACE" "$VKPR_CERT_MANAGER_VERSION" "$VKPR_CERT_MANAGER_VALUES" "$HELM_ARGS"
   settingIssuer
   installIssuer
+  checkComands
 }
 
 startInfos() {
@@ -117,4 +118,17 @@ configureDNS01() {
     .spec.acme.solvers[0].dns01.route53.secretAccessKeySecretRef.key = \"secret-key\" |
     .spec.acme.solvers[0].dns01.route53.hostedZoneID = \"$AWS_HOSTEDZONE_ID\"
   "
+}
+
+checkComands (){
+  bold "=============================="
+  boldInfo "Checking additional cert-manager commands..."
+  COMANDS_EXISTS=$($VKPR_YQ eval ".cert-manager | has(\"commands\")" "$VKPR_FILE")
+  debug "$COMANDS_EXISTS"
+  if [ "$COMANDS_EXISTS" == true ]; then
+    if [ $($VKPR_YQ eval ".cert-manager.commands | has(\"wildcard\")" "$VKPR_FILE") == true ]; then
+      checkGlobalConfig "" "" "cert-manager.commands.wildcard.namespace" "WILDCARD_NAMESPACE"
+      createWildcard "$VKPR_ENV_GLOBAL_DOMAIN" "$VKPR_ENV_CERT_MANAGER_NAMESPACE" "$(dirname "$0")"/utils/certificate.yaml
+    fi
+  fi
 }
