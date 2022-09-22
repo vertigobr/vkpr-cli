@@ -5,7 +5,7 @@
 # -----------------------------------------------------------------------------
 
 validateKubectlVersion() {
-  if [[ ! -f $VKPR_KUBECTL ]] || [[ $($VKPR_KUBECTL version --short --client | awk -F " " '{print $3}') = "$VKPR_TOOLS_KUBECTL" ]]; then
+  if [[ ! -f $VKPR_KUBECTL ]] || $VKPR_KUBECTL version | grep -q $VKPR_TOOLS_KUBECTL; then
     return
   else
     rm "$VKPR_KUBECTL"
