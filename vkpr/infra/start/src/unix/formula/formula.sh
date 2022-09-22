@@ -7,6 +7,8 @@ runFormula() {
   formulaInputs
   validateInputs
 
+  VKPR_ENV_NUMBER_NODEPORTS=$((VKPR_ENV_NUMBER_NODEPORTS-1))
+
   startInfos
   startRegistry
   configureCluster
@@ -21,6 +23,7 @@ startInfos() {
   boldNotice "Kubernetes API: 6443"
   boldNotice "Local Registry: 6000"
   boldNotice "Docker Hub Registry Mirror (cache): 6001"
+  boldNotice "NodePorts available: 9000-$((VKPR_ENV_NUMBER_NODEPORTS+9000)):30000-$((VKPR_ENV_NUMBER_NODEPORTS+30000))"
   boldWarn "Using two local unamed Docker Volumes"
   bold "=============================="
 }
@@ -81,9 +84,9 @@ configureCluster() {
     .ports[1].port = \"$VKPR_ENV_HTTPS_PORT:443\"
   "
 
-  if [ $VKPR_ENV_NUMBER_NODEPORTS -gt 0 ] ; then
-    local PORT_LOCAL="$(($VKPR_ENV_NUMBER_NODEPORTS+9000))" \
-          PORT_NODE="$(($VKPR_ENV_NUMBER_NODEPORTS+30000))"
+  if [ $NODEPORTS -gt 0 ] ; then
+    local PORT_LOCAL="$((VKPR_ENV_NUMBER_NODEPORTS+9000))" \
+          PORT_NODE="$((VKPR_ENV_NUMBER_NODEPORTS+30000))"
     YQ_VALUES="$YQ_VALUES |
       .ports[2].port = \"9000-$PORT_LOCAL:30000-$PORT_NODE\" |
       .ports[2].nodeFilters[0] = \"agent:0\"
