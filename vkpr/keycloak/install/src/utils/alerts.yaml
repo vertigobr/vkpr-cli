@@ -1,0 +1,28 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    app.kubernetes.io/instance: "prometheus-stack"
+    app.kubernetes.io/managed-by: "vkpr"
+    release: "prometheus-stack"
+  name: keycloak-alerts
+spec:
+  groups:
+    - name: keycloak
+      rules:
+        - alert: keycloakDown
+          expr: sum(up{pod=~"keycloak.*"}) < 1
+          for: 30s
+          annotations:
+            message: "keycloak has disappeared from Prometheus target discovery."
+          labels:
+            provider: vkpr
+            severity: warning
+        - alert: keycloakGettingMany4xx/5xx
+          expr: sum by (code)(increase(keycloak_response_errors[2m])) < 0.85
+          for: 10m
+          annotations:
+            message: "keycloak is returning a lot of errors to users, some application may be behaving unexpectedly"
+          labels:
+            provider: vkpr
+            severity: critical

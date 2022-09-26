@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  namespace: argocd
+  labels:
+    app.kubernetes.io/managed-by: vkpr
+spec:
+  generators:
+    - git:
+        repoURL: null
+        revision: HEAD
+        directories:
+          - path: "*"
+  template:
+    metadata:
+      name: "{{path.basename}}"
+    spec:
+      project: default
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+      source:
+        repoURL: null
+        targetRevision: HEAD
+        path: "{{path}}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: default

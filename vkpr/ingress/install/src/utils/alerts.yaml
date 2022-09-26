@@ -1,0 +1,36 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    app.kubernetes.io/instance: "prometheus-stack"
+    app.kubernetes.io/managed-by: "vkpr"
+    release: "prometheus-stack"
+  name: nginx-alerts
+spec:
+  groups:
+    - name: nginx
+      rules:
+        - alert: nginxDown
+          expr: up{container="controller", service="ingress-nginx-controller-metrics"} == 0
+          for: 30s
+          annotations:
+            message: "nginx has disappeared from Prometheus target discovery."
+          labels:
+            provider: vkpr
+            severity: warning
+        - alert: nginxCertificateExpiring
+          expr: (nginx_ingress_controller_ssl_expire_time_seconds - time()) / 86400 < 10
+          for: 1d
+          annotations:
+            message: "nginx SSL certificate is about to expire in 10 days"
+          labels:
+            provider: vkpr
+            severity: warning
+        - alert: nginxGettingMany4xx/5xx
+          expr: sum(rate(nginx_ingress_controller_requests{status!~"[4-5].*"}[2m]))/sum(rate(nginx_ingress_controller_requests[2m])) < 0.85
+          for: 10m
+          annotations:
+            message: "nginx is returning a lot of errors to users, some application may be behaving unexpectedly"
+          labels:
+            provider: vkpr
+            severity: critical

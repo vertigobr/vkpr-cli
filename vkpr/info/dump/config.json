@@ -1,0 +1,30 @@
+{
+  "inputs": [
+    {
+    "tutorial": "Specifies the application name to extract logs",
+    "label": "Type the application name:",
+    "name": "application_name",
+    "type": "text",
+    "required": true,
+    "cache": {
+      "active": true,
+      "qty": 2,
+      "newLabel": "Type another application name: "
+      }
+    },
+    {
+      "tutorial": "Specifies the path where the logs will be generated",
+      "label": "Path for the logs:",
+      "name": "application_path",
+      "type": "text",
+      "default": "",
+      "cache": {
+        "active": true,
+        "qty": 2,
+        "newLabel": "Type another path: "
+      }
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease": "2.17.1"
+}

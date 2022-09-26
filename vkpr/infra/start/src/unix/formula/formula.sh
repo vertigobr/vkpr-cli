@@ -2,12 +2,16 @@
 
 
 runFormula() {
+  local APP_VALUES=$(dirname "$0")/utils/kube.yaml
+
   formulaInputs
   validateInputs
 
+  VKPR_ENV_NUMBER_NODEPORTS=$((VKPR_ENV_NUMBER_NODEPORTS-1))
+
   startInfos
-  configRegistry
   startRegistry
+  configureCluster
   startCluster
 }
 
@@ -19,6 +23,7 @@ startInfos() {
   boldNotice "Kubernetes API: 6443"
   boldNotice "Local Registry: 6000"
   boldNotice "Docker Hub Registry Mirror (cache): 6001"
+  boldNotice "NodePorts available: 9000-$((VKPR_ENV_NUMBER_NODEPORTS+9000)):30000-$((VKPR_ENV_NUMBER_NODEPORTS+30000))"
   boldWarn "Using two local unamed Docker Volumes"
   bold "=============================="
 }
@@ -31,6 +36,7 @@ formulaInputs() {
   checkGlobalConfig "1" "1" "infra.resources.masters" "K3D_SERVERS"
   checkGlobalConfig "$WORKER_NODES" "1" "infra.resources.workers" "K3D_AGENTS"
   checkGlobalConfig "$ENABLE_VOLUME" "false" "infra.enableVolume" "VOLUME"
+  checkGlobalConfig "$NODEPORTS" "0" "infra.nodePorts" "NUMBER_NODEPORTS"
 }
 
 validateInputs() {
@@ -38,29 +44,21 @@ validateInputs() {
   validateInfraHTTPS "$VKPR_ENV_HTTPS_PORT"
   validateInfraNodes "$VKPR_ENV_K3D_AGENTS"
   validateInfraTraefik "$VKPR_ENV_TRAEFIK"
-}
-
-configRegistry() {
-  #local HOST_IP="172.17.0.1"  #Linux Native
-  local HOST_IP="host.k3d.internal"
-  cat > "${VKPR_CONFIG}"/registry.yaml << EOF
-mirrors:
-  "docker.io":
-    endpoint:
-      - "http://$HOST_IP:6001"
-EOF
+  validateInfraNodePorts "$VKPR_ENV_NUMBER_NODEPORTS"
 }
 
 # Create the local registry and Docker Hub Mirror
 startRegistry() {
   if ! ${VKPR_K3D} registry list | grep -q "k3d-registry\.localhost"; then
-    ${VKPR_K3D} registry create registry.localhost -p 6000
+    ${VKPR_K3D} registry create registry.localhost \
+      -p 6000 -v vkpr-registry:/var/lib/registry
   else
     warn "Registry already started, skipping..."
   fi
 
   if ! ${VKPR_K3D} registry list | grep -q "k3d-mirror\.localhost"; then
-    ${VKPR_K3D} registry create mirror.localhost -i vertigo/registry-mirror -p 6001
+    ${VKPR_K3D} registry create mirror.localhost -i vertigo/registry-mirror \
+      -p 6001 -v vkpr-mirror-registry:/var/lib/registry
   else
     warn "Mirror already started, skipping..."
   fi
@@ -68,31 +66,45 @@ startRegistry() {
 
 # Starts K8S using Registries
 startCluster() {
-  local TRAEFIK_FLAG="" \
-    VOLUME_FLAG=""
+  if $VKPR_K3D cluster list | grep -q "vkpr-local"; then
+    error "Cluster vkpr-local already created."
+    return
+  fi
+
+  $VKPR_YQ eval -i "$YQ_VALUES" "$APP_VALUES"
+  mergeVkprValuesHelmArgs "infra" "$APP_VALUES"
+  $VKPR_K3D cluster create --config $APP_VALUES
+  $VKPR_KUBECTL cluster-info
+}
+
+configureCluster() {
+  YQ_VALUES=".servers = $VKPR_ENV_K3D_SERVERS |
+    .agents = $VKPR_ENV_K3D_AGENTS |
+    .ports[0].port = \"$VKPR_ENV_HTTP_PORT:80\" |
+    .ports[1].port = \"$VKPR_ENV_HTTPS_PORT:443\"
+  "
+
+  if [ $NODEPORTS -gt 0 ] ; then
+    local PORT_LOCAL="$((VKPR_ENV_NUMBER_NODEPORTS+9000))" \
+          PORT_NODE="$((VKPR_ENV_NUMBER_NODEPORTS+30000))"
+    YQ_VALUES="$YQ_VALUES |
+      .ports[2].port = \"9000-$PORT_LOCAL:30000-$PORT_NODE\" |
+      .ports[2].nodeFilters[0] = \"agent:0\"
+    "
+  fi
 
   if [ "$VKPR_ENV_TRAEFIK" == false ]; then
-    TRAEFIK_FLAG="--disable=traefik@server:0"
+    YQ_VALUES="$YQ_VALUES |
+      .options.k3s.extraArgs[0].arg = \"--disable=traefik\" |
+      .options.k3s.extraArgs[0].nodeFilters[0] = \"server:*\"
+    "
   fi
 
   if [ "$VKPR_ENV_VOLUME" == true ]; then
     mkdir -p /tmp/k3dvol
-    VOLUME_FLAG="/tmp/k3dvol:/tmp/k3dvol"
+    YQ_VALUES="$YQ_VALUES |
+      .volumes[0].volume = \"/tmp/k3dvol:/tmp/k3dvol\" |
+      .volumes[0].nodeFilters[0] = \"agent:*\"
+    "
   fi
-
-  if ! ${VKPR_K3D} cluster list | grep -q "vkpr-local"; then
-    ${VKPR_K3D} cluster create vkpr-local \
-      -s "${VKPR_ENV_K3D_SERVERS}" -a "${VKPR_ENV_K3D_AGENTS}" --volume="${VOLUME_FLAG}" \
-      -p "${VKPR_ENV_HTTP_PORT}:80@loadbalancer" \
-      -p "${VKPR_ENV_HTTPS_PORT}:443@loadbalancer" \
-      --k3s-arg "${TRAEFIK_FLAG}" \
-      --registry-use k3d-registry.localhost \
-      --registry-config "${VKPR_CONFIG}"/registry.yaml
-  ${VKPR_KUBECTL} config use-context k3d-vkpr-local
-  else
-    error "Cluster vkpr-local already created."
-  fi
-
-  ${VKPR_KUBECTL} cluster-info
 }
-

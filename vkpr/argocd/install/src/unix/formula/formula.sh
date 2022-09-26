@@ -12,6 +12,7 @@ runFormula() {
   settingArgoCD
   [ $DRY_RUN = false ] && registerHelmRepository argo https://argoproj.github.io/argo-helm
   installApplication "argocd" "argo/argo-cd" "$VKPR_ENV_ARGOCD_NAMESPACE" "$VKPR_ARGOCD_VERSION" "$VKPR_ARGOCD_VALUES" "$HELM_ARGS" && printArgoPassword
+  checkComands
 }
 
 startInfos() {
@@ -119,4 +120,22 @@ settingArgoCD() {
 printArgoPassword(){
   PASSWORD=$($VKPR_KUBECTL -n "$VKPR_ENV_ARGOCD_NAMESPACE" get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
   notice "Your ArgoCD Super Admin password is ${PASSWORD}, we recommend that it be changed after the first login"
+}
+
+checkComands (){
+  bold "=============================="
+  boldInfo "Checking additional argocd commands..."
+  COMANDS_EXISTS=$($VKPR_YQ eval ".argocd | has(\"commands\")" "$VKPR_FILE")
+  if [ "$COMANDS_EXISTS" == true ]; then
+      debug $COMANDS_EXISTS
+      checkGlobalConfig "" "" "argocd.commands.repository.repo_url" "ARGOCD_COMANDS_REPOSITORY_URL"
+    if [ $($VKPR_YQ eval ".argocd.commands | has(\"repository\")" "$VKPR_FILE") == true ]; then
+      GITLAB_USERNAME="$($VKPR_JQ -r '.credential.username' $VKPR_CREDENTIAL/gitlab)" 
+      GITLAB_TOKEN="$($VKPR_JQ -r '.credential.token' $VKPR_CREDENTIAL/gitlab)"
+      argocdSetRepo "$VKPR_ENV_ARGOCD_COMANDS_REPOSITORY_URL" "$VKPR_ENV_ARGOCD_NAMESPACE" "$GITLAB_USERNAME" "$GITLAB_TOKEN"
+    fi
+    if [ $($VKPR_YQ eval ".argocd.commands | has(\"aplicationset\")" "$VKPR_FILE") == true ]; then
+      argocdAplicationSet "$VKPR_ENV_ARGOCD_COMANDS_REPOSITORY_URL" "$VKPR_ENV_ARGOCD_NAMESPACE" "$(dirname "$0")"/utils/applicationset.yaml
+    fi
+  fi
 }

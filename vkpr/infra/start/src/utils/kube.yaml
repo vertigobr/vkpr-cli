@@ -1,0 +1,24 @@
+apiVersion: k3d.io/v1alpha4
+kind: Simple
+metadata:
+  name: vkpr-local
+image: rancher/k3s:v1.24.4-k3s1
+ports:
+  - nodeFilters:
+      - loadbalancer
+  - nodeFilters:
+      - loadbalancer
+registries:
+  use:
+    - k3d-registry.localhost:6000
+  config: |
+    mirrors:
+      "docker.io":
+        endpoint:
+          - http://host.k3d.internal:6001
+options:
+  k3d:
+    wait: true
+  kubeconfig:
+    updateDefaultKubeconfig: true
+    switchCurrentContext: true
