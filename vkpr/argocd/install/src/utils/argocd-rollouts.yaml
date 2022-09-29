@@ -1,0 +1,6 @@
+dashboard:
+  enabled: true
+  ingress:
+    enabled: true
+    hosts:
+      - argo-rollout.localhost

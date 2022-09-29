@@ -1,0 +1,5 @@
+server:
+  ingress:
+    enabled: true
+  extraArgs:
+    - --auth-mode=server

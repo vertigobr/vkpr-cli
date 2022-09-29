@@ -6,3 +6,5 @@ server:
     enabled: true
   extraArgs:
     - --insecure
+notifications:
+  enabled: false
