@@ -8,7 +8,7 @@ env:
   proxy_url: "http://localhost:8000"
 image:
   repository: kong/kong-gateway
-  tag: "2.8.1.3-alpine"
+  tag: "3.0.0.0-alpine"
 admin:
   enabled: true
   type: ClusterIP

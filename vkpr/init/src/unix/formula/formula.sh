@@ -11,6 +11,7 @@ runFormula() {
   mkdir -p $VKPR_HOME/bin
   mkdir -p $VKPR_HOME/config
   mkdir -p $VKPR_HOME/bats
+  mkdir -p $VKPR_HOME/certs  
 
   installArkade
   validateKubectlVersion
