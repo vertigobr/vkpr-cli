@@ -28,6 +28,17 @@ createKongSecrets() {
       --from-file="$(dirname "$0")"/utils/admin_gui_auth_conf $KONG_NAMESPACE && \
       $VKPR_KUBECTL label secret kong-idp-config app.kubernetes.io/instance=kong app.kubernetes.io/managed-by=vkpr $KONG_NAMESPACE 2> /dev/null
   fi
+
+  ## Create Kong keyring secret for encrypted communication between databases
+  if [[ "$VKPR_ENV_KONG_ENTERPRISE_LICENSE" != "null" ]]; then
+
+    openssl genrsa -out  $VKPR_HOME/certs/key.pem 2048 
+    openssl rsa -in  $VKPR_HOME/certs/key.pem -pubout -out  $VKPR_HOME/certs/cert.pem &> /dev/null
+
+    $VKPR_KUBECTL create secret generic kong-keyring-cert \
+      --from-file=$VKPR_HOME/certs/cert.pem --from-file=$VKPR_HOME/certs/key.pem $KONG_NAMESPACE && \
+      $VKPR_KUBECTL label secret kong-keyring-cert app.kubernetes.io/instance=kong app.kubernetes.io/managed-by=vkpr $KONG_NAMESPACE 2> /dev/null
+  fi
 }
 
 settingKong() {
@@ -104,6 +115,15 @@ settingKong() {
       "
       $VKPR_KUBECTL apply $KONG_NAMESPACE -f "$(dirname "$0")/utils/kong-service-monitor.yaml"
     fi
+  fi
+  
+  if [[ "$VKPR_ENV_KONG_ENTERPRISE_LICENSE" != "null" ]]; then
+    YQ_VALUES="$YQ_VALUES |
+      .secretVolumes[0] = \"kong-keyring-cert\" |
+      .env.kong_keyring_enabled = \"on\" |
+      .env.kong_keyring_strategy = \"cluster\" |
+      .env.kong_keyring_recovery_public_key = \"/etc/secrets/kong-keyring-cert/key.pem\" 
+    "
   fi
 
   if [[ "$VKPR_ENV_KONG_HA" == "true" ]]; then
