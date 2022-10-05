@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+source "$(dirname "$0")"/unix/formula/commands-operators.sh
 
 runFormula() {
   local VKPR_ENV_ARGOCD_DOMAIN VKPR_ARGOCD_VALUES HELM_ARGS;

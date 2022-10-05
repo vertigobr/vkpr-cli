@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+source "$(dirname "$0")"/unix/formula/commands-operators.sh
 
 runFormula() {
   local VKPR_ENV_KEYCLOAK_DOMAIN VKPR_KEYCLOAK_VALUES PG_USER PG_DATABASE_NAME PG_HA PG_HOST HELM_ARGS;
@@ -16,7 +17,7 @@ runFormula() {
   settingKeycloak
   installApplication "keycloak" "bitnami/keycloak" "$VKPR_ENV_KEYCLOAK_NAMESPACE" "$VKPR_KEYCLOAK_VERSION" "$VKPR_KEYCLOAK_VALUES" "$HELM_ARGS"
   #startupScripts
-  #checkComands
+  [ $DRY_RUN = false ] && checkComands
 }
 
 startInfos() {
@@ -274,11 +275,12 @@ startupScripts() {
 }
 
 checkComands (){
-  bold "=============================="
-  boldInfo "Checking additional keycloak commands..."
-  COMANDS_EXISTS=$($VKPR_YQ eval ".keycloak | has(\"commands\")" "$VKPR_FILE")
+  COMANDS_EXISTS=$($VKPR_YQ eval ".keycloak | has(\"commands\")" "$VKPR_FILE" 2> /dev/null)
   debug "$COMANDS_EXISTS"
   if [ "$COMANDS_EXISTS" == true ]; then
+    bold "=============================="
+    boldInfo "Checking additional keycloak commands..."
+
     if [ $($VKPR_YQ eval ".keycloak.commands.realm | has(\"export\")" "$VKPR_FILE") == true ]; then
       checkGlobalConfig "" "" "keycloak.commands.realm.export" "REALM_NAME"
       realmExport "$VKPR_ENV_REALM_NAME" "$VKPR_ENV_KEYCLOAK_NAMESPACE"
