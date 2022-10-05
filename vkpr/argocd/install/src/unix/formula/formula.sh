@@ -11,8 +11,12 @@ runFormula() {
   startInfos
   settingArgoCD
   [ $DRY_RUN = false ] && registerHelmRepository argo https://argoproj.github.io/argo-helm
-  installApplication "argocd" "argo/argo-cd" "$VKPR_ENV_ARGOCD_NAMESPACE" "$VKPR_ARGOCD_VERSION" "$VKPR_ARGOCD_VALUES" "$HELM_ARGS" && printArgoPassword
-  checkComands
+  installApplication "argocd" "argo/argo-cd" "$VKPR_ENV_ARGOCD_NAMESPACE" "$VKPR_ARGOCD_VERSION" "$VKPR_ARGOCD_VALUES" "$HELM_ARGS"
+  if [ $DRY_RUN = false ]; then
+    printArgoPassword
+    checkComands
+  fi
+  settingArgoAddons
 }
 
 startInfos() {
@@ -36,6 +40,13 @@ formulaInputs() {
   checkGlobalConfig "$CRT_FILE" "" "argocd.ssl.crt" "ARGOCD_SSL_CERTIFICATE"
   checkGlobalConfig "$KEY_FILE" "" "argocd.ssl.key" "ARGOCD_SSL_KEY"
   checkGlobalConfig "" "" "argocd.ssl.secretName" "ARGOCD_SSL_SECRET"
+
+  # Addons Values
+  checkGlobalConfig "false" "false" "argocd.addons.notifications.enabled" "ARGOCD_ADDONS_NOTIFICATIONS"
+  checkGlobalConfig "false" "false" "argocd.addons.rollouts.enabled" "ARGOCD_ADDONS_ROLLOUTS"
+  checkGlobalConfig "false" "false" "argocd.addons.events.enabled" "ARGOCD_ADDONS_EVENTS"
+  checkGlobalConfig "false" "false" "argocd.addons.workflows.enabled" "ARGOCD_ADDONS_WORKFLOWS"
+
 
   # External apps values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "GRAFANA_NAMESPACE"
@@ -114,6 +125,8 @@ settingArgoCD() {
      "
   fi
 
+  [ "$VKPR_ENV_ARGOCD_ADDONS_NOTIFICATIONS" == true ] && source $(dirname "$0")/unix/formula/notifications.sh
+
   debug "YQ_CONTENT = $YQ_VALUES"
 }
 
@@ -122,18 +135,29 @@ printArgoPassword(){
   notice "Your ArgoCD Super Admin password is ${PASSWORD}, we recommend that it be changed after the first login"
 }
 
+settingArgoAddons(){
+  ADDONS_EXISTS=$($VKPR_YQ eval ".argocd | has(\"addons\")" "$VKPR_FILE")
+  if [ "$ADDONS_EXISTS" == true ]; then
+    [ "$VKPR_ENV_ARGOCD_ADDONS_ROLLOUTS" == true ] && source $(dirname "$0")/unix/formula/rollouts.sh
+    [ "$VKPR_ENV_ARGOCD_ADDONS_EVENTS" == true ] && source $(dirname "$0")/unix/formula/events.sh
+    [ "$VKPR_ENV_ARGOCD_ADDONS_WORKFLOWS" == true ] && source $(dirname "$0")/unix/formula/workflows.sh
+  fi
+}
+
 checkComands (){
-  bold "=============================="
-  boldInfo "Checking additional argocd commands..."
   COMANDS_EXISTS=$($VKPR_YQ eval ".argocd | has(\"commands\")" "$VKPR_FILE")
+  debug $COMANDS_EXISTS
   if [ "$COMANDS_EXISTS" == true ]; then
-      debug $COMANDS_EXISTS
-      checkGlobalConfig "" "" "argocd.commands.repository.repo_url" "ARGOCD_COMANDS_REPOSITORY_URL"
+    boldInfo "Checking additional argocd commands..."
+
+    checkGlobalConfig "" "" "argocd.commands.repository.repo_url" "ARGOCD_COMANDS_REPOSITORY_URL"
+
     if [ $($VKPR_YQ eval ".argocd.commands | has(\"repository\")" "$VKPR_FILE") == true ]; then
-      GITLAB_USERNAME="$($VKPR_JQ -r '.credential.username' $VKPR_CREDENTIAL/gitlab)" 
+      GITLAB_USERNAME="$($VKPR_JQ -r '.credential.username' $VKPR_CREDENTIAL/gitlab)"
       GITLAB_TOKEN="$($VKPR_JQ -r '.credential.token' $VKPR_CREDENTIAL/gitlab)"
       argocdSetRepo "$VKPR_ENV_ARGOCD_COMANDS_REPOSITORY_URL" "$VKPR_ENV_ARGOCD_NAMESPACE" "$GITLAB_USERNAME" "$GITLAB_TOKEN"
     fi
+
     if [ $($VKPR_YQ eval ".argocd.commands | has(\"aplicationset\")" "$VKPR_FILE") == true ]; then
       argocdAplicationSet "$VKPR_ENV_ARGOCD_COMANDS_REPOSITORY_URL" "$VKPR_ENV_ARGOCD_NAMESPACE" "$(dirname "$0")"/utils/applicationset.yaml
     fi
