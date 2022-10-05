@@ -20,10 +20,10 @@ addKongDependencies(){
     createAdminAuthConf
   fi
 
-  if [[ "$VKPR_ENV_KONG_MODE" == "hybrid" ]] && [[ "$KONG_PLANE" == "control" ]]; then
+  if [[ "$VKPR_ENV_KONG_MODE" == "hybrid" ]] && [[ "$VKPR_ENV_KONG_PLANE" == "control" ]]; then
     openssl req -new -x509 -nodes -newkey ec:<(openssl ecparam -name secp384r1) \
-                -keyout $CURRENT_PWD/cluster.key -out $CURRENT_PWD/cluster.crt \
-                -days 1095 -subj "/CN=kong_clustering"
+                -keyout $VKPR_HOME/certs/cluster.key -out $VKPR_HOME/certs/cluster.crt \
+                -days 1095 -subj "/CN=kong_clustering" 
   fi
 }
 

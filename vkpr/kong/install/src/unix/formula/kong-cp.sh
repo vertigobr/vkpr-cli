@@ -6,7 +6,7 @@ createKongSecrets() {
 
   ## Create Kong tls secret to communicate between planes
   $VKPR_KUBECTL create secret tls kong-cluster-cert \
-    --cert=$CURRENT_PWD/cluster.crt --key=$CURRENT_PWD/cluster.key $KONG_NAMESPACE && \
+    --cert=$VKPR_HOME/certs/cluster.crt --key=$VKPR_HOME/certs/cluster.key $KONG_NAMESPACE && \
     $VKPR_KUBECTL label secret kong-cluster-cert app.kubernetes.io/instance=kong app.kubernetes.io/managed-by=vkpr $KONG_NAMESPACE 2> /dev/null
 
   ## Create Kong cookie config

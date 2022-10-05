@@ -4,7 +4,7 @@
       "label": "Kong Admin Adress:",
       "tutorial": "Specifies the Kong Admin Adress.",
       "name": "kong_addr",
-      "default": "admin.localhost:8000",
+      "default": "http://api.manager.localhost:8000",
       "type": "text",
       "cache": {
         "active": true, 
