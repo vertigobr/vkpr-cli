@@ -1,0 +1,88 @@
+  {
+    "inputs": [
+      {
+        "tutorial": "Specifies the domain to use in the application",
+        "label": "Type the Nexus UI domain:",
+        "name": "domain",
+        "type": "text",
+        "default": "localhost"
+      },
+      {
+        "tutorial": "Specifies if the application will have HTTPS",
+        "label": "Secure ?",
+        "name": "secure",
+        "type": "bool",
+        "default": "false",
+        "items": [
+          "true",
+          "false"
+        ]
+      },
+      {
+        "tutorial": "Specifies the Nexus Root Password",
+        "label": "Type the Nexus Root Password:",
+        "name": "password",
+        "type": "text",
+        "default": "vkpr123"
+      },
+      {
+        "tutorial": "Specifies if the nexus will be using internal SSL certificates.",
+        "label": "Do you will use SSL?",
+        "name": "ssl",
+        "type": "bool",
+        "default": "false",
+        "required": true,
+        "items": [
+          "false",
+          "true"
+        ]
+      },
+      {
+        "tutorial": "Specifies the nexus .crt file path.",
+        "condition": {
+          "variable": "ssl",
+          "operator": "==",
+          "value": "true"
+        },
+        "label": "Type the full path to the .crt file:",
+        "name": "crt_file",
+        "type": "text",
+        "default": "",
+        "cache": {
+          "active": true,
+          "qty": 2,
+          "newLabel": "Type another .crt file path: "
+        }
+      },
+      {
+        "tutorial": "Specifies the nexus .key file path.",
+        "condition": {
+          "variable": "ssl",
+          "operator": "==",
+          "value": "true"
+        },
+        "label": "Type the full path to the .key file:",
+        "name": "key_file",
+        "type": "text",
+        "default": "",
+        "cache": {
+          "active": true,
+          "qty": 2,
+          "newLabel": "Type another .key file path: "
+        }
+      },
+      {
+        "tutorial": "Simulate an install",
+        "label": "Dry-run ?",
+        "name": "dry_run",
+        "type": "bool",
+        "default": "false",
+        "items": [
+          "false",
+          "true"
+        ]
+      }
+    ],
+    "template": "shell-bat",
+    "templateRelease:": "2.16.2"
+  }
