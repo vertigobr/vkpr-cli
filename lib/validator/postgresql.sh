@@ -35,3 +35,31 @@ validatePostgresqlNamespace(){
     exit
   fi
 }
+
+validateDbName (){
+  if $(validateNamespace $1); then
+    return
+  else
+    error "The value used for VKPR_ENV_DB_NAME \"$1\" is invalid: VKPR_ENV_DB_NAME must consist of lowercase or alphanumeric characters, (e.g. 'postgresql', regex used for validation is ^([a-z0-9]([-a-z0-9]*[a-z0-9])?)$ )"
+    exit
+  fi  
+}
+
+validateDbUser (){
+  if $(validateNamespace $1); then
+    return
+  else
+    error "The value used for VKPR_ENV_DB_USER \"$1\" is invalid: VKPR_ENV_DB_USER must consist of lowercase or alphanumeric characters, (e.g. 'postgresql', regex used for validation is ^([a-z0-9]([-a-z0-9]*[a-z0-9])?)$ )"
+    exit
+  fi  
+}
+
+validateDbPassword (){
+  if $(validatePwd $1); then
+    return
+  else
+    error "The value used for VKPR_ENV_DB_PASSWORD \"$1\" is invalid: VKPR_ENV_DB_PASSWORD must consist of lowercase or alphanumeric characters, (e.g. 'vkpr123', regex used for validation is ^([A-Za-z0-9-]{7,})$)"
+    exit
+  fi
+}
+
