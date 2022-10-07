@@ -12,7 +12,23 @@ kongDeckSync() {
   validateKongWorkspace "$VKPR_ENV_KONG_WORKSPACE"
   validateKongYamlPath "$VKPR_ENV_KONG_YAML_PATH"
 
-  sleep 10
+  info "Attempting to connect to Kong..."
+  local i=0 \
+        timeout=10
+  while [[ $i -lt $timeout ]]; do
+    if $VKPR_DECK ping --kong-addr="$VKPR_ENV_KONG_ADDR" --headers=Kong-Admin-Token:"$VKPR_ENV_KONG_ADMIN_TOKEN" | grep -q "Successfully"; then
+      break
+    else
+      sleep 1
+      ((i++))
+    fi
+  done
+  
+  if [[ $i -ge $timeout ]]; then
+    error "Could not connect to Kong!"
+    exit
+  fi
+
   if $VKPR_DECK ping --kong-addr="$VKPR_ENV_KONG_ADDR" --headers=Kong-Admin-Token:"$VKPR_ENV_KONG_ADMIN_TOKEN" | grep -q "Successfully"; then
     notice "Successfully connected to Kong!"
     if [[ "$VKPR_ENV_KONG_WORKSPACE" == "default" ]]; then
