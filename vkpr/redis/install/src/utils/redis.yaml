@@ -1,0 +1,9 @@
+volumePermissions:
+  enabled: true
+master:
+  podLabels:
+    app.kubernetes.io/managed-by: vkpr
+
+replica:
+  podLabels:
+    app.kubernetes.io/managed-by: vkpr

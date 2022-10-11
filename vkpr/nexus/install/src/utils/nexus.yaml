@@ -1,0 +1,28 @@
+ingress:
+  enabled: true
+service:
+  additionalPorts:
+    - port: 5000
+      name: docker-group
+      containerPort: 5000
+      host: registry.local
+config:
+  enabled: true
+  rootPassword:
+    secret: nexus-password
+    key: rootPassword
+  repos:
+    - name: docker
+      type: docker-hosted
+      online: true
+      attributes:
+        docker:
+          v1Enabled: false
+          forceBasicAuth: true
+          httpPort: 5000
+          httpsPort: null
+          subdomain: null
+        storage:
+          blobStoreName: default
+          strictContentTypeValidation: true
+          writePolicy: ALLOW

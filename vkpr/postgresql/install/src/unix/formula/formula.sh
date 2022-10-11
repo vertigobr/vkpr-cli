@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+source "$(dirname "$0")"/unix/formula/commands-operators.sh
 
 runFormula() {
   local VKPR_POSTGRESQL_VALUES PG_PASSWORD HELM_ARGS;
@@ -18,6 +19,7 @@ runFormula() {
     settingPostgresqlHA
     installApplication "postgresql" "bitnami/postgresql-ha" "$VKPR_ENV_POSTGRESQL_NAMESPACE" "$VKPR_POSTGRESQL_HA_VERSION" "$VKPR_POSTGRESQL_VALUES" "$HELM_ARGS"
   fi
+  [ $DRY_RUN = false ] && checkComands
 }
 
 startInfos() {
@@ -130,5 +132,17 @@ settingPostgresqlHAProvider(){
     YQ_VALUES="$YQ_VALUES |
       .persistence.size = \"2Gi\"
     "
+  fi
+}
+
+checkComands (){
+  COMANDS_EXISTS=$($VKPR_YQ eval ".postgresql | has(\"commands\")" "$VKPR_FILE" 2> /dev/null)
+  debug "$COMANDS_EXISTS"
+  if [ "$COMANDS_EXISTS" == true ]; then
+    bold "=============================="
+    boldInfo "Checking additional postgresql commands..."
+    if [ $($VKPR_YQ eval ".postgresql.commands | has(\"createDb\")" "$VKPR_FILE") == true ]; then
+      createDbPostgresql 
+    fi
   fi
 }

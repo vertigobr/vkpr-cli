@@ -1,0 +1,33 @@
+  {
+    "inputs": [
+      {
+        "tutorial": "Type of Cluster Topology",
+        "label": "Choose the Redis architecture: ",
+        "name": "architecture",
+        "type": "text",
+        "default": "standalone",
+        "items": [
+          "standalone",
+          "replication"
+        ]
+      },
+      {
+        "tutorial": "Simulate an install",
+        "label": "Dry-run ?",
+        "name": "dry_run",
+        "type": "bool",
+        "default": "false",
+        "items": [
+          "false",
+          "true"
+        ]
+      },
+      {
+        "tutorial": "Specifies the Redis password",
+        "name": "password",
+        "type": "CREDENTIAL_REDIS_PASSWORD"
+      }
+    ],
+    "template": "shell-bat",
+    "templateRelease:": "2.16.2"
+  }
