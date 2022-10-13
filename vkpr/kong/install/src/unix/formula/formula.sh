@@ -117,4 +117,7 @@ installPlugins() {
   if [[ "$VKPR_ENV_KONG_MODE" == "dbless" ]]; then
     $VKPR_KUBECTL apply -n $VKPR_ENV_KONG_NAMESPACE -f "$(dirname "$0")"/utils/kong-plugin-basicauth.yaml
   fi
+  if [[ "$VKPR_ENV_KONG_METRICS" == "true" ]]; then
+    $VKPR_KUBECTL apply -n $VKPR_ENV_KONG_NAMESPACE -f "$(dirname "$0")"/utils/kong-plugin-prometheus.yaml
+  fi
 }
