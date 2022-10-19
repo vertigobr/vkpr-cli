@@ -1,0 +1,63 @@
+{
+    "inputs": [
+        {
+            "tutorial": "Specifies the desired provider to use as a secret store",
+            "label": "Secret store provider:",
+            "name": "provider",
+            "type": "text",
+            "default": "vault",
+            "items": [
+                "vault"
+            ]
+        },
+            {
+                "tutorial": "Specifies the address of the vault to use as a secret store",
+                "label": "Type the addr of vault:",
+                "name": "vault_store_addr",
+                "type": "text",
+                "default": "http://vault.vkpr:8200",
+                "condition": {
+                    "variable": "provider",
+                    "operator": "==",
+                    "value": "vault"
+                }
+            },
+            {
+                "tutorial": "Specifies the vault token to use when communicating with the vault api",
+                "label": "Type the vault token:",
+                "condition": {
+                "variable": "provider",
+                "operator": "==",
+                "value": "vault"
+                },
+                "name": "vault_token",
+                "type": "text"
+            },
+            {
+                "tutorial": "Specifies the desired version of vault's kv secret",
+                "label": "Vault kv secret version:",
+                "condition": {
+                    "variable": "provider",
+                    "operator": "==",
+                    "value": "vault"
+                },
+                "name": "vault_kv_version",
+                "type": "text",
+                "default": "v1",
+                "items": [
+                    "v1",
+                    "v2"
+                ]
+            },
+        {
+            "tutorial": "Specify desired namespace for Secret store",
+            "label": "Secret store namespace: (leave empty for ClusterSecretStore)",
+            "name": "secret_store_namespace",
+            "type": "text",
+            "default": ""
+        }     
+    ],
+    "template": "shell-bat",
+    "templateRelease:": "2.16.2"
+  }
+  
