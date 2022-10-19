@@ -1,0 +1,49 @@
+{
+    "inputs": [
+        {
+            "tutorial": "Specifies the new ExtenalSecret name",
+            "label": "ExternalSecret name:",
+            "name": "external_secret_name",
+            "type": "text",
+            "default": "vkpr-vault"
+        },
+        {
+            "tutorial": "Specifies the namespace for new ExternalSecret",
+            "label": "ExternalSecret namespace:",
+            "name": "external_secret_namespace",
+            "default": "vkpr",
+            "type": "text"
+        },   
+        {
+            "tutorial": "Specifies the SecretStore reference",
+            "label": "SecretStore reference:",
+            "name": "secret_store_reference",
+            "type": "text",
+            "default": "vkpr-vault-backend"
+        },
+        {
+            "tutorial": "Specify the namespace SecretStore reference",
+            "label": "Secret store namespace: (leave empty for ClusterSecretStore reference)",
+            "name": "secret_store_namespace",
+            "type": "text",
+            "default": ""
+        },   
+        {
+            "tutorial": "Specifies the path of a secret in the SecretStore to create a external secret",
+            "label": "Secret path:",
+            "name": "secret_path",
+            "default": "kv/path",
+            "type": "text"
+        },
+        {
+            "tutorial": "Specifies the key of a secret in the SecretStore to create a external secret",
+            "label": "Secret key:",
+            "name": "secret_key",
+            "default": "key",
+            "type": "text"
+        }
+    ],
+    "template": "shell-bat",
+    "templateRelease:": "2.16.2"
+  }
+  
