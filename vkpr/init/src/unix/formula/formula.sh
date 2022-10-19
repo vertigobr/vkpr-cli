@@ -11,7 +11,7 @@ runFormula() {
   mkdir -p $VKPR_HOME/bin
   mkdir -p $VKPR_HOME/config
   mkdir -p $VKPR_HOME/bats
-  mkdir -p $VKPR_HOME/certs  
+  mkdir -p $VKPR_HOME/certs
 
   installArkade
   validateKubectlVersion
@@ -27,6 +27,7 @@ runFormula() {
   installOkteto
   installDeck
   installHelm
+  installBats
 }
 
 installArkade() {
@@ -107,5 +108,61 @@ installDeck() {
     tar -xf /tmp/deck.tar.gz -C /tmp
     cp /tmp/deck ~/.vkpr/bin
     info "Deck installed!"
+  fi
+}
+
+installBats(){
+  if [[ -f "$VKPR_HOME/bats/bin/bats" ]]; then
+    notice "Bats already installed. Skipping."
+  else
+    info "intalling Bats..."
+    mkdir -p /tmp/bats
+    # bats-core
+    # docs: https://github.com/bats-core/bats-core
+    curl -sL -o /tmp/bats-core.tar.gz https://github.com/bats-core/bats-core/archive/refs/tags/v$VKPR_TOOLS_BATS_CORE.tar.gz
+    tar -xzf /tmp/bats-core.tar.gz -C /tmp
+    mv /tmp/bats-core-$VKPR_TOOLS_BATS_CORE /tmp/bats-core
+    /tmp/bats-core/install.sh $VKPR_HOME/bats
+    rm -rf /tmp/bats-core
+
+    warn "intalling Bats support..."
+    # bats-support
+    # docs: https://github.com/bats-core/bats-support
+    curl -sL -o /tmp/bats-support.tar.gz https://github.com/bats-core/bats-support/archive/refs/tags/v$VKPR_TOOLS_BATS_SUPPORT.tar.gz
+    tar -xzf /tmp/bats-support.tar.gz -C /tmp
+    mv /tmp/bats-support-$VKPR_TOOLS_BATS_SUPPORT $VKPR_HOME/bats/bats-support
+
+    warn "intalling Bats assert..."
+    # bats-assert
+    # docs: https://github.com/bats-core/bats-assert
+    curl -sL -o /tmp/bats-assert.tar.gz https://github.com/bats-core/bats-assert/archive/refs/tags/v$VKPR_TOOLS_BATS_ASSERT.tar.gz
+    tar -xzf /tmp/bats-assert.tar.gz -C /tmp
+    mv /tmp/bats-assert-$VKPR_TOOLS_BATS_ASSERT $VKPR_HOME/bats/bats-assert
+
+    warn "intalling Bats file..."
+    # bats-file
+    # docs: https://github.com/bats-core/bats-file
+    curl -sL -o /tmp/bats-file.tar.gz https://github.com/bats-core/bats-file/archive/refs/tags/v$VKPR_TOOLS_BATS_FILE.tar.gz
+    tar -xzf /tmp/bats-file.tar.gz -C /tmp
+    mv /tmp/bats-file-$VKPR_TOOLS_BATS_FILE $VKPR_HOME/bats/bats-file
+
+    warn "intalling Bats detik..."
+    # bats-detik
+    # docs: https://github.com/bats-core/bats-detik
+    mkdir -p $VKPR_HOME/bats/bats-detik/src
+
+    curl -s https://raw.githubusercontent.com/bats-core/bats-detik/v$VKPR_TOOLS_BATS_DEKIT/lib/detik.bash > $VKPR_HOME/bats/bats-detik/src/detik.bash
+    curl -s https://raw.githubusercontent.com/bats-core/bats-detik/v$VKPR_TOOLS_BATS_DEKIT/lib/utils.bash > $VKPR_HOME/bats/bats-detik/src/utils.bash
+    curl -s https://raw.githubusercontent.com/bats-core/bats-detik/v$VKPR_TOOLS_BATS_DEKIT/lib/linter.bash > $VKPR_HOME/bats/bats-detik/src/linter.bash
+    cat > $VKPR_HOME/bats/bats-detik/load.bash.tmp <<EOF
+source "$\(dirname "$\{BASH_SOURCE[0]}")/src/utils.bash"
+source "$\(dirname "$\{BASH_SOURCE[0]}")/src/linter.bash"
+source "$\(dirname "$\{BASH_SOURCE[0]}")/src/detik.bash"
+EOF
+
+    sed 's/\\//g' $VKPR_HOME/bats/bats-detik/load.bash.tmp > $VKPR_HOME/bats/bats-detik/load.bash
+    chmod +x $VKPR_HOME/bats/bats-detik/load.bash
+
+    info "Bats installed!"
   fi
 }
