@@ -7,7 +7,6 @@ runFormula() {
   createSecrets 
   settingSecretStore
   createSecretStore
-  cat $SECRET_STORE_VALUES
 }
 
 validateInputs(){
