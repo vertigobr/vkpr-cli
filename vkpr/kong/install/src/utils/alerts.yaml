@@ -19,7 +19,7 @@ spec:
             provider: vkpr
             severity: warning
         - alert: kongGettingMany4xx/5xx
-          expr: sum(rate(kong_http_status{code!~"[4-5].*"}[2m]))/sum(rate(kong_http_status[2m])) < 0.85
+          expr: sum(rate(kong_http_requests_total{code!~"[4-5].*"}[2m]))/sum(rate(kong_http_requests_total[2m])) < 0.85
           for: 10m
           annotations:
             message: "kong is returning a lot of errors to users, some application may be behaving unexpectedly"
