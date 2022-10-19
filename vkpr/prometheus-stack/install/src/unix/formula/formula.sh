@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+source "$(dirname "$0")"/unix/formula/commands-operators.sh
 
 runFormula() {
   local VKPR_ENV_GRAFANA_DOMAIN VKPR_ENV_ALERT_MANAGER_DOMAIN VKPR_PROMETHEUS_VALUES HELM_ARGS;
@@ -14,6 +15,7 @@ runFormula() {
   settingPrometheusStack
   [ $DRY_RUN = false ] && registerHelmRepository prometheus-community https://prometheus-community.github.io/helm-charts
   installApplication "prometheus-stack" "prometheus-community/kube-prometheus-stack" "$VKPR_ENV_PROMETHEUS_STACK_NAMESPACE" "$VKPR_PROMETHEUS_STACK_VERSION" "$VKPR_PROMETHEUS_VALUES" "$HELM_ARGS"
+  [ $DRY_RUN = false ] && checkComands
 }
 
 startInfos() {
@@ -290,5 +292,19 @@ settingPrometheusStackEnvironment() {
   if [[ "$VKPR_ENVIRONMENT" == "okteto" ]]; then
     HELM_ARGS="--cleanup-on-fail"
     # YQ_VALUES="$YQ_VALUES"
+  fi
+}
+
+checkComands (){
+  COMANDS_EXISTS=$($VKPR_YQ eval ".prometheus-stack | has(\"commands\")" "$VKPR_FILE" 2> /dev/null)
+  debug "$COMANDS_EXISTS"
+  if [ "$COMANDS_EXISTS" == true ]; then
+    bold "=============================="
+    boldInfo "Checking additional prometheus-stack commands..."
+    if [ $($VKPR_YQ eval ".prometheus-stack.commands | has(\"import\")" "$VKPR_FILE") == true ]; then
+      checkGlobalConfig "" "" "prometheus-stack.commands.import" "DASHBOARD_PATH"
+      validatePrometheusImportDashboardPath "$VKPR_ENV_DASHBOARD_PATH"
+      importDashboard "$VKPR_ENV_DASHBOARD_PATH" "$VKPR_ENV_PROMETHEUS_STACK_NAMESPACE"
+    fi
   fi
 }

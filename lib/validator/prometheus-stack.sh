@@ -219,3 +219,12 @@ validateLokiNamespace(){
     exit
   fi
 }
+
+validatePrometheusImportDashboardPath(){
+  if $(validatePath $1); then
+    return
+  else
+    error "The value used for VKPR_ENV_DASHBOARD_PATH \"$1\" is invalid: VKPR_ENV_DASHBOARD_PATH must consist of lowercase, uppercase or '-' alphanumeric characters, (e.g. '/tmp/dashboard.json', regex used for validation is ^(\/[^\/]+){1,}\/?$)"
+    exit
+  fi
+}
