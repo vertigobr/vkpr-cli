@@ -49,11 +49,11 @@ validateAlertManagerEnabled() {
   fi
 }
 
-validateAlertManagerHA(){
+validatePrometheusHA(){
   if $(validateBool $1); then
     return
   else
-    error "The value used for VKPR_ENV_ALERTMANAGER_HA \"$1\" is invalid:  the VKPR_ENV_ALERTMANAGER_HA must consist of a boolean value."
+    error "The value used for VKPR_ENV_PROMETHEUS_STACK_HA \"$1\" is invalid:  the VKPR_ENV_PROMETHEUS_STACK_HA must consist of a boolean value."
     exit
   fi
 }

@@ -34,10 +34,10 @@ formulaInputs() {
   checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "prometheus-stack.ingressClassName" "PROMETHEUS_STACK_INGRESS_CLASS_NAME"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "PROMETHEUS_STACK_NAMESPACE"
   checkGlobalConfig "false" "false" "prometheus-stack.k8sExporters" "PROMETHEUS_STACK_EXPORTERS"
+  checkGlobalConfig "${HA-:false}" "false" "prometheus-stack.HA" "PROMETHEUS_STACK_HA"
   ## AlertManager
   checkGlobalConfig "$ALERTMANAGER" "false" "prometheus-stack.alertManager.enabled" "ALERTMANAGER"
   if [[ "$VKPR_ENV_ALERTMANAGER" = true ]]; then
-    checkGlobalConfig "${HA-:false}" "false" "prometheus-stack.alertManager.HA" "ALERTMANAGER_HA"
     checkGlobalConfig "false" "false" "prometheus-stack.alertManager.ssl.enabled" "ALERTMANAGER_SSL"
     checkGlobalConfig "" "" "prometheus-stack.alertManager.ssl.crt" "ALERTMANAGER_SSL_CERTIFICATE"
     checkGlobalConfig "" "" "prometheus-stack.alertManager.ssl.key" "ALERTMANAGER_SSL_KEY"
@@ -77,10 +77,10 @@ validateInputs() {
   validatePrometheusSecure "$VKPR_ENV_GLOBAL_SECURE"
   validatePrometheusIngressClassName "$VKPR_ENV_PROMETHEUS_STACK_INGRESS_CLASS_NAME"
   validatePrometheusNamespace "$VKPR_ENV_PROMETHEUS_STACK_NAMESPACE"
+  validatePrometheusHA "$VKPR_ENV_PROMETHEUS_STACK_HA"
   ## AlertManager
   validateAlertManagerEnabled "$VKPR_ENV_ALERTMANAGER"
   if [[ "$VKPR_ENV_ALERTMANAGER" = true ]]; then
-    validateAlertManagerHA "$VKPR_ENV_ALERTMANAGER_HA"
     validateAlertManagerSSL "$VKPR_ENV_ALERTMANAGER_SSL"
     if [[ "$VKPR_ENV_ALERTMANAGER_SSL" = true ]]; then
       validateAlertManagerCertificate "$VKPR_ENV_ALERTMANAGER_SSL_CERTIFICATE"
@@ -141,6 +141,15 @@ settingPrometheusStack() {
       .grafana.additionalDataSources[0].access = \"proxy\" |
       .grafana.additionalDataSources[0].basicAuth = false |
       .grafana.additionalDataSources[0].editable = true
+    "
+  fi
+
+  if [[ "$VKPR_ENV_PROMETHEUS_STACK_HA" == true ]]; then
+    YQ_VALUES="$YQ_VALUES |
+      .alertmanager.alertmanagerSpec.replicas = 3 |
+      .alertmanager.alertmanagerSpec.retention = 1d |
+      .prometheus.prometheusSpec.replicas = 3 |
+      .prometheus.prometheusSpec.retention = 90d
     "
   fi
 
@@ -263,13 +272,6 @@ settingAlertManagerValues() {
       .alertmanager.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
       .alertmanager.ingress.tls[0].hosts[0] = \"$VKPR_ENV_ALERT_MANAGER_DOMAIN\" |
       .alertmanager.ingress.tls[0].secretName = \"alertmanager-cert\"
-    "
-  fi
-
-  if [[ "$VKPR_ENV_ALERTMANAGER_HA" == true ]]; then
-    YQ_VALUES="$YQ_VALUES |
-      .alertmanager.alertmanagerSpec.replicas = 3 |
-      .prometheus.prometheusSpec.replicas = 3
     "
   fi
 
