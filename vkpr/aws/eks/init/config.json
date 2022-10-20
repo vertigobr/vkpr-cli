@@ -83,8 +83,8 @@
       "tutorial": "Choose nodes instance size:  [Use arrows to move, type to filter, ? for more help]",
       "condition": {
         "variable": "cluster_node_instance_type",
-        "operator": "==",
-        "value": "t3"
+        "operator": "containsAny",
+        "value": "t"
       },
       "label": "? Choose nodes instance size:  [Use arrows to move, type to filter, ? for more help]",
       "name": "cluster_node_instance_size",
@@ -100,93 +100,8 @@
       "tutorial": "Choose nodes instance size:  [Use arrows to move, type to filter, ? for more help]",
       "condition": {
         "variable": "cluster_node_instance_type",
-        "operator": "==",
-        "value": "t3a"
-      },
-      "label": "? Choose nodes instance size:  [Use arrows to move, type to filter, ? for more help]",
-      "name": "cluster_node_instance_size",
-      "type": "text",
-      "default": "small",
-      "items": [
-        "small",
-        "medium",
-        "large"
-      ]
-    },
-    {
-      "tutorial": "Choose nodes instance size:  [Use arrows to move, type to filter, ? for more help]",
-      "condition": {
-        "variable": "cluster_node_instance_type",
-        "operator": "==",
-        "value": "t4g"
-      },
-      "label": "? Choose nodes instance size:  [Use arrows to move, type to filter, ? for more help]",
-      "name": "cluster_node_instance_size",
-      "type": "text",
-      "default": "small",
-      "items": [
-        "small",
-        "medium",
-        "large"
-      ]
-    },
-    {
-      "tutorial": "Choose nodes instance size:  [Use arrows to move, type to filter, ? for more help]",
-      "condition": {
-        "variable": "cluster_node_instance_type",
-        "operator": "==",
-        "value": "m5"
-      },
-      "label": "? Choose nodes instance size:  [Use arrows to move, type to filter, ? for more help]",
-      "name": "cluster_node_instance_size",
-      "type": "text",
-      "default": "large",
-      "items": [
-        "large",
-        "xlarge",
-        "2xlarge"
-      ]
-    },
-    {
-      "tutorial": "Choose nodes instance size:  [Use arrows to move, type to filter, ? for more help]",
-      "condition": {
-        "variable": "cluster_node_instance_type",
-        "operator": "==",
-        "value": "m5a"
-      },
-      "label": "? Choose nodes instance size:  [Use arrows to move, type to filter, ? for more help]",
-      "name": "cluster_node_instance_size",
-      "type": "text",
-      "default": "large",
-      "items": [
-        "large",
-        "xlarge",
-        "2xlarge"
-      ]
-    },
-    {
-      "tutorial": "Choose nodes instance size:  [Use arrows to move, type to filter, ? for more help]",
-      "condition": {
-        "variable": "cluster_node_instance_type",
-        "operator": "==",
-        "value": "m6i"
-      },
-      "label": "? Choose nodes instance size:  [Use arrows to move, type to filter, ? for more help]",
-      "name": "cluster_node_instance_size",
-      "type": "text",
-      "default": "large",
-      "items": [
-        "large",
-        "xlarge",
-        "2xlarge"
-      ]
-    },
-    {
-      "tutorial": "Choose nodes instance size:  [Use arrows to move, type to filter, ? for more help]",
-      "condition": {
-        "variable": "cluster_node_instance_type",
-        "operator": "==",
-        "value": "m6g"
+        "operator": "containsAny",
+        "value": "m"
       },
       "label": "? Choose nodes instance size:  [Use arrows to move, type to filter, ? for more help]",
       "name": "cluster_node_instance_size",
