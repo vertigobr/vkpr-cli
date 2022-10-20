@@ -49,11 +49,11 @@ validateAlertManagerEnabled() {
   fi
 }
 
-validateAlertManagerHA(){
+validatePrometheusHA(){
   if $(validateBool $1); then
     return
   else
-    error "The value used for VKPR_ENV_ALERTMANAGER_HA \"$1\" is invalid:  the VKPR_ENV_ALERTMANAGER_HA must consist of a boolean value."
+    error "The value used for VKPR_ENV_PROMETHEUS_STACK_HA \"$1\" is invalid:  the VKPR_ENV_PROMETHEUS_STACK_HA must consist of a boolean value."
     exit
   fi
 }
@@ -216,6 +216,15 @@ validateLokiNamespace(){
     return
   else
     error "It was not possible to identify the namespace."
+    exit
+  fi
+}
+
+validatePrometheusImportDashboardPath(){
+  if $(validatePath $1); then
+    return
+  else
+    error "The value used for VKPR_ENV_DASHBOARD_PATH \"$1\" is invalid: VKPR_ENV_DASHBOARD_PATH must consist of lowercase, uppercase or '-' alphanumeric characters, (e.g. '/tmp/dashboard.json', regex used for validation is ^(\/[^\/]+){1,}\/?$)"
     exit
   fi
 }

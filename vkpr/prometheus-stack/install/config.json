@@ -38,11 +38,6 @@
     },
     {
       "tutorial": "Specifies if the application will have High Availability",
-      "condition": {
-        "variable": "alertmanager",
-        "operator": "==",
-        "value": "true"
-      },
       "label": "HA ?",
       "name": "HA",
       "type": "bool",

@@ -51,9 +51,9 @@ settingRedis() {
     YQ_VALUES="$YQ_VALUES |
       .metrics.enabled = true |
       .metrics.serviceMonitor.enabled = true |
-      .metrics.serviceMonitor.namespace = \"$VKPR_ENV_POSTGRESQL_NAMESPACE\" |
-      .metrics.serviceMonitor.interval = \"1m\" |
-      .metrics.serviceMonitor.scrapeTimeout = \"1m\" |
+      .metrics.serviceMonitor.namespace = \"$VKPR_ENV_REDIS_NAMESPACE\" |
+      .metrics.serviceMonitor.interval = \"30s\" |
+      .metrics.serviceMonitor.scrapeTimeout = \"30s\" |
       .metrics.serviceMonitor.labels.release = \"prometheus-stack\"
     "
   fi

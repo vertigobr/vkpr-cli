@@ -63,3 +63,12 @@ validateNamespace(){
   fi
   echo "false"
 }
+
+validateUrl(){
+local REG='^(https?|ftp|file)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]\.[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]$'
+  if [[ $1 =~ $REG ]]; then
+    echo "true"
+    return
+  fi
+  echo "false"
+}
