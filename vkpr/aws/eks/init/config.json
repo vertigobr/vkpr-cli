@@ -63,7 +63,7 @@
       ]
     },
     {
-      "tutorial": "Specifies the EKS Node instance type [Use arrows to move, type to filter, ? for more help]",
+      "tutorial": "Specifies the EKS Node instance type ",
       "label": "Choose nodes instance type:",
       "name": "cluster_node_instance_type",
       "type": "text",
@@ -80,13 +80,13 @@
       ]
     },
     {
-      "tutorial": "Choose nodes instance size:  [Use arrows to move, type to filter, ? for more help]",
+      "tutorial": "Choose nodes instance size: ",
       "condition": {
         "variable": "cluster_node_instance_type",
         "operator": "containsAny",
         "value": "t"
       },
-      "label": "? Choose nodes instance size: ",
+      "label": "Choose nodes instance size: ",
       "name": "cluster_node_instance_size",
       "type": "text",
       "default": "small",
@@ -97,13 +97,13 @@
       ]
     },
     {
-      "tutorial": "Choose nodes instance size:  [Use arrows to move, type to filter, ? for more help]",
+      "tutorial": "Choose nodes instance size: ",
       "condition": {
         "variable": "cluster_node_instance_type",
         "operator": "containsAny",
         "value": "m"
       },
-      "label": "? Choose nodes instance size: ",
+      "label": "Choose nodes instance size: ",
       "name": "cluster_node_instance_size",
       "type": "text",
       "default": "large",
