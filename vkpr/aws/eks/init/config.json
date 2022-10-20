@@ -86,7 +86,7 @@
         "operator": "containsAny",
         "value": "t"
       },
-      "label": "? Choose nodes instance size:  [Use arrows to move, type to filter, ? for more help]",
+      "label": "? Choose nodes instance size: ",
       "name": "cluster_node_instance_size",
       "type": "text",
       "default": "small",
@@ -103,7 +103,7 @@
         "operator": "containsAny",
         "value": "m"
       },
-      "label": "? Choose nodes instance size:  [Use arrows to move, type to filter, ? for more help]",
+      "label": "? Choose nodes instance size: ",
       "name": "cluster_node_instance_size",
       "type": "text",
       "default": "large",
