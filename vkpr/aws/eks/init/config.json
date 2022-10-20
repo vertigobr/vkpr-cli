@@ -80,7 +80,7 @@
       ]
     },
     {
-      "tutorial": "Choose nodes instance size: ",
+      "tutorial": "Specifies the EKS Node instance type: ",
       "condition": {
         "variable": "cluster_node_instance_type",
         "operator": "containsAny",
@@ -97,7 +97,7 @@
       ]
     },
     {
-      "tutorial": "Choose nodes instance size: ",
+      "tutorial": "Specifies the EKS Node instance type: ",
       "condition": {
         "variable": "cluster_node_instance_type",
         "operator": "containsAny",
