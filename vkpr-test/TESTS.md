@@ -39,16 +39,22 @@ setup() {
 
 ## Running individual tests
 
-You can run individual tests quickly (for a TDD approach) by disabling teardown and specifying the test file:
+You can run individual tests quickly (for a TDD approach) by disabling actions in infra content and specifying the test file:
 
 ```
-VKPR_TEST_SKIP_TEARDOWN=true ~/.vkpr/bats/bin/bats ingress-test.bats
+VKPR_TEST_SKIP_SETUP_ACTIONS=true ~/.vkpr/bats/bin/bats vkpr-test/whoami/main.bats
 ```
 
-or to disable only the "common" teardown (cluster destruction):
+or to disable only the deploy of applications:
 
 ```
-VKPR_TEST_SKIP_COMMON_TEARDOWN=true ~/.vkpr/bats/bin/bats ingress-test.bats
+VKPR_TEST_SKIP_DEPLOY_ACTIONS=true ~/.vkpr/bats/bin/bats vkpr-test/whoami/main.bats
+```
+
+and skipping all steps and only run the code:
+
+```
+VKPR_TEST_SKIP_ALL=true ~/.vkpr/bats/bin/bats vkpr-test/whoami/main.bats
 ```
 
 ## Running all tests

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+source "$(dirname "$0")"/unix/formula/commands-operators.sh
 
 runFormula() {
   local VKPR_KONG_VALUES KONG_NAMESPACE YQ_VALUES HELM_ARGS;
@@ -15,6 +16,7 @@ runFormula() {
   settingKong
   installKong
   [[ $DRY_RUN == false ]] && [[ "$VKPR_ENVIRONMENT" != "okteto" ]] && installPlugins || true
+  [[ $DRY_RUN == false ]] && checkComands
 }
 
 startInfos() {
@@ -116,5 +118,19 @@ installKong() {
 installPlugins() {
   if [[ "$VKPR_ENV_KONG_MODE" == "dbless" ]]; then
     $VKPR_KUBECTL apply -n $VKPR_ENV_KONG_NAMESPACE -f "$(dirname "$0")"/utils/kong-plugin-basicauth.yaml
+  fi
+  if [[ "$VKPR_ENV_KONG_METRICS" == "true" ]]; then
+    $VKPR_KUBECTL apply -n $VKPR_ENV_KONG_NAMESPACE -f "$(dirname "$0")"/utils/kong-plugin-prometheus.yaml
+  fi
+}
+checkComands (){
+  COMANDS_EXISTS=$($VKPR_YQ eval ".kong | has(\"commands\")" "$VKPR_FILE" 2> /dev/null)
+  debug "$COMANDS_EXISTS"
+  if [ "$COMANDS_EXISTS" == true ]; then
+    bold "=============================="
+    boldInfo "Checking additional kong commands..."
+    if [ $($VKPR_YQ eval ".kong.commands | has(\"sync\")" "$VKPR_FILE") == true ]; then
+       kongDeckSync
+    fi
   fi
 }

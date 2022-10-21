@@ -25,13 +25,13 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 30,
-  "iteration": 1655749097671,
+  "id": 27,
+  "iteration": 1665500931323,
   "links": [],
   "liveNow": false,
   "panels": [
     {
-      "collapsed": true,
+      "collapsed": false,
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -43,610 +43,301 @@
         "y": 0
       },
       "id": 33,
-      "panels": [
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "description": "Requests on the 400 and 500 http status code range",
-          "fieldConfig": {
-            "defaults": {
-              "links": []
-            },
-            "overrides": []
-          },
-          "fill": 1,
-          "fillGradient": 0,
-          "gridPos": {
-            "h": 7,
-            "w": 24,
-            "x": 0,
-            "y": 1
-          },
-          "hiddenSeries": false,
-          "id": 35,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "options": {
-            "alertThreshold": true
-          },
-          "paceLength": 10,
-          "percentage": false,
-          "pluginVersion": "8.5.0",
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus"
-              },
-              "exemplar": true,
-              "expr": "sum(rate(kong_http_status{exported_service=~\"$service\", instance=~\"$instance\", code=~\"4..|5..\"}[1m])) by (code, exported_service)",
-              "format": "time_series",
-              "interval": "",
-              "intervalFactor": 2,
-              "legendFormat": "service: {{exported_service}} - code: {{code}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeRegions": [],
-          "title": "Failed RPS per route by status code",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "$$hashKey": "object:2528",
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            },
-            {
-              "$$hashKey": "object:2529",
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": {
-            "type": "prometheus"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "links": []
-            },
-            "overrides": []
-          },
-          "fill": 1,
-          "fillGradient": 0,
-          "gridPos": {
-            "h": 7,
-            "w": 24,
-            "x": 0,
-            "y": 8
-          },
-          "hiddenSeries": false,
-          "id": 37,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "options": {
-            "alertThreshold": true
-          },
-          "paceLength": 10,
-          "percentage": false,
-          "pluginVersion": "8.5.0",
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus"
-              },
-              "exemplar": true,
-              "expr": "sum(rate(kong_http_status{route=~\"$route\", instance=~\"$instance\",  code=~\"2..\"}[1m])) by (code, route)",
-              "format": "time_series",
-              "interval": "",
-              "intervalFactor": 2,
-              "legendFormat": "route: {{route}} - code: {{code}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeRegions": [],
-          "title": "Successful RPS per route by status code",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "$$hashKey": "object:2528",
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            },
-            {
-              "$$hashKey": "object:2529",
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": {
-            "type": "prometheus"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "links": []
-            },
-            "overrides": []
-          },
-          "fill": 1,
-          "fillGradient": 0,
-          "gridPos": {
-            "h": 7,
-            "w": 24,
-            "x": 0,
-            "y": 15
-          },
-          "hiddenSeries": false,
-          "id": 36,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "options": {
-            "alertThreshold": true
-          },
-          "paceLength": 10,
-          "percentage": false,
-          "pluginVersion": "8.5.0",
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus"
-              },
-              "exemplar": true,
-              "expr": "sum(rate(kong_http_status{route=~\"$route\", instance=~\"$instance\"}[1m])) by (code, route)",
-              "format": "time_series",
-              "interval": "",
-              "intervalFactor": 2,
-              "legendFormat": "route: {{route}} - code: {{code}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeRegions": [],
-          "title": "Total RPS per route by status code",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "$$hashKey": "object:2528",
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            },
-            {
-              "$$hashKey": "object:2529",
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
-        }
-      ],
+      "panels": [],
       "title": "Requests per Route",
       "type": "row"
     },
     {
-      "collapsed": true,
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
       },
+      "description": "Requests on the 400 and 500 http status code range",
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
       "gridPos": {
-        "h": 1,
+        "h": 7,
         "w": 24,
         "x": 0,
         "y": 1
       },
-      "id": 27,
-      "panels": [
+      "hiddenSeries": false,
+      "id": 35,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "paceLength": 10,
+      "percentage": false,
+      "pluginVersion": "8.5.0",
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
         {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
           "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
+            "type": "prometheus"
           },
-          "description": "Requests on the 400 and 500 http status code range",
-          "fieldConfig": {
-            "defaults": {
-              "links": []
-            },
-            "overrides": []
-          },
-          "fill": 1,
-          "fillGradient": 0,
-          "gridPos": {
-            "h": 7,
-            "w": 24,
-            "x": 0,
-            "y": 2
-          },
-          "hiddenSeries": false,
-          "id": 29,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "options": {
-            "alertThreshold": true
-          },
-          "paceLength": 10,
-          "percentage": false,
-          "pluginVersion": "8.5.0",
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus"
-              },
-              "exemplar": true,
-              "expr": "sum(rate(kong_http_status{exported_service=~\"$service\", instance=~\"$instance\", code=~\"4..|5..\"}[1m])) by (code, exported_service)",
-              "format": "time_series",
-              "interval": "",
-              "intervalFactor": 2,
-              "legendFormat": "service: {{exported_service}} - code: {{code}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeRegions": [],
-          "title": "Failed RPS per service by status code",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "$$hashKey": "object:2528",
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            },
-            {
-              "$$hashKey": "object:2529",
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "links": []
-            },
-            "overrides": []
-          },
-          "fill": 1,
-          "fillGradient": 0,
-          "gridPos": {
-            "h": 7,
-            "w": 24,
-            "x": 0,
-            "y": 9
-          },
-          "hiddenSeries": false,
-          "id": 31,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "options": {
-            "alertThreshold": true
-          },
-          "paceLength": 10,
-          "percentage": false,
-          "pluginVersion": "8.5.0",
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus"
-              },
-              "exemplar": true,
-              "expr": "sum(rate(kong_http_status{exported_service=~\"$service\", instance=~\"$instance\", code=~\"2..\"}[1m])) by (code, exported_service)",
-              "format": "time_series",
-              "interval": "",
-              "intervalFactor": 2,
-              "legendFormat": "service: {{exported_service}} - code: {{code}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeRegions": [],
-          "title": "Successful RPS per service by status code",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "$$hashKey": "object:2528",
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            },
-            {
-              "$$hashKey": "object:2529",
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
-        },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "links": []
-            },
-            "overrides": []
-          },
-          "fill": 1,
-          "fillGradient": 0,
-          "gridPos": {
-            "h": 7,
-            "w": 24,
-            "x": 0,
-            "y": 16
-          },
-          "hiddenSeries": false,
-          "id": 30,
-          "legend": {
-            "avg": false,
-            "current": false,
-            "max": false,
-            "min": false,
-            "show": true,
-            "total": false,
-            "values": false
-          },
-          "lines": true,
-          "linewidth": 1,
-          "links": [],
-          "nullPointMode": "null",
-          "options": {
-            "alertThreshold": true
-          },
-          "paceLength": 10,
-          "percentage": false,
-          "pluginVersion": "8.5.0",
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus"
-              },
-              "exemplar": true,
-              "expr": "sum(rate(kong_http_status{exported_service=~\"$service\", instance=~\"$instance\"}[1m])) by (code, exported_service)",
-              "format": "time_series",
-              "interval": "",
-              "intervalFactor": 2,
-              "legendFormat": "service: {{exported_service}} - code: {{code}}",
-              "refId": "A"
-            }
-          ],
-          "thresholds": [],
-          "timeRegions": [],
-          "title": "Total RPS per service by status code",
-          "tooltip": {
-            "shared": true,
-            "sort": 0,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "$$hashKey": "object:2528",
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            },
-            {
-              "$$hashKey": "object:2529",
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
+          "exemplar": true,
+          "expr": "sum(rate(kong_http_requests_total{route=~\"$route\", instance=~\"$instance\", code=~\"4..|5..\"}[1m])) by (code, route)",
+          "format": "time_series",
+          "interval": "",
+          "intervalFactor": 2,
+          "legendFormat": "service: {{exported_service}} - code: {{code}}",
+          "refId": "A"
         }
       ],
-      "title": "Requests per Service",
-      "type": "row"
+      "thresholds": [],
+      "timeRegions": [],
+      "title": "Failed RPS per route by status code",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "mode": "time",
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:2528",
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:2529",
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "hiddenSeries": false,
+      "id": 37,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "paceLength": 10,
+      "percentage": false,
+      "pluginVersion": "8.5.0",
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus"
+          },
+          "exemplar": true,
+          "expr": "sum(rate(kong_http_requests_total{route=~\"$route\", instance=~\"$instance\",  code=~\"2..\"}[1m])) by (code, route)",
+          "format": "time_series",
+          "interval": "",
+          "intervalFactor": 2,
+          "legendFormat": "route: {{route}} - code: {{code}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeRegions": [],
+      "title": "Successful RPS per route by status code",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "mode": "time",
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:2528",
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:2529",
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 15
+      },
+      "hiddenSeries": false,
+      "id": 36,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "paceLength": 10,
+      "percentage": false,
+      "pluginVersion": "8.5.0",
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus"
+          },
+          "exemplar": true,
+          "expr": "sum(rate(kong_http_requests_total{route=~\"$route\", instance=~\"$instance\"}[1m])) by (code, route)",
+          "format": "time_series",
+          "interval": "",
+          "intervalFactor": 2,
+          "legendFormat": "route: {{route}} - code: {{code}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeRegions": [],
+      "title": "Total RPS per route by status code",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "mode": "time",
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:2528",
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:2529",
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false
+      }
     },
     {
       "collapsed": false,
@@ -658,7 +349,316 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 2
+        "y": 22
+      },
+      "id": 27,
+      "panels": [],
+      "title": "Requests per Service",
+      "type": "row"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "Requests on the 400 and 500 http status code range",
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 23
+      },
+      "hiddenSeries": false,
+      "id": 29,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "paceLength": 10,
+      "percentage": false,
+      "pluginVersion": "8.5.0",
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus"
+          },
+          "exemplar": true,
+          "expr": "sum(rate(kong_http_requests_total{exported_service=~\"$service\", instance=~\"$instance\", code=~\"4..|5..\"}[1m])) by (code, exported_service)",
+          "format": "time_series",
+          "interval": "",
+          "intervalFactor": 2,
+          "legendFormat": "service: {{exported_service}} - code: {{code}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeRegions": [],
+      "title": "Failed RPS per service by status code",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "mode": "time",
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:2528",
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:2529",
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 30
+      },
+      "hiddenSeries": false,
+      "id": 31,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "paceLength": 10,
+      "percentage": false,
+      "pluginVersion": "8.5.0",
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus"
+          },
+          "exemplar": true,
+          "expr": "sum(rate(kong_http_requests_total{exported_service=~\"$service\", instance=~\"$instance\", code=~\"2..\"}[1m])) by (code, exported_service)",
+          "format": "time_series",
+          "interval": "",
+          "intervalFactor": 2,
+          "legendFormat": "service: {{exported_service}} - code: {{code}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeRegions": [],
+      "title": "Successful RPS per service by status code",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "mode": "time",
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:2528",
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:2529",
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 37
+      },
+      "hiddenSeries": false,
+      "id": 30,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "paceLength": 10,
+      "percentage": false,
+      "pluginVersion": "8.5.0",
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus"
+          },
+          "exemplar": true,
+          "expr": "sum(rate(kong_http_requests_total{exported_service=~\"$service\", instance=~\"$instance\"}[1m])) by (code, exported_service)",
+          "format": "time_series",
+          "interval": "",
+          "intervalFactor": 2,
+          "legendFormat": "service: {{exported_service}} - code: {{code}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeRegions": [],
+      "title": "Total RPS per service by status code",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "mode": "time",
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:2528",
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:2529",
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false
+      }
+    },
+    {
+      "collapsed": false,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 44
       },
       "id": 22,
       "panels": [],
@@ -687,7 +687,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 3
+        "y": 45
       },
       "hiddenSeries": false,
       "id": 24,
@@ -723,7 +723,7 @@
             "type": "prometheus"
           },
           "exemplar": true,
-          "expr": "sum(rate(kong_http_consumer_status{exported_service=~\"$service\", instance=~\"$instance\", consumer=~\"$consumer\", code=~\"4..|5..\"}[1m])) by (consumer, code, exported_service)",
+          "expr": "sum(rate(kong_http_requests_total{exported_service=~\"$service\", instance=~\"$instance\", consumer=~\"$consumer\", code=~\"4..|5..\"}[1m])) by (consumer, code, exported_service)",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -785,7 +785,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 10
+        "y": 52
       },
       "hiddenSeries": false,
       "id": 25,
@@ -821,7 +821,7 @@
             "type": "prometheus"
           },
           "exemplar": true,
-          "expr": "sum(rate(kong_http_consumer_status{exported_service=~\"$service\", instance=~\"$instance\", consumer=~\"$consumer\", code=~\"2..\"}[1m])) by (consumer, code, exported_service)",
+          "expr": "sum(rate(kong_http_requests_total{exported_service=~\"$service\", instance=~\"$instance\", consumer=~\"$consumer\", code=~\"2..\"}[1m])) by (consumer, code, exported_service)",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -882,7 +882,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 17
+        "y": 59
       },
       "hiddenSeries": false,
       "id": 14,
@@ -918,7 +918,7 @@
             "type": "prometheus"
           },
           "exemplar": true,
-          "expr": "sum(rate(kong_http_consumer_status{exported_service=~\"$service\", instance=~\"$instance\", consumer=~\"$consumer\"}[1m])) by (consumer, code, exported_service)",
+          "expr": "sum(rate(kong_http_requests_total{exported_service=~\"$service\", instance=~\"$instance\", consumer=~\"$consumer\"}[1m])) by (consumer, code, exported_service)",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -968,7 +968,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 24
+        "y": 66
       },
       "id": 12,
       "panels": [],
@@ -981,7 +981,8 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "type": "prometheus"
+        "type": "prometheus",
+        "uid": "prometheus"
       },
       "description": "Requests on the 400 and 500 http status code range",
       "fieldConfig": {
@@ -996,7 +997,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 25
+        "y": 67
       },
       "hiddenSeries": false,
       "id": 16,
@@ -1032,7 +1033,7 @@
             "type": "prometheus"
           },
           "exemplar": true,
-          "expr": "sum(rate(kong_http_consumer_status{route=~\"$route\", instance=~\"$instance\", consumer=~\"$consumer\", code=~\"4..|5..\"}[1m])) by (consumer, code, route)",
+          "expr": "sum(rate(kong_http_requests_total{route=~\"$route\", instance=~\"$instance\", consumer=~\"$consumer\", code=~\"4..|5..\"}[1m])) by (consumer, code, route)",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -1078,7 +1079,8 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "type": "prometheus"
+        "type": "prometheus",
+        "uid": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -1092,7 +1094,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 32
+        "y": 74
       },
       "hiddenSeries": false,
       "id": 20,
@@ -1128,7 +1130,7 @@
             "type": "prometheus"
           },
           "exemplar": true,
-          "expr": "sum(rate(kong_http_consumer_status{route=~\"$route\", instance=~\"$instance\", consumer=~\"$consumer\", code=~\"2..\"}[1m])) by (consumer, code, route)",
+          "expr": "sum(rate(kong_http_requests_total{route=~\"$route\", instance=~\"$instance\", consumer=~\"$consumer\", code=~\"2..\"}[1m])) by (consumer, code, route)",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -1174,7 +1176,8 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "type": "prometheus"
+        "type": "prometheus",
+        "uid": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -1188,7 +1191,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 39
+        "y": 81
       },
       "hiddenSeries": false,
       "id": 19,
@@ -1224,7 +1227,7 @@
             "type": "prometheus"
           },
           "exemplar": true,
-          "expr": "sum(rate(kong_http_consumer_status{route=~\"$route\", instance=~\"$instance\", consumer=~\"$consumer\"}[1m])) by (consumer, code, route)",
+          "expr": "sum(rate(kong_http_requests_total{route=~\"$route\", instance=~\"$instance\", consumer=~\"$consumer\"}[1m])) by (consumer, code, route)",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -1274,7 +1277,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 46
+        "y": 88
       },
       "id": 2,
       "panels": [],
@@ -1287,7 +1290,8 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "type": "prometheus"
+        "type": "prometheus",
+        "uid": "prometheus"
       },
       "description": "Requests on the 400 and 500 http status code range",
       "fieldConfig": {
@@ -1302,7 +1306,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 47
+        "y": 89
       },
       "hiddenSeries": false,
       "id": 18,
@@ -1338,7 +1342,7 @@
             "type": "prometheus"
           },
           "exemplar": true,
-          "expr": "sum(rate(kong_http_status{instance=~\"$instance\", code=~\"4..|5..\"}[1m])) by (service,code)",
+          "expr": "sum(rate(kong_http_requests_total{instance=~\"$instance\", code=~\"4..|5..\"}[1m])) by (service,code)",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -1397,7 +1401,8 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "type": "prometheus"
+        "type": "prometheus",
+        "uid": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -1411,7 +1416,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 54
+        "y": 96
       },
       "hiddenSeries": false,
       "id": 6,
@@ -1449,7 +1454,7 @@
             "type": "prometheus"
           },
           "exemplar": true,
-          "expr": "sum(rate(kong_http_status{instance=~\"$instance\"}[1m]))",
+          "expr": "sum(rate(kong_http_requests_total{instance=~\"$instance\"}[1m]))",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -1510,7 +1515,7 @@
         "h": 7,
         "w": 8,
         "x": 0,
-        "y": 61
+        "y": 103
       },
       "hiddenSeries": false,
       "id": 39,
@@ -1545,12 +1550,14 @@
           "datasource": {
             "type": "prometheus"
           },
+          "editorMode": "code",
           "exemplar": true,
-          "expr": "histogram_quantile(0.90, sum(rate(kong_latency_bucket{type=\"kong\",instance=~\"$instance\", exported_service=~\"$service\"}[1m])) by (exported_service,le))",
+          "expr": "histogram_quantile(0.90, sum(rate(kong_kong_latency_ms_bucket{instance=~\"$instance\", exported_service=~\"$service\"}[1m])) by (exported_service,le))",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
           "legendFormat": "service: {{exported_service}}",
+          "range": true,
           "refId": "A"
         },
         {
@@ -1558,7 +1565,7 @@
             "type": "prometheus"
           },
           "exemplar": true,
-          "expr": "histogram_quantile(0.95, sum(rate(kong_latency_bucket{type=\"kong\",instance=~\"$instance\"}[1m])) by (exported_service,le))",
+          "expr": "histogram_quantile(0.95, sum(rate(kong_kong_latency_ms_count{instance=~\"$instance\"}[1m])) by (exported_service,le))",
           "format": "time_series",
           "hide": true,
           "interval": "",
@@ -1571,7 +1578,7 @@
             "type": "prometheus"
           },
           "exemplar": true,
-          "expr": "histogram_quantile(0.99, sum(rate(kong_latency_bucket{type=\"kong\", service =~ \"$service\",route=~\"$route\",instance=~\"$instance\"}[1m])) by (exported_service,le))",
+          "expr": "histogram_quantile(0.99, sum(rate(kong_kong_latency_ms_count{service =~ \"$service\",route=~\"$route\",instance=~\"$instance\"}[1m])) by (exported_service,le))",
           "format": "time_series",
           "hide": true,
           "interval": "",
@@ -1633,7 +1640,7 @@
         "h": 7,
         "w": 8,
         "x": 8,
-        "y": 61
+        "y": 103
       },
       "hiddenSeries": false,
       "id": 41,
@@ -1669,7 +1676,7 @@
             "type": "prometheus"
           },
           "exemplar": true,
-          "expr": "histogram_quantile(0.90, sum(rate(kong_latency_bucket{type=\"request\",instance=~\"$instance\", exported_service=~\"$service\"}[1m])) by (exported_service,le))",
+          "expr": "histogram_quantile(0.90, sum(rate(kong_kong_latency_ms_bucket{instance=~\"$instance\", exported_service=~\"$service\"}[1m])) by (exported_service,le))",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -1680,7 +1687,7 @@
           "datasource": {
             "type": "prometheus"
           },
-          "expr": "histogram_quantile(0.95, sum(rate(kong_latency_bucket{type=\"request\", service =~ \"$service\",route=~\"$route\",instance=~\"$instance\"}[1m])) by (service,le))",
+          "expr": "histogram_quantile(0.95, sum(rate(kong_kong_latency_ms_bucket{service =~ \"$service\",route=~\"$route\",instance=~\"$instance\"}[1m])) by (service,le))",
           "format": "time_series",
           "hide": true,
           "intervalFactor": 2,
@@ -1691,7 +1698,7 @@
           "datasource": {
             "type": "prometheus"
           },
-          "expr": "histogram_quantile(0.99, sum(rate(kong_latency_bucket{type=\"request\", service =~ \"$service\",route=~\"$route\",instance=~\"$instance\"}[1m])) by (service,le))",
+          "expr": "histogram_quantile(0.99, sum(rate(kong_kong_latency_ms_bucket{service =~ \"$service\",route=~\"$route\",instance=~\"$instance\"}[1m])) by (service,le))",
           "format": "time_series",
           "hide": true,
           "intervalFactor": 2,
@@ -1737,7 +1744,8 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "type": "prometheus"
+        "type": "prometheus",
+        "uid": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -1751,7 +1759,7 @@
         "h": 7,
         "w": 8,
         "x": 16,
-        "y": 61
+        "y": 103
       },
       "hiddenSeries": false,
       "id": 43,
@@ -1787,7 +1795,7 @@
             "type": "prometheus"
           },
           "exemplar": true,
-          "expr": "histogram_quantile(0.90, sum(rate(kong_latency_bucket{type=\"request\",route=~\"$route\",instance=~\"$instance\"}[1m])) by (route,le))",
+          "expr": "histogram_quantile(0.90, sum(rate(kong_kong_latency_ms_bucket{route=~\"$route\",instance=~\"$instance\"}[1m])) by (route,le))",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -1798,7 +1806,7 @@
           "datasource": {
             "type": "prometheus"
           },
-          "expr": "histogram_quantile(0.95, sum(rate(kong_latency_bucket{type=\"request\", service =~ \"$service\",route=~\"$route\",instance=~\"$instance\"}[1m])) by (route,le))",
+          "expr": "histogram_quantile(0.95, sum(rate(kong_kong_latency_ms_bucket{service =~ \"$service\",route=~\"$route\",instance=~\"$instance\"}[1m])) by (route,le))",
           "format": "time_series",
           "hide": true,
           "intervalFactor": 2,
@@ -1809,7 +1817,7 @@
           "datasource": {
             "type": "prometheus"
           },
-          "expr": "histogram_quantile(0.99, sum(rate(kong_latency_bucket{type=\"request\", service =~ \"$service\",route=~\"$route\",instance=~\"$instance\"}[1m])) by (route,le))",
+          "expr": "histogram_quantile(0.99, sum(rate(kong_kong_latency_ms_bucket{service =~ \"$service\",route=~\"$route\",instance=~\"$instance\"}[1m])) by (route,le))",
           "format": "time_series",
           "hide": true,
           "intervalFactor": 2,
@@ -1851,7 +1859,8 @@
     },
     {
       "datasource": {
-        "type": "prometheus"
+        "type": "prometheus",
+        "uid": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -1908,7 +1917,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 68
+        "y": 110
       },
       "id": 47,
       "links": [],
@@ -1930,7 +1939,7 @@
             "type": "prometheus"
           },
           "exemplar": true,
-          "expr": "sum(rate(kong_http_consumer_status{consumer=~\"$consumer\"}[1m])) by (consumer)",
+          "expr": "sum(rate(kong_http_requests_total{consumer=~\"$consumer\"}[1m])) by (consumer)",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 2,
@@ -1951,7 +1960,7 @@
       {
         "allValue": ".*",
         "current": {
-          "selected": false,
+          "selected": true,
           "text": [
             "All"
           ],
@@ -1982,13 +1991,9 @@
       {
         "allValue": ".*",
         "current": {
-          "selected": true,
-          "text": [
-            "httpbin"
-          ],
-          "value": [
-            "httpbin"
-          ]
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": {
           "type": "prometheus",
@@ -2013,7 +2018,7 @@
       {
         "allValue": ".*",
         "current": {
-          "selected": false,
+          "selected": true,
           "text": [
             "All"
           ],
@@ -2044,7 +2049,7 @@
       {
         "allValue": ".*",
         "current": {
-          "selected": false,
+          "selected": true,
           "text": [
             "All"
           ],
@@ -2075,13 +2080,13 @@
     ]
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-3h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Kong Simplified Metrics",
-  "uid": "kYrWTdl7z",
-  "version": 3,
+  "uid": "d6rHW4S4k",
+  "version": 8,
   "weekStart": ""
 }

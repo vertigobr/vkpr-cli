@@ -51,30 +51,66 @@
       "label": "K8s version",
       "name": "k8s_version",
       "type": "text",
-      "default": "1.20",
+      "default": "1.24",
       "required": true,
       "items": [
+        "1.25",
+        "1.24",
+        "1.23",
+        "1.22",
         "1.21",
-        "1.20",
-        "1.19",
-        "1.18",
-        "1.17"
+        "1.20"
       ]
     },
     {
-      "tutorial": "Specifies the EKS Node instance type",
+      "tutorial": "Specifies the EKS Node instance type ",
       "label": "Choose nodes instance type:",
       "name": "cluster_node_instance_type",
       "type": "text",
-      "default": "t3.small",
+      "default": "t3",
       "required": true,
       "items": [
-        "t3.small",
-        "m5.large",
-        "m5.xlarge",
-        "t4g.small",
-        "m6g.large",
-        "m6g.xlarge"
+        "t3",
+        "t3a",
+        "t4g",
+        "m5",
+        "m5a",
+        "m6i",
+        "m6g"
+      ]
+    },
+    {
+      "tutorial": "Specifies the EKS Node instance size: ",
+      "condition": {
+        "variable": "cluster_node_instance_type",
+        "operator": "containsAny",
+        "value": "t"
+      },
+      "label": "Choose nodes instance size: ",
+      "name": "cluster_node_instance_size",
+      "type": "text",
+      "default": "small",
+      "items": [
+        "small",
+        "medium",
+        "large"
+      ]
+    },
+    {
+      "tutorial": "Specifies the EKS Node instance size: ",
+      "condition": {
+        "variable": "cluster_node_instance_type",
+        "operator": "containsAny",
+        "value": "m"
+      },
+      "label": "Choose nodes instance size: ",
+      "name": "cluster_node_instance_size",
+      "type": "text",
+      "default": "large",
+      "items": [
+        "large",
+        "xlarge",
+        "2xlarge"
       ]
     },
     {
@@ -118,7 +154,7 @@
       "condition": {
         "variable": "terraform_state",
         "operator": "==",
-        "value": "Terraform Cloud"
+        "value": "terraform-cloud"
       },
       "name": "terraformcloud_api_token",
       "type": "CREDENTIAL_TERRAFORMCLOUD_TOKEN",

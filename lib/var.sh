@@ -5,7 +5,7 @@ export VKPR_HOME=~/.vkpr \
   VKPR_FILE=$CURRENT_PWD/vkpr.yaml \
   VKPR_CREDENTIAL=~/.rit/credentials/default
 
-export VKPR_GLAB=$VKPR_HOME/bin/glab \
+export VKPR_BATS=$VKPR_HOME/bats/bin/bats \
   VKPR_K3D=$VKPR_HOME/bin/k3d \
   VKPR_ARKADE=$VKPR_HOME/bin/arkade \
   VKPR_OKTETO=$VKPR_HOME/bin/okteto \
