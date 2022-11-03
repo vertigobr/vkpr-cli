@@ -59,7 +59,7 @@ validateEksNodeInstanceType() {
   else
     error "The value used for VKPR_ENV_EKS_NODES_INSTANCE_TYPE \"$1\" is invalid: VKPR_ENV_EKS_NODES_INSTANCE_TYPE must consist of lowercase and alphanumeric characters, (e.g. 't3.small', regex used for validation is ^([a-z0-9]{2,}\.[a-z]{5,})$)."
     exit
-  fi    
+  fi
 }
 
 validateEksClusterSize() {
@@ -81,12 +81,12 @@ validateEksCapacityType() {
 }
 
 validateEksStoreTfState() {
-  if [[ "$1"  =~ ^(gitlab|terraform-cloud)$ ]]; then
+  if [[ "$1"  =~ ^(gitlab|terraform-cloud|s3)$ ]]; then
     return
   else
-    error "The value used for VKPR_ENV_EKS_TERRAFORM_STATE \"$1\" is invalid: VKPR_ENV_EKS_TERRAFORM_STATE must consist of gitlab or terraform-cloud value"
+    error "The value used for VKPR_ENV_EKS_TERRAFORM_STATE \"$1\" is invalid: VKPR_ENV_EKS_TERRAFORM_STATE must consist of gitlab, s3 or terraform-cloud value"
     exit
-  fi 
+  fi
 }
 
 
@@ -110,7 +110,7 @@ validateAwsRdsInstanceType (){
   else
     error "The value used for VKPR_ENV_RDS_INSTANCE_TYPE \"$1\" is invalid: VKPR_ENV_RDS_INSTANCE_TYPE must consist of lowercase and alphanumeric characters, (e.g. 'db.t3.micro', regex used for validation is ^([a-z]{2}\.[a-z0-9]{2,}\.[a-z]{5,})$)."
     exit
-  fi  
+  fi
 
 }
 
