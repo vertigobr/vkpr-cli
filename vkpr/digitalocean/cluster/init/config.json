@@ -1,35 +1,6 @@
 {
   "inputs": [
     {
-      "tutorial": "Specifies the project location to fork",
-      "label": "Project location:",
-      "name": "project_location",
-      "type": "text",
-      "default": "user",
-      "required": true,
-      "items": [
-        "user",
-        "groups"
-      ]
-    },
-    {
-      "tutorial": "Specifies your group path",
-      "condition": {
-        "variable": "project_location",
-        "operator": "==",
-        "value": "groups"
-      },
-      "label": "Location path:",
-      "name": "project_location_path",
-      "type": "text",
-      "required": false,
-      "cache": {
-        "active": true,
-        "qty": 2,
-        "newLabel": "Type another location path"
-      }
-    },
-    {
       "tutorial": "Specifies the Cluster name",
       "label": "Type the Cluster name:",
       "name": "cluster_name",
@@ -97,19 +68,165 @@
       }
     },
     {
+      "tutorial": "Specifies the Git provider",
+      "label": "Git Provider:",
+      "name": "provider",
+      "type": "text",
+      "default": "user",
+      "required": true,
+      "items": [
+        "Gitlab",
+        "Github"
+      ]
+    },
+    {
+      "tutorial": "Specifies where you want to store the TF state",
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "Github"
+      },
+      "label": "Choose where to store the state of Terraform:",
+      "name": "terraform_state",
+      "type": "text",
+      "default": "s3",
+      "required": true,
+      "items": [
+        "s3",
+        "terraform_cloud"
+      ]
+    },
+    {
+      "tutorial": "Specifies where you want to store the TF state",
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "Gitlab"
+      },
+      "label": "Choose where to store the state of Terraform:",
+      "name": "terraform_state",
+      "type": "text",
+      "default": "gitlab",
+      "required": true,
+      "items": [
+        "gitlab",
+        "s3",
+        "terraform_cloud"
+      ]
+    },
+    {
+      "tutorial": "Specifies the project location to create the project",
+      "label": "Project location:",
+      "name": "project_location",
+      "type": "text",
+      "default": "user",
+      "required": true,
+      "items": [
+        "user",
+        "groups"
+      ]
+    },
+    {
+      "tutorial": "Specifies your group path",
+      "condition": {
+        "variable": "project_location",
+        "operator": "==",
+        "value": "groups"
+      },
+      "label": "Location path:",
+      "name": "project_location_path",
+      "type": "text",
+      "required": false,
+      "cache": {
+        "active": true,
+        "qty": 2,
+        "newLabel": "Type another location path"
+      }
+    },
+    {
       "tutorial": "Specifies the Digital Ocean API Token",
       "name": "do_token",
       "type": "CREDENTIAL_DIGITALOCEAN_TOKEN"
     },
     {
       "tutorial": "Specifies your Gitlab Username",
+      "condition": {
+        "variable": "terraform_state",
+        "operator": "==",
+        "value": "gitlab"
+      },
       "name": "gitlab_username",
       "type": "CREDENTIAL_GITLAB_USERNAME"
     },
     {
       "tutorial": "Specifies your Gitlab Access-Token",
+      "condition": {
+        "variable": "terraform_state",
+        "operator": "==",
+        "value": "gitlab"
+      },
       "name": "gitlab_token",
       "type": "CREDENTIAL_GITLAB_TOKEN"
+    },
+    {
+      "tutorial": "Specifies the gitlab url",
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "Gitlab"
+      },
+      "name": "gitlab_url",
+      "type": "CREDENTIAL_GITLAB_URL"
+    },
+    {
+      "tutorial": "Specifies your Github Username",
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "Github"
+      },
+      "name": "github_username",
+      "type": "CREDENTIAL_GITHUB_USERNAME"
+    },
+    {
+      "tutorial": "Specifies your Github personal access token",
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "Github"
+      },
+      "name": "github_token",
+      "type": "CREDENTIAL_GITHUB_TOKEN"
+    },
+    {
+      "tutorial": "Specifies the S3 bucket",
+      "condition": {
+        "variable": "terraform_state",
+        "operator": "==",
+        "value": "s3"
+      },
+      "name": "s3_bucket",
+      "type": "CREDENTIAL_S3_BUCKET"
+    },
+    {
+      "tutorial": "Specifies the S3 key",
+      "condition": {
+        "variable": "terraform_state",
+        "operator": "==",
+        "value": "s3"
+      },
+      "name": "s3_key",
+      "type": "CREDENTIAL_S3_KEY"
+    },
+    {
+      "tutorial": "Specifies the AWS Region to set the environment",
+      "condition": {
+        "variable": "terraform_state",
+        "operator": "==",
+        "value": "s3"
+      },
+      "name": "aws_region",
+      "type": "CREDENTIAL_AWS_REGION"
     }
   ],
   "template": "shell-bat",
