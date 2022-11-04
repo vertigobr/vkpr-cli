@@ -16,7 +16,7 @@ createOrUpdateVariable(){
 
   # Documentation: https://docs.gitlab.com/ee/api/project_level_variables.html#create-variable
   VARIABLE_RESPONSE_CODE=$(curl -siX POST -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
-    "https://gitlab.com/api/v4/projects/${PROJECT_ENCODED}/variables" \
+    "https://$GITLAB_URL/api/v4/projects/${PROJECT_ENCODED}/variables" \
     --form "key=$PARAMETER_KEY" \
     --form "value=$PARAMETER_VALUE" \
     --form "masked=$PARAMETER_MASKED" |\
@@ -61,9 +61,9 @@ updateVariable(){
 
   local UPDATE_CODE
 
-  # Documentation: https://docs.gitlab.com/ee/api/project_level_variables.html#update-variable
+  # Documentation: https://docs.$GITLAB_URL/ee/api/project_level_variables.html#update-variable
   UPDATE_CODE=$(curl -siX PUT -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
-    "https://gitlab.com/api/v4/projects/${PROJECT_ENCODED}/variables/${PARAMETER_KEY}" \
+    "https://$GITLAB_URL/api/v4/projects/${PROJECT_ENCODED}/variables/${PARAMETER_KEY}" \
     --form "value=$PARAMETER_VALUE" \
     --form "masked=$PARAMETER_MASKED" |\
     head -n 1 |\
@@ -95,7 +95,7 @@ waitJobComplete(){
     bold "Job still executing, await more... ${SECONDS}s passed"
     sleep 30
     (( SECONDS + 30 ))
-    JOB_COMPLETE=$(curl -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/pipelines/"$PIPELINE_ID"/jobs \
+    JOB_COMPLETE=$(curl -s https://$GITLAB_URL/api/v4/projects/"$PROJECT_ID"/pipelines/"$PIPELINE_ID"/jobs \
       -H "PRIVATE-TOKEN: $GITLAB_TOKEN" |\
       $VKPR_JQ -r ".[] | select(.name == \"$JOB_TYPE\").status"
     )
@@ -115,13 +115,13 @@ jobDeployCluster(){
   fi
 
   local DEPLOY_ID;
-  DEPLOY_ID=$(curl -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/pipelines/"$PIPELINE_ID"/jobs \
+  DEPLOY_ID=$(curl -s https://$GITLAB_URL/api/v4/projects/"$PROJECT_ID"/pipelines/"$PIPELINE_ID"/jobs \
     -H "PRIVATE-TOKEN: $GITLAB_TOKEN" |\
     $VKPR_JQ '.[] | select(.name == "deploy").id'
   )
   debug "DEPLOY_ID=$DEPLOY_ID"
 
-  curl -sX POST https://gitlab.com/api/v4/projects/"$PROJECT_ID"/jobs/"$DEPLOY_ID"/play \
+  curl -sX POST https://$GITLAB_URL/api/v4/projects/"$PROJECT_ID"/jobs/"$DEPLOY_ID"/play \
     -H "PRIVATE-TOKEN: $GITLAB_TOKEN" > /dev/null
   info "Deploy job started successfully"
 }
@@ -137,13 +137,13 @@ jobDestroyCluster() {
     exit
   fi
 
-  DESTROY_ID=$(curl -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/pipelines/"$PIPELINE_ID"/jobs \
+  DESTROY_ID=$(curl -s https://$GITLAB_URL/api/v4/projects/"$PROJECT_ID"/pipelines/"$PIPELINE_ID"/jobs \
     -H "PRIVATE-TOKEN: $GITLAB_TOKEN" |\
     $VKPR_JQ '.[] | select(.name == "destroy").id'
   )
   debug "DESTROY_ID=$DESTROY_ID"
 
-  curl -sX POST https://gitlab.com/api/v4/projects/"$PROJECT_ID"/jobs/"$DESTROY_ID"/play \
+  curl -sX POST https://$GITLAB_URL/api/v4/projects/"$PROJECT_ID"/jobs/"$DESTROY_ID"/play \
     -H "PRIVATE-TOKEN: $GITLAB_TOKEN" > /dev/null
   info "Destroy job started successfully"
 }
@@ -161,13 +161,13 @@ downloadKubeconfig() {
   fi
 
   local DEPLOY_ID;
-  DEPLOY_ID=$(curl -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/pipelines/"$PIPELINE_ID"/jobs \
+  DEPLOY_ID=$(curl -s https://$GITLAB_URL/api/v4/projects/"$PROJECT_ID"/pipelines/"$PIPELINE_ID"/jobs \
     -H "PRIVATE-TOKEN: $GITLAB_TOKEN" |\
     $VKPR_JQ '.[] | select(.name == "deploy").id'
   )
   debug "DEPLOY_ID=$DEPLOY_ID"
 
-  curl --location -s https://gitlab.com/api/v4/projects/"$PROJECT_ID"/jobs/"$DEPLOY_ID"/artifacts \
+  curl --location -s https://$GITLAB_URL/api/v4/projects/"$PROJECT_ID"/jobs/"$DEPLOY_ID"/artifacts \
     -H "PRIVATE-TOKEN: $GITLAB_TOKEN" \
     -o /tmp/artifacts.zip > /dev/null
   unzip -q /tmp/artifacts.zip -d /tmp
