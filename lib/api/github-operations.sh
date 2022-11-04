@@ -17,6 +17,8 @@ githubActionsGetPublicKey(){
     IFS= read -rd '' BODY
     IFS= read -rd '' HTTP_CODE
   } < <({ out=$(curl -sSL -o /dev/stderr -w "%{http_code}" -H "Accept: application/vnd.github+json" -H "Authorization: token ${VAR_GITHUB_TOKEN}" "https://api.github.com/repos/${VAR_OWNER_AND_REPO}/actions/secrets/public-key"); } 2>&1; printf '\0%s' "$out" "$?")
+  debug "PUBLIC_KEY_HTTP_CODE=$HTTP_CODE"
+
   if [ "${HTTP_CODE}" == "200" ]; then
     ## return json compacted
     echo "$BODY" | $VKPR_JQ -c '.'
@@ -49,12 +51,15 @@ githubActionsCreateUpdateSecret(){
   KEY_VALUE=$(echo "$VAR_PUBLIC_KEY" | $VKPR_JQ -r '.key')
 
   SECRET=$(python3 src/lib/api/utils/github-secret-encrypt.py "${KEY_VALUE}" "${VAR_SECRET_VALUE}")
+  debug "SECRET=$SECRET"
+
   # https://docs.github.com/en/rest/reference/actions#create-or-update-a-repository-secret
   VARIABLE_RESPONSE_CODE=$(curl -o /dev/null -w "%{http_code}" -sX PUT \
   -H "Accept: application/vnd.github+json" \
   -H "Authorization: token ${VAR_GITHUB_TOKEN}" \
   "https://api.github.com/repos/${VAR_OWNER_AND_REPO}/actions/secrets/${VAR_SECRET_NAME}" \
   -d "{\"encrypted_value\": \"${SECRET}\", \"key_id\": \"${KEY_ID}\"}")
+  debug "VARIABLE_RESPONSE_CODE=$VARIABLE_RESPONSE_CODE"
 
   case $VARIABLE_RESPONSE_CODE in
     201)
