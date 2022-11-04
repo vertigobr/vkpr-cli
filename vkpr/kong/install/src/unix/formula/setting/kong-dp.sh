@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
-
-createKongSecrets() {
-  ## Create Kong tls secret to communicate between planes
-  $VKPR_KUBECTL create secret tls kong-cluster-cert \
-    --cert=$VKPR_HOME/certs/cluster.crt --key=$VKPR_HOME/certs/cluster.key $KONG_NAMESPACE && \
-    $VKPR_KUBECTL label secret kong-cluster-cert app.kubernetes.io/instance=kong app.kubernetes.io/managed-by=vkpr $KONG_NAMESPACE 2> /dev/null
-}
+source "$(dirname "$0")"/unix/formula/objects.sh
 
 settingKong() {
   YQ_VALUES=".podLabels.[\"app.kubernetes.io/managed-by\"] = \"vkpr\""
@@ -83,5 +77,5 @@ settingKongProvider(){
   fi
 }
 
-[[ $DRY_RUN == false ]] && createKongSecrets
+createSecretsKongDp
 settingKong

@@ -1,45 +1,5 @@
 #!/usr/bin/env bash
-
-createKongSecrets() {
-  # shellcheck source=src/util.sh
-  source "$(dirname "$0")"/unix/formula/files.sh
-
-  ## Create Kong cookie config
-  $VKPR_KUBECTL create secret generic kong-session-config \
-    --from-file=/tmp/config/admin_gui_session_conf \
-    --from-file=/tmp/config/portal_session_conf $KONG_NAMESPACE && \
-  $VKPR_KUBECTL label secret kong-session-config app.kubernetes.io/instance=kong app.kubernetes.io/managed-by=vkpr $KONG_NAMESPACE 2> /dev/null
-
-  ## Create Kong RBAC password
-  $VKPR_KUBECTL create secret generic kong-enterprise-superuser-password \
-    --from-literal="password=$VKPR_ENV_KONG_RBAC_ADMIN_PASSWORD" $KONG_NAMESPACE && \
-    $VKPR_KUBECTL label secret kong-enterprise-superuser-password app.kubernetes.io/instance=kong app.kubernetes.io/managed-by=vkpr $KONG_NAMESPACE 2> /dev/null
-
-  ## Check if exist postgresql password secret in Kong namespace, if not, create one
-  if ! $VKPR_KUBECTL get secret $KONG_NAMESPACE | grep -q "$PG_SECRET"; then
-    PG_PASSWORD=$($VKPR_KUBECTL get secret "$PG_SECRET" -o=jsonpath="{.data.postgres-password}" -n "$VKPR_ENV_POSTGRESQL_NAMESPACE" | base64 -d -)
-    $VKPR_KUBECTL create secret generic "$PG_SECRET" \
-      --from-literal="postgres-password=$PG_PASSWORD" $KONG_NAMESPACE && \
-      $VKPR_KUBECTL label secret "$PG_SECRET" app.kubernetes.io/instance=kong app.kubernetes.io/managed-by=vkpr $KONG_NAMESPACE 2> /dev/null
-  fi
-
-  if [[ $VKPR_ENV_KONG_KEYCLOAK_OPENID == "true" ]]; then
-    $VKPR_KUBECTL create secret generic kong-idp-config \
-      --from-file="$(dirname "$0")"/utils/admin_gui_auth_conf $KONG_NAMESPACE && \
-      $VKPR_KUBECTL label secret kong-idp-config app.kubernetes.io/instance=kong app.kubernetes.io/managed-by=vkpr $KONG_NAMESPACE 2> /dev/null
-  fi
-
-  ## Create Kong keyring secret for encrypted communication between databases
-  if [[ "$VKPR_ENV_KONG_ENTERPRISE_LICENSE" != "null" ]]; then
-
-    openssl genrsa -out  $VKPR_HOME/certs/key.pem 2048 
-    openssl rsa -in  $VKPR_HOME/certs/key.pem -pubout -out  $VKPR_HOME/certs/cert.pem &> /dev/null
-
-    $VKPR_KUBECTL create secret generic kong-keyring-cert \
-      --from-file=$VKPR_HOME/certs/cert.pem --from-file=$VKPR_HOME/certs/key.pem $KONG_NAMESPACE && \
-      $VKPR_KUBECTL label secret kong-keyring-cert app.kubernetes.io/instance=kong app.kubernetes.io/managed-by=vkpr $KONG_NAMESPACE 2> /dev/null
-  fi
-}
+source "$(dirname "$0")"/unix/formula/objects.sh
 
 settingKong() {
   local PG_HOST="postgres-postgresql.${VKPR_ENV_POSTGRESQL_NAMESPACE}"
@@ -52,7 +12,9 @@ settingKong() {
 
   YQ_VALUES=".podLabels.[\"app.kubernetes.io/managed-by\"] = \"vkpr\" |
     .env.pg_host = \"$PG_HOST\" |
-    .env.pg_password.valueFrom.secretKeyRef.name = \"$PG_SECRET\"
+    .env.pg_password.valueFrom.secretKeyRef.name = \"$PG_SECRET\" |
+    .env.cluster_control_plane = \"$KONG_CP_URL\" |
+    .env.cluster_telemetry_endpoint = \"$KONG_TELEMETRY_URL\"
   "
 
   if [[ "$VKPR_ENV_GLOBAL_DOMAIN" != "localhost" ]]; then
@@ -61,7 +23,6 @@ settingKong() {
       .manager.ingress.hostname = \"manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
       .portal.ingress.hostname = \"portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
       .portalapi.ingress.hostname = \"api.portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
-      .env.proxy_url = \"https://$VKPR_ENV_GLOBAL_DOMAIN\" |
       .env.admin_gui_url = \"https://manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
       .env.admin_api_uri = \"https://api.manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
       .env.portal_api_url = \"https://api.portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
@@ -74,9 +35,6 @@ settingKong() {
     $VKPR_YQ eval ".spec.dnsNames[0] = \"$VKPR_ENV_GLOBAL_DOMAIN\"" "$(dirname "$0")"/utils/proxy-certificate.yaml |\
       $VKPR_KUBECTL apply -n $VKPR_ENV_KONG_NAMESPACE -f -
     YQ_VALUES="$YQ_VALUES |
-      .secretVolumes[0] = \"proxy-kong-cert\" |
-      .env.ssl_cert = \"/etc/secrets/proxy-kong-cert/tls.crt\" |
-      .env.ssl_cert_key = \"/etc/secrets/proxy-kong-cert/tls.key\" |
       .env.portal_gui_protocol = \"https\" |
       .proxy.annotations.[\"external-dns.alpha.kubernetes.io/hostname\"] = \"$VKPR_ENV_GLOBAL_DOMAIN\" |
       .admin.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
@@ -116,15 +74,6 @@ settingKong() {
       $VKPR_KUBECTL apply $KONG_NAMESPACE -f "$(dirname "$0")/utils/kong-service-monitor.yaml"
     fi
   fi
-  
-  if [[ "$VKPR_ENV_KONG_ENTERPRISE_LICENSE" != "null" ]]; then
-    YQ_VALUES="$YQ_VALUES |
-      .secretVolumes[0] = \"kong-keyring-cert\" |
-      .env.kong_keyring_enabled = \"on\" |
-      .env.kong_keyring_strategy = \"cluster\" |
-      .env.kong_keyring_recovery_public_key = \"/etc/secrets/kong-keyring-cert/key.pem\" 
-    "
-  fi
 
   if [[ "$VKPR_ENV_KONG_HA" == "true" ]]; then
     YQ_VALUES="$YQ_VALUES |
@@ -151,8 +100,8 @@ settingKong() {
 
   if [[ "$VKPR_ENV_KONG_KEYCLOAK_OPENID" == "true" ]]; then
     YQ_VALUES="$YQ_VALUES |
-      .enterprise.rbac.admin_gui_auth = \"openid-connect\" |
-      .enterprise.rbac.admin_gui_auth_conf_secret = \"kong-idp-config\"
+      enterprise.rbac.admin_gui_auth = \"openid-connect\" |
+      enterprise.rbac.admin_gui_auth_conf_secret = \"kong-idp-config\"
     "
   fi
 
@@ -177,17 +126,13 @@ settingKongProvider(){
         .manager.ingress.enabled = false |
         .portal.ingress.enabled = false |
         .portalapi.ingress.enabled = false |
-        .proxy.tls.enabled = false |
         .admin.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\" |
         .manager.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\" |
         .portal.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\" |
         .portalapi.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\" |
-        .proxy.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\" |
-        .proxy.type = \"ClusterIP\" |
         .env.admin_gui_url = \"https://kong-kong-manager-$OKTETO_NAMESPACE.cloud.okteto.net\" |
         .env.admin_api_uri = \"https://kong-kong-admin-$OKTETO_NAMESPACE.cloud.okteto.net\" |
         .env.portal_gui_host = \"kong-kong-portal-$OKTETO_NAMESPACE.cloud.okteto.net\" |
-        .env.proxy_url = \"https://kong-kong-proxy-$OKTETO_NAMESPACE.cloud.okteto.net\" |
         .env.portal_api_url = \"https://kong-kong-portalapi-$OKTETO_NAMESPACE.cloud.okteto.net\" |
         .env.portal_gui_protocol = \"https\" |
         .env.pg_host = \"postgres-postgresql\" |
@@ -198,6 +143,7 @@ settingKongProvider(){
 
 if [[ $DRY_RUN == false ]]; then
   installDB
-  createKongSecrets $1
 fi
+
+createSecretsKongCp
 settingKong
