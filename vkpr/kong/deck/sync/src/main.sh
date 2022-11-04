@@ -3,6 +3,7 @@
 # shellcheck source=/dev/null
 source src/lib/load.sh "validator"
 source src/lib/load.sh "functions"
+source src/lib/load.sh "scripts/kong"
 source src/lib/log.sh
 source src/lib/var.sh
 source src/lib/versions.sh
