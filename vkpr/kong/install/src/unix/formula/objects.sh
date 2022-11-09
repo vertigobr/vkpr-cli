@@ -17,14 +17,16 @@ createKongSecretsEnterprise() {
 
   ## Create license (enable manager)
   mkdir -p /tmp/vkpr
-  cp -rf $VKPR_ENV_KONG_ENTERPRISE_LICENSE /tmp/vkpr/license
+
+  local LICENSE_CONTENT=$(cat $VKPR_ENV_KONG_ENTERPRISE_LICENSE 2> /dev/null)
+
   trace "Creating kong-enterprise secret with name kong-enterprise-license"
-  eval $VKPR_KUBECTL create secret generic kong-enterprise-license $KONG_NAMESPACE --from-file="/tmp/vkpr/license" $DRY_FLAG
+  eval $VKPR_KUBECTL create secret generic kong-enterprise-license $KONG_NAMESPACE --from-literal="license=$LICENSE_CONTENT" $DRY_FLAG
 
   RESULT=$?
   debug "Create Kong enterprise secret status = $RESULT"
   [ $DRY_RUN = false ] && trace "$($VKPR_KUBECTL label secret/kong-enterprise-license app\.kubernetes\.io/managed-by=vkpr "$KONG_NAMESPACE")"
-  echo "kong-enterprise-license"
+  debug "kong-enterprise-license"
 }
 
 createKongTlsSecrets() {
@@ -37,7 +39,7 @@ createKongTlsSecrets() {
   RESULT=$?
   debug "Create Kong cluster cert secret status = $RESULT"
   [ $DRY_RUN = false ] && trace "$($VKPR_KUBECTL label secret/kong-cluster-cert app\.kubernetes\.io/managed-by=vkpr "$KONG_NAMESPACE")"
-  echo "kong-cluster-cert"
+  debug "kong-cluster-cert"
 }
 
 createKongCookieconfig(){
@@ -54,7 +56,7 @@ createKongCookieconfig(){
   RESULT=$?
   debug "Create Kong session conf secret status = $RESULT"
   [ $DRY_RUN = false ] && trace "$($VKPR_KUBECTL label secret/kong-session-config app\.kubernetes\.io/managed-by=vkpr "$KONG_NAMESPACE")"
-  echo "kong-session-config"
+  debug "kong-session-config"
 
 }
 
@@ -67,7 +69,7 @@ createKongRbacSecret(){
   RESULT=$?
   debug "Create kong-enterprise-superuser-password status = $RESULT"
   [ $DRY_RUN = false ] && trace "$($VKPR_KUBECTL label secret/kong-enterprise-superuser-password app\.kubernetes\.io/managed-by=vkpr "$KONG_NAMESPACE")"
-  echo "kong-enterprise-superuser-password"
+  debug "kong-enterprise-superuser-password"
 }
 
 createKongPostgresqlSecret (){
@@ -81,7 +83,7 @@ createKongPostgresqlSecret (){
     RESULT=$?
     debug "Create postgres-postgresql status = $RESULT"
     [ $DRY_RUN = false ] && trace "$($VKPR_KUBECTL label secret/postgres-postgresql app\.kubernetes\.io/managed-by=vkpr "$KONG_NAMESPACE")"
-    echo "postgres-postgresql"
+    debug "postgres-postgresql"
   fi
 }
 
@@ -95,7 +97,7 @@ createKongOpenidSecret(){
     RESULT=$?
     debug "Create $PG_SECRET status = $RESULT"
     [ $DRY_RUN = false ] && trace "$($VKPR_KUBECTL label secret/kong-idp-config app\.kubernetes\.io/managed-by=vkpr "$KONG_NAMESPACE")"
-    echo "kong-idp-config"
+    debug "kong-idp-config"
   fi
 }
 
@@ -110,7 +112,7 @@ createKongSecretsBasicAuth() {
   RESULT=$?
   debug "Create $PG_SECRET status = $RESULT"
   [ $DRY_RUN = false ] && trace "$($VKPR_KUBECTL label secret/kong-admin-basicauth app\.kubernetes\.io/managed-by=vkpr "$KONG_NAMESPACE")"
-  echo "kong-admin-basicauth"
+  debug "kong-admin-basicauth"
 }
 
 createKongKeyringSecret (){
@@ -127,7 +129,7 @@ createKongKeyringSecret (){
     RESULT=$?
     debug "Create $PG_SECRET status = $RESULT"
     [ $DRY_RUN = false ] && trace "$($VKPR_KUBECTL label secret/kong-keyring-cert app\.kubernetes\.io/managed-by=vkpr "$KONG_NAMESPACE")"
-    echo "kong-keyring-cert"
+    debug "kong-keyring-cert"
   fi
 }
 
