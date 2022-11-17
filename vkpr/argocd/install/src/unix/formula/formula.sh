@@ -150,16 +150,15 @@ checkComands (){
   debug $COMANDS_EXISTS
   if [ "$COMANDS_EXISTS" == true ]; then
     boldInfo "Checking additional argocd commands..."
-
-    checkGlobalConfig "" "" "argocd.commands.repository.repo_url" "ARGOCD_COMANDS_REPOSITORY_URL"
-
     if [ $($VKPR_YQ eval ".argocd.commands | has(\"repository\")" "$VKPR_FILE") == true ]; then
-      GITLAB_USERNAME="$($VKPR_JQ -r '.credential.username' $VKPR_CREDENTIAL/gitlab)"
-      GITLAB_TOKEN="$($VKPR_JQ -r '.credential.token' $VKPR_CREDENTIAL/gitlab)"
+      checkGlobalConfig "" "" "argocd.commands.repository.repo_url" "ARGOCD_COMANDS_REPOSITORY_URL"
+      GITLAB_USERNAME="$($VKPR_JQ -r '.credentials.gitlab.username' $VKPR_CREDENTIAL/gitlab)"
+      GITLAB_TOKEN="$($VKPR_JQ -r '.credentials.gitlab.token' $VKPR_CREDENTIAL/gitlab)"
       argocdSetRepo "$VKPR_ENV_ARGOCD_COMANDS_REPOSITORY_URL" "$VKPR_ENV_ARGOCD_NAMESPACE" "$GITLAB_USERNAME" "$GITLAB_TOKEN"
     fi
 
     if [ $($VKPR_YQ eval ".argocd.commands | has(\"aplicationset\")" "$VKPR_FILE") == true ]; then
+      checkGlobalConfig "" "" "argocd.commands.aplicationset.repo_url" "ARGOCD_COMANDS_REPOSITORY_URL"
       argocdAplicationSet "$VKPR_ENV_ARGOCD_COMANDS_REPOSITORY_URL" "$VKPR_ENV_ARGOCD_NAMESPACE" "$(dirname "$0")"/utils/applicationset.yaml
     fi
   fi
