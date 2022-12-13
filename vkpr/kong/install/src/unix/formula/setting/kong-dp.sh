@@ -19,7 +19,7 @@ settingKong() {
 
   if [[ "$VKPR_ENV_KONG_METRICS" == "true" ]]; then
     createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
-    $VKPR_KUBECTL apply -f "$(dirname "$0")/utils/alerts.yaml" "$VKPR_ENV_GRAFANA_NAMESPACE"
+    $VKPR_KUBECTL apply -f "$(dirname "$0")/utils/alerts.yaml" -n "$VKPR_ENV_GRAFANA_NAMESPACE"
     YQ_VALUES="$YQ_VALUES |
       .serviceMonitor.enabled = \"true\" |
       .serviceMonitor.namespace = \"$VKPR_ENV_KONG_NAMESPACE\" |
