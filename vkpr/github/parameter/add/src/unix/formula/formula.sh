@@ -15,9 +15,10 @@ runFormula() {
 setCredentials() {
   GITHUB_TOKEN=$($VKPR_JQ -r .credential.token "$VKPR_CREDENTIAL"/github)
   GITHUB_USERNAME=$($VKPR_JQ -r .credential.username "$VKPR_CREDENTIAL"/github)
+
 }
 
-#validateInputs(){
-#  validateGithubToken "$GITHUB_TOKEN"
-#  validateGithubUsername "$GITHUB_USERNAME"
-#}
+validateInputs(){
+ validateGithubToken "$GITHUB_TOKEN"
+ validateGithubUsername "$GITHUB_USERNAME"
+}

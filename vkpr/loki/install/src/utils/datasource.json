@@ -1,7 +1,7 @@
 {
   "name": "loki",
   "type": "loki",
-  "url": "loki-stack.vkpr:3100",
+  "url": "loki.vkpr:3100",
   "access": "proxy",
   "basicAuth": false,
   "editable": true
