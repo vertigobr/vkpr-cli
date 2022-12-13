@@ -9,5 +9,5 @@ runFormula() {
                      $VKPR_JQ -r '.[] | select(.name | contains("loki")) | .namespace' |\
                      head -n1)
 
-  $VKPR_HELM uninstall --namespace "$LOKI_NAMESPACE" loki-stack 2> /dev/null || error "VKPR Loki not found"
+  $VKPR_HELM uninstall --namespace "$LOKI_NAMESPACE" loki 2> /dev/null || error "VKPR Loki not found"
 }

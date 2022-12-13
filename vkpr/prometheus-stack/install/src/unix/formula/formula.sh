@@ -133,11 +133,11 @@ settingPrometheusStack() {
     "
   fi
 
-  if [[ $(checkPodName "$VKPR_ENV_LOKI_NAMESPACE" "loki-stack") == "true" ]]; then
+  if [[ $(checkPodName "$VKPR_ENV_LOKI_NAMESPACE" "loki") == "true" ]]; then
     YQ_VALUES="$YQ_VALUES |
-      .grafana.additionalDataSources[0].name = \"Loki\" |
+      .grafana.additionalDataSources[0].name = \"loki\" |
       .grafana.additionalDataSources[0].type = \"loki\" |
-      .grafana.additionalDataSources[0].url = \"http://loki-stack.$VKPR_ENV_LOKI_NAMESPACE:3100\" |
+      .grafana.additionalDataSources[0].url = \"http://loki.$VKPR_ENV_LOKI_NAMESPACE:3100\" |
       .grafana.additionalDataSources[0].access = \"proxy\" |
       .grafana.additionalDataSources[0].basicAuth = false |
       .grafana.additionalDataSources[0].editable = true

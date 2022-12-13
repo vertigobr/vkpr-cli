@@ -1,14 +1,19 @@
 #!/usr/bin/env bash
-
-createKongSecrets() {
-  ## Create Kong tls secret to communicate between planes
-  $VKPR_KUBECTL create secret tls kong-cluster-cert \
-    --cert=$VKPR_HOME/certs/cluster.crt --key=$VKPR_HOME/certs/cluster.key $KONG_NAMESPACE && \
-    $VKPR_KUBECTL label secret kong-cluster-cert app.kubernetes.io/instance=kong app.kubernetes.io/managed-by=vkpr $KONG_NAMESPACE 2> /dev/null
-}
+source "$(dirname "$0")"/unix/formula/objects.sh
 
 settingKong() {
   YQ_VALUES=".podLabels.[\"app.kubernetes.io/managed-by\"] = \"vkpr\""
+
+  if [[ "$VKPR_ENV_GLOBAL_DOMAIN" != "localhost" ]]; then
+    YQ_VALUES="$YQ_VALUES |
+      .proxy.annotations.[\"external-dns.alpha.kubernetes.io/hostname\"] = \"$VKPR_ENV_GLOBAL_DOMAIN\" |
+      .env.admin_gui_url = \"https://manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
+      .env.admin_api_uri = \"https://manager.$VKPR_ENV_GLOBAL_DOMAIN/api\" |
+      .env.proxy_url = \"https://$VKPR_ENV_GLOBAL_DOMAIN\" |
+      .admin.ingress.hostname = \"manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
+      .manager.ingress.hostname = \"manager.$VKPR_ENV_GLOBAL_DOMAIN\"
+    "
+  fi
 
   if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
     info "Creating proxy certificate..."
@@ -18,14 +23,18 @@ settingKong() {
       .secretVolumes[0] = \"proxy-kong-cert\" |
       .env.ssl_cert = \"/etc/secrets/proxy-kong-cert/tls.crt\" |
       .env.ssl_cert_key = \"/etc/secrets/proxy-kong-cert/tls.key\" |
-      .env.proxy_url = \"https://$VKPR_ENV_GLOBAL_DOMAIN\" |
-      .proxy.annotations.[\"external-dns.alpha.kubernetes.io/hostname\"] = \"$VKPR_ENV_GLOBAL_DOMAIN\"
+      .admin.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
+      .admin.ingress.annotations.[\"konghq.com/protocols\"] = \"https\" |
+      .admin.ingress.tls = \"admin-kong-cert\" |
+      .manager.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
+      .manager.ingress.annotations.[\"konghq.com/protocols\"] = \"https\" |
+      .manager.ingress.tls = \"manager-kong-cert\"
     "
   fi
 
-  if [[ "$VKPR_ENV_KONG_METRICS" == "true" ]]; then
+  if [[ "$VKPR_ENV_KONG_METRICS" == "true" ]] && [[ $(checkPodName "$VKPR_ENV_GRAFANA_NAMESPACE" "prometheus-stack-grafana") == "true" ]]; then
     createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
-    $VKPR_KUBECTL apply -f "$(dirname "$0")/utils/alerts.yaml" "$VKPR_ENV_GRAFANA_NAMESPACE"
+    $VKPR_KUBECTL apply -f "$(dirname "$0")/utils/alerts.yaml" -n "$VKPR_ENV_GRAFANA_NAMESPACE"
     YQ_VALUES="$YQ_VALUES |
       .serviceMonitor.enabled = \"true\" |
       .serviceMonitor.namespace = \"$VKPR_ENV_KONG_NAMESPACE\" |
@@ -58,6 +67,10 @@ settingKong() {
       .topologySpreadConstraints[0].labelSelector.matchLabels.vkpr = \"true\" |
       .podDisruptionBudget.enabled = \"true\" |
       .podDisruptionBudget.maxUnavailable = \"60%\" |
+      .ingressController.resources.limits.cpu = \"100m\" |
+      .ingressController.resources.limits.memory = \"256Mi\" |
+      .ingressController.resources.requests.cpu = \"50m\" |
+      .ingressController.resources.requests.memory = \"128Mi\" |
       .resources.limits.cpu = \"512m\" |
       .resources.limits.memory = \"1G\" |
       .resources.requests.cpu = \"100m\" |
@@ -75,13 +88,24 @@ settingKongProvider(){
     OKTETO_NAMESPACE=$($VKPR_KUBECTL config get-contexts --no-headers | grep "\*" | xargs | awk -F " " '{print $NF}')
     HELM_ARGS="--skip-crds"
     YQ_VALUES="$YQ_VALUES |
+        del(.admin.ingress) |
+        del(.manager.ingress) |
+        del(.ingressController) |
+        .ingressController.enabled = false |
+        .ingressController.installCRDs = false |
+        .admin.ingress.enabled = false |
+        .manager.ingress.enabled = false |
         .proxy.tls.enabled = false |
+        .admin.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\" |
+        .manager.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\" |
         .proxy.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\" |
         .proxy.type = \"ClusterIP\" |
+        .env.admin_gui_url = \"https://kong-kong-manager-$OKTETO_NAMESPACE.cloud.okteto.net\" |
+        .env.admin_api_uri = \"https://kong-kong-admin-$OKTETO_NAMESPACE.cloud.okteto.net\" |
         .env.proxy_url = \"https://kong-kong-proxy-$OKTETO_NAMESPACE.cloud.okteto.net\"
       "
   fi
 }
 
-[[ $DRY_RUN == false ]] && createKongSecrets
+createSecretsKongDbless
 settingKong
