@@ -9,7 +9,7 @@ runFormula() {
   formulaInputs
   validateInputs
 
-  [[ "$VKPR_ENVIRONMENT" != "okteto" ]] && $VKPR_KUBECTL create ns "$VKPR_ENV_KONG_NAMESPACE" > /dev/null
+  [[ "$VKPR_ENVIRONMENT" != "okteto" ]] && $VKPR_KUBECTL create ns "$VKPR_ENV_KONG_NAMESPACE" 2> /dev/null
 
   startInfos
   if [[ $DRY_RUN == false ]]; then
