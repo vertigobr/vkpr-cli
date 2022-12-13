@@ -37,6 +37,8 @@ githubActionsGetPublicKey(){
 # 4 - PUBLIC_KEY - key to encrypt secret value
 # 5 - GITHUB_USERNAME - github user
 # 6 - GIHUB_TOKEN - github token
+
+
 githubActionsCreateUpdateSecret(){
   local VAR_OWNER_AND_REPO=$1
   local VAR_SECRET_NAME=$2
@@ -68,3 +70,17 @@ githubActionsCreateUpdateSecret(){
       ;;
   esac
 }
+
+githubCreateRepo(){
+  local VAR_REPO_NAME=$1
+  local VAR_SECRET=$2
+
+curl \
+  -X POST \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer $VAR_SECRET"\
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  https://api.github.com/user/repos \
+  -d "{\"name\": \"${VAR_REPO_NAME}\", \"private\": "false"}"
+
+}  

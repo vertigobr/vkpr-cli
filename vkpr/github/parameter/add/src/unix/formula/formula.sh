@@ -3,7 +3,7 @@
 runFormula() {
   info "Creating new secret ${PARAMETER_NAME}"
   setCredentials
-  validateInputs
+ # validateInputs
 
   #getting public key to encrypt secret value
   PUBLIC_KEY=$(githubActionsGetPublicKey "$PROJECT_NAME" "$GITHUB_USERNAME" "$GITHUB_TOKEN")
@@ -13,11 +13,11 @@ runFormula() {
 }
 
 setCredentials() {
-  GITHUB_TOKEN=$($VKPR_JQ -r .credential.github.token "$VKPR_CREDENTIAL"/github)
-  GITHUB_USERNAME=$($VKPR_JQ -r .credential.github.username "$VKPR_CREDENTIAL"/github)
+  GITHUB_TOKEN=$($VKPR_JQ -r .credential.token "$VKPR_CREDENTIAL"/github)
+  GITHUB_USERNAME=$($VKPR_JQ -r .credential.username "$VKPR_CREDENTIAL"/github)
 }
 
-validateInputs(){
-  validateGithubToken "$GITHUB_TOKEN"
-  validateGithubUsername "$GITHUB_USERNAME"
-}
+#validateInputs(){
+#  validateGithubToken "$GITHUB_TOKEN"
+#  validateGithubUsername "$GITHUB_USERNAME"
+#}

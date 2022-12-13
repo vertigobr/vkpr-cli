@@ -1,6 +1,58 @@
 {
   "inputs": [
     {
+      "tutorial": "Specifies where you want to store",
+      "label": "Choose where to store the repository Git/pipeline:",
+      "name": "provider",
+      "type": "text",
+      "default": "github",
+      "required": false,
+      "items": [
+        "github",
+        "gitlab"
+      ]
+    },
+    {
+      "tutorial": "Specifies your Gitlab Username",
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "gitlab"
+      },
+      "name": "gitlab_username",
+      "type": "CREDENTIAL_GITLAB_USERNAME"
+    },
+    {
+      "tutorial": "Specifies your Github Username",
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "github"
+      },
+      "name": "github_username",
+      "type": "CREDENTIAL_GITHUB_USERNAME"
+    },
+    {
+      "tutorial": "Specifies your Gitlab Access-Token",
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "gitlab"
+      },
+      "name": "gitlab_token",
+      "type": "CREDENTIAL_GITLAB_TOKEN"
+    },
+    {
+      "tutorial": "Specifies your Github Access-Token",
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "github"
+      },
+      "name": "github_token",
+      "type": "CREDENTIAL_GITHUB_TOKEN"
+    },
+    {
       "tutorial": "Specifies the project location to fork",
       "label": "Project location:",
       "name": "project_location",
@@ -140,12 +192,25 @@
       "label": "Choose where to store the state of Terraform:",
       "name": "terraform_state",
       "type": "text",
-      "default": "gitlab",
+      "default": "s3",
       "required": false,
       "items": [
+        "s3",
         "gitlab",
         "terraform-cloud"
       ]
+    },
+    {
+      "tutorial": "Specifies your Terraform Backend Bucket",
+      "label": "Specifies your Terraform Backend Bucket",
+      "condition": {
+        "variable": "terraform_state",
+        "operator": "==",
+        "value": "s3"
+      },
+      "name": "bucket_terraform",
+      "type": "text",
+      "required": true
     },
     {
       "tutorial": "Specifies your Terraform Cloud Token",
@@ -158,26 +223,7 @@
       "type": "CREDENTIAL_TERRAFORMCLOUD_TOKEN",
       "required": false
     },
-    {
-      "tutorial": "Specifies your Gitlab Username",
-      "condition": {
-        "variable": "terraform_state",
-        "operator": "==",
-        "value": "Gitlab"
-      },
-      "name": "gitlab_username",
-      "type": "CREDENTIAL_GITLAB_USERNAME"
-    },
-    {
-      "tutorial": "Specifies your Gitlab Access-Token",
-      "condition": {
-        "variable": "terraform_state",
-        "operator": "==",
-        "value": "Gitlab"
-      },
-      "name": "gitlab_token",
-      "type": "CREDENTIAL_GITLAB_TOKEN"
-    },
+
     {
       "tutorial": "Specifies the AWS Access Key Credential",
       "name": "aws_access_key",
