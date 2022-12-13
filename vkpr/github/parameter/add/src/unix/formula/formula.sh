@@ -18,7 +18,7 @@ setCredentials() {
 
 }
 
-#validateInputs(){
-#  validateGithubToken "$GITHUB_TOKEN"
-#  validateGithubUsername "$GITHUB_USERNAME"
-#}
+validateInputs(){
+ validateGithubToken "$GITHUB_TOKEN"
+ validateGithubUsername "$GITHUB_USERNAME"
+}
