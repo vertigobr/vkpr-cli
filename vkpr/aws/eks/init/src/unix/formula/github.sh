@@ -70,12 +70,12 @@ setVariablesGHUB() {
     .node_groups.${CLUSTER_NAME}.max_capacity = \"$(( VKPR_ENV_EKS_NODES_QUANTITY_SIZE + 2 ))\" |
     .node_groups.${CLUSTER_NAME}.min_capacity = \"$CLUSTER_SIZE\" |
     .node_groups.${CLUSTER_NAME}.ami_type = \"AL2_x86_64\" |
-    .node_groups.${CLUSTER_NAME}.instance_types[0] = \"$CLUSTER_NODE_INSTANCE_TYPE\" |
-    .node_groups.${CLUSTER_NAME}.capacity_type = \"${CLUSTER_NODE_INTANCE_SIZE}\"
+    .node_groups.${CLUSTER_NAME}.instance_types[0] = \"${CLUSTER_NODE_INSTANCE_TYPE}.${CLUSTER_NODE_INSTANCE_SIZE}\" |
+    .node_groups.${CLUSTER_NAME}.capacity_type = \"${CAPACITY_TYPE^^}\"
   " config/defaults.yml
   ### CONFIGURADO BACKEND S3
   if [ $TERRAFORM_STATE == "s3" ]; then
-  printf "terraform { \n  backend "s3" { \n    bucket = "${BUCKET_TERRAFORM}" \n    key    = "${BUCKET_TERRAFORM}.tfstate" \n    region = "${AWS_REGION}" \n  }\n}" > backend.tf
+  printf "terraform { \n  backend \"s3\" { \n    bucket = \"${BUCKET_TERRAFORM}\" \n    key    = \"${BUCKET_TERRAFORM}.tfstate\" \n    region = \"${AWS_REGION}\" \n  }\n}" > backend.tf
   cat backend.tf
   fi
   mergeVkprValuesExtraArgs "aws.eks" "$VKPR_HOME"/aws-eks/config/defaults.yml
