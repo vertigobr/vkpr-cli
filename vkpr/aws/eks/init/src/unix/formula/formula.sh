@@ -12,7 +12,7 @@ runFormula() {
       ;;
     gitlab)
       source "$(dirname "$0")"/unix/formula/gitlab.sh
-      setprovidergitlab
+      setproviderrun
       ;;
     esac
 }

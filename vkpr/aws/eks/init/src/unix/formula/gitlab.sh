@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-setprovidergitlab() {
+setproviderrun() {
   local PROJECT_ENCODED FORK_RESPONSE_CODE;
 
   # installAWS
