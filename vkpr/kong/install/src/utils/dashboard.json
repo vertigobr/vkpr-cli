@@ -25,8 +25,8 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 27,
-  "iteration": 1665500931323,
+  "id": 28,
+  "iteration": 1671204016437,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -1901,8 +1901,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1954,7 +1953,10 @@
   "refresh": "",
   "schemaVersion": 36,
   "style": "dark",
-  "tags": [],
+  "tags": [
+    "managed by vkpr",
+    "vkpr-kong"
+  ],
   "templating": {
     "list": [
       {
@@ -2086,7 +2088,7 @@
   "timepicker": {},
   "timezone": "",
   "title": "Kong Simplified Metrics",
-  "uid": "d6rHW4S4k",
-  "version": 8,
+  "uid": "1YVa0A5Vz",
+  "version": 1,
   "weekStart": ""
 }
