@@ -48,6 +48,48 @@ teardown() {
   $VKPR_YQ -i "del(.global) | del(.kong)" $PWD/vkpr.yaml
 }
 
+#--------------#
+# CALLS TO API #
+#--------------#
+
+@test "curl to Kong domain with HTTP" {
+    local i=0 \
+        timeout=15 \
+        KONG_ADDR="http://manager.localhost:8000/api"
+        HEADERS="Authorization: Basic a29uZ19hZG1pbjp2a3ByMTIzCg=="
+        
+  while [[ $i -lt $timeout ]]; do
+    if $VKPR_DECK ping --kong-addr="$KONG_ADDR" --headers=$HEADERS | grep -q "Successfully"; then
+      break
+    else
+      sleep 1
+      i=$((i+1))
+    fi
+  done
+
+  RESPONSE=$(curl -is -H 'Authorization: Basic a29uZ19hZG1pbjp2a3ByMTIzCg==' manager.localhost:8000 | head -n1 | awk -F' ' '{print $2}')
+
+  run echo $RESPONSE
+  assert_output "200"
+  assert_success
+}
+
+@test "curl to Kong manager api with HTTP" {
+  RESPONSE=$(curl -is -H 'Authorization: Basic a29uZ19hZG1pbjp2a3ByMTIzCg==' manager.localhost:8000/api | head -n1 | awk -F' ' '{print $2}')
+
+  run echo $RESPONSE
+  assert_output "200"
+  assert_success
+}
+
+@test "curl to Kong with no headers" {
+  RESPONSE=$(curl -is localhost:8000 | head -n1 | awk -F' ' '{print $2}')
+
+  run echo $RESPONSE
+  assert_output "404"
+  assert_success
+}
+
 #=======================================#
 #           INPUTS SECTION              #
 #=======================================#
@@ -62,8 +104,8 @@ teardown() {
   assert_success
 
   rit vkpr kong install --domain=input.net --dry_run | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
-  helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > temp.yaml
-  tail -n +2 temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
+  helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > $BATS_FILE_TMPDIR/temp.yaml
+  tail -n +2 $BATS_FILE_TMPDIR/temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
   csplit $BATS_FILE_TMPDIR/manifest.yaml '/\-\-\-/' -f $BATS_FILE_TMPDIR/manifest.yaml -n "0" | mv -f $BATS_FILE_TMPDIR/manifest.yaml1 $BATS_FILE_TMPDIR/manifest.yaml | rm -f $BATS_FILE_TMPDIR/manifest.yaml0  
   
   run $VKPR_YQ ".spec.rules[0].host" $BATS_FILE_TMPDIR/manifest.yaml 
@@ -77,8 +119,8 @@ teardown() {
   assert_success
 
   rit vkpr kong install --default --dry_run | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
-  helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > temp.yaml
-  tail -n +2 temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
+  helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > $BATS_FILE_TMPDIR/temp.yaml
+  tail -n +2 $BATS_FILE_TMPDIR/temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
   csplit $BATS_FILE_TMPDIR/manifest.yaml '/\-\-\-/' -f $BATS_FILE_TMPDIR/manifest.yaml -n "0" | mv -f $BATS_FILE_TMPDIR/manifest.yaml1 $BATS_FILE_TMPDIR/manifest.yaml | rm -f $BATS_FILE_TMPDIR/manifest.yaml0  
   
   run $VKPR_YQ ".spec.rules[0].host" $BATS_FILE_TMPDIR/manifest.yaml 
@@ -90,8 +132,8 @@ teardown() {
   export VKPR_ENV_GLOBAL_DOMAIN="env.net"
 
   rit vkpr kong install --default --dry_run | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
-  helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > temp.yaml
-  tail -n +2 temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
+  helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > $BATS_FILE_TMPDIR/temp.yaml
+  tail -n +2 $BATS_FILE_TMPDIR/temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
   csplit $BATS_FILE_TMPDIR/manifest.yaml '/\-\-\-/' -f $BATS_FILE_TMPDIR/manifest.yaml -n "0" | mv -f $BATS_FILE_TMPDIR/manifest.yaml1 $BATS_FILE_TMPDIR/manifest.yaml | rm -f $BATS_FILE_TMPDIR/manifest.yaml0  
   
   run $VKPR_YQ ".spec.rules[0].host" $BATS_FILE_TMPDIR/manifest.yaml 
@@ -102,8 +144,8 @@ teardown() {
 @test "check domain default" {
   
   rit vkpr kong install --default --dry_run | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
-  helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > temp.yaml
-  tail -n +2 temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
+  helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > $BATS_FILE_TMPDIR/temp.yaml
+  tail -n +2 $BATS_FILE_TMPDIR/temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
   csplit $BATS_FILE_TMPDIR/manifest.yaml '/\-\-\-/' -f $BATS_FILE_TMPDIR/manifest.yaml -n "0" | mv -f $BATS_FILE_TMPDIR/manifest.yaml1 $BATS_FILE_TMPDIR/manifest.yaml | rm -f $BATS_FILE_TMPDIR/manifest.yaml0  
 
   run $VKPR_YQ ".spec.rules[0].host" $BATS_FILE_TMPDIR/manifest.yaml 
@@ -121,8 +163,8 @@ teardown() {
   assert_success
 
   rit vkpr kong install --secure --dry_run | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
-  helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > temp.yaml
-  tail -n +2 temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
+  helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > $BATS_FILE_TMPDIR/temp.yaml
+  tail -n +2 $BATS_FILE_TMPDIR/temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
   csplit $BATS_FILE_TMPDIR/manifest.yaml '/\-\-\-/' -f $BATS_FILE_TMPDIR/manifest.yaml -n "0" | mv -f $BATS_FILE_TMPDIR/manifest.yaml1 $BATS_FILE_TMPDIR/manifest.yaml | rm -f $BATS_FILE_TMPDIR/manifest.yaml0  
   
   run $VKPR_YQ ".metadata.annotations.[\"kubernetes.io/tls-acme\"]" $BATS_FILE_TMPDIR/manifest.yaml
@@ -140,8 +182,8 @@ teardown() {
   assert_success
 
   rit vkpr kong install --default --dry_run | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
-  helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > temp.yaml
-  tail -n +2 temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
+  helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > $BATS_FILE_TMPDIR/temp.yaml
+  tail -n +2 $BATS_FILE_TMPDIR/temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
   csplit $BATS_FILE_TMPDIR/manifest.yaml '/\-\-\-/' -f $BATS_FILE_TMPDIR/manifest.yaml -n "0" | mv -f $BATS_FILE_TMPDIR/manifest.yaml1 $BATS_FILE_TMPDIR/manifest.yaml | rm -f $BATS_FILE_TMPDIR/manifest.yaml0  
   
   run $VKPR_YQ ".metadata.annotations.[\"kubernetes.io/tls-acme\"]" $BATS_FILE_TMPDIR/manifest.yaml
@@ -157,8 +199,8 @@ teardown() {
   export VKPR_ENV_GLOBAL_SECURE="true"
 
   rit vkpr kong install --default --dry_run | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
-  helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > temp.yaml
-  tail -n +2 temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
+  helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > $BATS_FILE_TMPDIR/temp.yaml
+  tail -n +2 $BATS_FILE_TMPDIR/temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
   csplit $BATS_FILE_TMPDIR/manifest.yaml '/\-\-\-/' -f $BATS_FILE_TMPDIR/manifest.yaml -n "0" | mv -f $BATS_FILE_TMPDIR/manifest.yaml1 $BATS_FILE_TMPDIR/manifest.yaml | rm -f $BATS_FILE_TMPDIR/manifest.yaml0  
   
   run $VKPR_YQ ".metadata.annotations.[\"kubernetes.io/tls-acme\"]" $BATS_FILE_TMPDIR/manifest.yaml
@@ -173,8 +215,8 @@ teardown() {
 @test "check secure default" {
 
   rit vkpr kong install --default --dry_run | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
-  helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > temp.yaml
-  tail -n +2 temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
+  helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > $BATS_FILE_TMPDIR/temp.yaml
+  tail -n +2 $BATS_FILE_TMPDIR/temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
   csplit $BATS_FILE_TMPDIR/manifest.yaml '/\-\-\-/' -f $BATS_FILE_TMPDIR/manifest.yaml -n "0" | mv -f $BATS_FILE_TMPDIR/manifest.yaml1 $BATS_FILE_TMPDIR/manifest.yaml | rm -f $BATS_FILE_TMPDIR/manifest.yaml0  
   
   run $VKPR_YQ ".metadata.annotations.[\"kubernetes.io/tls-acme\"]" $BATS_FILE_TMPDIR/manifest.yaml
@@ -439,8 +481,8 @@ teardown() {
   $VKPR_YQ -i ".kong.helmArgs.admin.ingress.annotations.[\"teste\"] = \"Prefix\"" $PWD/vkpr.yaml
 
   rit vkpr kong install --default --dry_run | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
-  helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > temp.yaml
-  tail -n +2 temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
+  helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > $BATS_FILE_TMPDIR/temp.yaml
+  tail -n +2 $BATS_FILE_TMPDIR/temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
   csplit $BATS_FILE_TMPDIR/manifest.yaml '/\-\-\-/' -f $BATS_FILE_TMPDIR/manifest.yaml -n "0" | mv -f $BATS_FILE_TMPDIR/manifest.yaml1 $BATS_FILE_TMPDIR/manifest.yaml | rm -f $BATS_FILE_TMPDIR/manifest.yaml0  
 
   run $VKPR_YQ ".metadata.annotations.[\"teste\"]" $BATS_FILE_TMPDIR/manifest.yaml
@@ -451,8 +493,8 @@ teardown() {
   $VKPR_YQ -i ".kong.helmArgs.admin.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"false\"" $PWD/vkpr.yaml
 
   rit vkpr kong install --dry_run | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
-  helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > temp.yaml
-  tail -n +2 temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
+  helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > $BATS_FILE_TMPDIR/temp.yaml
+  tail -n +2 $BATS_FILE_TMPDIR/temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
   csplit $BATS_FILE_TMPDIR/manifest.yaml '/\-\-\-/' -f $BATS_FILE_TMPDIR/manifest.yaml -n "0" | mv -f $BATS_FILE_TMPDIR/manifest.yaml1 $BATS_FILE_TMPDIR/manifest.yaml | rm -f $BATS_FILE_TMPDIR/manifest.yaml0  
   cat $BATS_FILE_TMPDIR/manifest.yaml
 
@@ -562,3 +604,97 @@ teardown() {
 #=======================================#
 #         INTEGRATION SECTION           #
 #=======================================#
+
+#-----------#
+#   whoami  #
+#-----------#
+
+@test "curl to whoami.localhost:8000 with HTTP" {
+  
+  run $VKPR_YQ -i ".whoami.ingressClassName = \"kong\"" $PWD/vkpr.yaml
+  assert_success
+  rit vkpr whoami install --default
+
+  local i=0 \
+      timeout=5 \
+
+  while [[ $i -lt $timeout ]]; do
+    if curl -is http://whoami.localhost:8000 | head -n1 | awk -F' ' '{print $2}' | grep -q "200"; then
+      break
+    else
+      sleep 1
+      i=$((i+1))
+    fi
+  done
+
+  RESPONSE=$(curl -is http://whoami.localhost:8000 | head -n1 | awk -F' ' '{print $2}')
+  run echo $RESPONSE
+  assert_output "200"
+  assert_success
+
+  $VKPR_YQ -i "del(.global) | del(.whoami)" $PWD/vkpr.yaml
+}
+  #----------------------#
+  #   prometheus-stack   #
+  #----------------------#
+
+# validating kong as ingress and metrics
+@test "curl to prometheus.localhost:8000 with HTTP" {
+  
+  run $VKPR_YQ -i ".prometheus-stack.ingressClassName = \"kong\"" $PWD/vkpr.yaml
+  assert_success
+  rit vkpr prometheus-stack install --default
+  
+  # enabling metrics for service monitoring
+  run $VKPR_YQ -i ".kong.metrics = \"true\"" $PWD/vkpr.yaml
+  assert_success
+  rit vkpr kong install --default
+
+  local i=0 \
+      timeout=10 \
+
+  while [[ $i -lt $timeout ]]; do
+    if curl -is http://manager.localhost:8000 | head -n1 | awk -F' ' '{print $2}' | grep -q "200"; then
+      break
+    else
+      sleep 1
+      i=$((i+1))
+    fi
+  done
+
+  RESPONSE=$(curl -is http://prometheus.localhost:8000/api/v1 | head -n1 | awk -F' ' '{print $2}')
+  run echo $RESPONSE
+  assert_output "301"
+  assert_success
+
+  
+  $VKPR_YQ -i "del(.global) | del(.prometheus-stack) | del(.kong)" $PWD/vkpr.yaml
+}
+
+# validating kong metrics: true
+@test "curl to prometheus API endpoint to kong_datastore metric" {
+ 
+  RESPONSE=$(curl -i prometheus.localhost:8000/api/v1/query?query=kong_datastore_reachable | head -n1 | awk -F' ' '{print $2}')
+
+  run echo $RESPONSE
+  assert_output "200"
+  assert_success
+
+  RESPONSE=$(curl prometheus.localhost:8000/api/v1/query?query=kong_datastore_reachable | jq .status)
+
+  run echo $RESPONSE
+  assert_output "\"success\""
+  assert_success
+
+}
+@test "check kong dashboard grafana status" {
+
+  LOGIN_GRAFANA=$($VKPR_KUBECTL get secret --namespace vkpr prometheus-stack-grafana -o=jsonpath="{.data.admin-user}" | base64 -d)
+  PWD_GRAFANA=$($VKPR_KUBECTL get secret --namespace vkpr prometheus-stack-grafana -o=jsonpath="{.data.admin-password}" | base64 -d)
+
+  RESPONSE=$(curl http://$LOGIN_GRAFANA:$PWD_GRAFANA@grafana.localhost:8000/api/dashboards/tags | jq '.[] | select(.term == "vkpr-kong")')
+
+  run echo $RESPONSE
+  assert_output '{ "term": "vkpr-kong", "count": 1 }'
+  assert_success 
+}
