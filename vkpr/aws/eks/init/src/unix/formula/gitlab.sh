@@ -32,7 +32,7 @@ setproviderrun() {
     boldNotice "Project already forked"
   fi
 
-
+  echo "${VKPR_ENV_EKS_CLUSTER_NAME}"
 
 formulaInputs() {
   # App values
@@ -50,8 +50,6 @@ setCredentials() {
   AWS_REGION="$($VKPR_JQ -r '.credential.region' $VKPR_CREDENTIAL/aws)"
   GITLAB_USERNAME="$($VKPR_JQ -r '.credential.username' $VKPR_CREDENTIAL/gitlab)"
   GITLAB_TOKEN="$($VKPR_JQ -r '.credential.token' $VKPR_CREDENTIAL/gitlab)"
-  GITHUB_USERNAME="$($VKPR_JQ -r '.credential.username' $VKPR_CREDENTIAL/github)"
-  GITHUB_TOKEN="$($VKPR_JQ -r '.credential.token' $VKPR_CREDENTIAL/github)"
 }
 
 validateInputs() {
@@ -60,7 +58,7 @@ validateInputs() {
   validateAwsRegion "$AWS_REGION"
   validateGitlabUsername "$GITLAB_USERNAME"
   validateGitlabToken "$GITLAB_TOKEN"
-  #[[ "$VKPR_ENV_EKS_TERRAFORM_STATE" == "terraform-cloud" ]] && validateTFCloudToken "$TERRAFORMCLOUD_API_TOKEN"
+  [[ "$VKPR_ENV_EKS_TERRAFORM_STATE" == "terraform-cloud" ]] && validateTFCloudToken "$TERRAFORMCLOUD_API_TOKEN"
 
   validateEksClusterName "$VKPR_ENV_EKS_CLUSTER_NAME"
   validateEksVersion "$VKPR_ENV_EKS_VERSION"
@@ -68,7 +66,7 @@ validateInputs() {
 
   validateEksClusterSize "$VKPR_ENV_EKS_NODES_QUANTITY_SIZE"
   validateEksCapacityType "$VKPR_ENV_EKS_NODES_CAPACITY_TYPE"
-  #validateEksStoreTfState "$VKPR_ENV_EKS_TERRAFORM_STATE"
+  validateEksStoreTfState "$VKPR_ENV_EKS_TERRAFORM_STATE"
 }
 
 setVariablesGLAB() {
@@ -94,6 +92,11 @@ cloneRepository() {
     .node_groups.${VKPR_ENV_EKS_CLUSTER_NAME}.instance_types[0] = \"$VKPR_ENV_EKS_NODES_INSTANCE_TYPE\" |
     .node_groups.${VKPR_ENV_EKS_CLUSTER_NAME}.capacity_type = \"${VKPR_ENV_EKS_NODES_CAPACITY_TYPE^^}\"
   " "$VKPR_HOME"/tmp/aws-eks/config/defaults.yml
+  ### CONFIGURADO BACKEND S3
+  if [ $TERRAFORM_STATE == "s3" ]; then
+  printf "terraform { \n  backend \"s3\" { \n    bucket = \"${BUCKET_TERRAFORM}\" \n    key    = \"${BUCKET_TERRAFORM}.tfstate\" \n    region = \"${AWS_REGION}\" \n  }\n}" > backend.tf
+  cat backend.tf
+  fi
   mergeVkprValuesExtraArgs "aws.eks" "$VKPR_HOME"/tmp/aws-eks/config/defaults.yml
   git checkout -b "$VKPR_ENV_EKS_CLUSTER_NAME"
   git commit -am "[VKPR] Initial configuration defaults.yml"
