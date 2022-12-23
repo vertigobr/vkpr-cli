@@ -191,15 +191,36 @@
       "tutorial": "Specifies where you want to store the TF state",
       "label": "Choose where to store the state of Terraform:",
       "name": "terraform_state",
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "github"
+      },
       "type": "text",
       "default": "s3",
       "required": false,
       "items": [
-        "s3",
-        "gitlab",
-        "terraform-cloud"
+        "s3"
       ]
     },
+    {
+    "tutorial": "Specifies where you want to store the TF state",
+    "label": "Choose where to store the state of Terraform:",
+    "name": "terraform_state",
+    "condition": {
+      "variable": "provider",
+      "operator": "==",
+      "value": "gitlab"
+    },
+    "type": "text",
+    "default": "s3",
+    "required": false,
+    "items": [
+      "s3",
+      "gitlab"
+    ]
+  },
+    
     {
       "tutorial": "Specifies your Terraform Backend Bucket",
       "label": "Specifies your Terraform Backend Bucket",

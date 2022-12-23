@@ -1,0 +1,17 @@
+{
+  "inputs": [
+    {
+      "tutorial": "Simulate an install",
+      "label": "Dry-run ?",
+      "name": "dry_run",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "false",
+        "true"
+      ]
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease:": "2.16.2"
+}

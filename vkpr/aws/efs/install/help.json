@@ -1,0 +1,4 @@
+{
+  "short": "Install Loki",
+  "long": "Install the Loki in the Kubernetes cluster"
+}
