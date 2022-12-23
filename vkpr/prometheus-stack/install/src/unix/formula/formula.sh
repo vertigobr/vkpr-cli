@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 source "$(dirname "$0")"/unix/formula/commands-operators.sh
+source "$(dirname "$0")"/unix/formula/objects.sh
 
 runFormula() {
   local VKPR_ENV_GRAFANA_DOMAIN VKPR_ENV_ALERT_MANAGER_DOMAIN VKPR_PROMETHEUS_VALUES HELM_ARGS;
@@ -175,9 +176,7 @@ settingGrafanaValues() {
   if [[ "$VKPR_ENV_GRAFANA_SSL" == "true" ]]; then
     if [[ "$VKPR_ENV_GRAFANA_SSL_SECRET" == "" ]]; then
       VKPR_ENV_GRAFANA_SSL_SECRET="grafana-certificate"
-      $VKPR_KUBECTL create secret tls $VKPR_ENV_GRAFANA_SSL_SECRET -n "$VKPR_ENV_GRAFANA_NAMESPACE" \
-        --cert="$VKPR_ENV_GRAFANA_SSL_CERTIFICATE" \
-        --key="$VKPR_ENV_GRAFANA_SSL_KEY"
+      createSslSecret "$VKPR_ENV_GRAFANA_SSL_SECRET" "$VKPR_ENV_PROMETHEUS_STACK_NAMESPACE" "$VKPR_ENV_GRAFANA_SSL_CERTIFICATE" "$VKPR_ENV_GRAFANA_SSL_KEY"
     fi
     YQ_VALUES="$YQ_VALUES |
       .grafana.ingress.tls[0].hosts[0] = \"$VKPR_ENV_GRAFANA_DOMAIN\" |
@@ -241,9 +240,7 @@ settingPrometheusValues() {
   if [[ "$VKPR_ENV_PROMETHEUS_SSL" == "true" ]]; then
     if [[ "$VKPR_ENV_PROMETHEUS_SSL_SECRET" == "" ]]; then
       VKPR_ENV_PROMETHEUS_SSL_SECRET="prometheus-certificate"
-      $VKPR_KUBECTL create secret tls $VKPR_ENV_PROMETHEUS_SSL_SECRET -n "$VKPR_ENV_PROMETHEUS_NAMESPACE" \
-        --cert="$VKPR_ENV_PROMETHEUS_SSL_CERTIFICATE" \
-        --key="$VKPR_ENV_PROMETHEUS_SSL_KEY"
+      createSslSecret "$VKPR_ENV_PROMETHEUS_SSL_SECRET" "$VKPR_ENV_PROMETHEUS_STACK_NAMESPACE" "$VKPR_ENV_PROMETHEUS_SSL_CERTIFICATE" "$VKPR_ENV_PROMETHEUS_SSL_KEY"
     fi
     YQ_VALUES="$YQ_VALUES |
       .prometheus.ingress.tls[0].hosts[0] = \"$VKPR_ENV_PROMETHEUS_DOMAIN\" |
@@ -278,9 +275,7 @@ settingAlertManagerValues() {
   if [[ "$VKPR_ENV_ALERTMANAGER_SSL" == "true" ]]; then
     if [[ "$VKPR_ENV_ALERTMANAGER_SSL_SECRET" == "" ]]; then
       VKPR_ENV_ALERTMANAGER_SSL_SECRET="alertmanager-certificate"
-      $VKPR_KUBECTL create secret tls $VKPR_ENV_ALERTMANAGER_SSL_SECRET -n "$VKPR_ENV_ALERTMANAGER_NAMESPACE" \
-        --cert="$VKPR_ENV_ALERTMANAGER_SSL_CERTIFICATE" \
-        --key="$VKPR_ENV_ALERTMANAGER_SSL_KEY"
+      createSslSecret "$VKPR_ENV_ALERTMANAGER_SSL_SECRET" "$VKPR_ENV_PROMETHEUS_STACK_NAMESPACE" "$VKPR_ENV_ALERTMANAGER_SSL_CERTIFICATE" "$VKPR_ENV_ALERTMANAGER_SSL_KEY"
     fi
     YQ_VALUES="$YQ_VALUES |
       .alertmanager.ingress.tls[0].hosts[0] = \"$VKPR_ENV_ALERT_MANAGER_DOMAIN\" |
