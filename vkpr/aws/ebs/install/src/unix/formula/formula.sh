@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
-source "$(dirname "$0")"/unix/formula/commands-operators.sh
-
 runFormula() {
-
-
+  
 startInfos() {
   bold "=============================="
   boldInfo "VKPR Install AWS EBS CSI Driver"
@@ -28,4 +25,5 @@ eksctl create iamserviceaccount \
 eksctl create addon --name aws-ebs-csi-driver --cluster $EKS_CLUSTERNAME --service-account-role-arn arn:aws:iam::$AWS_ACCOUNTID:role/AmazonEKS_EBS_CSI_DriverRole_$EKS_CLUSTERNAME --force
 
  }
+installaddonebs
 }

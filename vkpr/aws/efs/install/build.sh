@@ -3,7 +3,7 @@
 BIN_FOLDER=bin
 BINARY_NAME_UNIX=run.sh
 ENTRY_POINT_UNIX=main.sh
-LIB_RESOURCES="../../../lib"
+LIB_RESOURCES="../../../../lib"
 
 #bash-build:
 	mkdir -p $BIN_FOLDER/src
