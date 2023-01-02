@@ -544,6 +544,230 @@ teardown() {
   
 }
 
+#-------------#
+#  HELM ARGS  #
+#-------------#
+
+# bats test_tags=helm_args, helm_args:new
+@test "check helmArgs adding new value" {
+  $VKPR_YQ -i ".prometheus-stack.helmArgs.ingress.PathType = \"Prefix\"" $PWD/vkpr.yaml
+
+  rit vkpr prometheus-stack install --dry_run | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
+  helm template -f $BATS_FILE_TMPDIR/values.yaml -s charts/grafana/templates/ingress.yaml prometheus-community/kube-prometheus-stack --version $VKPR_PROMETHEUS_STACK_VERSION > $BATS_FILE_TMPDIR/manifest.yaml
+  cat $BATS_FILE_TMPDIR/manifest.yaml
+
+  run $VKPR_YQ ".spec.rules[0].http.paths[0].pathType" $BATS_FILE_TMPDIR/manifest.yaml
+  assert_output "Prefix"
+}
+
+# bats test_tags=helm_args, helm_args:change
+@test "check helmArgs changing values" {
+  $VKPR_YQ -i ".prometheus-stack.helmArgs.grafana.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"false\"" $PWD/vkpr.yaml
+
+  rit vkpr prometheus-stack install --dry_run | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
+  helm template -f $BATS_FILE_TMPDIR/values.yaml -s charts/grafana/templates/ingress.yaml prometheus-community/kube-prometheus-stack --version $VKPR_PROMETHEUS_STACK_VERSION > $BATS_FILE_TMPDIR/manifest.yaml
+  cat $BATS_FILE_TMPDIR/manifest.yaml
+
+  run $VKPR_YQ ".metadata.annotations.[\"kubernetes.io/tls-acme\"]" $BATS_FILE_TMPDIR/manifest.yaml
+  assert_output "false"
+}
+
+#=======================================#
+#         INSTALLATION SECTION          #
+#=======================================#
+
+@test "check application health" {
+
+    local i=0 \
+      timeout=10 \
+
+  while [[ $i -lt $timeout ]]; do
+    if curl -is http://prometheus.localhost:8000/graph | head -n1 | awk -F' ' '{print $2}' | grep -q "200"; then
+      break
+    else
+      sleep 1
+      i=$((i+1))
+    fi
+  done
+
+  local PROMETHEUS_STATUS_HELM=$($VKPR_HELM ls -n vkpr | grep prometheus-stack | tr -s '[:space:]' ' ' | cut -d " " -f8 )
+
+  run echo $PROMETHEUS_STATUS_HELM
+  assert_output "deployed"
+
+  prometheus_status=$($VKPR_KUBECTL get po -n vkpr | grep -i "Running" | grep -i prometheus-stack-prometheus-node-exporter | tr -s '[:space:]' ' ' | cut -d " " -f2)
+  run echo $prometheus_status 
+  assert_output "1/1"
+
+  prometheus_status=$($VKPR_KUBECTL get po -n vkpr | grep -i "Running" | grep -i prometheus-stack-kube-prom-operator | tr -s '[:space:]' ' ' | cut -d " " -f2)
+  run echo $prometheus_status 
+  assert_output "1/1"
+
+  prometheus_status=$($VKPR_KUBECTL get po -n vkpr | grep -i "Running" | grep -i prometheus-stack-kube-state-metrics | tr -s '[:space:]' ' ' | cut -d " " -f2)
+  run echo $prometheus_status 
+  assert_output "1/1"
+
+  prometheus_status=$($VKPR_KUBECTL get po -n vkpr | grep -i "Running" | grep -i prometheus-stack-grafana | tr -s '[:space:]' ' ' | cut -d " " -f2)
+  run echo $prometheus_status 
+  assert_output "3/3"
+
+  prometheus_status=$($VKPR_KUBECTL get po -n vkpr | grep -i "Running" | grep -i prometheus-prometheus-stack-kube-prom-prometheus | tr -s '[:space:]' ' ' | cut -d " " -f2)
+  run echo $prometheus_status 
+  assert_output "2/2"
+
+}
+
+@test "hit application health" {
+  local LOGIN_GRAFANA=$($VKPR_KUBECTL get secret -n vkpr prometheus-stack-grafana -o=jsonpath="{.data.admin-user}" | base64 -d) \
+        PWD_GRAFANA=$($VKPR_KUBECTL get secret -n vkpr prometheus-stack-grafana -o=jsonpath="{.data.admin-password}" | base64 -d)
+
+  RESPONSE=$(curl -is http://prometheus.localhost:8000/graph | head -n1 | awk -F' ' '{print $2}')
+  run echo $RESPONSE
+  assert_output "200"
+
+  RESPONSE=$(curl -is http://grafana.localhost:8000/login | head -n1 | awk -F' ' '{print $2}')
+  run echo $RESPONSE
+  assert_output "200"
+
+  RESPONSE=$(curl -is -X GET -H "Content-Type: application/json" http://$LOGIN_GRAFANA:$PWD_GRAFANA@grafana.localhost:8000/api/admin/settings | head -n1 | awk -F' ' '{print $2}')
+  run echo $RESPONSE
+  assert_output "200"
+}
+
+
+#=======================================#
+#            OBJECT SECTION             #
+#=======================================#
+
+  #----------#
+  #  Secret  #
+  #----------#
+
+  # prometheus-stack-kube-prom-admission
+@test "check prometheus-stack-kube-prom-admission secret" {
+  prometheus_secret_name=$($VKPR_KUBECTL get secret -n vkpr | grep prometheus-stack-kube-prom-admission | tr -s '[:space:]' ' ' | cut -d " " -f1)
+  run echo $prometheus_secret_name 
+  assert_output "prometheus-stack-kube-prom-admission"
+
+  prometheus_secret_data=$($VKPR_KUBECTL get secret -n vkpr | grep prometheus-stack-kube-prom-admission | tr -s '[:space:]' ' ' | cut -d " " -f3)
+  run echo $prometheus_secret_data 
+  assert_output "3"
+}
+
+  # prometheus-stack-grafana
+@test "check prometheus-stack-grafana secret" {
+  prometheus_secret_name=$($VKPR_KUBECTL get secret -n vkpr | grep prometheus-stack-grafana | tr -s '[:space:]' ' ' | cut -d " " -f1)
+  run echo $prometheus_secret_name 
+  assert_output "prometheus-stack-grafana"
+
+  prometheus_secret_data=$($VKPR_KUBECTL get secret -n vkpr | grep prometheus-stack-grafana | tr -s '[:space:]' ' ' | cut -d " " -f3)
+  run echo $prometheus_secret_data 
+  assert_output "3"
+}
+
+  # prometheus-prometheus-stack-kube-prom-prometheus
+@test "check prometheus-prometheus-stack-kube-prom-prometheus secret" {
+  prometheus_secret_name=$($VKPR_KUBECTL get secret -n vkpr | grep prometheus-prometheus-stack-kube-prom-prometheus | tr -s '[:space:]' ' ' | cut -d " " -f1)
+  run echo $prometheus_secret_name 
+  assert_output "prometheus-prometheus-stack-kube-prom-prometheus"
+
+  prometheus_secret_data=$($VKPR_KUBECTL get secret -n vkpr | grep prometheus-prometheus-stack-kube-prom-prometheus | tr -s '[:space:]' ' ' | cut -d " " -f3)
+  run echo $prometheus_secret_data 
+  assert_output "1"
+}
+
+  # prometheus-prometheus-stack-kube-prom-prometheus-tls-assets-0
+@test "check prometheus-prometheus-stack-kube-prom-prometheus-tls-assets-0 secret" {
+  prometheus_secret_name=$($VKPR_KUBECTL get secret -n vkpr | grep prometheus-prometheus-stack-kube-prom-prometheus-tls-assets-0 | tr -s '[:space:]' ' ' | cut -d " " -f1)
+  run echo $prometheus_secret_name 
+  assert_output "prometheus-prometheus-stack-kube-prom-prometheus-tls-assets-0"
+
+  prometheus_secret_data=$($VKPR_KUBECTL get secret -n vkpr | grep prometheus-prometheus-stack-kube-prom-prometheus-tls-assets-0 | tr -s '[:space:]' ' ' | cut -d " " -f3)
+  run echo $prometheus_secret_data 
+  assert_output "1"
+}
+
+  # prometheus-prometheus-stack-kube-prom-prometheus-web-config
+@test "check prometheus-prometheus-stack-kube-prom-prometheus-web-config secret" {
+  prometheus_secret_name=$($VKPR_KUBECTL get secret -n vkpr | grep prometheus-prometheus-stack-kube-prom-prometheus-web-config | tr -s '[:space:]' ' ' | cut -d " " -f1)
+  run echo $prometheus_secret_name 
+  assert_output "prometheus-prometheus-stack-kube-prom-prometheus-web-config"
+
+  prometheus_secret_data=$($VKPR_KUBECTL get secret -n vkpr | grep prometheus-prometheus-stack-kube-prom-prometheus-web-config | tr -s '[:space:]' ' ' | cut -d " " -f3)
+  run echo $prometheus_secret_data 
+  assert_output "1"
+}
+
+  #-----------#
+  #  Service  #
+  #-----------#
+
+  # prometheus-stack-kube-state-metrics
+@test "check prometheus-stack-kube-state-metrics service" {
+  prometheus_service_name=$($VKPR_KUBECTL get svc -n vkpr | grep prometheus-stack-kube-state-metrics | tr -s '[:space:]' ' ' | cut -d " " -f1)
+  run echo $prometheus_service_name 
+  assert_output "prometheus-stack-kube-state-metrics"
+
+  prometheus_service_type=$($VKPR_KUBECTL get svc -n vkpr | grep prometheus-stack-kube-state-metrics | tr -s '[:space:]' ' ' | cut -d " " -f2)
+  run echo $prometheus_service_type 
+  assert_output "ClusterIP"
+}
+
+  # prometheus-stack-kube-prom-prometheus
+@test "check prometheus-stack-kube-prom-prometheus service" {
+  prometheus_service_name=$($VKPR_KUBECTL get svc -n vkpr | grep prometheus-stack-kube-prom-prometheus | tr -s '[:space:]' ' ' | cut -d " " -f1)
+  run echo $prometheus_service_name 
+  assert_output "prometheus-stack-kube-prom-prometheus"
+
+  prometheus_service_type=$($VKPR_KUBECTL get svc -n vkpr | grep prometheus-stack-kube-prom-prometheus | tr -s '[:space:]' ' ' | cut -d " " -f2)
+  run echo $prometheus_service_type 
+  assert_output "ClusterIP"
+}
+
+  # prometheus-stack-prometheus-node-exporter
+@test "check prometheus-stack-prometheus-node-exporter service" {
+  prometheus_service_name=$($VKPR_KUBECTL get svc -n vkpr | grep prometheus-stack-prometheus-node-exporter | tr -s '[:space:]' ' ' | cut -d " " -f1)
+  run echo $prometheus_service_name 
+  assert_output "prometheus-stack-prometheus-node-exporter"
+
+  prometheus_service_type=$($VKPR_KUBECTL get svc -n vkpr | grep prometheus-stack-prometheus-node-exporter | tr -s '[:space:]' ' ' | cut -d " " -f2)
+  run echo $prometheus_service_type 
+  assert_output "ClusterIP"
+}
+
+  # prometheus-stack-kube-prom-operator
+@test "check prometheus-stack-kube-prom-operator service" {
+  prometheus_service_name=$($VKPR_KUBECTL get svc -n vkpr | grep prometheus-stack-kube-prom-operator | tr -s '[:space:]' ' ' | cut -d " " -f1)
+  run echo $prometheus_service_name 
+  assert_output "prometheus-stack-kube-prom-operator"
+
+  prometheus_service_type=$($VKPR_KUBECTL get svc -n vkpr | grep prometheus-stack-kube-prom-operator | tr -s '[:space:]' ' ' | cut -d " " -f2)
+  run echo $prometheus_service_type 
+  assert_output "ClusterIP"
+}
+
+  # prometheus-stack-grafana
+@test "check prometheus-stack-grafana service" {
+  prometheus_service_name=$($VKPR_KUBECTL get svc -n vkpr | grep prometheus-stack-grafana | tr -s '[:space:]' ' ' | cut -d " " -f1)
+  run echo $prometheus_service_name 
+  assert_output "prometheus-stack-grafana"
+
+  prometheus_service_type=$($VKPR_KUBECTL get svc -n vkpr | grep prometheus-stack-grafana | tr -s '[:space:]' ' ' | cut -d " " -f2)
+  run echo $prometheus_service_type 
+  assert_output "ClusterIP"
+}
+
+  # prometheus-operated
+@test "check prometheus-operated service" {
+  prometheus_service_name=$($VKPR_KUBECTL get svc -n vkpr | grep prometheus-operated | tr -s '[:space:]' ' ' | cut -d " " -f1)
+  run echo $prometheus_service_name 
+  assert_output "prometheus-operated"
+
+  prometheus_service_type=$($VKPR_KUBECTL get svc -n vkpr | grep prometheus-operated | tr -s '[:space:]' ' ' | cut -d " " -f2)
+  run echo $prometheus_service_type 
+  assert_output "ClusterIP"
+}
+
 #=======================================#
 #         INTEGRATION SECTION           #
 #=======================================#

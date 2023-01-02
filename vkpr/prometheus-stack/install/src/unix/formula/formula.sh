@@ -100,7 +100,7 @@ validateInputs() {
     validateGrafanaSecret "$VKPR_ENV_GRAFANA_SSL_SECRET"
   fi
   ## Prometheus
-  validatePrometheusEnabled "$VKPR_ENV_PROMETHEUS"
+  # validatePrometheusEnabled "$VKPR_ENV_PROMETHEUS"
   if [[ "$VKPR_ENV_PROMETHEUS" = true ]]; then
     validatePrometheusSSL "$VKPR_ENV_PROMETHEUS_SSL"
     if [[ "$VKPR_ENV_PROMETHEUS_SSL" = true ]]; then
@@ -148,9 +148,9 @@ settingPrometheusStack() {
   if [[ "$VKPR_ENV_PROMETHEUS_STACK_HA" == true ]]; then
     YQ_VALUES="$YQ_VALUES |
       .alertmanager.alertmanagerSpec.replicas = 3 |
-      .alertmanager.alertmanagerSpec.retention = 1d |
+      .alertmanager.alertmanagerSpec.retention = \"1d\" |
       .prometheus.prometheusSpec.replicas = 3 |
-      .prometheus.prometheusSpec.retention = 90d
+      .prometheus.prometheusSpec.retention = \"90d\"
     "
   fi
 
