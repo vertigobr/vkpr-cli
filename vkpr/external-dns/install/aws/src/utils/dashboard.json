@@ -1374,6 +1374,8 @@
     "schemaVersion": 36,
     "style": "dark",
     "tags": [
+      "managed by vkpr",
+      "vkpr-external-dns",
       "external-dns",
       "dns"
     ],

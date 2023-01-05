@@ -538,8 +538,10 @@
   "schemaVersion": 36,
   "style": "dark",
   "tags": [
-    "vkpr",
+    "managed by vkpr",
+    "vkpr-loki",
     "loki",
+    "vkpr",
     "logging"
   ],
   "templating": {

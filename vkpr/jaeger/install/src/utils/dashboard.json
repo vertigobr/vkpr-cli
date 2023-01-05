@@ -628,6 +628,8 @@
   "schemaVersion": 36,
   "style": "dark",
   "tags": [
+    "managed by vkpr",
+    "vkpr-jaeger",
     "jaeger"
   ],
   "templating": {

@@ -1955,7 +1955,8 @@
   "style": "dark",
   "tags": [
     "managed by vkpr",
-    "vkpr-kong"
+    "vkpr-kong",
+    "kong"
   ],
   "templating": {
     "list": [
