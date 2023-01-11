@@ -1,0 +1,16 @@
+{
+  "inputs": [
+    {
+      "tutorial": "Specifies your Gitlab Username",
+      "name": "gitlab_username",
+      "type": "CREDENTIAL_GITLAB_USERNAME"
+    },
+    {
+      "tutorial": "Specifies your Gitlab Access-Token",
+      "name": "gitlab_token",
+      "type": "CREDENTIAL_GITLAB_TOKEN"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease": "2.17.0"
+}

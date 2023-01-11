@@ -1,0 +1,210 @@
+{
+  "inputs": [
+    {
+      "tutorial": "Specifies where you want to store",
+      "label": "Choose where to store the repository Git/pipeline:",
+      "name": "provider",
+      "type": "text",
+      "default": "github",
+      "required": false,
+      "items": [
+        "github",
+        "gitlab"
+      ]
+    },
+    {
+      "tutorial": "Specifies Project Name",
+      "label": "Project Name:",
+      "name": "PROJECTNAME",
+      "type": "text",
+      "required": true
+     },
+
+    {
+      "tutorial": "Specifies your Gitlab Username",
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "gitlab"
+      },
+      "name": "gitlab_username",
+      "type": "CREDENTIAL_GITLAB_USERNAME"
+    },
+    {
+      "tutorial": "Specifies your Github Username",
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "github"
+      },
+      "name": "github_username",
+      "type": "CREDENTIAL_GITHUB_USERNAME"
+    },
+    {
+      "tutorial": "Specifies your Gitlab Access-Token",
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "gitlab"
+      },
+      "name": "gitlab_token",
+      "type": "CREDENTIAL_GITLAB_TOKEN"
+    },
+    {
+      "tutorial": "Specifies your Github Access-Token",
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "github"
+      },
+      "name": "github_token",
+      "type": "CREDENTIAL_GITHUB_TOKEN"
+    },
+    {
+      "tutorial": "Specifies the project location to fork",
+      "label": "Project location:",
+      "name": "project_location",
+      "type": "text",
+      "default": "user",
+      "required": true,
+      "items": [
+        "user",
+        "groups"
+      ]
+    },
+    {
+      "tutorial": "Specifies your group path",
+      "condition": {
+        "variable": "project_location",
+        "operator": "==",
+        "value": "groups"
+      },
+      "label": "Location path:",
+      "name": "project_location_path",
+      "type": "text",
+      "required": false,
+      "cache": {
+        "active": true,
+        "qty": 2,
+        "newLabel": "Type another location path"
+      }
+    },
+    {
+      "tutorial": "Specifies the image (AMI)",
+      "label": "image (AMI):",
+      "name": "IMAGE",
+      "type": "text",
+      "required": true
+     },
+     {
+      "tutorial": "Specifies key to acess ec2",
+      "label": "key-pair:",
+      "name": "KEYNAME",
+      "type": "text",
+      "required": true
+     },
+    {
+      "tutorial": "Specifies the instance type ",
+      "label": "Choose instance type:",
+      "name": "instance_type",
+      "type": "text",
+      "default": "t3",
+      "required": true,
+      "items": [
+        "t3",
+        "t3a",
+        "t4g"
+      ]
+    },
+    {
+      "tutorial": "Specifies instance size: ",
+      "condition": {
+        "variable": "instance_type",
+        "operator": "containsAny",
+        "value": "t"
+      },
+      "label": "Choose instance size: ",
+      "name": "cluster_instance_size",
+      "type": "text",
+      "default": "small",
+      "items": [
+        "small",
+        "medium",
+        "large"
+      ]
+    },
+     {
+      "tutorial": "Specifies where you want to store the TF state",
+      "label": "Choose where to store the state of Terraform:",
+      "name": "terraform_state",
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "github"
+      },
+      "type": "text",
+      "default": "s3",
+      "required": false,
+      "items": [
+        "s3"
+      ]
+    },
+    {
+    "tutorial": "Specifies where you want to store the TF state",
+    "label": "Choose where to store the state of Terraform:",
+    "name": "terraform_state",
+    "condition": {
+      "variable": "provider",
+      "operator": "==",
+      "value": "gitlab"
+    },
+    "type": "text",
+    "default": "s3",
+    "required": false,
+    "items": [
+      "s3",
+      "gitlab"
+    ]
+    },
+    {
+      "tutorial": "Specifies your Terraform Backend Bucket",
+      "label": "Specifies your Terraform Backend Bucket",
+      "condition": {
+        "variable": "terraform_state",
+        "operator": "==",
+        "value": "s3"
+      },
+      "name": "bucket_terraform",
+      "type": "text",
+      "required": true
+    },
+    {
+      "tutorial": "Specifies your Terraform Cloud Token",
+      "condition": {
+        "variable": "terraform_state",
+        "operator": "==",
+        "value": "terraform-cloud"
+      },
+      "name": "terraformcloud_api_token",
+      "type": "CREDENTIAL_TERRAFORMCLOUD_TOKEN",
+      "required": false
+    },
+    {
+      "tutorial": "Specifies the AWS Access Key Credential",
+      "name": "aws_access_key",
+      "type": "CREDENTIAL_AWS_ACCESSKEYID"
+    },
+    {
+      "tutorial": "Specifies the AWS Secret Key Credential",
+      "name": "aws_secret_key",
+      "type": "CREDENTIAL_AWS_SECRETACCESSKEY"
+    },
+    {
+      "tutorial": "Specifies the AWS Region to set the environment",
+      "name": "aws_region",
+      "type": "CREDENTIAL_AWS_REGION"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease:": "2.16.2"
+}

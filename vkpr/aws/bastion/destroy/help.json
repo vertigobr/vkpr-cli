@@ -1,0 +1,4 @@
+{
+  "short": "Destroy the AWS EKS",
+  "long": "Destroy the AWS EKS by your Gitlab CI Pipeline"
+}
