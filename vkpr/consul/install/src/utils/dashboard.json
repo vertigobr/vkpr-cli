@@ -1825,7 +1825,11 @@
   ],
   "schemaVersion": 36,
   "style": "dark",
-  "tags": [],
+  "tags": [
+    "managed by vkpr",
+    "vkpr-consul",
+    "consul"
+  ],
   "templating": {
     "list": []
   },

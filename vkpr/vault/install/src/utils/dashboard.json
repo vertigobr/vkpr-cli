@@ -2310,7 +2310,9 @@
   "schemaVersion": 36,
   "style": "dark",
   "tags": [
-    "vault"
+    "vault",
+    "managed by vkpr",
+    "vkpr-vault"
   ],
   "templating": {
     "list": [

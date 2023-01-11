@@ -86,10 +86,10 @@ validateAlertManagerKey(){
 }
 
 validateAlertManagerSecret(){
-  if [[ "$1" =~ ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$ ]]; then
+  if [[ "$1" =~ ""|^[a-z0-9]([-a-z0-9]*[a-z0-9])?$ ]]; then
     return
   else
-    error "Invalid SSL Secret."
+    error "Invalid AlertManager-SSL Secret."
     exit
   fi
 }
@@ -149,10 +149,10 @@ validateGrafanaKey(){
 }
 
 validateGrafanaSecret(){
-  if [[ "$1" =~ ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$ ]]; then
+  if [[ "$1" =~ ""|^[a-z0-9]([-a-z0-9]*[a-z0-9])?$ ]]; then
     return
   else
-    error "Invalid SSL Secret."
+    error "Invalid Grafana-SSL Secret."
     exit
   fi
 }
@@ -194,10 +194,10 @@ validatePrometheusKey(){
 }
 
 validatePrometheusSecret(){
-  if [[ "$1" =~ ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$ ]]; then
+  if [[ "$1" =~ ""|^[a-z0-9]([-a-z0-9]*[a-z0-9])?$ ]]; then
     return
   else
-    error "Invalid SSL Secret."
+    error "Invalid Prometheus-SSL Secret."
     exit
   fi
 }
