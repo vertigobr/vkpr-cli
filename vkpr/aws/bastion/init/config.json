@@ -13,6 +13,14 @@
       ]
     },
     {
+      "tutorial": "Specifies Project Name",
+      "label": "Project Name:",
+      "name": "PROJECTNAME",
+      "type": "text",
+      "required": true
+     },
+
+    {
       "tutorial": "Specifies your Gitlab Username",
       "condition": {
         "variable": "provider",
@@ -82,62 +90,41 @@
       }
     },
     {
-      "tutorial": "Specifies the EKS Cluster name",
-      "label": "EKS cluster name:",
-      "name": "cluster_name",
+      "tutorial": "Specifies the image (AMI)",
+      "label": "image (AMI):",
+      "name": "IMAGE",
       "type": "text",
-      "default": "eks-sample",
-      "required": true,
-      "cache": {
-        "active": true,
-        "qty": 2,
-        "newLabel": "Type another EKS cluster name"
-      },
-      "pattern": {
-        "regex": "^([A-Za-z0-9-]+)$",
-        "mismatchText": "Invalid Cluster name"
-      }
-    },
-    {
-      "tutorial": "Specifies the EKS Kubernetes Version",
-      "label": "K8s version",
-      "name": "k8s_version",
+      "required": true
+     },
+     {
+      "tutorial": "Specifies key to acess ec2",
+      "label": "key-pair:",
+      "name": "KEYNAME",
       "type": "text",
-      "default": "1.23",
-      "required": true,
-      "items": [
-        "1.23",
-        "1.22",
-        "1.21",
-        "1.20"
-      ]
-    },
+      "required": true
+     },
     {
-      "tutorial": "Specifies the EKS Node instance type ",
-      "label": "Choose nodes instance type:",
-      "name": "cluster_node_instance_type",
+      "tutorial": "Specifies the instance type ",
+      "label": "Choose instance type:",
+      "name": "instance_type",
       "type": "text",
       "default": "t3",
       "required": true,
       "items": [
         "t3",
         "t3a",
-        "t4g",
-        "m5",
-        "m5a",
-        "m6i",
-        "m6g"
+        "t4g"
       ]
     },
     {
-      "tutorial": "Specifies the EKS Node instance size: ",
+      "tutorial": "Specifies instance size: ",
       "condition": {
-        "variable": "cluster_node_instance_type",
+        "variable": "instance_type",
         "operator": "containsAny",
         "value": "t"
       },
-      "label": "Choose nodes instance size: ",
-      "name": "cluster_node_instance_size",
+      "label": "Choose instance size: ",
+      "name": "cluster_instance_size",
       "type": "text",
       "default": "small",
       "items": [
@@ -146,48 +133,7 @@
         "large"
       ]
     },
-    {
-      "tutorial": "Specifies the EKS Node instance size: ",
-      "condition": {
-        "variable": "cluster_node_instance_type",
-        "operator": "containsAny",
-        "value": "m"
-      },
-      "label": "Choose nodes instance size: ",
-      "name": "cluster_node_instance_size",
-      "type": "text",
-      "default": "large",
-      "items": [
-        "large",
-        "xlarge",
-        "2xlarge"
-      ]
-    },
-    {
-      "tutorial": "Specifies the number of Nodes",
-      "label": "Desired number of nodes:",
-      "name": "cluster_size",
-      "type": "text",
-      "default": "1",
-      "required": true,
-      "pattern": {
-        "regex": "^([0-9])$",
-        "mismatchText": "Invalid number of nodes"
-      }
-    },
-    {
-      "tutorial": "Specifies the Node Group capacity type",
-      "label": "Choose the capacity type from the nodes:",
-      "name": "capacity_type",
-      "type": "text",
-      "default": "on_demand",
-      "required": true,
-      "items": [
-        "on_demand",
-        "spot"
-      ]
-    },
-    {
+     {
       "tutorial": "Specifies where you want to store the TF state",
       "label": "Choose where to store the state of Terraform:",
       "name": "terraform_state",
@@ -219,8 +165,7 @@
       "s3",
       "gitlab"
     ]
-  },
-    
+    },
     {
       "tutorial": "Specifies your Terraform Backend Bucket",
       "label": "Specifies your Terraform Backend Bucket",
@@ -244,7 +189,6 @@
       "type": "CREDENTIAL_TERRAFORMCLOUD_TOKEN",
       "required": false
     },
-
     {
       "tutorial": "Specifies the AWS Access Key Credential",
       "name": "aws_access_key",

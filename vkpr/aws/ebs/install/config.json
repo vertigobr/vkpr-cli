@@ -1,0 +1,27 @@
+{
+  "inputs": [
+    {
+      "tutorial": "Specifies EKS-Cluster Name",
+      "label": "EKS-Cluster Name:",
+      "name": "EKS_CLUSTERNAME",
+      "type": "text",
+      "required": true
+    },
+    {
+      "tutorial": "Specifies the AWS Region to set the environment",
+      "name": "aws_region",
+      "type": "CREDENTIAL_AWS_REGION",
+      "required": true
+    },
+    {
+      "tutorial": "Specifies account id",
+      "label": "AWS_ACCOUNT ID",
+      "name": "AWS_ACCOUNTID",
+      "type": "text",
+      "required": true
+      
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease:": "2.16.2"
+}
