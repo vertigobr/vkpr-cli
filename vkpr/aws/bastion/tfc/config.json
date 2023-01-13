@@ -1,0 +1,16 @@
+{
+  "inputs": [
+    {
+      "tutorial": "Specifies your Terraform Cloud email",
+      "name": "terraformcloud_email",
+      "type": "CREDENTIAL_TERRAFORMCLOUD_EMAIL"
+    },
+    {
+      "tutorial": "Specifies your Terraform Cloud Token",
+      "name": "terraformcloud_api_token",
+      "type": "CREDENTIAL_TERRAFORMCLOUD_TOKEN"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease": "2.17.0"
+}

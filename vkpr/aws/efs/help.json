@@ -1,0 +1,4 @@
+{
+  "short": "Deploy AWS EKS with Gitops",
+  "long": "Deploy the AWS EKS by your Gitlab CI Pipeline. The KUBECONFIG will be in the Artifacts on the pipeline"
+}

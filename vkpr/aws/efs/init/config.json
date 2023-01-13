@@ -1,0 +1,82 @@
+{
+  "inputs": [
+    {
+      "tutorial": "Specifies the AWS Access Key Credential",
+      "name": "aws_access_key",
+      "type": "CREDENTIAL_AWS_ACCESSKEYID"
+    },
+    {
+      "tutorial": "Specifies the AWS Secret Key Credential",
+      "name": "aws_secret_key",
+      "type": "CREDENTIAL_AWS_SECRETACCESSKEY"
+    },
+    {
+      "tutorial": "Specifies the AWS Region to set the environment",
+      "name": "aws_region",
+      "type": "CREDENTIAL_AWS_REGION"
+    },
+    {
+      "tutorial": "Specifies the RDS instance name",
+      "label": "RDS instance name:",
+      "name": "instance_name",
+      "type": "text",
+      "default": "rds-sample",
+      "required": true,
+      "pattern": {
+        "regex": "^([A-Za-z0-9-]+)$",
+        "mismatchText": "Invalid Cluster name"
+      }
+    },
+    {
+      "tutorial": "Specifies the RDS instance type",
+      "label": "Choose RDS instance type:",
+      "name": "instance_type",
+      "type": "text",
+      "default": "db.t3.micro",
+      "required": true,
+      "items": [
+        "db.t3.micro",
+        "db.m5.large",
+        "db.m5.xlarge",
+        "db.t4g.micro",
+        "db.m6g.large",
+        "db.m6g.xlarge"
+      ]
+    },
+    {
+      "tutorial": "Specifies the name of the new database",
+      "label": "Type the new database name:",
+      "name": "dbname",
+      "type": "text",
+      "required": true,
+      "default": "vkprDb"
+    },
+    {
+      "tutorial": "Specifies the username of the database owner",
+      "label": "Type the db user name:",
+      "name": "dbuser",
+      "type": "text",
+      "required": true,
+      "default": "vkprUser"
+    },
+    {
+      "tutorial": "Specifies the database owner's user password",
+      "label": "Type the db user's password:",
+      "name": "dbpassword",
+      "type": "text",
+      "required": true,
+      "default": "vkpr1234",
+      "pattern": {
+        "regex": "^([A-Za-z0-9-]{8,})$",
+        "mismatchText": "Invalid db user's password:"
+      }
+    },
+    {
+      "tutorial": "Specifies the Postgresql password",
+      "name": "password",
+      "type": "CREDENTIAL_POSTGRES_PASSWORD"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease": "2.17.0"
+}
