@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+source "$(dirname "$0")"/unix/formula/objects.sh
+
 runFormula() {
   local VKPR_ENV_VAULT_DOMAIN VKPR_VAULT_VALUES VKPR_VAULT_CONFIG HELM_ARGS;
   formulaInputs
@@ -124,9 +126,7 @@ settingVault() {
   if [[ "$VKPR_ENV_VAULT_SSL" == "true" ]]; then
     if [[ "$VKPR_ENV_VAULT_SSL_SECRET" == "" ]]; then
       VKPR_ENV_VAULT_SSL_SECRET="vault-certificate"
-      $VKPR_KUBECTL create secret tls $VKPR_ENV_VAULT_SSL_SECRET -n "$VKPR_ENV_VAULT_NAMESPACE" \
-        --cert="$VKPR_ENV_VAULT_SSL_CERTIFICATE" \
-        --key="$VKPR_ENV_VAULT_SSL_KEY"
+      createSslSecret "$VKPR_ENV_VAULT_SSL_SECRET" "$VKPR_ENV_VAULT_NAMESPACE" "$VKPR_ENV_VAULT_SSL_CERTIFICATE" "$VKPR_ENV_VAULT_SSL_KEY"
     fi
     YQ_VALUES="$YQ_VALUES |
       .server.ingress.tls[0].hosts[0] = \"$VKPR_ENV_VAULT_DOMAIN\" |
@@ -136,6 +136,7 @@ settingVault() {
 
   if [[ "$VKPR_ENV_VAULT_STORAGE_MODE" == "raft" ]]; then
     YQ_VALUES="$YQ_VALUES |
+      del(.server.ha.config) |
       .server.ha.raft.enabled = true
     "
     printf 'storage "raft" {
@@ -152,6 +153,9 @@ settingVault() {
   }
 }' >> "$VKPR_VAULT_CONFIG"
     else
+      YQ_VALUES="$YQ_VALUES |
+      del(.server.ha.raft.config) 
+      "
     printf 'storage "consul" {
   path = "vault"
   address = "consul-consul-server.%s.svc.cluster.local:8500"
