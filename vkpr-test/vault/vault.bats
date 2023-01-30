@@ -426,7 +426,7 @@ teardown() {
 #=======================================#
 #          AUTOUNSEAL SECTION           #
 #=======================================#
-@test "unseal vault application" {
+@test "unseal vault application and checking API" {
 
   local i=0 \
     timeout=50 \
@@ -474,7 +474,20 @@ teardown() {
       i=$((i+1))
     fi
   done
+  export VAULT_ROOT_TOKEN=$(cat vault-auto-unseal-keys.txt | grep root_token | tr -s '[:space:]' ' ' | cut -d " " -f2)
   rm vault-auto-unseal-keys.txt
+
+  # testing API requests
+
+  $VKPR_KUBECTL exec -it -n vkpr vault-0 -- vault login $VAULT_ROOT_TOKEN && \
+  $VKPR_KUBECTL exec -it -n vkpr vault-0 -- vault secrets enable -version=1 kv && \
+  $VKPR_KUBECTL exec -it -n vkpr vault-0 -- vault kv put kv/path key=secretpassword 
+
+  curl -s -H "X-Vault-Token: $VAULT_ROOT_TOKEN" -X GET http://vault.localhost:8000/v1/kv/path
+
+  SECRET=$(curl -s -H "X-Vault-Token: $VAULT_ROOT_TOKEN" -X GET http://vault.localhost:8000/v1/kv/path | jq .data.key)
+  run echo $SECRET
+  assert_output "\"secretpassword\""
 }
 
 #=======================================#
