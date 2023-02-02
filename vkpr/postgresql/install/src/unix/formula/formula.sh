@@ -36,6 +36,7 @@ formulaInputs() {
   checkGlobalConfig "$HA" "false" "postgresql.HA" "POSTGRESQL_HA"
   checkGlobalConfig "false" "false" "postgresql.metrics" "POSTGRESQL_METRICS"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "postgresql.namespace" "POSTGRESQL_NAMESPACE"
+  checkGlobalConfig "8Gi" "8Gi" "postgresql.persistanceSize" "POSTGRESQL_VOLUME_SIZE"
 
   # External apps values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "GRAFANA_NAMESPACE"
@@ -46,12 +47,15 @@ validateInputs() {
   validatePostgresqlHA "$VKPR_ENV_POSTGRESQL_HA"
   validatePostgresqlMetrics "$VKPR_ENV_POSTGRESQL_METRICS"
   validatePostgresqlNamespace "$VKPR_ENV_POSTGRESQL_NAMESPACE"
+
+  validatePostgresqlVolumeSize "$VKPR_ENV_POSTGRESQL_VOLUME_SIZE"
 }
 
 settingPostgresql() {
   YQ_VALUES=".fullnameOverride = \"postgres-postgresql\" |
     .global.postgresql.auth.postgresPassword = \"$PG_PASSWORD\" |
-    .global.postgresql.auth.database = \"postgres\"
+    .global.postgresql.auth.database = \"postgres\" |
+    .primary.persistence.size = \"$VKPR_ENV_POSTGRESQL_VOLUME_SIZE\"
   "
 
   if [[ "$VKPR_ENV_POSTGRESQL_METRICS" == "true" ]] && [[ $(checkPodName "$VKPR_ENV_GRAFANA_NAMESPACE" "prometheus-stack-grafana") == "true" ]]; then
@@ -78,6 +82,7 @@ settingPostgresqlProvider(){
       .primary.persistence.size = \"2Gi\"
     "
   fi
+
 }
 
 settingPostgresqlHA() {
@@ -106,7 +111,8 @@ settingPostgresqlHA() {
     .pgpool.topologySpreadConstraints[0].whenUnsatisfiable = \"ScheduleAnyway\" |
     .pgpool.topologySpreadConstraints[0].labelSelector.matchLabels.[\"app.kubernetes.io/managed-by\"] = \"vkpr\" |
     .pgpool.pdb.create = \"true\" |
-    .pgpool.pdb.minAvailable = \"1\"
+    .pgpool.pdb.minAvailable = \"1\" |
+    .persistence.size = \"$VKPR_ENV_POSTGRESQL_VOLUME_SIZE\"
   "
 
   if [[ "$VKPR_ENV_POSTGRESQL_METRICS" == "true" ]] && [[ $(checkPodName "$VKPR_ENV_GRAFANA_NAMESPACE" "prometheus-stack-grafana") == "true" ]]; then
