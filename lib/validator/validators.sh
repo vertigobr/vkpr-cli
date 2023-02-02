@@ -72,3 +72,11 @@ local REG='^(https?|ftp|file)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%
   fi
   echo "false"
 }
+
+validateVolume(){
+  if [[ $1 =~ ^([0-9]{1,4}+Gi)$ ]]; then
+    echo "true"
+    return
+  fi
+  echo "false"
+}
