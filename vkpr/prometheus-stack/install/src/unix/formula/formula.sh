@@ -43,10 +43,13 @@ formulaInputs() {
     checkGlobalConfig "" "" "prometheus-stack.alertManager.ssl.crt" "ALERTMANAGER_SSL_CERTIFICATE"
     checkGlobalConfig "" "" "prometheus-stack.alertManager.ssl.key" "ALERTMANAGER_SSL_KEY"
     checkGlobalConfig "" "" "prometheus-stack.alertManager.ssl.secretName" "ALERTMANAGER_SSL_SECRET"
+    checkGlobalConfig "false" "false" "prometheus-stack.alertManager.persistence.enabled" "ALERTMANAGER_PERSISTENCE"
+    [ "$VKPR_ENV_ALERTMANAGER_PERSISTENCE" = true ] && checkGlobalConfig "2Gi" "2Gi" "prometheus-stack.alertManager.persistence.size" "ALERTMANAGER_VOLUME_SIZE"
   fi
   ## Grafana
   checkGlobalConfig "$GRAFANA_PASSWORD" "vkpr123" "prometheus-stack.grafana.adminPassword" "GRAFANA_PASSWORD"
-  checkGlobalConfig "false" "false" "prometheus-stack.grafana.persistence" "GRAFANA_PERSISTENCE"
+  checkGlobalConfig "false" "false" "prometheus-stack.grafana.persistence.enabled" "GRAFANA_PERSISTENCE"
+  [ "$VKPR_ENV_GRAFANA_PERSISTENCE" = true ] && checkGlobalConfig "8Gi" "8Gi" "prometheus-stack.grafana.persistence.size" "GRAFANA_VOLUME_SIZE" 
   checkGlobalConfig "$SSL" "false" "prometheus-stack.grafana.ssl.enabled" "GRAFANA_SSL"
   if [[ "$VKPR_ENV_GRAFANA_SSL" = true ]]; then
     checkGlobalConfig "$CRT_FILE" "" "prometheus-stack.grafana.ssl.crt" "GRAFANA_SSL_CERTIFICATE"
@@ -55,7 +58,8 @@ formulaInputs() {
   fi
   ## Prometheus
   checkGlobalConfig "false" "false" "prometheus-stack.prometheus.enabled" "PROMETHEUS"
-  checkGlobalConfig "false" "false" "prometheus-stack.prometheus.persistence" "PROMETHEUS_PERSISTENCE"
+  checkGlobalConfig "false" "false" "prometheus-stack.prometheus.persistence.enabled" "PROMETHEUS_PERSISTENCE"
+  [ "$VKPR_ENV_PROMETHEUS_PERSISTENCE" = true ] && checkGlobalConfig "8Gi" "8Gi" "prometheus-stack.prometheus.persistence.size" "PROMETHEUS_VOLUME_SIZE"  
   if [[ "$VKPR_ENV_PROMETHEUS" = true ]]; then
     checkGlobalConfig "false" "false" "prometheus-stack.prometheus.ssl.enabled" "PROMETHEUS_SSL"
     checkGlobalConfig "" "" "prometheus-stack.prometheus.ssl.crt" "PROMETHEUS_SSL_CERTIFICATE"
@@ -83,6 +87,8 @@ validateInputs() {
   validateAlertManagerEnabled "$VKPR_ENV_ALERTMANAGER"
   if [[ "$VKPR_ENV_ALERTMANAGER" = true ]]; then
     validateAlertManagerSSL "$VKPR_ENV_ALERTMANAGER_SSL"
+    validateAlertManagerPersistance "$VKPR_ENV_ALERTMANAGER_PERSISTENCE"
+    [ "$VKPR_ENV_ALERTMANAGER_PERSISTENCE" = true ] && validateAlertManagerVolumeSize "$VKPR_ENV_ALERTMANAGER_VOLUME_SIZE"
     if [[ "$VKPR_ENV_ALERTMANAGER_SSL" = true ]]; then
       validateAlertManagerCertificate "$VKPR_ENV_ALERTMANAGER_SSL_CERTIFICATE"
       validateAlertManagerKey "$VKPR_ENV_ALERTMANAGER_SSL_KEY"
@@ -93,6 +99,7 @@ validateInputs() {
   validateGrafanaPwd "$VKPR_ENV_GRAFANA_PASSWORD"
   validatePrometheusK8S "$VKPR_ENV_PROMETHEUS_STACK_EXPORTERS"
   validateGrafanaPersistance "$VKPR_ENV_GRAFANA_PERSISTENCE"
+  [ "$VKPR_ENV_GRAFANA_PERSISTENCE" = true ] && validateGrafanaVolumeSize "$VKPR_ENV_GRAFANA_VOLUME_SIZE"
   validateGrafanaSSL "$VKPR_ENV_GRAFANA_SSL"
   if [[ "$VKPR_ENV_GRAFANA_SSL" = true ]]; then
     validateGrafanaCertificate "$VKPR_ENV_GRAFANA_SSL_CERTIFICATE"
@@ -110,6 +117,7 @@ validateInputs() {
     fi
   fi
   validatePrometheusPersistance "$VKPR_ENV_PROMETHEUS_PERSISTENCE"
+  [ "$VKPR_ENV_PROMETHEUS_PERSISTENCE" = true ] && validatePrometheusVolumeSize "$VKPR_ENV_PROMETHEUS_VOLUME_SIZE"
   # External app values
   validateLokiNamespace "$VKPR_ENV_LOKI_NAMESPACE"
 }
@@ -187,7 +195,7 @@ settingGrafanaValues() {
   if [[ "$VKPR_ENV_GRAFANA_PERSISTENCE" == true ]]; then
     YQ_VALUES="$YQ_VALUES |
       .grafana.persistence.enabled = true |
-      .grafana.persistence.size = \"8Gi\"
+      .grafana.persistence.size = \"$VKPR_ENV_GRAFANA_VOLUME_SIZE\"
     "
   fi
 
@@ -251,7 +259,7 @@ settingPrometheusValues() {
   if [[ "$VKPR_ENV_PROMETHEUS_PERSISTENCE" == true ]]; then
     YQ_VALUES="$YQ_VALUES |
       .prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.accessModes[0] = \"ReadWriteOnce\" |
-      .prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage = \"8Gi\"
+      .prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage = \"$VKPR_ENV_PROMETHEUS_VOLUME_SIZE\"
     "
   fi
 }
@@ -269,6 +277,12 @@ settingAlertManagerValues() {
       .alertmanager.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
       .alertmanager.ingress.tls[0].hosts[0] = \"$VKPR_ENV_ALERT_MANAGER_DOMAIN\" |
       .alertmanager.ingress.tls[0].secretName = \"alertmanager-cert\"
+    "
+  fi
+
+  if [[ "$VKPR_ENV_ALERTMANAGER_PERSISTENCE" == true ]]; then
+    YQ_VALUES="$YQ_VALUES |
+      .alertmanager.alertmanagerSpec.storage.volumeClaimTemplate.spec.resources.requests.storage =\"$VKPR_ENV_ALERTMANAGER_VOLUME_SIZE\" 
     "
   fi
 
