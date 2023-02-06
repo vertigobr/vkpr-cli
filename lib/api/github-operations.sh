@@ -106,3 +106,14 @@ curl \
   "https://api.github.com/repos/${VAR_OWNER_AND_REPO}/actions/workflows/terraform-destroy.yaml/dispatches" \
   -d '{"ref":"refs/heads/master"}'
 }
+
+githubDownloadArtefac(){
+local VAR_REPO_NAME=$1
+local VAR_SECRET=$2
+local ARTIFACT_ID=$3
+curl \
+  -X POST \
+  -H "Accept: application/vnd.github.v3+json" \
+  -H "Authorization: Bearer $VAR_SECRET" \
+  "https://api.github.com/repos/${VAR_OWNER_AND_REPO}/actions/artifacts/${ARTIFACT_ID}" 
+}
