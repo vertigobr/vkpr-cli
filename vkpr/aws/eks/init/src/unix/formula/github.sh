@@ -55,6 +55,7 @@ setVariablesGHUB() {
   githubActionsCreateUpdateSecret "$VAR_PROJECT_NAME" "AWS_ACCESS_KEY" "$AWS_ACCESS_KEY" "$PUBLIC_KEY" "$GITHUB_USERNAME" "$GITHUB_TOKEN"
   githubActionsCreateUpdateSecret "$VAR_PROJECT_NAME" "AWS_SECRET_KEY" "$AWS_SECRET_KEY" "$PUBLIC_KEY" "$GITHUB_USERNAME" "$GITHUB_TOKEN"
   githubActionsCreateUpdateSecret "$VAR_PROJECT_NAME" "AWS_REGION" "$AWS_REGION" "$PUBLIC_KEY" "$GITHUB_USERNAME" "$GITHUB_TOKEN"
+  githubActionsCreateUpdateSecret "$VAR_PROJECT_NAME" "INFRACOST_API_KEY" "$INFRACOST_API_KEY" "$PUBLIC_KEY" "$GITHUB_USERNAME" "$GITHUB_TOKEN"
 
 
   cd "$VKPR_HOME" || exit
@@ -157,6 +158,10 @@ setVariablesGHUB() {
     sed -i "/aws_availability_zones/c aws_availability_zones: [\"sa-east-1a\",\"sa-east-1b\",\"sa-east-1c\"]" "$VKPR_HOME"/aws-eks/config/defaults.yml
     ;;
   esac
+
+    .node_groups.${CLUSTER_NAME}.capacity_type = \"${CAPACITY_TYPE^^}\"
+  " config/defaults.yml
+
   ### CONFIGURADO BACKEND S3
   if [ $TERRAFORM_STATE == "s3" ]; then
   printf "terraform { \n  backend \"s3\" { \n    bucket = \"${BUCKET_TERRAFORM}\" \n    key    = \"${BUCKET_TERRAFORM}.tfstate\" \n    region = \"${AWS_REGION}\" \n  }\n}" > backend.tf

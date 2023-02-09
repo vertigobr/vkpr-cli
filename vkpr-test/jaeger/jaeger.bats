@@ -5,12 +5,6 @@
 export DETIK_CLIENT_NAMESPACE="vkpr"
 load '../.bats/common.bats'
 
-setup() {
-  load "$VKPR_HOME/bats/bats-support/load"
-  load "$VKPR_HOME/bats/bats-assert/load"
-  load "$VKPR_HOME/bats/bats-detik/load"
-  load "$VKPR_HOME/bats/bats-file/load"
-}
 
 setup_file() {
   touch $PWD/vkpr.yaml
