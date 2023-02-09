@@ -114,3 +114,4 @@ verifyActualEnv() {
     eval "VKPR_ENVIRONMENT"="okteto"
   fi
 }
+

@@ -1221,6 +1221,9 @@
   "schemaVersion": 36,
   "style": "dark",
   "tags": [
+    "managed by vkpr",
+    "vkpr-postgresql",
+    "postgresql",
     "postgres"
   ],
   "templating": {

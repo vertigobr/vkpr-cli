@@ -27,7 +27,7 @@ startInfos() {
   boldNotice "Secure: $VKPR_ENV_GLOBAL_SECURE"
   boldNotice "Namespace: $VKPR_ENV_ARGOCD_NAMESPACE"
   boldNotice "HA: $VKPR_ENV_ARGOCD_HA"
-  boldNotice "Ingress Controller: $VKPR_ENV_ARGOCD_INGRESS"
+  boldNotice "Ingress Controller: $VKPR_ENV_ARGOCD_INGRESS_CLASS_NAME"
   bold "=============================="
 }
 

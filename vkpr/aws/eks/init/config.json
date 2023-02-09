@@ -191,14 +191,34 @@
       "tutorial": "Specifies where you want to store the TF state",
       "label": "Choose where to store the state of Terraform:",
       "name": "terraform_state",
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "github"
+      },
       "type": "text",
       "default": "s3",
       "required": false,
       "items": [
-        "s3",
-        "gitlab",
-        "terraform-cloud"
+        "s3"
       ]
+    },
+    {
+    "tutorial": "Specifies where you want to store the TF state",
+    "label": "Choose where to store the state of Terraform:",
+    "name": "terraform_state",
+    "condition": {
+      "variable": "provider",
+      "operator": "==",
+      "value": "gitlab"
+    },
+    "type": "text",
+    "default": "s3",
+    "required": false,
+    "items": [
+      "s3",
+      "gitlab"
+    ]
     },
     {
       "tutorial": "Specifies your Terraform Backend Bucket",
@@ -209,6 +229,36 @@
         "value": "s3"
       },
       "name": "bucket_terraform",
+      "type": "text",
+      "required": true
+    },
+    {
+      "tutorial": "Enable Infracost Pipeline",
+      "label": "Enable Infracost Pipeline:",
+      "name": "infracost",
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "github"
+      },
+      "type": "text",
+      "default": "false",
+      "required": false,
+      "items": [
+        "false",
+        "true"
+      ]
+    },
+
+     {
+      "tutorial": "Specifies the Infracost api key",
+      "label": "Specifies the Infracost api key",
+      "name": "infracostkey",
+      "condition": {
+        "variable": "infracost",
+        "operator": "==",
+        "value": "true"
+      },
       "type": "text",
       "required": true
     },

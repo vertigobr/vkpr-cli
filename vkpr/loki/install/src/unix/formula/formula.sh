@@ -115,7 +115,9 @@ createGrafanaDatasource() {
     return
   fi
 
+  local LOKI_DATASOURCE=$($VKPR_JQ -e ".url = \"loki.$VKPR_ENV_LOKI_NAMESPACE:3100\"" "$(dirname "$0")"/utils/datasource.json)
+
   curl -sK -X -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN_API_GRAFANA" \
-  -d @"$(dirname "$0")"/utils/datasource.json \
+  -d "$LOKI_DATASOURCE" \
   http://$GRAFANA_ADDRESS/api/datasources > /dev/null && info "Loki Datasource Added"
 }

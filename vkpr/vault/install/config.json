@@ -44,7 +44,7 @@
     },
     {
       "tutorial": "Specifies if the vault will be using internal SSL certificates.",
-      "label": "Do you will use SSL?",
+      "label": "Will you use SSL?",
       "name": "ssl",
       "type": "bool",
       "default": "false",

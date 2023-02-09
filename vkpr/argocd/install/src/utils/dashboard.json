@@ -1415,7 +1415,11 @@
   "refresh": "5s",
   "schemaVersion": 36,
   "style": "dark",
-  "tags": [],
+  "tags": [
+    "managed by vkpr",
+    "vkpr-argocd",
+    "argocd"
+  ],
   "templating": {
     "list": [
       {
