@@ -160,11 +160,11 @@ setVariablesGHUB() {
   esac
 
     .node_groups.${CLUSTER_NAME}.capacity_type = \"${CAPACITY_TYPE^^}\"
-  " config/defaults.yml
+  " config/defaults.yml"
 
   ### CONFIGURADO BACKEND S3
   if [ $TERRAFORM_STATE == "s3" ]; then
-  printf "terraform { \n  backend \"s3\" { \n    bucket = \"${BUCKET_TERRAFORM}\" \n    key    = \"vkpr/${CLUSTER_NAME}.tfstate\" \n    region = \"${AWS_REGION}\" \n  }\n}" > backend.tf
+  printf "terraform { \n  backend \"s3\" { \n    bucket = \"${BUCKET_TERRAFORM}\" \n    key    = \" vkpr/${CLUSTER_NAME}.tfstate \" \n    region = \"${AWS_REGION}\" \n  }\n}" > backend.tf
   cat backend.tf
   fi
   cat "$VKPR_HOME"/aws-eks/config/defaults.yml
