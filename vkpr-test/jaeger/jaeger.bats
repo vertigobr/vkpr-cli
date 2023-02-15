@@ -467,6 +467,11 @@ createFileSSL() {
 
   rit vkpr prometheus-stack install --default && \
   rit vkpr jaeger install --default
+
+  prometheus_service_monitor_name=$($VKPR_KUBECTL get servicemonitor -n vkpr | grep jaeger-query | tr -s '[:space:]' ' ' | cut -d " " -f2)
+  run echo $prometheus_service_monitor_name 
+  assert_output "jaeger-query"
+
 }
 
 # validating jaeger metrics: true
@@ -478,7 +483,7 @@ createFileSSL() {
   assert_output "200"
   assert_success
 
-  RESPONSE=$(curl prometheus.localhost:8000/api/v1/query?query=jaeger_rpc_http_requests_total_r jq .status)
+  RESPONSE=$(curl prometheus.localhost:8000/api/v1/query?query=jaeger_rpc_http_requests_total jq .status)
 
   run echo $RESPONSE
   assert_output "\"success\""
