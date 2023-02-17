@@ -4,6 +4,7 @@ source "$(dirname "$0")"/unix/formula/objects.sh
 settingKong() {
   local PG_HOST="postgres-postgresql.${VKPR_ENV_POSTGRESQL_NAMESPACE}"
   local PG_SECRET="postgres-postgresql"
+  local SCRT_VOL_COUNT=0
 
   if $VKPR_KUBECTL get pod -n "$VKPR_ENV_POSTGRESQL_NAMESPACE" | grep -q pgpool; then
     PG_HOST="postgres-postgresql-pgpool.${VKPR_ENV_POSTGRESQL_NAMESPACE}"
@@ -34,7 +35,7 @@ settingKong() {
     $VKPR_YQ eval ".spec.dnsNames[0] = \"$VKPR_ENV_GLOBAL_DOMAIN\"" "$(dirname "$0")"/utils/proxy-certificate.yaml |\
       $VKPR_KUBECTL apply -n $VKPR_ENV_KONG_NAMESPACE -f -
     YQ_VALUES="$YQ_VALUES |
-      .secretVolumes[0] = \"proxy-kong-cert\" |
+      .secretVolumes[$SCRT_VOL_COUNT] = \"proxy-kong-cert\" |
       .env.ssl_cert = \"/etc/secrets/proxy-kong-cert/tls.crt\" |
       .env.ssl_cert_key = \"/etc/secrets/proxy-kong-cert/tls.key\" |
       .env.portal_gui_protocol = \"https\" |
@@ -52,6 +53,7 @@ settingKong() {
       .portalapi.ingress.annotations.[\"konghq.com/protocols\"] = \"https\" |
       .portalapi.ingress.tls = \"portalapi-kong-cert\"
     "
+    ((SCRT_VOL_COUNT+=1))
   fi
 
   if [[ "$VKPR_ENV_KONG_METRICS" == "true" ]] && [[ $(checkPodName "$VKPR_ENV_GRAFANA_NAMESPACE" "prometheus-stack-grafana") == "true" ]]; then
@@ -79,11 +81,12 @@ settingKong() {
   
   if [[ "$VKPR_ENV_KONG_ENTERPRISE_LICENSE" != "null" ]]; then
     YQ_VALUES="$YQ_VALUES |
-      .secretVolumes[0] = \"kong-keyring-cert\" |
+      .secretVolumes[$SCRT_VOL_COUNT] = \"kong-keyring-cert\" |
       .env.kong_keyring_enabled = \"on\" |
       .env.kong_keyring_strategy = \"cluster\" |
       .env.kong_keyring_recovery_public_key = \"/etc/secrets/kong-keyring-cert/key.pem\" 
     "
+    ((SCRT_VOL_COUNT+=1))
   fi
 
   if [[ "$VKPR_ENV_KONG_HA" == "true" ]]; then
