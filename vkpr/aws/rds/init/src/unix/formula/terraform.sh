@@ -31,7 +31,7 @@ setVariablesGHUB() {
 
 
   cd "$VKPR_HOME" || exit
-  git clone https://github.com/vertigobr/aws-eks.git
+  git clone https://github.com/vertigobr/aws_rds.git
   cd aws-eks 
   rm -rf .git
   git init 
