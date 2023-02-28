@@ -123,3 +123,21 @@ execScriptsOnPod() {
     rm /tmp/script.sh
   "
 }
+
+## Remove secrets of a specific application from kubernetes cluster
+# Parameters:
+# 1 - APP_NAME
+# 2 - APP_NAMESPACE
+secretRemove (){
+  local APP_NAME=$1 \
+        APP_NAMESPACE=$2 \
+        STD_OUT
+
+  info "Removing $APP_NAME secrets..."    
+  for secret in $($VKPR_KUBECTL get secret -n $APP_NAMESPACE -l app.kubernetes.io/managed-by=vkpr 2> /dev/null | awk 'NR>1{print $1}' | grep $APP_NAME) 
+  do
+    STD_OUT=$($VKPR_KUBECTL delete secret/$secret -n $APP_NAMESPACE 2> /dev/null)
+    debug $STD_OUT
+  done
+  echo "secrets from \"$APP_NAME\" have been removed"
+}
