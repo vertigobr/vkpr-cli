@@ -1,14 +1,78 @@
 {
   "inputs": [
     {
+      "tutorial": "Specifies where you want to store",
+      "label": "Choose where to store the repository Git/pipeline:",
+      "name": "provider",
+      "type": "text",
+      "default": "github",
+      "required": false,
+      "items": [
+        "github",
+        "gitlab"
+      ]
+    },
+    {
+      "tutorial": "Specifies your Gitlab Username",
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "gitlab"
+      },
+      "name": "gitlab_username",
+      "type": "CREDENTIAL_GITLAB_USERNAME"
+    },
+    {
+      "tutorial": "Specifies your Github Username",
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "github"
+      },
+      "name": "github_username",
+      "type": "CREDENTIAL_GITHUB_USERNAME"
+    },
+    {
       "tutorial": "Specifies your Gitlab Access-Token",
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "gitlab"
+      },
       "name": "gitlab_token",
       "type": "CREDENTIAL_GITLAB_TOKEN"
     },
     {
-      "tutorial": "Specifies your Gitlab Username",
-      "name": "gitlab_username",
-      "type": "CREDENTIAL_GITLAB_USERNAME"
+      "tutorial": "Specifies your Github Access-Token",
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "github"
+      },
+      "name": "github_token",
+      "type": "CREDENTIAL_GITHUB_TOKEN"
+    },
+    {
+      "tutorial": "Specifies the Cluster name",
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "github"
+      },
+      "label": "Type the Cluster name:",
+      "name": "cluster_name",
+      "type": "text",
+      "default": "do-sample",
+      "required": true,
+      "cache": {
+        "active": true,
+        "qty": 2,
+        "newLabel": "Type another cluster name"
+      },
+      "pattern": {
+        "regex": "^([A-Za-z0-9-]+)$",
+        "mismatchText": "Invalid Cluster name"
+      }
     }
   ],
   "template": "shell-bat",
