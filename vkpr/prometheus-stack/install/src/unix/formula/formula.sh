@@ -15,6 +15,7 @@ runFormula() {
   settingPrometheusStack
   [ $DRY_RUN = false ] && registerHelmRepository prometheus-community https://prometheus-community.github.io/helm-charts
   installApplication "prometheus-stack" "prometheus-community/kube-prometheus-stack" "$VKPR_ENV_PROMETHEUS_STACK_NAMESPACE" "$VKPR_PROMETHEUS_STACK_VERSION" "$VKPR_PROMETHEUS_VALUES" "$HELM_ARGS"
+  $VKPR_KUBECTL label secret/prometheus-stack-kube-prom-admission app.kubernetes.io/managed-by=vkpr -n $VKPR_ENV_PROMETHEUS_STACK_NAMESPACE
   importDashboard "$VKPR_LOKI_DASHBOARD" "$VKPR_ENV_PROMETHEUS_STACK_NAMESPACE"
   [ $DRY_RUN = false ] && checkComands
 }
