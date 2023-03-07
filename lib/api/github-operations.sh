@@ -92,7 +92,7 @@ curl \
   -X POST \
   -H "Accept: application/vnd.github.v3+json" \
   -H "Authorization: Bearer $VAR_SECRET" \
-  "https://api.github.com/repos/${VAR_OWNER_AND_REPO}/actions/workflows/terraform-deploy.yaml/rerun" \
+  "https://api.github.com/repos/${VAR_OWNER_AND_REPO}/actions/workflows/terraform-deploy.yaml/dispatches" \
   -d '{"ref":"refs/heads/master"}'
 }
 
