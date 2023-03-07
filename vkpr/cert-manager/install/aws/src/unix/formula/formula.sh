@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-source "$(dirname "$0")"/unix/formula/commands-operators.sh
 
 runFormula() {
   local VKPR_CERT_MANAGER_VALUES VKPR_ISSUER_VALUES YQ_VALUES YQ_ISSUER_VALUES HELM_ARGS;

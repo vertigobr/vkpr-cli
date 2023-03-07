@@ -37,6 +37,17 @@
       ]
     },
     {
+      "tutorial": "Enable Loki to be installed",
+      "label": "Install Loki for logs?",
+      "name": "loki",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "false",
+        "true"
+      ]
+    },
+    {
       "tutorial": "Specifies if the application will have High Availability",
       "label": "HA ?",
       "name": "HA",

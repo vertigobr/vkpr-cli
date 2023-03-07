@@ -94,6 +94,15 @@ validateAlertManagerSecret(){
   fi
 }
 
+validateAlertManagerPersistance(){
+  if $(validateBool $1); then
+    return
+  else
+    error "The value used for VKPR_ENV_ALERTMANAGER_PERSISTANCE \"$1\" is invalid:  the VKPR_ENV_ALERTMANAGER_PERSISTANCE must consist of a boolean value."
+    exit
+  fi
+}
+
 validateGrafanaPwd() {
   if $(validatePwd $1); then
     return
@@ -225,6 +234,33 @@ validatePrometheusImportDashboardPath(){
     return
   else
     error "The value used for VKPR_ENV_DASHBOARD_PATH \"$1\" is invalid: VKPR_ENV_DASHBOARD_PATH must consist of lowercase, uppercase or '-' alphanumeric characters, (e.g. '/tmp/dashboard.json', regex used for validation is ^(\/[^\/]+){1,}\/?$)"
+    exit
+  fi
+}
+
+validatePrometheusVolumeSize(){
+  if $(validateVolume $1); then
+    return
+  else
+    error "The value used for VKPR_ENV_PROMETHEUS_VOLUME_SIZE \"$1\" is invalid: VKPR_ENV_PROMETHEUS_VOLUME_SIZE must consist of alphanumeric characters ending with \"Gi\", (e.g. '10Gi', regex used for validation is ^([0-9]{1,4}+Gi)$)"
+    exit
+  fi
+}
+
+validateGrafanaVolumeSize(){
+  if $(validateVolume $1); then
+    return
+  else
+    error "The value used for VKPR_ENV_GRAFANA_VOLUME_SIZE \"$1\" is invalid: VKPR_ENV_GRAFANA_VOLUME_SIZE must consist of alphanumeric characters ending with \"Gi\", (e.g. '10Gi', regex used for validation is ^([0-9]{1,4}+Gi)$)"
+    exit
+  fi
+}
+
+validateAlertManagerVolumeSize(){
+  if $(validateVolume $1); then
+    return
+  else
+    error "The value used for VKPR_ENV_PROMETHEUS_VOLUME_SIZE \"$1\" is invalid: VKPR_ENV_PROMETHEUS_VOLUME_SIZE must consist of alphanumeric characters ending with \"Gi\", (e.g. '10Gi', regex used for validation is ^([0-9]{1,4}+Gi)$)"
     exit
   fi
 }

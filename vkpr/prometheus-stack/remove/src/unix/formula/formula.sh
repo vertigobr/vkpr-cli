@@ -11,4 +11,7 @@ runFormula() {
 
   $VKPR_KUBECTL delete cm $HELM_FLAG --ignore-not-found=true -l grafana_dashboard=1,app.kubernetes.io/managed-by=vkpr > /dev/null
   $VKPR_HELM uninstall -n "$PROMETHEUS_STACK_NAMESPACE" prometheus-stack 2> /dev/null || error "VKPR Prometheus-stack not found"
+  secretRemove "prometheus" "$PROMETHEUS_STACK_NAMESPACE"
+  secretRemove "alertmanager" "$PROMETHEUS_STACK_NAMESPACE"
+  secretRemove "grafana" "$PROMETHEUS_STACK_NAMESPACE"
 }

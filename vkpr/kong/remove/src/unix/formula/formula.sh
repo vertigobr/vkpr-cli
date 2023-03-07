@@ -8,6 +8,7 @@ runFormula() {
                      head -n1)
 
   [ ! -z "$KONG_DP_NAMESPACE" ] && uninstallKongDP || uninstallKong
+  secretRemove "kong" "$KONG_NAMESPACE"
 }
 
 uninstallKong() {

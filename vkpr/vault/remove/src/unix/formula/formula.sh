@@ -10,5 +10,5 @@ runFormula() {
                      head -n1)
 
   $VKPR_HELM uninstall vault -n "$VAULT_NAMESPACE" 2> /dev/null || error "VKPR Vault not found"
-  $VKPR_KUBECTL delete secret $HELM_FLAG -l app.kubernetes.io/instance=vault,app.kubernetes.io/managed-by=vkpr > /dev/null
+  secretRemove "vault" "$VAULT_NAMESPACE"
 }
