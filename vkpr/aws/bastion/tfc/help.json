@@ -1,4 +1,0 @@
-{
-  "short": "Build AWS EKS with Gitops and Terraform Cloud",
-  "long": "Build the terraform module in your Gitlab CI Pipeline forked by a AWS EKS project with a Backend in Terraform Cloud"
-}

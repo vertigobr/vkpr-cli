@@ -1,4 +1,0 @@
-{
-  "short": "Remove Loki",
-  "long": "Remove the Loki and its dependencies from the Kubernetes cluster"
-}
