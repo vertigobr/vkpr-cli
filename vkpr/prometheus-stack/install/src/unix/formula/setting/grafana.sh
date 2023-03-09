@@ -6,6 +6,10 @@ settingGrafanaValues() {
    .grafana.ingress.ingressClassName = \"$VKPR_ENV_PROMETHEUS_STACK_INGRESS_CLASS_NAME\"
   "
 
+  YQ_VALUES="$YQ_VALUES |
+   .grafana.sidecar.datasources.uid = \"prometheus\" |
+   .grafana.sidecar.datasources.url = \"http://prometheus-stack-kube-prom-prometheus.$VKPR_ENV_PROMETHEUS_STACK_NAMESPACE:9090\" 
+  "
   if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
     YQ_VALUES="$YQ_VALUES |
       .grafana.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |

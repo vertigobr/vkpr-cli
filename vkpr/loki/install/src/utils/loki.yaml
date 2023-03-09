@@ -2,3 +2,7 @@ loki:
   enabled: true
   podLabels:
     app.kubernetes.io/managed-by: vkpr
+  isDefault: false
+prometheus:
+  enabled: false
+  isDefault: false

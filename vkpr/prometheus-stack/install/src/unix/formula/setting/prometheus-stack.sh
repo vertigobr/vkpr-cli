@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 settingPrometheusStack() {
-  installLoki
+  installLokiDatasource
   settingGrafanaValues
   settingPrometheusValues
   [[ "$VKPR_ENV_ALERTMANAGER" == true ]] && settingAlertManagerValues
@@ -24,9 +24,9 @@ settingPrometheusStack() {
 
   if [[ $(checkPodName "$VKPR_ENV_LOKI_NAMESPACE" "loki") == "true" ]]; then
     YQ_VALUES="$YQ_VALUES |
-      .grafana.additionalDataSources[0].name = \"loki\" |
+      .grafana.additionalDataSources[0].name = \"Loki\" |
       .grafana.additionalDataSources[0].type = \"loki\" |
-      .grafana.additionalDataSources[0].url = \"http://loki.$VKPR_ENV_LOKI_NAMESPACE:3100\" |
+      .grafana.additionalDataSources[0].url = \"http://loki.$VKPR_ENV_PROMETHEUS_STACK_NAMESPACE:3100\" |
       .grafana.additionalDataSources[0].access = \"proxy\" |
       .grafana.additionalDataSources[0].basicAuth = false |
       .grafana.additionalDataSources[0].editable = true
@@ -54,8 +54,8 @@ settingPrometheusStackEnvironment() {
   fi
 }
 
-installLoki(){
-  if [[ $(checkPodName "$VKPR_ENV_LOKI_NAMESPACE" "loki-0") != "true" ]]; then
+installLokiDatasource(){
+  if [[ $(checkPodName "$VKPR_ENV_PROMETHEUS_STACK_NAMESPACE" "loki-0") != "true" ]]; then
     info "Initializing Loki to Prometheus-stack"
     [[ -f $CURRENT_PWD/vkpr.yaml ]] && cp "$CURRENT_PWD"/vkpr.yaml "$(dirname "$0")"
     rit vkpr loki install --default
