@@ -40,7 +40,9 @@ validateInputs() {
 }
 
 settingLoki() {
-  YQ_VALUES=".grafana.enabled = false"
+  YQ_VALUES=".grafana.enabled = false |
+    .loki.url = \"http://loki.$VKPR_ENV_LOKI_NAMESPACE:3100\"
+  "
 
   if [[ "$VKPR_ENV_LOKI_METRICS" == true ]] && [[ $(checkPodName "$VKPR_ENV_GRAFANA_NAMESPACE" "prometheus-stack-grafana") == "true" ]]; then
     YQ_VALUES="$YQ_VALUES |
