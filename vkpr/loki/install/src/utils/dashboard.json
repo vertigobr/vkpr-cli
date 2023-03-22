@@ -33,7 +33,7 @@
     {
       "datasource": {
         "type": "datasource",
-        "uid": "loki"
+        "uid": "Loki"
       },
       "description": "Total  Count of log lines in the specified time range",
       "fieldConfig": {
@@ -102,7 +102,7 @@
         {
           "datasource": {
             "type": "datasource",
-            "uid": "loki"
+            "uid": "Loki"
           },
           "expr": "sum(count_over_time(({container=\"$container\", pod=~\"$pod\"})[$__interval]))",
           "hide": false,
@@ -115,7 +115,7 @@
     {
       "datasource": {
         "type": "datasource",
-        "uid": "loki"
+        "uid": "Loki"
       },
       "description": "Total Count: of $searchable_pattern in the specified time range",
       "fieldConfig": {
@@ -184,7 +184,7 @@
         {
           "datasource": {
             "type": "datasource",
-            "uid": "loki"
+            "uid": "Loki"
           },
           "expr": "sum(count_over_time(({container=\"$container\", pod=~\"$pod\"} |~ \"(?i)$searchable_pattern\")[$__interval]))",
           "hide": false,
@@ -197,7 +197,7 @@
     {
       "datasource": {
         "type": "datasource",
-        "uid": "loki"
+        "uid": "Loki"
       },
       "description": "Live logs is a like 'tail -f' in a real time",
       "gridPos": {
@@ -221,7 +221,7 @@
         {
           "datasource": {
             "type": "datasource",
-            "uid": "loki"
+            "uid": "Loki"
           },
           "expr": "{container=\"$container\", pod=~\"$pod\"}",
           "hide": false,
@@ -262,7 +262,7 @@
       "dashes": false,
       "datasource": {
         "type": "datasource",
-        "uid": "loki"
+        "uid": "Loki"
       },
       "decimals": 0,
       "fieldConfig": {
@@ -318,7 +318,7 @@
         {
           "datasource": {
             "type": "datasource",
-            "uid": "loki"
+            "uid": "Loki"
           },
           "expr": "sum(count_over_time(({container=\"$container\", pod=~\"$pod\"} |~ \"(?i)$searchable_pattern\")[$__interval])) by (pod)",
           "refId": "A"
@@ -365,7 +365,7 @@
       "dashes": false,
       "datasource": {
         "type": "datasource",
-        "uid": "loki"
+        "uid": "Loki"
       },
       "fieldConfig": {
         "defaults": {
@@ -415,7 +415,7 @@
         {
           "datasource": {
             "type": "datasource",
-            "uid": "loki"
+            "uid": "Loki"
           },
           "expr": "sum(rate(({container=\"$container\", pod=~\"$pod\"} |~ \"(?i)$searchable_pattern\")[30s])) by (pod)",
           "hide": false,
@@ -457,7 +457,7 @@
     {
       "datasource": {
         "type": "datasource",
-        "uid": "loki"
+        "uid": "Loki"
       },
       "fieldConfig": {
         "defaults": {
@@ -523,7 +523,7 @@
         {
           "datasource": {
             "type": "datasource",
-            "uid": "loki"
+            "uid": "Loki"
           },
           "expr": "sum(count_over_time(({container=\"$container\", pod=~\"$pod\"} |~ \"(?i)$searchable_pattern\")[$__interval])) * 100 / sum(count_over_time(({container=\"$container\", pod=~\"$pod\"})[$__interval]))",
           "hide": false,
@@ -554,7 +554,7 @@
         },
         "datasource": {
           "type": "datasource",
-          "uid": "loki"
+          "uid": "Loki"
         },
         "definition": "label_values({container=~\".+\"}, container)",
         "hide": 0,
@@ -581,7 +581,7 @@
         },
         "datasource": {
           "type": "datasource",
-          "uid": "loki"
+          "uid": "Loki"
         },
         "definition": "label_values({container=\"$container\"}, pod)",
         "hide": 0,
