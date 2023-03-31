@@ -6,13 +6,21 @@
 # 2 - POD_NAME
 checkPodName(){
   local POD_NAMESPACE="$1" POD_NAME="$2"
-
-  for pod in $($VKPR_KUBECTL get pods -n "$POD_NAMESPACE" --ignore-not-found  | awk 'NR>1{print $1}'); do
-    if [[ "$pod" == "$POD_NAME"* ]]; then
-      echo true  # pod name found a match, then returns True
-      return
-    fi
-  done
+  if [[ "$VKPR_ENVIRONMENT" == "okteto" ]]; then
+    for pod in $($VKPR_KUBECTL get pods --ignore-not-found  | awk 'NR>1{print $1}'); do
+      if [[ "$pod" == "$POD_NAME"* ]]; then
+        echo true  # pod name found a match, then returns True
+        return
+      fi
+    done
+  else
+    for pod in $($VKPR_KUBECTL get pods -n "$POD_NAMESPACE" --ignore-not-found  | awk 'NR>1{print $1}'); do
+      if [[ "$pod" == "$POD_NAME"* ]]; then
+        echo true  # pod name found a match, then returns True
+        return
+      fi
+    done
+  fi
   echo false
 }
 
@@ -38,10 +46,17 @@ createDatabase(){
   local PG_USER="$1" PG_HOST="$2" PG_PASSWORD="$3" \
         DATABASE_NAME="$4" NAMESPACE="$5"
 
-  $VKPR_KUBECTL run init-db --rm -it --restart="Never" --namespace "$NAMESPACE" \
+  if [[ "$VKPR_ENVIRONMENT" == "okteto" ]]; then 
+      $VKPR_KUBECTL run init-db --rm -it --restart="Never" \
     --image docker.io/bitnami/postgresql-repmgr:11.14.0-debian-10-r12 \
     --env="PGUSER=$PG_USER" --env="PGPASSWORD=$PG_PASSWORD" --env="PGHOST=${PG_HOST}" --env="PGPORT=5432" --env="PGDATABASE=postgres" \
     --command -- psql --command="CREATE DATABASE $DATABASE_NAME"
+  else 
+    $VKPR_KUBECTL run init-db --rm -it --restart="Never" --namespace "$NAMESPACE" \
+    --image docker.io/bitnami/postgresql-repmgr:11.14.0-debian-10-r12 \
+    --env="PGUSER=$PG_USER" --env="PGPASSWORD=$PG_PASSWORD" --env="PGHOST=${PG_HOST}" --env="PGPORT=5432" --env="PGDATABASE=postgres" \
+    --command -- psql --command="CREATE DATABASE $DATABASE_NAME"
+  fi
 }
 
 ## Check if there is any database with specific name in Postgres
@@ -54,10 +69,17 @@ checkExistingDatabase() {
   local PG_USER="$1" PG_HOST="$2" PG_PASSWORD="$3" \
         DATABASE_NAME="$4" NAMESPACE="$5"
 
-  $VKPR_KUBECTL run check-db --rm -it --restart='Never' --namespace "$NAMESPACE" \
+  if [[ "$VKPR_ENVIRONMENT" == "okteto" ]]; then 
+    $VKPR_KUBECTL run -q check-db --rm -it --restart='Never'\
     --image docker.io/bitnami/postgresql-repmgr:11.14.0-debian-10-r12 \
     --env="PGUSER=$PG_USER" --env="PGPASSWORD=$PG_PASSWORD" --env="PGHOST=${PG_HOST}" --env="PGPORT=5432" --env="PGDATABASE=postgres" \
     --command -- psql -lqt | cut -d \| -f 1 | grep "$DATABASE_NAME" | sed -e 's/^[ \t]*//'
+  else 
+    $VKPR_KUBECTL run -q check-db --rm -it --restart='Never' --namespace "$NAMESPACE" \
+      --image docker.io/bitnami/postgresql-repmgr:11.14.0-debian-10-r12 \
+      --env="PGUSER=$PG_USER" --env="PGPASSWORD=$PG_PASSWORD" --env="PGHOST=${PG_HOST}" --env="PGPORT=5432" --env="PGDATABASE=postgres" \
+      --command -- psql -lqt | cut -d \| -f 1 | grep "$DATABASE_NAME" | sed -e 's/^[ \t]*//'
+  fi 
 }
 
 createGrafanaDashboard() {
@@ -122,4 +144,22 @@ execScriptsOnPod() {
     sh /tmp/script.sh && \
     rm /tmp/script.sh
   "
+}
+
+## Remove secrets of a specific application from kubernetes cluster
+# Parameters:
+# 1 - APP_NAME
+# 2 - APP_NAMESPACE
+secretRemove (){
+  local APP_NAME=$1 \
+        APP_NAMESPACE=$2 \
+        STD_OUT
+
+  info "Removing $APP_NAME secrets..."    
+  for secret in $($VKPR_KUBECTL get secret -n $APP_NAMESPACE -l app.kubernetes.io/managed-by=vkpr 2> /dev/null | awk 'NR>1{print $1}' | grep $APP_NAME) 
+  do
+    STD_OUT=$($VKPR_KUBECTL delete secret/$secret -n $APP_NAMESPACE 2> /dev/null)
+    debug $STD_OUT
+  done
+  echo "secrets from \"$APP_NAME\" have been removed"
 }

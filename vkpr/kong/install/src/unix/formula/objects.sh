@@ -18,10 +18,14 @@ createKongSecretsEnterprise() {
   ## Create license (enable manager)
   mkdir -p /tmp/vkpr
 
-  local LICENSE_CONTENT=$(cat $VKPR_ENV_KONG_ENTERPRISE_LICENSE 2> /dev/null)
+  local LICENSE_CONTENT=$(cat $VKPR_ENV_KONG_ENTERPRISE_LICENSE 2> /dev/null )
 
   trace "Creating kong-enterprise secret with name kong-enterprise-license"
-  eval $VKPR_KUBECTL create secret generic kong-enterprise-license $KONG_NAMESPACE --from-literal="license=$LICENSE_CONTENT" $DRY_FLAG
+  if [[ -z $LICENSE_CONTENT ]]; then
+      eval $VKPR_KUBECTL create secret generic kong-enterprise-license $KONG_NAMESPACE --from-literal=license="" $DRY_FLAG
+    else
+      eval $VKPR_KUBECTL create secret generic kong-enterprise-license $KONG_NAMESPACE --from-file=$VKPR_ENV_KONG_ENTERPRISE_LICENSE $DRY_FLAG
+    fi
 
   RESULT=$?
   debug "Create Kong enterprise secret status = $RESULT"

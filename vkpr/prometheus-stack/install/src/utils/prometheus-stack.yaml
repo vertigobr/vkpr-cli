@@ -1,5 +1,8 @@
 commonLabels:
   app.kubernetes.io/managed-by: vkpr
+# -----------------------------------------------------------------------------
+# alertmanager sub-chart parameters
+# -----------------------------------------------------------------------------
 alertmanager:
   enabled: false
   ingress:
@@ -8,12 +11,18 @@ alertmanager:
     hosts:
       - paths: "/"
     pathType: ImplementationSpecific
+# -----------------------------------------------------------------------------
+# grafana sub-chart parameters
+# -----------------------------------------------------------------------------
 grafana:
   enabled: true
   ingress:
     enabled: true
     ingressClassName: nginx
     path: "/"
+# -----------------------------------------------------------------------------
+# prometheus sub-chart parameters
+# -----------------------------------------------------------------------------
 prometheusOperator:
   enabled: true
 prometheus:

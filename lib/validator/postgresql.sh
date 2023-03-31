@@ -63,3 +63,11 @@ validateDbPassword (){
   fi
 }
 
+validatePostgresqlVolumeSize(){
+  if $(validateVolume $1); then
+    return
+  else
+    error "The value used for VKPR_ENV_POSTGRESQL_VOLUME_SIZE \"$1\" is invalid: VKPR_ENV_POSTGRESQL_VOLUME_SIZE must consist of alphanumeric characters ending with \"Gi\", (e.g. '10Gi', regex used for validation is ^([0-9]{1,4}+Gi)$)"
+    exit
+  fi
+}

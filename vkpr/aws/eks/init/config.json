@@ -55,6 +55,11 @@
     {
       "tutorial": "Specifies the project location to fork",
       "label": "Project location:",
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "gitlab"
+      },
       "name": "project_location",
       "type": "text",
       "default": "user",

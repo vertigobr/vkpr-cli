@@ -3,9 +3,11 @@ setproviderrun() {
   local PROJECT_ENCODED FORK_RESPONSE_CODE;
 
   # installAWS
+  formulaInputs
+  setCredentials
+  validateInputs
 
-
- PROJECT_ENCODED=$(rawUrlEncode "${GITLAB_USERNAME}/aws-eks")
+  PROJECT_ENCODED=$(rawUrlEncode "${GITLAB_USERNAME}/aws-eks")
   if [ $PROJECT_LOCATION == "groups" ]; then
     FORK_RESPONSE_CODE=$(curl -siX POST -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
       -d "namespace_path=$PROJECT_LOCATION_PATH" \
@@ -32,8 +34,9 @@ setproviderrun() {
     boldNotice "Project already forked"
   fi
 
-  echo "${VKPR_ENV_EKS_CLUSTER_NAME}"
-
+  setVariablesGLAB
+  cloneRepository
+}
 formulaInputs() {
   # App values
   checkGlobalConfig "$CLUSTER_NAME" "eks-sample" "aws.eks.clusterName" "EKS_CLUSTER_NAME"
@@ -92,12 +95,11 @@ cloneRepository() {
     .node_groups.${VKPR_ENV_EKS_CLUSTER_NAME}.instance_types[0] = \"$VKPR_ENV_EKS_NODES_INSTANCE_TYPE\" |
     .node_groups.${VKPR_ENV_EKS_CLUSTER_NAME}.capacity_type = \"${VKPR_ENV_EKS_NODES_CAPACITY_TYPE^^}\"
   " "$VKPR_HOME"/tmp/aws-eks/config/defaults.yml
-
   mergeVkprValuesExtraArgs "aws.eks" "$VKPR_HOME"/tmp/aws-eks/config/defaults.yml
   git checkout -b "$VKPR_ENV_EKS_CLUSTER_NAME"
   git commit -am "[VKPR] Initial configuration defaults.yml"
   git push --set-upstream origin "$VKPR_ENV_EKS_CLUSTER_NAME"
   cd - > /dev/null || exit
   rm -rf "$VKPR_HOME"/tmp/aws-eks
- }
 }
+
