@@ -31,6 +31,7 @@ log() {
 
 bold() { log "true" "${C[bold]}$*${NC}"; }
 info() { log "true" "${C[green]}$*${NC}"; }
+infoYellow() { log "true" "${C[yellow]}$*${NC}"; }
 boldInfo() { log "true" "${C[boldgreen]}$*${NC}"; }
 notice() { log "true" "${C[blue]}$*${NC}"; }
 boldNotice() { log "true" "${C[boldblue]}$*${NC}"; }
