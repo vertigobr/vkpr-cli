@@ -11,13 +11,15 @@ runFormula() {
 
   [ $DRY_RUN = false ] && installDB
   [ $DRY_RUN = false ] && registerHelmRepository veecode-platform https://veecode-platform.github.io/public-charts/
-  installApplication "devportal" "veecode-platform/devportal" "$OKTETO_NAMESPACE" "$VKPR_DEVPORTAL_VERSION" "$VKPR_DEVPORTAL_VALUES" "$HELM_ARGS"
+
+  installApplication "devportal" "veecode-platform/devportal" "$NAMESPACE" "$VKPR_DEVPORTAL_VERSION" "$VKPR_DEVPORTAL_VALUES"
+  [ $DRY_RUN = false ] && endsInfos
 }
 
 startInfos() {
-  bold "=============================="
+  bold "==================================="
   boldInfo "VKPR Devportal demo Install Routine"
-  bold "=============================="
+  bold "==================================="
 }
 
 setCredentials() {
@@ -46,16 +48,14 @@ installDB(){
 }
 
 settingOktetoNamespace(){
-  if [[ "$OKTETO_NAMESPACE" == "null" ]]; then
-    export CONTEXT=$($VKPR_OKTETO namespace list | grep Active)
-    export NAMESPACE="$(echo $CONTEXT | awk -F' ' '{print $1}')"
-    debug "NAMESPACE: $NAMESPACE"
+  [ $DRY_RUN = false ] && rit vkpr okteto init
+  export NAMESPACE_LIST=$($VKPR_OKTETO namespace list | grep Active)
+  export NAMESPACE="$(echo $NAMESPACE_LIST | awk -F' ' '{print $1}')"
+  debug "NAMESPACE: $NAMESPACE"
+}
 
-    $VKPR_OKTETO namespace use "$NAMESPACE"
-  else  
-    export NAMESPACE=$OKTETO_NAMESPACE
-    debug "NAMESPACE: $NAMESPACE"
-
-    $VKPR_OKTETO namespace use "$OKTETO_NAMESPACE"
-  fi
+endsInfos() {
+  bold "=================================================================================="
+  infoYellow "Your DevPortal is available at \"https://devportal-$NAMESPACE.cloud.okteto.net\""
+  bold "=================================================================================="
 }
