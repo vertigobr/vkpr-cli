@@ -6,13 +6,14 @@ runFormula() {
 
   startInfos
   settingOktetoNamespace
-  setCredentials
+  [ $DRY_RUN = false ] && setCredentials
   settingDevportal
 
   [ $DRY_RUN = false ] && installDB
   [ $DRY_RUN = false ] && registerHelmRepository veecode-platform https://veecode-platform.github.io/public-charts/
 
   installApplication "devportal" "veecode-platform/devportal" "$NAMESPACE" "$VKPR_DEVPORTAL_VERSION" "$VKPR_DEVPORTAL_VALUES"
+  [ $DRY_RUN = false ] && unsetCredentials
   [ $DRY_RUN = false ] && endsInfos
 }
 
@@ -24,6 +25,13 @@ startInfos() {
 
 setCredentials() {
   GITHUB_TOKEN="$($VKPR_JQ -r '.credential.token' $VKPR_CREDENTIAL/github)"
+  export OLD_POSTGRESQL_PWD="$($VKPR_JQ -r '.credential.password' $VKPR_CREDENTIAL/postgres)"
+  debug "OLD_POSTGRESQL_PWD = $OLD_POSTGRESQL_PWD"
+  rit set credential --provider="postgres" --fields="password" --values="$PASSWORD" > /dev/null
+}
+
+unsetCredentials() {
+  [ "$OLD_POSTGRESQL_PWD" != "null" ] && rit set credential --provider="postgres" --fields="password" --values="$OLD_POSTGRESQL_PWD" > /dev/null
 }
 
 settingDevportal() {
@@ -32,7 +40,8 @@ settingDevportal() {
       .auth.providers.github.clientId = \"$GITHUB_CLIENT_ID\" |
       .auth.providers.github.clientSecret = \"$GITHUB_CLIENT_SECRET\" |
       .integrations.github.token = \"$GITHUB_TOKEN\" |
-      .catalog.providers.github.organization = \"$GITHUB_CLIENT_ORGANIZATION\"
+      .catalog.providers.github.organization = \"$GITHUB_CLIENT_ORGANIZATION\" |
+      .appConfig.database.connection.password = \"$PASSWORD\"
   "
   debug "YQ_CONTENT = $YQ_VALUES"
 }

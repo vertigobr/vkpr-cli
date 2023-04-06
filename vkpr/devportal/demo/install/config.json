@@ -25,14 +25,14 @@
       "label": "Github access token:",
       "tutorial": "Specifies your Github personal access token",
       "name": "github_token",
-      "type": "CREDENTIAL_GITHUB_TOKEN"
+      "type": "text"
     },
     {      
       "label": "Postgresql password:",
       "tutorial": "Specifies the Postgresql password",
       "name": "password",
       "default": "vkpr123",
-      "type": "CREDENTIAL_POSTGRES_PASSWORD"
+      "type": "text"
     },
     {
       "tutorial": "Simulate an install",
