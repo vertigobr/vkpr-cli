@@ -31,10 +31,19 @@ installApplication() {
 
   if [ -z $HELM_ARGS ]; then
     trace "var HELM_ARGS without content"
-    $VKPR_HELM upgrade -i --atomic --cleanup-on-fail \
-     --timeout 10m --version "$APP_VERSION" \
-     --create-namespace --namespace $APP_NAMESPACE \
-     --values "$APP_VALUES" "$APP_NAME" "$APP_CHART"
+
+    if [[ "$VKPR_ENVIRONMENT" == "okteto" ]]; then 
+      $VKPR_HELM upgrade -i --atomic --cleanup-on-fail \
+      --timeout 10m --version "$APP_VERSION" \
+      --namespace $APP_NAMESPACE \
+      --values "$APP_VALUES" "$APP_NAME" "$APP_CHART"
+    else
+      $VKPR_HELM upgrade -i --atomic --cleanup-on-fail \
+      --timeout 10m --version "$APP_VERSION" \
+      --create-namespace --namespace $APP_NAMESPACE \
+      --values "$APP_VALUES" "$APP_NAME" "$APP_CHART"
+    fi
+    
   else
     trace "var HELM_ARGS with content"
     $VKPR_HELM upgrade -i $HELM_ARGS \

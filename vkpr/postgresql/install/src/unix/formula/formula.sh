@@ -27,7 +27,7 @@ startInfos() {
   boldInfo "VKPR Postgresql Install Routine"
   boldNotice "Password: ${PASSWORD}"
   boldNotice "HA: $VKPR_ENV_POSTGRESQL_HA"
-  boldNotice "Namespace: $VKPR_ENV_POSTGRESQL_NAMESPACE"
+  [[ "$VKPR_ENVIRONMENT" != "okteto" ]] && boldNotice "Namespace: $VKPR_ENV_POSTGRESQL_NAMESPACE"
   bold "=============================="
 }
 
