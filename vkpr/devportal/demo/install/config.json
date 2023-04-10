@@ -1,10 +1,10 @@
 {
   "inputs": [
     {
-      "label": "Okteto namespace:",
-      "tutorial": "Specifies the okteto namespace you want to use, (empty for default)",
-      "name": "okteto_namespace",
-      "default": "null",
+      "label": "Github organization name:",
+      "tutorial": "Specifies your Github organization, more details at https://docs.platform.vee.codes/devportal/getStart/installation",
+      "name": "github_client_organization",
+      "required": true,
       "type": "text"
     },
     {
@@ -22,20 +22,21 @@
       "type": "text"
     },
     {
-      "label": "Github organization name:",
-      "tutorial": "Specifies your Github organization, more details at https://docs.platform.vee.codes/devportal/getStart/installation",
-      "name": "github_client_organization",
-      "required": true,
+      "label": "Github access token:",
+      "tutorial": "Specifies your Github personal access token",
+      "name": "github_token",
+      "type": "text"
+    },
+    {      
+      "label": "Postgresql password:",
+      "tutorial": "Specifies the Postgresql password",
+      "name": "password",
+      "default": "vkpr123",
       "type": "text"
     },
     {
-      "tutorial": "Specifies your Github personal access token",
-      "name": "github_token",
-      "type": "CREDENTIAL_GITHUB_TOKEN"
-    },
-    {
       "tutorial": "Simulate an install",
-      "label": "Dry-run ?",
+      "label": "Dry-run? (will use the current okteto namespace for the template)",
       "name": "dry_run",
       "type": "bool",
       "default": "false",
