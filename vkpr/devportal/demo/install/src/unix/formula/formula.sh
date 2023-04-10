@@ -65,6 +65,8 @@ settingOktetoNamespace(){
 
 endsInfos() {
   bold "=================================================================================="
+  infoYellow "Note: It may take a few seconds for your cluster to become available due to the"
+  infoYellow "Okteto cluster building process."
   infoYellow "Your DevPortal is available at \"https://devportal-$NAMESPACE.cloud.okteto.net\""
   bold "=================================================================================="
 }
