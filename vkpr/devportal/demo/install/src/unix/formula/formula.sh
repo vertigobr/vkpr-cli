@@ -30,7 +30,7 @@ setCredentials() {
 }
 
 unsetCredentials() {
-  [ "$OLD_POSTGRESQL_PWD" != "null" ] && rit set credential --provider="postgres" --fields="password" --values="$OLD_POSTGRESQL_PWD" > /dev/null
+  [ "$OLD_POSTGRESQL_PWD" != "null" ] && rit set credential --provider="postgres" --fields="password" --values="$OLD_POSTGRESQL_PWD" 2> /dev/null
 }
 
 settingDevportal() {
