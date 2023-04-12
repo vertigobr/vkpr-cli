@@ -24,8 +24,7 @@ startInfos() {
 }
 
 setCredentials() {
-  GITHUB_TOKEN="$($VKPR_JQ -r '.credential.token' $VKPR_CREDENTIAL/github)"
-  export OLD_POSTGRESQL_PWD="$($VKPR_JQ -r '.credential.password' $VKPR_CREDENTIAL/postgres)"
+  export OLD_POSTGRESQL_PWD="$($VKPR_JQ -r '.credential.password' $VKPR_CREDENTIAL/postgres 2> /dev/null)"
   debug "OLD_POSTGRESQL_PWD = $OLD_POSTGRESQL_PWD"
   rit set credential --provider="postgres" --fields="password" --values="$PASSWORD" > /dev/null
 }
