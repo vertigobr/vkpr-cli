@@ -39,7 +39,7 @@ env:
         key: password
 image:
   repository: kong/kong-gateway
-  tag: "3.0.0.0-alpine"
+  tag: "3.2.2.0-alpine"
 admin:
   enabled: true
   type: ClusterIP
@@ -143,3 +143,6 @@ portalapi:
     path: /
   tls:
     enabled: false
+
+clustertelemetry:
+  enabled: true
