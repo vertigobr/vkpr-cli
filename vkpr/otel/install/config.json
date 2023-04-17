@@ -1,0 +1,28 @@
+{
+  "inputs": [
+    {
+      "tutorial": "Enable Auto-Instrumentation OTEL",
+      "label": "Auto-Instrumentation ?",
+      "name": "otel_auto",
+      "type": "bool",
+      "default": "true",
+      "items": [
+        "true",
+        "false"
+      ]
+    },
+    {
+      "tutorial": "Simulate an install",
+      "label": "Dry-run ?",
+      "name": "dry_run",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "true",
+        "false"
+      ]
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease": "2.17.0"
+}

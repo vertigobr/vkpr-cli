@@ -1,0 +1,4 @@
+{
+  "short": "Install Jaeger",
+  "long": "Install the Jaeger in the Kubernetes cluster"
+}

@@ -1,0 +1,4 @@
+{
+  "short": "Manage Jaeger",
+  "long": "Jaeger is a distributed tracing system used for monitoring and troubleshooting microservices-based distributed systems"
+}
