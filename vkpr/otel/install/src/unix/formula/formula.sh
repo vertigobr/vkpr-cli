@@ -11,7 +11,7 @@ runFormula() {
 
   startInfos
 
-  [ $DRY_RUN = false ] && registerHelmRepository open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
+  [ $DRY_RUN = false ] && registerHelmRepository opentelemetry-helm https://open-telemetry.github.io/opentelemetry-helm-charts
   installApplication "opentelemetry-operator" "opentelemetry-helm/opentelemetry-operator" "$VKPR_ENV_OTEL_NAMESPACE" "$VKPR_OTEL_VERSION" "$VKPR_OTEL_VALUES" "$HELM_ARGS"
   $VKPR_KUBECTL apply -f "$VKPR_OTEL_COLETOR" -n "$VKPR_ENV_OTEL_NAMESPACE"
 
