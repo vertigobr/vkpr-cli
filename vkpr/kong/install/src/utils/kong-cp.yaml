@@ -43,7 +43,7 @@ env:
         key: password
 image:
   repository: kong/kong-gateway
-  tag: "3.2.2.0-alpine"
+  tag: "3.2.2.1-amazonlinux-2022"
 admin:
   enabled: true
   type: ClusterIP
