@@ -11,4 +11,5 @@ runFormula() {
 
 
   $VKPR_HELM uninstall devportal -n "$DEVPORTAL_NAMESPACE" 2> /dev/null || error "VKPR devportal not found"
+  secretRemove "devportal" "$DEVPORTAL_NAMESPACE"
 }
