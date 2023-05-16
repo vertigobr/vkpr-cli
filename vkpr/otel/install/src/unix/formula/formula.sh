@@ -3,12 +3,13 @@ source "$(dirname "$0")"/unix/formula/objects.sh
 
 runFormula() {
   local VKPR_ENV_OTEL_DOMAIN VKPR_OTEL_VALUES HELM_ARGS;
+  [ $DRY_RUN = false ]
   formulaInputs
 
   VKPR_OTEL_VALUES=$(dirname "$0")/utils/otel.yaml
   VKPR_OTEL_COLETOR=$(dirname "$0")/utils/coletor.yaml
   VKPR_INSTRUMENTATION=$(dirname "$0")/utils/instrumentation.yaml
-
+  [ $DRY_RUN = false ]
   startInfos
 
   [ $DRY_RUN = false ] && registerHelmRepository opentelemetry-helm https://open-telemetry.github.io/opentelemetry-helm-charts
