@@ -1,19 +1,24 @@
 #!/usr/bin/env bash
 
 runFormula() {
+  local VKPR_CERT_MANAGER_VALUES VKPR_ISSUER_VALUES YQ_VALUES YQ_ISSUER_VALUES HELM_ARGS;
   setCredentials
-  [ $DRY_RUN == false ] 
   validateInputs
-  [ $DRY_RUN == false ]
+
   startInfos
-  [ $DRY_RUN == false ]
-  installApplication 
+  settingCertManager
+  if [[ $DRY_RUN == false ]]; then
+    installApplication 
+  fi
+  applicationdry
 }
+
 startInfos() {
   bold "=============================="
-  boldInfo "VKPR Metric-Server Install AWS Routine"
+  boldInfo "VKPR metric-server Install AWS Routine"
   bold "=============================="
 }
+
 
 setCredentials() {
   AWS_REGION=$($VKPR_JQ -r .credential.region "$VKPR_CREDENTIAL"/aws)
@@ -28,10 +33,11 @@ validateInputs() {
 }
 
 installApplication () {
-    info "Installing Metric-Server ..."
-    $VKPR_KUBECTL apply -f "https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml"
+  info "Installing metric-server CRDS beforehand..."
+  $VKPR_KUBECTL apply -f "https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml"
 }
 
-
-
-
+applicationdry () {
+  info "Installing metric-server CRDS beforehand..."
+  $VKPR_KUBECTL apply -f "https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml" --dry-run
+}

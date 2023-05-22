@@ -1,4 +1,4 @@
 {
-  "short": "Remove metric-server",
-  "long": "Remove the metric-server and its dependencies from the cluster"
+  "short": "Remove Metric Server",
+  "long": "Remove the Metric Server"
 }

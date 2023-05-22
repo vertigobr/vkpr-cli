@@ -1,0 +1,11 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: certmanager-issuer
+  namespace: cert-manager
+  labels:
+    app.kubernetes.io/managed-by: vkpr
+spec:
+  acme:
+    solvers:
+      - selector: {}
