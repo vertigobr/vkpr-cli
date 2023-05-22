@@ -1,0 +1,4 @@
+{
+  "short": "Install metric-server",
+  "long": "Install the metric-server in the Kubernetes cluster"
+}
