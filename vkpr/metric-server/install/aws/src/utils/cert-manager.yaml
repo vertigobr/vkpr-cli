@@ -1,0 +1,10 @@
+installCRDs: false
+ingressShim:
+  defaultIssuerName: certmanager-issuer
+  defaultIssuerKind: ClusterIssuer
+  defaultIssuerGroup: cert-manager.io
+prometheus:
+  enabled: false
+podLabels:
+  app.kubernetes.io/managed-by: vkpr
+clusterResourceNamespace: cert
