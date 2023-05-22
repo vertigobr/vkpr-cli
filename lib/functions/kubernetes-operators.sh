@@ -110,6 +110,11 @@ createGrafanaDashboard() {
     return
   fi
 
+  if [[ $CREATE_DASHBOARD == "null" ]]; then
+    error "Dashboard may contain errors"
+    return
+  fi
+
   info "Dashboard to prometheus metrics created"
 }
 

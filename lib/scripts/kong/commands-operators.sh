@@ -21,18 +21,22 @@ kongDeckSync() {
   local KONG_ADDR=$1 \
         KONG_ADMIN_TOKEN=$2 \
         KONG_WORKSPACE=$3 \
-        KONG_YAML_PATH=$4 
+        KONG_YAML_PATH=$4 \
+        BASIC_AUTH_HEADER
 
   validateKongAddr "$KONG_ADDR"
   validateKongAdminToken "$KONG_ADMIN_TOKEN"
   validateKongWorkspace "$KONG_WORKSPACE"
   validateKongYamlPath "$KONG_YAML_PATH"
 
+  BASIC_AUTH_HEADER="$(echo kong_admin:$KONG_ADMIN_TOKEN | base64)"
+  debug "BASIC_AUTH_HEADER=$BASIC_AUTH_HEADER"
+
   info "Attempting to connect to Kong..."
   local i=0 \
         timeout=10
   while [[ $i -lt $timeout ]]; do
-    if $VKPR_DECK ping --kong-addr="$KONG_ADDR" --headers=Kong-Admin-Token:"$KONG_ADMIN_TOKEN" | grep -q "Successfully"; then
+    if $VKPR_DECK ping --kong-addr="$KONG_ADDR" --headers=Kong-Admin-Token:"$KONG_ADMIN_TOKEN" --headers="Authorization: Basic $BASIC_AUTH_HEADER" | grep -q "Successfully"; then
       break
     else
       sleep 1
@@ -45,7 +49,7 @@ kongDeckSync() {
     exit
   fi
 
-  if $VKPR_DECK ping --kong-addr="$KONG_ADDR" --headers=Kong-Admin-Token:"$KONG_ADMIN_TOKEN" | grep -q "Successfully"; then
+  if $VKPR_DECK ping --kong-addr="$KONG_ADDR" --headers=Kong-Admin-Token:"$KONG_ADMIN_TOKEN" --headers="Authorization: Basic $BASIC_AUTH_HEADER" | grep -q "Successfully"; then
     notice "Successfully connected to Kong!"
     if [[ "$KONG_WORKSPACE" == "default" ]]; then
       error "WARNING! we do not recommend SYNC in the default workspace"
@@ -55,7 +59,7 @@ kongDeckSync() {
       error "File contains errors, check your kong values"
       exit
     else
-      $VKPR_DECK sync -s "$KONG_YAML_PATH" --workspace "$KONG_WORKSPACE" --kong-addr="$KONG_ADDR" --headers=Kong-Admin-Token:"$KONG_ADMIN_TOKEN"
+      $VKPR_DECK sync -s "$KONG_YAML_PATH" --workspace "$KONG_WORKSPACE" --kong-addr="$KONG_ADDR" --headers=Kong-Admin-Token:"$KONG_ADMIN_TOKEN" --headers="Authorization: Basic $BASIC_AUTH_HEADER"
       info "Kong SYNC successfully executed"
     fi
   fi
