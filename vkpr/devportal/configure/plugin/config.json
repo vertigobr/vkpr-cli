@@ -1,0 +1,85 @@
+{
+  "inputs": [
+    {
+      "tutorial": "Specifies the domain to use in the application",
+      "label": "Type the Devportal domain:",
+      "name": "domain",
+      "type": "text",
+      "default": "localhost"
+    },
+    {
+      "tutorial": "Specifies if the application will have HTTPS",
+      "label": "Secure ?",
+      "name": "secure",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "false",
+        "true"
+      ]
+    },
+    {
+      "label": "Github organization name:",
+      "tutorial": "Specifies your Github organization, more details at https://docs.platform.vee.codes/devportal/getStart/installation",
+      "name": "github_client_organization",
+      "required": true,
+      "type": "text"
+    },
+    {
+      "label": "Github auth clientId:",
+      "tutorial": "Specifies your Github auth provider clientId, more details at https://docs.platform.vee.codes/devportal/getStart/installation",
+      "name": "github_client_id",
+      "required": true,
+      "type": "text"
+    },
+    {
+      "label": "Github auth clientSecret:",
+      "tutorial": "Specifies your Github auth provider clientSecret, more details at https://docs.platform.vee.codes/devportal/getStart/installation",
+      "name": "github_client_secret",
+      "required": true,
+      "type": "text"
+    },
+    {
+      "label": "Github access token:",
+      "tutorial": "Specifies your Github personal access token",
+      "name": "github_token",
+      "required": true,
+      "type": "text"
+    },
+    {
+      "tutorial": "Specifies the Keycloak URL",
+      "label": "Keycloak URL",
+      "name": "keycloak_client_url",
+      "required": true,
+      "type": "text"
+    },
+    {
+      "tutorial": "Specifies the Keycloak Client ID",
+      "label": "Keycloak Client ID",
+      "name": "keycloak_client_id",
+      "default": "devportal",
+      "required": true,
+      "type": "text"
+    },
+    {
+      "tutorial": "Specifies the Keycloak Client Secret",
+      "label": "Keycloak Client Secret",
+      "name": "keycloak_client_secret",
+      "required": true,
+      "type": "text"
+    },
+    {
+      "tutorial": "Simulate an install",
+      "label": "Dry-run ?",
+      "name": "dry_run",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "false",
+        "true"
+      ]
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease:": "2.17.1"
+}
