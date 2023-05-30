@@ -14,7 +14,7 @@ runFormula() {
   [ $DRY_RUN = false ] && registerHelmRepository argo https://argoproj.github.io/argo-helm
   installApplication "argocd" "argo/argo-cd" "$VKPR_ENV_ARGOCD_NAMESPACE" "$VKPR_ARGOCD_VERSION" "$VKPR_ARGOCD_VALUES" "$HELM_ARGS"
   if [ $DRY_RUN = false ]; then
-    printArgoPassword
+   # printArgoPassword
     checkComands
   fi
   settingArgoAddons
