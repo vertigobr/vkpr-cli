@@ -221,7 +221,6 @@
     "default": "s3",
     "required": false,
     "items": [
-      "s3",
       "gitlab"
     ]
     },
