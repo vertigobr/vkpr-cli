@@ -57,7 +57,7 @@ installAWS() {
     info "Installing AWS..."
     # patches download script in order to change BINLOCATION
     curl -sSL https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o /tmp/awscliv2.zip
-    unzip -q /tmp/awscliv2.zip -d /tmp
+    unzip -o -q /tmp/awscliv2.zip -d /tmp
     /tmp/aws/install -i ~/.vkpr/bin -b ~/.vkpr/bin --update
   fi
 }
@@ -69,10 +69,9 @@ installTool() {
   if [[ -f "$VKPR_HOME/bin/$toolName" ]]; then
     notice "Tool $toolName already installed. Skipping."
   else
-    info "Installing $toolName@${toolVersion:-latest} using arkade..."
-    $VKPR_HOME/bin/arkade get "$toolName@$toolVersion" --stash=true > /dev/null
-    mv "$HOME/.arkade/bin/$toolName" $VKPR_HOME/bin
-    info "$toolName@${toolVersion:-latest} installed!"
+    info "Installing $toolName $toolVersion using arkade..."
+    $VKPR_HOME/bin/arkade get $toolName --version=$toolVersion --path="$VKPR_HOME/bin" > /dev/null
+    info "$toolName $toolVersion installed!"
   fi
 }
 
