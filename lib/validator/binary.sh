@@ -37,7 +37,7 @@ validateJQVersion() {
 }
 
 validateYQVersion() {
-  if [[ ! -f $VKPR_YQ ]] || [[ $($VKPR_YQ --version | awk -F " " '$4="v"$4 {print $4}') = "$VKPR_TOOLS_YQ" ]]; then
+  if [[ ! -f $VKPR_YQ ]] || [[ $($VKPR_YQ --version | awk -F " " '{print $4}') = "$VKPR_TOOLS_YQ" ]]; then
     return
   else
     rm "$VKPR_YQ"

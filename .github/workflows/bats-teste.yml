@@ -1,0 +1,23 @@
+name: Provisionamento
+
+on:
+  workflow_dispatch:
+
+jobs:
+  Provisionamento:
+    runs-on: ubuntu-latest
+    steps:
+
+     - uses: actions/checkout@v3
+     - name: Install Vkpr
+       run: |
+          curl -fsSL https://get.vkpr.net/ | bash
+          alias vkpr="rit vkpr"
+
+     - uses: actions/checkout@v3
+     - name: bats-teste-kong
+       run: |
+        ~/.vkpr/bats/bin/bats vkpr-test/kong/kong-standard.bats
+
+
+
