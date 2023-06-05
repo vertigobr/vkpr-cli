@@ -58,22 +58,22 @@ validateInputs() {
 }
 
 settingJaeger() {
-  YQ_VALUES=".query.ingress.hosts[0] = \"$VKPR_ENV_JAEGER_DOMAIN\" |
-    .query.ingress.ingressClassName = \"$VKPR_ENV_JAEGER_INGRESS_CLASS_NAME\"
+  YQ_VALUES=".allInOne.ingress.hosts[0] = \"$VKPR_ENV_JAEGER_DOMAIN\" |
+    .allInOne.ingress.ingressClassName = \"$VKPR_ENV_JAEGER_INGRESS_CLASS_NAME\"
   "
-  if [[ "$VKPR_ENV_JAEGER_METRICS" == true ]] && [[ $(checkPodName "$VKPR_ENV_GRAFANA_NAMESPACE" "prometheus-stack-grafana") == "true" ]]; then
-    createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
-    YQ_VALUES="$YQ_VALUES |
-      .query.serviceMonitor.enabled= true |
-      .query.serviceMonitor.additionalLabels.release = \"prometheus-stack\"
-    "
-  fi
+  # if [[ "$VKPR_ENV_JAEGER_METRICS" == true ]] && [[ $(checkPodName "$VKPR_ENV_GRAFANA_NAMESPACE" "prometheus-stack-grafana") == "true" ]]; then
+  #   createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
+  #   YQ_VALUES="$YQ_VALUES |
+  #     .query.serviceMonitor.enabled= true |
+  #     .query.serviceMonitor.additionalLabels.release = \"prometheus-stack\"
+  #   "
+  # fi
 
   if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
     YQ_VALUES="$YQ_VALUES |
-      .query.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
-      .query.ingress.tls[0].hosts[0] = \"$VKPR_ENV_JAEGER_DOMAIN\" |
-      .query.ingress.tls[0].secretName = \"jaeger-cert\"
+      .allInOne.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
+      .allInOne.ingress.tls[0].hosts[0] = \"$VKPR_ENV_JAEGER_DOMAIN\" |
+      .allInOne.ingress.tls[0].secretName = \"jaeger-cert\"
     "
   fi
 
@@ -90,8 +90,8 @@ settingJaeger() {
       createSslSecret "$VKPR_ENV_JAEGER_SSL_SECRET" "$VKPR_ENV_JAEGER_NAMESPACE" "$VKPR_ENV_JAEGER_SSL_CERTIFICATE" "$VKPR_ENV_JAEGER_SSL_KEY"
     fi
     YQ_VALUES="$YQ_VALUES |
-      .query.ingress.tls[0].hosts[0] = \"$VKPR_ENV_JAEGER_DOMAIN\" |
-      .query.ingress.tls[0].secretName = \"$VKPR_ENV_JAEGER_NAMESPACE/$VKPR_ENV_JAEGER_SSL_SECRET\"
+      .allInOne.ingress.tls[0].hosts[0] = \"$VKPR_ENV_JAEGER_DOMAIN\" |
+      .allInOne.ingress.tls[0].secretName = \"$VKPR_ENV_JAEGER_NAMESPACE/$VKPR_ENV_JAEGER_SSL_SECRET\"
      "
   fi
 
