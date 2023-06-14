@@ -47,9 +47,24 @@
       }
     },
     {
-      "tutorial": "Simulate an install.",
+      "tutorial": "Simulate an install",
       "label": "Dry-run ?",
       "name": "dry_run",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "false",
+        "true"
+      ]
+    },
+    {      
+      "label": "Diff ?",
+      "condition": {
+        "variable": "dry_run",
+        "operator": "==",
+        "value": "false"
+      },
+      "name": "diff",
       "type": "bool",
       "default": "false",
       "items": [
