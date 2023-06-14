@@ -17,8 +17,9 @@ runFormula() {
   fi
   settingKong
   installKong
-  [[ $DRY_RUN == false ]] && [[ "$VKPR_ENVIRONMENT" != "okteto" ]] && installPlugins || true
-  [[ $DRY_RUN == false ]] && checkComands
+
+  [[ $DRY_RUN == false ]] && [[ $DIFF == false ]] && [[ "$VKPR_ENVIRONMENT" != "okteto" ]] && installPlugins || true
+  [[ $DRY_RUN == false ]] && [[ $DIFF == false ]] && checkComands
 }
 
 startInfos() {
