@@ -12,7 +12,7 @@ runFormula() {
   [ $DRY_RUN = false ] && installDB
   [ $DRY_RUN = false ] && registerHelmRepository veecode-platform https://veecode-platform.github.io/public-charts/
 
-  installApplication "devportal" "veecode-platform/devportal" "$NAMESPACE" "0.2.1" "$VKPR_DEVPORTAL_VALUES"
+  installApplication "devportal" "veecode-platform/devportal" "$NAMESPACE" "$VKPR_DEVPORTAL_VERSION" "$VKPR_DEVPORTAL_VALUES"
   [ $DRY_RUN = false ] && unsetCredentials
   [ $DRY_RUN = false ] && endsInfos
 }
