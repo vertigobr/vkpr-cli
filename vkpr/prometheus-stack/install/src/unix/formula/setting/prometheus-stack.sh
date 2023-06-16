@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 settingPrometheusStack() {
-  installLokiDatasource
+  [ $DRY_RUN = false ] && installLokiDatasource
   settingGrafanaValues
   settingPrometheusValues
   [[ "$VKPR_ENV_ALERTMANAGER" == true ]] && settingAlertManagerValues

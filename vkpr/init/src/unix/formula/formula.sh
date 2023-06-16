@@ -103,6 +103,21 @@ installHelm() {
     rm /tmp/get_helm.sh
     info "Helm installed!"
   fi
+  installHelmDiff
+}
+
+installHelmDiff (){
+  if [[ -f "$VKPR_HELM" ]]; then
+    if [[ -f "$HOME/.local/share/helm/plugins/helm-diff/README.md" ]]; then
+      notice "Helm diff already installed. Skipping..."
+    else
+      info "Installing Helm diff..."
+      $VKPR_HELM plugin install https://github.com/databus23/helm-diff > /dev/null
+      info "Helm diff installed!"
+    fi
+  else
+    warn "Helm not installed."
+  fi
 }
 
 installDeck() {

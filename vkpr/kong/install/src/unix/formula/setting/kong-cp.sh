@@ -145,5 +145,5 @@ if [[ $DRY_RUN == false ]]; then
   installDB
 fi
 
-createSecretsKongCp
+[[ $DIFF == false ]] && createSecretsKongCp
 settingKong

@@ -160,8 +160,8 @@ settingKongProvider(){
 }
 
 if [[ $DRY_RUN == false ]]; then
-  installDB
+  [[ $DIFF == false ]] && installDB
 fi
 
-createSecretsKongStandard
+[[ $DIFF == false ]] && createSecretsKongStandard
 settingKong

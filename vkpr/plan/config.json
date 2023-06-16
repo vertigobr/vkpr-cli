@@ -1,0 +1,12 @@
+{
+  "inputs": [
+    {
+      "label": "Path to config file:",
+      "name": "path_to_file",
+      "required": true,
+      "type": "text"
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease:": "2.16.2"
+}

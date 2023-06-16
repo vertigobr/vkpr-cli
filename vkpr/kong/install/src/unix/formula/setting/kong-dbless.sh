@@ -107,5 +107,5 @@ settingKongProvider(){
   fi
 }
 
-createSecretsKongDbless
+[[ $DIFF == false ]] && createSecretsKongDbless
 settingKong
