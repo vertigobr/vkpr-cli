@@ -1,26 +1,21 @@
 replicas: 1
 image:
   repository: veecode/devportal-bundle
-  tag: 1.0.9
+  tag: 0.3.1
   pullPolicy: IfNotPresent
-
 environment: development
-
 service:
   enabled: true
   name: devportal
   type: ClusterIP
   containerPort: 7007
-
 ingress:
   enabled: false
-
 resources:
   requests:
     memory: 512Mi
   limits:
     memory: 1024Mi
-
 appConfig:
   title: Devportal
   app:
@@ -35,18 +30,14 @@ appConfig:
       port: 5432
       database: platform_devportal
       user: postgres
-      password: vkpr123
-
 auth:
   providers:
     github:
       clientId: <your_client_id>
       clientSecret: <your_client_secret>
-
 integrations:
   github:
     token: <your_github_token>
-
 catalog:
   providers:
     github:
@@ -56,9 +47,16 @@ catalog:
         branch: master # string
         repository: devportal-spechouse # Regex
         validateLocationsExist: true
-
-grafana: {}
-argocd: {}
-vault: {}
-okta: {}
-kong: {}
+platform:
+  guest:
+    enabled: true
+  apiManagement:
+    enabled: false
+argocd:
+  enabled: false
+kong:
+  enabled: false
+grafana:
+  enabled: false
+vault:
+  enabled: false
