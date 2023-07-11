@@ -23,7 +23,7 @@ validateDigitalOceanClusterVersion() {
 }
 
 validateDigitalOceanClusterRegion() {
-  if [[ "$1" =~ ^(nyc1|nyc2|sfo1)$ ]]; then
+  if [[ "$1" =~ ^(nyc3|nyc1|nyc2|sfo1)$ ]]; then
     return
   else
     error "The value used for VKPR_ENV_DO_CLUSTER_REGION \"$1\" is invalid: VKPR_ENV_DO_CLUSTER_REGION must consist of nyc1, nyc2 or sfo1."

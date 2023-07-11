@@ -108,11 +108,12 @@
       "label": "Choose the K8s version:",
       "name": "k8s_version",
       "type": "text",
-      "default": "1.22",
+      "default": "1.27",
       "required": true,
       "items": [
-        "1.22",
-        "1.21"
+        "1.27",
+        "1.26",
+        "1.25"
       ]
     },
     {
@@ -120,9 +121,10 @@
       "label": "Choose the K8s region:",
       "name": "cluster_region",
       "type": "text",
-      "default": "nyc1",
+      "default": "nyc3",
       "required": true,
       "items": [
+        "nyc3",
         "nyc1",
         "nyc2",
         "sfo1"
@@ -196,6 +198,54 @@
       "tutorial": "Specifies your Gitlab Access-Token",
       "name": "gitlab_token",
       "type": "CREDENTIAL_GITLAB_TOKEN"
+    },
+    {
+      "tutorial": "Specifies where you want to store the TF state",
+      "label": "Choose where to store the state of Terraform:",
+      "name": "terraform_state",
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "github"
+      },
+      "type": "text",
+      "default": "s3",
+      "required": false,
+      "items": [
+        "spaces"
+      ]
+    },
+    {
+      "tutorial": "Specifies your Terraform Backend Bucket",
+      "label": "Specifies your Terraform Backend Bucket",
+      "condition": {
+        "variable": "terraform_state",
+        "operator": "==",
+        "value": "spaces"
+      },
+      "name": "bucket_terraform",
+      "type": "text",
+      "required": true
+    },
+    {
+      "tutorial": "Specifies your Token Space",
+      "condition": {
+        "variable": "terraform_state",
+        "operator": "==",
+        "value": "spaces"
+      },
+      "name": "space_access_token",
+      "type": "CREDENTIAL_SPACE_TOKEN"
+    },
+    {
+      "tutorial": "Specifies your Secret key Space",
+      "condition": {
+        "variable": "terraform_state",
+        "operator": "==",
+        "value": "spaces"
+      },
+      "name": "space_secret",
+      "type": "CREDENTIAL_SPACE_SECRET"
     }
   ],
   "template": "shell-bat",
