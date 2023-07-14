@@ -15,11 +15,25 @@ alertmanager:
 # grafana sub-chart parameters
 # -----------------------------------------------------------------------------
 grafana:
+  env:
+    GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/homepage/homepage.json
   enabled: true
   ingress:
     enabled: true
     ingressClassName: nginx
     path: "/"
+  dashboardsConfigMaps:
+    homepage: homepage
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: homepage
+          orgId: 1
+          folder: ""
+          type: file
+          options:
+            path: /var/lib/grafana/dashboards/homepage
 # -----------------------------------------------------------------------------
 # prometheus sub-chart parameters
 # -----------------------------------------------------------------------------
