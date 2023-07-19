@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  Kong_Igress_testes:
+  Igress_testes:
     runs-on: ubuntu-latest
     steps:
 
@@ -19,20 +19,16 @@ jobs:
        run: |
         ~/.vkpr/bats/bin/bats vkpr-test/kong/kong-standard.bats
 
-
-     - uses: actions/checkout@v3
      - name: bats-teste-kong-dbless
        continue-on-error: true
        run: |
         ~/.vkpr/bats/bin/bats vkpr-test/kong/kong-dbless.bats
 
-     - uses: actions/checkout@v3
      - name: bats-teste-nginx
        continue-on-error: true
        run: |
         ~/.vkpr/bats/bin/bats vkpr-test/ingress/ingress.bats
       
-     - uses: actions/checkout@v3
      - name: bats-teste-postgres
        continue-on-error: true
        run: |
