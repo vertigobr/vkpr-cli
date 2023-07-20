@@ -1,59 +1,41 @@
 replicas: 1
 image:
   repository: veecode/devportal-bundle
-  tag: 1.0.10
+  tag: 0.5.3 #devportal image tag
   pullPolicy: IfNotPresent
-
 environment: development
-
 service:
   enabled: true
   name: devportal
   type: ClusterIP
   containerPort: 7007
-
+  
 ingress:
-  enabled: true
-  className: kong
-
+  enabled: false
 resources:
   requests:
-    memory: 512Mi
+    memory: 256Mi
     cpu: 250m
   limits:
-    memory: 1024Mi
+    memory: 512Mi
     cpu: 500m
-
 appConfig:
-  title: Devportal
+  title: Devportal Platform
   app:
     baseUrl: https://devportal.<your-domain>
   backend:
     baseUrl: https://devportal.<your-domain>
-    secret: 13d08353-35a1-41ce-882c-c1370edcf838
   database:
     client: pg
     connection:
       host: postgres-postgresql.vkpr
       port: 5432
-      database: platform_devportal_prod
+      database: platform_devportal
       user: postgres
-
-auth:
-  providers:
-    github:
-      clientId: <your_client_id>
-      clientSecret: <your_client_secret>
-    keycloak:
-      metadataUrl: http://keycloak.<your-domain>/realms/platform-devportal/.well-known/openid-configuration
-      clientId: devportal
-      clientSecret: <your_client_secret>
-      prompt: auto
 
 integrations:
   github:
     token: <your_github_token>
-    
 
 catalog:
   providers:
@@ -61,21 +43,26 @@ catalog:
       organization: <your_github_org> # string
       catalogPath: /catalog-info.yaml # string
       filters:
-        branch: master # string
+        branch: main # string
         repository: devportal-spechouse # Regex
         validateLocationsExist: true
+    gitlab:
+      orgEnabled: false #Enable organization
+      branch: main 
+      entityFilename: 'catalog-info.yaml' #Catalog file path
 
 platform:
   guest:
-    enabled: false
-  apiManagement:
     enabled: true
-
+  apiManagement:
+    enabled: false
+  defaultGroups:
+    enabled: false
 argocd:
-  enabled: true
-  domain: https://argocd.apps.vkpr.net
-  username: "admin"
-  token: "RwF1-EGOhwIjCrSk"
-
+  enabled: false
 kong: 
-  enabled: true
+  enabled: false
+grafana:
+  enabled: false
+vault:
+  enabled: false

@@ -19,24 +19,45 @@
       ]
     },
     {
-      "label": "Github organization name:",
-      "tutorial": "Specifies your Github organization, more details at https://docs.platform.vee.codes/devportal/getStart/installation",
-      "name": "github_client_organization",
+      "tutorial": "Specifies the catalog for",
+      "label": "Select the provider for catalog",
+      "name": "provider",
+      "type": "text",
+      "required": true,
+      "items": [
+        "github",
+        "gitlab"
+      ]
+    },
+    {
+      "label": "Git client organization name:",
+      "tutorial": "Specifies your Github or Gitlab organization, more details at https://docs.platform.vee.codes/devportal/installationGuide",
+      "name": "client_organization",
       "required": true,
       "type": "text"
     },
     {
       "label": "Github auth clientId:",
-      "tutorial": "Specifies your Github auth provider clientId, more details at https://docs.platform.vee.codes/devportal/getStart/installation",
+      "tutorial": "Specifies your Github auth provider clientId, more details at https://docs.platform.vee.codes/devportal/installationGuide",
       "name": "github_client_id",
       "required": true,
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "github"
+      },
       "type": "text"
     },
     {
       "label": "Github auth clientSecret:",
-      "tutorial": "Specifies your Github auth provider clientSecret, more details at https://docs.platform.vee.codes/devportal/getStart/installation",
+      "tutorial": "Specifies your Github auth provider clientSecret, more details at https://docs.platform.vee.codes/devportal/installationGuide",
       "name": "github_client_secret",
       "required": true,
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "github"
+      },
       "type": "text"
     },
     {
@@ -44,146 +65,44 @@
       "tutorial": "Specifies your Github personal access token",
       "name": "github_token",
       "required": true,
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "github"
+      },
       "type": "text"
     },
     {
-      "tutorial": "Specifies the Keycloak URL",
-      "label": "Keycloak URL",
-      "name": "keycloak_client_url",
+      "label": "Gitlab apiBaseUrl:",
+      "tutorial": "Specifies your Gitlab apiBaseUrl, more details at https://docs.platform.vee.codes/devportal/installationGuide",
+      "name": "gitlab_apiBaseUrl",
       "required": true,
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "gitlab"
+      },
       "type": "text"
     },
     {
-      "tutorial": "Specifies the Keycloak Client ID",
-      "label": "Keycloak Client ID",
-      "name": "keycloak_client_id",
-      "default": "devportal",
+      "label": "Gitlab access token:",
+      "tutorial": "Specifies your Gitlab personal access token",
+      "name": "gitlab_token",
       "required": true,
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "gitlab"
+      },
       "type": "text"
     },
     {
-      "tutorial": "Specifies the Keycloak Client Secret",
-      "label": "Keycloak Client Secret",
-      "name": "keycloak_client_secret",
+      "label": "Repository branch:",
+      "tutorial": "Specifies your branch on repository to use as catalog",
+      "name": "catalog_branch",
       "required": true,
+      "default": "main",
       "type": "text"
-    },
-    {
-      "tutorial": "If you have a Vault and want you want to use to store the secrets of the project.",
-      "label": "Want to use Vault plugin for secret storage ?",
-      "name": "vault_use",
-      "type": "bool",
-      "default": "false",
-      "items": [
-        "false",
-        "true"
-      ]
-    },
-    {
-      "tutorial": "Specifies the Vault endpoint to be used",
-      "condition": {
-        "variable": "vault_use",
-        "operator": "==",
-        "value": "true"
-      },
-      "label": "Vault Endpoint",
-      "name": "vault_endpoint",
-      "type": "text",
-      "required": true
-    },
-    {
-      "tutorial": "Specifies the Vault token to be used",
-      "condition": {
-        "variable": "vault_use",
-        "operator": "==",
-        "value": "true"
-      },
-      "label": "Vault Token",
-      "name": "vault_token",
-      "type": "text",
-      "required": true
-    },
-    {
-      "tutorial": "If you have grafana and want to use it to se the dashboards from the applications.",
-      "label": "Want to use Grafana plugin for dashboard view ?",
-      "name": "grafana_use",
-      "type": "bool",
-      "default": "false",
-      "items": [
-        "false",
-        "true"
-      ]
-    },
-    {
-      "tutorial": "Specifies the Grafana endpoint to be used",
-      "condition": {
-        "variable": "grafana_use",
-        "operator": "==",
-        "value": "true"
-      },
-      "label": "Grafana Endpoint",
-      "name": "grafana_endpoint",
-      "type": "text",
-      "required": true
-    },
-    {
-      "tutorial": "Specifies the Grafana API token to be used",
-      "condition": {
-        "variable": "grafana_use",
-        "operator": "==",
-        "value": "true"
-      },
-      "label": "Grafana API Token",
-      "name": "grafana_token",
-      "type": "text",
-      "required": true
-    },
-    {
-      "tutorial": "If you have a Argocd and want you want to use to CI/CD routines.",
-      "label": "Want to use Argocd plugin for CI/CD ?",
-      "name": "argocd_use",
-      "type": "bool",
-      "default": "false",
-      "items": [
-        "false",
-        "true"
-      ]
-    },
-    {
-      "tutorial": "Specifies the Argocd endpoint to be used",
-      "condition": {
-        "variable": "argocd_use",
-        "operator": "==",
-        "value": "true"
-      },
-      "label": "Argocd Endpoint",
-      "name": "argocd_endpoint",
-      "type": "text",
-      "required": true
-    },
-    {
-      "tutorial": "Specifies the Argocd user.",
-      "condition": {
-        "variable": "argocd_use",
-        "operator": "==",
-        "value": "true"
-      },
-      "label": "Argocd User",
-      "name": "argocd_user",
-      "type": "text",
-      "required": true
-    },
-    {
-      "tutorial": "Specifies the Argocd password.",
-      "condition": {
-        "variable": "argocd_use",
-        "operator": "==",
-        "value": "true"
-      },
-      "label": "Argocd password",
-      "name": "argocd_password",
-      "type": "text",
-      "required": true
     },
     {
       "tutorial": "Simulate an install",
