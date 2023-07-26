@@ -1,0 +1,15 @@
+{
+    "name": "Tempo",
+    "type": "tempo",
+    "access": "proxy",
+    "url": "http://tempo:16686/",
+    "basicAuth": false,
+    "withCredentials": false,
+    "isDefault": false,
+    "readOnly": false,
+    "jsonData": {
+        "nodeGraph": {
+          "enabled": true
+        }
+    }
+}

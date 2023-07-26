@@ -97,7 +97,7 @@ createGrafanaDatasource(){
     $VKPR_JQ -r '.message' -
   )
 
-  info "Adding data source from Jaeger to Grafana..."
+  info "Adding data source to Grafana..."
   if [[ $CREATE_DATASOURCE == "Datasource added" ]]; then
     boldInfo "Datasource added"
     return
