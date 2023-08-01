@@ -11,7 +11,7 @@ runFormula() {
   startInfos
   settingIngress
   [ $DRY_RUN = false ] && registerHelmRepository ingress-nginx https://kubernetes.github.io/ingress-nginx
-  installApplication "ingress-nginx" "ingress-nginx/ingress-nginx" "$VKPR_ENV_INGRESS_NAMESPACE" "$VKPR_INGRESS_NGINX_VERSION" "$VKPR_INGRESS_VALUES" "$HELM_ARGS"
+  installApplication "ingress" "ingress-nginx/ingress-nginx" "$VKPR_ENV_INGRESS_NAMESPACE" "$VKPR_INGRESS_NGINX_VERSION" "$VKPR_INGRESS_VALUES" "$HELM_ARGS"
 }
 
 startInfos() {

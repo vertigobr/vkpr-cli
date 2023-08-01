@@ -1,23 +1,51 @@
+#!/usr/bin/env bats
+
+# ~/.vkpr/bats/bin/bats vkpr-test/ingress/ingress.bats
+
+export DETIK_CLIENT_NAMESPACE="vkpr"
+load '../.bats/common.bats'
+
 setup() {
-  load $VKPR_HOME/bats/bats-support/load.bash
-  load $VKPR_HOME/bats/bats-assert/load.bash
+  load "$VKPR_HOME/bats/bats-support/load"
+  load "$VKPR_HOME/bats/bats-assert/load"
+  load "$VKPR_HOME/bats/bats-detik/load"
+  load "$VKPR_HOME/bats/bats-file/load"
 }
 
 setup_file() {
-  load '../.bats/common.bats.bash'
-  _common_setup
+  touch $PWD/vkpr.yaml
 
-  if [ "$VKPR_TEST_SKIP_PROVISIONING" == "true" ]; then
-    echo "setup: skipping provisionig due to VKPR_TEST_SKIP_PROVISIONING=true" >&3
+  [ "$VKPR_TEST_SKIP_ALL" == "true" ] && echo "common_setup: skipping common_setup due to VKPR_TEST_SKIP_ALL=true" >&3 && return
+  _common_setup "1" "false" "1"
+
+  if [ "$VKPR_TEST_SKIP_DEPLOY_ACTIONS" == "true" ]; then
+    echo "common_setup: skipping common_setup due to VKPR_TEST_SKIP_DEPLOY_ACTIONS=true" >&3
+    return
   else
     echo "setup: installing ingress..." >&3
     rit vkpr ingress install --default
   fi
 }
 
-setup() {
-    load $VKPR_HOME/bats/bats-support/load.bash
-    load $VKPR_HOME/bats/bats-assert/load.bash
+
+teardown_file() {
+  if [ "$VKPR_TEST_SKIP_ALL" == "true" ]; then
+    echo "common_setup: skipping common_setup due to VKPR_TEST_SKIP_ALL=true" >&3
+    return
+  fi
+
+  if [ "$VKPR_TEST_SKIP_DEPLOY_ACTIONS" == "true" ]; then
+    echo "common_setup: skipping common_setup due to VKPR_TEST_SKIP_DEPLOY_ACTIONS=true" >&3
+  else
+    echo "Uninstall kong" >&3
+    rit vkpr ingress remove
+  fi
+
+  _common_teardown
+}
+
+teardown() {
+  $VKPR_YQ -i "del(.global) | del(.ingress)" $PWD/vkpr.yaml
 }
 
 @test "curl to nGINX with HTTP and must return status 404" {
@@ -34,11 +62,11 @@ setup() {
 
 @test "Use vkpr.yaml to merge values in ingress with helmArgs" {
   testValue="nginx-test"
-  useVKPRfile changeYAMLfile ".ingress.helmArgs.fullnameOverride = \"${testValue}\""
+  useVKPRfile changeYAMLfile ".ingress.helmArgs.controller.labels.[\"app.kubernetes.io/tested-by\"] = \"${testValue}\"" 
   sleep 10
 
-  run $VKPR_HELM get values ingress-nginx -n vkpr
-  assert_line --partial "fullnameOverride: nginx-test"
+  run $VKPR_HELM get values ingress -n vkpr
+  assert_line --partial "nginx-test"
   assert_success
 }
 

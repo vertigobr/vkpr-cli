@@ -1,0 +1,15 @@
+{
+    "name": "Jaeger",
+    "type": "jaeger",
+    "access": "proxy",
+    "url": "http://jaeger-query:16686/",
+    "basicAuth": false,
+    "withCredentials": false,
+    "isDefault": false,
+    "readOnly": false,
+    "jsonData": {
+        "nodeGraph": {
+          "enabled": true
+        }
+    }
+}

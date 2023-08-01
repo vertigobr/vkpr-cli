@@ -1,0 +1,81 @@
+{
+  "inputs": [
+    {
+      "tutorial": "Specifies the domain to use in the application",
+      "label": "Type the Tempo domain:",
+      "name": "domain",
+      "type": "text",
+      "default": "localhost"
+    },
+    {
+      "tutorial": "Specifies if the application will have HTTPS",
+      "label": "Secure ?",
+      "name": "secure",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "true",
+        "false"
+      ]
+    },
+    {
+      "tutorial": "Specifies if the tempo will be using internal SSL certificates.",
+      "label": "Will you use SSL?",
+      "name": "ssl",
+      "type": "bool",
+      "default": "false",
+      "required": true,
+      "items": [
+        "false",
+        "true"
+      ]
+    },
+    {
+      "tutorial": "Specifies the tempo .crt file path.",
+      "condition": {
+        "variable": "ssl",
+        "operator": "==",
+        "value": "true"
+      },
+      "label": "Type the full path to the .crt file:",
+      "name": "crt_file",
+      "type": "text",
+      "default": "",
+      "cache": {
+        "active": true,
+        "qty": 2,
+        "newLabel": "Type another .crt file path: "
+      }
+    },
+    {
+      "tutorial": "Specifies the tempo .key file path.",
+      "condition": {
+        "variable": "ssl",
+        "operator": "==",
+        "value": "true"
+      },
+      "label": "Type the full path to the .key file:",
+      "name": "key_file",
+      "type": "text",
+      "default": "",
+      "cache": {
+        "active": true,
+        "qty": 2,
+        "newLabel": "Type another .key file path: "
+      }
+    },
+    {
+      "tutorial": "Simulate an install",
+      "label": "Dry-run ?",
+      "name": "dry_run",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "true",
+        "false"
+      ]
+    }
+  ],
+  "template": "shell-bat",
+  "templateRelease": "2.17.0"
+}

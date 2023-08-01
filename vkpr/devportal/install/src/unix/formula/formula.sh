@@ -32,6 +32,7 @@ formulaInputs() {
   # App values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "devportal.ingressClassName" "DEVPORTAL_INGRESS_CLASS_NAME"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "devportal.namespace" "DEVPORTAL_NAMESPACE"
+  checkGlobalConfig "$PROVIDER" "" "devportal.provider" "CATALOG_PROVIDER"
 
   # External apps values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "postgresql.namespace" "POSTGRESQL_NAMESPACE"
@@ -50,16 +51,9 @@ validateInputs() {
 
 settingDevportal() {
   YQ_VALUES=".ingress.host = \"$VKPR_ENV_DEVPORTAL_DOMAIN\" |
-    .ingress.className = \"kong\" |
+    .ingress.className = \"$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME\" |
     .appConfig.app.baseUrl = \"http://$VKPR_ENV_DEVPORTAL_DOMAIN/\" |
     .appConfig.backend.baseUrl = \"http://$VKPR_ENV_DEVPORTAL_DOMAIN/\" |
-    .auth.providers.keycloak.clientId = \"$KEYCLOAK_CLIENT_ID\" |
-    .auth.providers.keycloak.clientSecret = \"$KEYCLOAK_CLIENT_SECRET\" |
-    .auth.providers.keycloak.metadataUrl = \"$KEYCLOAK_METADATA_URL\" |
-    .auth.providers.github.clientId = \"$GITHUB_CLIENT_ID\" |
-    .auth.providers.github.clientSecret = \"$GITHUB_CLIENT_SECRET\" |
-    .integrations.github.token = \"$GITHUB_TOKEN\" |
-    .catalog.providers.github.organization = \"$GITHUB_CLIENT_ORGANIZATION\" |
     .appConfig.database.connection.password = \"$POSTGRESQL_PWD\"
   "
 
@@ -74,35 +68,37 @@ settingDevportal() {
   if [[ $VKPR_ENV_GLOBAL_DOMAIN == "localhost" ]]; then
     YQ_VALUES="$YQ_VALUES |
       .appConfig.app.baseUrl = \"http://$VKPR_ENV_DEVPORTAL_DOMAIN:8000/\" |
-      .appConfig.backend.baseUrl = \"http://$VKPR_ENV_DEVPORTAL_DOMAIN:8000/\"
+      .appConfig.backend.baseUrl = \"http://$VKPR_ENV_DEVPORTAL_DOMAIN:8000/\" |
+      .platform.apiManagement.readOnlyMode = \"true\"
     "
   fi
 
-  ## plugins
-  if [[ "$VAULT_USE" == true ]]; then
-    YQ_VALUES="$YQ_VALUES |
-      .vault.enabled = \"true\" |
-      .vault.domain = \"$VAULT_ENDPOINT\" |
-      .vault.token = \"$VAULT_TOKEN\"
-    "
-  fi
+  if [[ $VKPR_ENV_GLOBAL_DOMAIN != "localhost" ]]; then
+    case $CATALOG_PROVIDER in
+      github)
+        YQ_VALUES="$YQ_VALUES |
+          .auth.providers.github.clientId = \"$GITHUB_CLIENT_ID\" |
+          .auth.providers.github.clientSecret = \"$GITHUB_CLIENT_SECRET\" |
+          .integrations.github.token = \"$GITHUB_TOKEN\" |
+          .catalog.providers.github.organization = \"$CLIENT_ORGANIZATION\" |
+          .catalog.providers.github.filters.branch = \"$CATALOG_BRANCH
+        "
+      ;;
+      gitlab)
+        YQ_VALUES="$YQ_VALUES |
+          .integrations.gitlab.token = \"$GITLAB_TOKEN\" |
+          .integrations.gitlab.apiBaseUrl = \"$GITLAB_APIBASEURL\" |
+          .catalog.providers.gitlab.branch = \"$CATALOG_BRANCH\" |
+          .catalog.providers.gitlab.orgEnabled = \"false\" |
+          .catalog.providers.gitlab.orgEnabled = \"false\" |
 
-  if [[ "$GRAFANA_USE" == true ]]; then
-    YQ_VALUES="$YQ_VALUES |
-      .grafana.enabled = \"true\" |
-      .grafana.domain = \"$GRAFANA_ENDPOINT\" |
-      .grafana.token = \"$GRAFANA_TOKEN\"
-    "
+        "
+      ;;
+      *)
+        error "Something wrong whit this provider"
+      ;;
+    esac
   fi
-
-  if [[ "$ARGOCD_USE" == true ]]; then
-    YQ_VALUES="$YQ_VALUES |
-      .argocd.enabled = \"true\" |
-      .grafana.domain = \"$GRAFANA_ENDPOINT\" |
-      .grafana.token = \"$GRAFANA_TOKEN\"
-    "
-  fi
-
 
   debug "YQ_CONTENT = $YQ_VALUES"
 }
