@@ -46,7 +46,7 @@ setVariablesGHUB() {
   createOrUpdateVariable "$PROJECT_IDENTIFIER" "CI_GITHUB_TOKEN" "$GITHUB_TOKEN" "yes" "$VKPR_ENV_EKS_CLUSTER_NAME" "$GITHUB_TOKEN"
 }
   ### CRIIANDO REPOSITORIO ###
-  githubCreateRepo "${CLUSTER_NAME}" "$GITHUB_TOKEN" 
+  githubCreateRepo "${CLUSTER_NAME}" "$GITHUB_TOKEN" >/dev/null 2>&1
 
   ### CONFIGURANDO SECRECTS ####
   VAR_PROJECT_NAME="${GITHUB_USERNAME}/${CLUSTER_NAME}"
@@ -59,7 +59,7 @@ setVariablesGHUB() {
   
 
   cd "$VKPR_HOME" || exit
-  git clone https://github.com/vertigobr/aws-eks.git
+  git clone https://github.com/vertigobr/aws-eks.git >/dev/null 2>&1
   cd aws-eks 
   rm -rf .git
   git init 

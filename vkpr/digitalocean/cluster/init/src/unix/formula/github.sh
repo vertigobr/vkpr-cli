@@ -23,7 +23,7 @@ setCredentials() {
 }
 
   ### CRIIANDO REPOSITORIO ###
-  githubCreateRepo "${CLUSTER_NAME}" "$GITHUB_TOKEN" 
+  githubCreateRepo "${CLUSTER_NAME}" "$GITHUB_TOKEN" >/dev/null 2>&1
 
 validateInputs() {
   validateDigitalOceanClusterName "$VKPR_ENV_DO_CLUSTER_NAME"
@@ -49,7 +49,7 @@ validateInputs() {
   githubActionsCreateUpdateSecret "$VAR_PROJECT_NAME" "DO_SECRET_KEY" "$SPACES_SECRET_KEY" "$PUBLIC_KEY" "$GITHUB_USERNAME" "$GITHUB_TOKEN"
   
   cd "$VKPR_HOME" || exit
-  git clone https://github.com/vertigobr/k8s-digitalocean.git
+  git clone https://github.com/vertigobr/k8s-digitalocean.git >/dev/null 2>&1
   cd k8s-digitalocean
   ls -ltrh
   rm -rf .git
