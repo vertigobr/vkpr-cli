@@ -47,36 +47,77 @@ setVariablesGHUB() {
   githubActionsCreateUpdateSecret "$VAR_PROJECT_NAME" "AWS_SECRET_KEY" "$AWS_SECRET_KEY" "$PUBLIC_KEY" "$GITHUB_USERNAME" "$GITHUB_TOKEN"
   githubActionsCreateUpdateSecret "$VAR_PROJECT_NAME" "AWS_REGION" "$AWS_REGION" "$PUBLIC_KEY" "$GITHUB_USERNAME" "$GITHUB_TOKEN"
 
+  cat "$VKPR_HOME"/aws_site_s3/config/defaults.yml
+  mergeVkprValuesExtraArgs "aws_site_s3" "$VKPR_HOME"/aws_site_s3/"$VKPR_HOME"/aws_site_s3/config/defaults.yml
 
+  if [ $CERTIFICATE == true ]; then
+  S3_CERTIFICATE
+  fi
+
+  S3_CERTIFICATE() {
+  ######### CLONE TEMPLATE ###########
   cd "$VKPR_HOME" || exit
-  git clone https://github.com/vertigobr/aws_site_s3.git
-  cd aws_site_s3
+  git clone https://github.com/vertigobr/aws_site_s3_certificate.git
+  cd aws_aws_site_s3_certificate
   rm -rf .git
   git init 
   git remote add origin https://github.com/${GITHUB_USERNAME}/${DOMAIN}_site_s3.git
 
-######### YQ INSERT ###########
-  $VKPR_YQ -i ".domain =\"${bucket}\"" "$VKPR_HOME"/aws_site_s3/config/defaults.yml
-
-####### HABILITANDO CLOUDFRONT ####
-
-  if [ $CLOUDFRONT == true ]; then
-  printf "module \"site\" { \n    souce = \"./cloudfront \" \n     domain = local.config.domain \n   \n} " >> main.tf 
-  cat  main .tf
-  fi
   ### CONFIGURADO BACKEND S3
   if [ $TERRAFORM_STATE == "s3" ]; then
   printf "terraform { \n  backend \"s3\" { \n    bucket = \"${BUCKET_TERRAFORM}\" \n    key    = \"${BUCKET_TERRAFORM}.tfstate\" \n    region = \"${AWS_REGION}\" \n  }\n}" > backend.tf
   cat backend.tf
   fi
-  cat "$VKPR_HOME"/aws_site_s3/config/defaults.yml
-  mergeVkprValuesExtraArgs "aws_site_s3" "$VKPR_HOME"/aws_site_s3/"$VKPR_HOME"/aws_site_s3/config/defaults.yml
-# git checkout -b "$VKPR_ENV_EKS_CLUSTER_NAME"
+  
+  ######### YQ INSERT ###########
+
+  $VKPR_YQ -i ".route53_zone_domain = \"${DOMAIN}\" |
+    .cdn_domain = \"${BUCKET}.${DOMAIN}\" |
+    .id_zone = \"${IDZONE}\" 
+   " "$VKPR_HOME"/aws_aws_site_s3_certificate/config/defaults.yml
+  ######### GIT PUSH ###########
   git add .
   git commit -am "[VKPR] Initial configuration defaults.yml"
   git push --set-upstream origin master 
   cd - > /dev/null || exit
-  rm -rf "$VKPR_HOME"/aws_site_s3
+  rm -rf "$VKPR_HOME"/aws_aws_site_s3_certificate
+}
+ 
+ if [ $CERTIFICATE == false ]; then
+  Site_s3
+fi
+  Site_s3(){
+  ######### CLONE TEMPLATE ###########
+  cd "$VKPR_HOME" || exit
+  git clone https://github.com/vertigobr/aws_site_s3_certificate.git
+  cd aws_aws_site_s3_certificate
+  rm -rf .git
+  git init 
+  git remote add origin https://github.com/${GITHUB_USERNAME}/${DOMAIN}_site_s3.git
+
+  ### CONFIGURADO BACKEND S3
+  if [ $TERRAFORM_STATE == "s3" ]; then
+  printf "terraform { \n  backend \"s3\" { \n    bucket = \"${BUCKET_TERRAFORM}\" \n    key    = \"${BUCKET_TERRAFORM}.tfstate\" \n    region = \"${AWS_REGION}\" \n  }\n}" > backend.tf
+  cat backend.tf
+  fi
+
+  if [ $CLOUDFRONT == true ]; then
+  printf "module \"site\" { \n    souce = \"./cloudfront \" \n     domain = local.config.domain \n   \n} " >> main.tf 
+  cat  main .tf
+  fi
+  cat "$VKPR_HOME"/aws_site_s3/config/defaults.yml
+  mergeVkprValuesExtraArgs "aws_site_s3" "$VKPR_HOME"/aws_site_s3/"$VKPR_HOME"/aws_site_s3/config/defaults.yml
+
+  ######### YQ INSERT ###########
+  $VKPR_YQ -i ".domain =\"${bucket}\"" "$VKPR_HOME"/aws_site_s3/config/defaults.yml
+
+  ######### GIT PUSH ###########
+  git add .
+  git commit -am "[VKPR] Initial configuration defaults.yml"
+  git push --set-upstream origin master 
+  cd - > /dev/null || exit
+  rm -rf "$VKPR_HOME"/aws_aws_site_s3_certificate
+ }
 
 } 
 
