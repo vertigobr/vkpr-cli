@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-runFormula() {
+runFormulaGitlab() {
   local PROJECT_ENCODED FORK_RESPONSE_CODE;
 
   formulaInputs

@@ -8,11 +8,11 @@ runFormula() {
   case $PROVIDER in
     github)
       source "$(dirname "$0")"/unix/formula/github.sh 
-      setproviderrun
+      runFormulaGithub
       ;;
     gitlab)
       source "$(dirname "$0")"/unix/formula/gitlab.sh
-      setproviderrun
+      runFormulaGitlab
       ;;
     esac
 }

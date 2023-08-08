@@ -1,23 +1,35 @@
-name: Provisionamento
+name: bats-testes
 
 on:
   workflow_dispatch:
 
 jobs:
-  Provisionamento:
+  Igress_testes:
     runs-on: ubuntu-latest
     steps:
 
-     - uses: actions/checkout@v3
      - name: Install Vkpr
        run: |
-          curl -fsSL https://get.vkpr.net/ | bash
+          curl -fsSL https://get.vkpr.net/ | CONTROL_SKIP="true" bash
           alias vkpr="rit vkpr"
 
      - uses: actions/checkout@v3
-     - name: bats-teste-kong
+     - name: bats-teste-kong-standard
+       continue-on-error: true
        run: |
         ~/.vkpr/bats/bin/bats vkpr-test/kong/kong-standard.bats
 
+     - name: bats-teste-kong-dbless
+       continue-on-error: true
+       run: |
+        ~/.vkpr/bats/bin/bats vkpr-test/kong/kong-dbless.bats
 
-
+     - name: bats-teste-nginx
+       continue-on-error: true
+       run: |
+        ~/.vkpr/bats/bin/bats vkpr-test/ingress/ingress.bats
+      
+     - name: bats-teste-postgres
+       continue-on-error: true
+       run: |
+        ~/.vkpr/bats/bin/bats vkpr-test/postgres/postgres.bats

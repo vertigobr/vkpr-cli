@@ -82,6 +82,30 @@ checkExistingDatabase() {
   fi 
 }
 
+createGrafanaDatasource(){
+  local DASHBOARD_FILE=$1 GRAFANA_NAMESPACE=$2
+
+  LOGIN_GRAFANA=$($VKPR_KUBECTL get secret --namespace "$GRAFANA_NAMESPACE" prometheus-stack-grafana -o=jsonpath="{.data.admin-user}" | base64 -d)
+  PWD_GRAFANA=$($VKPR_KUBECTL get secret --namespace "$GRAFANA_NAMESPACE" prometheus-stack-grafana -o=jsonpath="{.data.admin-password}" | base64 -d)
+
+  GRAFANA_ADDRESS="grafana.${VKPR_ENV_GLOBAL_DOMAIN}"
+  [[ $VKPR_ENV_GLOBAL_DOMAIN == "localhost" ]] && GRAFANA_ADDRESS="grafana.localhost:8000"
+  debug "GRAFANA ADDRESS = $GRAFANA_ADDRESS"
+
+  CREATE_DATASOURCE=$(curl -s -X POST -H "Content-Type: application/json" \
+    -d @$DASHBOARD_FILE http://$LOGIN_GRAFANA:$PWD_GRAFANA@$GRAFANA_ADDRESS//api/datasources |\
+    $VKPR_JQ -r '.message' -
+  )
+
+  info "Adding data source to Grafana..."
+  if [[ $CREATE_DATASOURCE == "Datasource added" ]]; then
+    boldInfo "Datasource added"
+    return
+  else
+    error $CREATE_DATASOURCE
+  fi
+}
+
 createGrafanaDashboard() {
   local DASHBOARD_FILE=$1 GRAFANA_NAMESPACE=$2
 

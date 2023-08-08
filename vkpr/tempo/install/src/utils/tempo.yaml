@@ -1,0 +1,5 @@
+tempoQuery:
+  ingress:
+    enabled: true
+podLabels:
+  app.kubernetes.io/managed-by: vkpr

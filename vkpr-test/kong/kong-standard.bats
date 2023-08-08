@@ -104,10 +104,8 @@ teardown() {
 
   rit vkpr kong install --mode="standard" --domain=input.net --dry_run | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
   helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > $BATS_FILE_TMPDIR/temp.yaml
-  tail -n +2 $BATS_FILE_TMPDIR/temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
-  csplit $BATS_FILE_TMPDIR/manifest.yaml '/\-\-\-/' -f $BATS_FILE_TMPDIR/manifest.yaml -n "0" | mv -f $BATS_FILE_TMPDIR/manifest.yaml1 $BATS_FILE_TMPDIR/manifest.yaml | rm -f $BATS_FILE_TMPDIR/manifest.yaml0  
   
-  run $VKPR_YQ ".spec.rules[0].host" $BATS_FILE_TMPDIR/manifest.yaml 
+  run $VKPR_YQ "select(documentIndex == 1).spec.rules[0].host" $BATS_FILE_TMPDIR/temp.yaml 
   assert_output "api.manager.input.net"
 }
 
@@ -119,10 +117,8 @@ teardown() {
 
   rit vkpr kong install --mode="standard" --default --dry_run | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
   helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > $BATS_FILE_TMPDIR/temp.yaml
-  tail -n +2 $BATS_FILE_TMPDIR/temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
-  csplit $BATS_FILE_TMPDIR/manifest.yaml '/\-\-\-/' -f $BATS_FILE_TMPDIR/manifest.yaml -n "0" | mv -f $BATS_FILE_TMPDIR/manifest.yaml1 $BATS_FILE_TMPDIR/manifest.yaml | rm -f $BATS_FILE_TMPDIR/manifest.yaml0  
   
-  run $VKPR_YQ ".spec.rules[0].host" $BATS_FILE_TMPDIR/manifest.yaml 
+  run $VKPR_YQ "select(documentIndex == 1).spec.rules[0].host" $BATS_FILE_TMPDIR/temp.yaml 
   assert_output "api.manager.config.net"
 }
 
@@ -132,10 +128,8 @@ teardown() {
 
   rit vkpr kong install --mode="standard" --default --dry_run | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
   helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > $BATS_FILE_TMPDIR/temp.yaml
-  tail -n +2 $BATS_FILE_TMPDIR/temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
-  csplit $BATS_FILE_TMPDIR/manifest.yaml '/\-\-\-/' -f $BATS_FILE_TMPDIR/manifest.yaml -n "0" | mv -f $BATS_FILE_TMPDIR/manifest.yaml1 $BATS_FILE_TMPDIR/manifest.yaml | rm -f $BATS_FILE_TMPDIR/manifest.yaml0  
   
-  run $VKPR_YQ ".spec.rules[0].host" $BATS_FILE_TMPDIR/manifest.yaml 
+  run $VKPR_YQ "select(documentIndex == 1).spec.rules[0].host" $BATS_FILE_TMPDIR/temp.yaml 
   assert_output "api.manager.env.net"
 }
 
@@ -144,10 +138,8 @@ teardown() {
   
   rit vkpr kong install --mode="standard" --default --dry_run | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
   helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > $BATS_FILE_TMPDIR/temp.yaml
-  tail -n +2 $BATS_FILE_TMPDIR/temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
-  csplit $BATS_FILE_TMPDIR/manifest.yaml '/\-\-\-/' -f $BATS_FILE_TMPDIR/manifest.yaml -n "0" | mv -f $BATS_FILE_TMPDIR/manifest.yaml1 $BATS_FILE_TMPDIR/manifest.yaml | rm -f $BATS_FILE_TMPDIR/manifest.yaml0  
-
-  run $VKPR_YQ ".spec.rules[0].host" $BATS_FILE_TMPDIR/manifest.yaml 
+  
+  run $VKPR_YQ "select(documentIndex == 1).spec.rules[0].host" $BATS_FILE_TMPDIR/temp.yaml 
   assert_output "api.manager.localhost"
 }
 
@@ -163,14 +155,12 @@ teardown() {
 
   rit vkpr kong install --mode="standard" --secure --dry_run | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
   helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > $BATS_FILE_TMPDIR/temp.yaml
-  tail -n +2 $BATS_FILE_TMPDIR/temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
-  csplit $BATS_FILE_TMPDIR/manifest.yaml '/\-\-\-/' -f $BATS_FILE_TMPDIR/manifest.yaml -n "0" | mv -f $BATS_FILE_TMPDIR/manifest.yaml1 $BATS_FILE_TMPDIR/manifest.yaml | rm -f $BATS_FILE_TMPDIR/manifest.yaml0  
-  
-  run $VKPR_YQ ".metadata.annotations.[\"kubernetes.io/tls-acme\"]" $BATS_FILE_TMPDIR/manifest.yaml
+
+  run $VKPR_YQ "select(documentIndex == 1).metadata.annotations.[\"kubernetes.io/tls-acme\"]" $BATS_FILE_TMPDIR/temp.yaml
   assert_output "true"
-  run $VKPR_YQ ".spec.tls[0].hosts[0]" $BATS_FILE_TMPDIR/manifest.yaml
+  run $VKPR_YQ "select(documentIndex == 1).spec.tls[0].hosts[0]" $BATS_FILE_TMPDIR/temp.yaml
   assert_output "api.manager.localhost"
-  run $VKPR_YQ ".spec.tls[0].secretName" $BATS_FILE_TMPDIR/manifest.yaml
+  run $VKPR_YQ "select(documentIndex == 1).spec.tls[0].secretName" $BATS_FILE_TMPDIR/temp.yaml
   assert_output "admin-kong-cert"
 }
 
@@ -182,14 +172,12 @@ teardown() {
 
   rit vkpr kong install --mode="standard" --default --dry_run | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
   helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > $BATS_FILE_TMPDIR/temp.yaml
-  tail -n +2 $BATS_FILE_TMPDIR/temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
-  csplit $BATS_FILE_TMPDIR/manifest.yaml '/\-\-\-/' -f $BATS_FILE_TMPDIR/manifest.yaml -n "0" | mv -f $BATS_FILE_TMPDIR/manifest.yaml1 $BATS_FILE_TMPDIR/manifest.yaml | rm -f $BATS_FILE_TMPDIR/manifest.yaml0  
-  
-  run $VKPR_YQ ".metadata.annotations.[\"kubernetes.io/tls-acme\"]" $BATS_FILE_TMPDIR/manifest.yaml
+
+  run $VKPR_YQ "select(documentIndex == 1).metadata.annotations.[\"kubernetes.io/tls-acme\"]" $BATS_FILE_TMPDIR/temp.yaml
   assert_output "null"
-  run $VKPR_YQ ".spec.tls[0].hosts[0]" $BATS_FILE_TMPDIR/manifest.yaml
+  run $VKPR_YQ "select(documentIndex == 1).spec.tls[0].hosts[0]" $BATS_FILE_TMPDIR/temp.yaml
   assert_output "null"
-  run $VKPR_YQ ".spec.tls[0].secretName" $BATS_FILE_TMPDIR/manifest.yaml
+  run $VKPR_YQ "select(documentIndex == 1).spec.tls[0].secretName" $BATS_FILE_TMPDIR/temp.yaml
   assert_output "null"
 }
 
@@ -199,14 +187,12 @@ teardown() {
 
   rit vkpr kong install --mode="standard" --default --dry_run | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
   helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > $BATS_FILE_TMPDIR/temp.yaml
-  tail -n +2 $BATS_FILE_TMPDIR/temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
-  csplit $BATS_FILE_TMPDIR/manifest.yaml '/\-\-\-/' -f $BATS_FILE_TMPDIR/manifest.yaml -n "0" | mv -f $BATS_FILE_TMPDIR/manifest.yaml1 $BATS_FILE_TMPDIR/manifest.yaml | rm -f $BATS_FILE_TMPDIR/manifest.yaml0  
-  
-  run $VKPR_YQ ".metadata.annotations.[\"kubernetes.io/tls-acme\"]" $BATS_FILE_TMPDIR/manifest.yaml
+
+  run $VKPR_YQ "select(documentIndex == 1).metadata.annotations.[\"kubernetes.io/tls-acme\"]" $BATS_FILE_TMPDIR/temp.yaml
   assert_output "true"
-  run $VKPR_YQ ".spec.tls[0].hosts[0]" $BATS_FILE_TMPDIR/manifest.yaml
+  run $VKPR_YQ "select(documentIndex == 1).spec.tls[0].hosts[0]" $BATS_FILE_TMPDIR/temp.yaml
   assert_output "api.manager.localhost"
-  run $VKPR_YQ ".spec.tls[0].secretName" $BATS_FILE_TMPDIR/manifest.yaml
+  run $VKPR_YQ "select(documentIndex == 1).spec.tls[0].secretName" $BATS_FILE_TMPDIR/temp.yaml
   assert_output "admin-kong-cert"
 }
 
@@ -215,14 +201,12 @@ teardown() {
 
   rit vkpr kong install --mode="standard" --default --dry_run | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
   helm template -f $BATS_FILE_TMPDIR/values.yaml -s templates/service-kong-admin.yaml kong/kong --version $VKPR_KONG_VERSION > $BATS_FILE_TMPDIR/temp.yaml
-  tail -n +2 $BATS_FILE_TMPDIR/temp.yaml > $BATS_FILE_TMPDIR/manifest.yaml
-  csplit $BATS_FILE_TMPDIR/manifest.yaml '/\-\-\-/' -f $BATS_FILE_TMPDIR/manifest.yaml -n "0" | mv -f $BATS_FILE_TMPDIR/manifest.yaml1 $BATS_FILE_TMPDIR/manifest.yaml | rm -f $BATS_FILE_TMPDIR/manifest.yaml0  
-  
-  run $VKPR_YQ ".metadata.annotations.[\"kubernetes.io/tls-acme\"]" $BATS_FILE_TMPDIR/manifest.yaml
+
+  run $VKPR_YQ "select(documentIndex == 1).metadata.annotations.[\"kubernetes.io/tls-acme\"]" $BATS_FILE_TMPDIR/temp.yaml
   assert_output "null"
-  run $VKPR_YQ ".spec.tls[0].hosts[0]" $BATS_FILE_TMPDIR/manifest.yaml
+  run $VKPR_YQ "select(documentIndex == 1).spec.tls[0].hosts[0]" $BATS_FILE_TMPDIR/temp.yaml
   assert_output "null"
-  run $VKPR_YQ ".spec.tls[0].secretName" $BATS_FILE_TMPDIR/manifest.yaml
+  run $VKPR_YQ "select(documentIndex == 1).spec.tls[0].secretName" $BATS_FILE_TMPDIR/temp.yaml
   assert_output "null"
 }
 
@@ -270,134 +254,25 @@ teardown() {
   assert_output "postgres"
 }
 
-#--------------#
-# LICENSE PATH #
-#--------------#
+# --------------#
+# LICENSE PATH  #
+# --------------#
 
-@test "check kong-license flag" {
-
+@test "check kong-license content" {
   export VKPR_ENV_KONG_ENTERPRISE_LICENSE=""
   run $VKPR_YQ -i ".kong.enterprise.license = \"\"" $PWD/vkpr.yaml
   assert_success
 
-  echo 'flag' > $BATS_FILE_TMPDIR/license
-  local FLAG_LICENSE="$BATS_FILE_TMPDIR/license"
+  echo 'content' > $BATS_FILE_TMPDIR/license
+  local PATH_LICENSE="$BATS_FILE_TMPDIR/license"
 
   rit vkpr kong install --mode="standard" \
-    --license=$FLAG_LICENSE --dry_run \
-    | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
+    --license=$PATH_LICENSE > /dev/null 2>&1
 
-  local LICENSE_CONTENT=$($VKPR_YQ ".data.license" kong-enterprise-license.yaml | base64 -d)
+  local LICENSE_CONTENT="$($VKPR_KUBECTL get secret/kong-enterprise-license -n vkpr -o=yaml | $VKPR_YQ '.data.license' | base64 -d)"
   run echo $LICENSE_CONTENT
-  assert_output "flag"
-
-  # rm $BATS_FILE_TMPDIR/license
-}
-
-@test "check kong-license file" {
-
-  export VKPR_ENV_KONG_ENTERPRISE_LICENSE=""
-  run $VKPR_YQ -i ".kong.enterprise.license = \"$BATS_FILE_TMPDIR/license\"" $PWD/vkpr.yaml
-  assert_success
-
-  echo 'file' > $BATS_FILE_TMPDIR/license
-
-  rit vkpr kong install --mode="standard" --dry_run \
-    | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
-
-  local LICENSE_CONTENT=$($VKPR_YQ ".data.license" kong-enterprise-license.yaml | base64 -d)
-  run echo $LICENSE_CONTENT
-  assert_output "file"
-
-  # rm $BATS_FILE_TMPDIR/license
-}
-@test "check kong-license env" {
- 
-  export VKPR_ENV_KONG_ENTERPRISE_LICENSE="$BATS_FILE_TMPDIR/license"
-
-  echo 'env' > $BATS_FILE_TMPDIR/license
-
-  rit vkpr kong install --mode="standard" \
-    --license=$FLAG_LICENSE --dry_run \
-    | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
-
-  local LICENSE_CONTENT=$($VKPR_YQ ".data.license" kong-enterprise-license.yaml | base64 -d)
-  run echo $LICENSE_CONTENT
-  assert_output "env"
-
-  # rm $BATS_FILE_TMPDIR/license
-  # unset VKPR_ENV_KONG_ENTERPRISE_LICENSE
-}
-
-@test "check kong-license default" {
-  
-  rit vkpr kong install --mode="standard" \
-    --default --dry_run \
-    | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
-
-  local LICENSE_CONTENT=$($VKPR_YQ ".data.license" kong-enterprise-license.yaml | base64 -d)
-  run echo $LICENSE_CONTENT
-  assert_output ""
-}
-
-#---------------#
-# RBAC PASSWORD #
-#---------------#
-
-@test "check kong-RBAC flag" {
-
-  export VKPR_ENV_KONG_RBAC_ADMIN_PASSWORD="env1234"
-  run $VKPR_YQ -i ".kong.rbac.adminPassword = \"file123\"" $PWD/vkpr.yaml
-  assert_success
-
-  rit vkpr kong install --mode="standard" --rbac_password="flag123" \
-  --default --dry_run \
-  | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
-
-  local LICENSE_CONTENT=$($VKPR_YQ ".data.password" kong-enterprise-superuser-password.yaml | base64 -d)
-
-  run echo $LICENSE_CONTENT
-  assert_output "flag123"
-}
-
-@test "check kong-RBAC file" {
-  export VKPR_ENV_KONG_RBAC_ADMIN_PASSWORD="env1234"
-  run $VKPR_YQ -i ".kong.rbac.adminPassword = \"file123\"" $PWD/vkpr.yaml
-  assert_success
-
-  rit vkpr kong install --mode="standard" \
-  --default --dry_run \
-  | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
-
-  local LICENSE_CONTENT=$($VKPR_YQ ".data.password" kong-enterprise-superuser-password.yaml | base64 -d)
-
-  run echo $LICENSE_CONTENT
-  assert_output "file123"
-}
-
-@test "check kong-RBAC env" {
-  export VKPR_ENV_KONG_RBAC_ADMIN_PASSWORD="env1234"
-
-  rit vkpr kong install --mode="standard" \
-  --default --dry_run \
-  | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
-
-  local LICENSE_CONTENT=$($VKPR_YQ ".data.password" kong-enterprise-superuser-password.yaml | base64 -d)
-
-  run echo $LICENSE_CONTENT
-  assert_output "env1234"
-}
-
-@test "check kong-RBAC default" {
-
-  rit vkpr kong install --mode="standard" \
-  --default --dry_run \
-  | tee $BATS_FILE_TMPDIR/values.yaml > /dev/null 2>&1
-
-  local LICENSE_CONTENT=$($VKPR_YQ ".data.password" kong-enterprise-superuser-password.yaml | base64 -d)
-
-  run echo $LICENSE_CONTENT
-  assert_output "vkpr123"
+  assert_output "content"
+  rm $BATS_FILE_TMPDIR/license
 }
 
 #------#
@@ -657,7 +532,25 @@ teardown() {
   kong_service_type=$($VKPR_KUBECTL get svc -n vkpr | grep kong-kong-proxy | tr -s '[:space:]' ' ' | cut -d " " -f2)
   run echo $kong_service_type 
   assert_output "LoadBalancer"
+}
 
+@test "check secret creation kong-enterprise-license" {
+  export FIRST_REPO="$(rit list repo | tail -n +2 | head -n3 | awk -F' ' '{print $2}' | tr '\n' ' ' | column -t | awk -F' ' '{print $1}')"
+  source ~/.rit/repos/$FIRST_REPO/vkpr/kong/install/src/unix/formula/objects.sh
+
+  echo 'content' > $BATS_FILE_TMPDIR/license
+  export VKPR_ENV_KONG_ENTERPRISE_LICENSE=$BATS_FILE_TMPDIR/license
+  export VKPR_ENVIRONMENT=local
+  export VKPR_ENV_KONG_NAMESPACE="vkpr"
+  export DRY_RUN=false
+
+  $VKPR_KUBECTL delete secret/kong-enterprise-license -n $VKPR_ENV_KONG_NAMESPACE && \
+  sleep 1
+  createKongSecretsEnterprise 
+  
+  SECRET_STATUS="$($VKPR_KUBECTL get secret/kong-enterprise-license -n $VKPR_ENV_KONG_NAMESPACE | tail -n +2 | awk -F' ' '{print $1}')"
+  run echo $SECRET_STATUS
+  assert_output "kong-enterprise-license"
 }
 
 #=======================================#

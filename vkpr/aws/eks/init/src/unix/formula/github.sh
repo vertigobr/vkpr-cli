@@ -5,7 +5,7 @@ setproviderrun() {
 formulaInputs() {
   # App values
   checkGlobalConfig "$CLUSTER_NAME" "eks-sample" "aws.eks.clusterName" "EKS_CLUSTER_NAME"
-  checkGlobalConfig "$K8S_VERSION" "1.23" "aws.eks.version" "EKS_VERSION"
+  checkGlobalConfig "$K8S_VERSION" "1.25" "aws.eks.version" "EKS_VERSION"
   checkGlobalConfig "$CLUSTER_NODE_INSTANCE_TYPE.$CLUSTER_NODE_INSTANCE_SIZE" "t3.small" "aws.eks.nodes.instanceType" "EKS_NODES_INSTANCE_TYPE"
   checkGlobalConfig "$CLUSTER_SIZE" "1" "aws.eks.nodes.quantitySize" "EKS_NODES_QUANTITY_SIZE"
   checkGlobalConfig "$CAPACITY_TYPE" "on_demand" "aws.eks.nodes.capacityType" "EKS_NODES_CAPACITY_TYPE"
@@ -46,7 +46,7 @@ setVariablesGHUB() {
   createOrUpdateVariable "$PROJECT_IDENTIFIER" "CI_GITHUB_TOKEN" "$GITHUB_TOKEN" "yes" "$VKPR_ENV_EKS_CLUSTER_NAME" "$GITHUB_TOKEN"
 }
   ### CRIIANDO REPOSITORIO ###
-  githubCreateRepo "${CLUSTER_NAME}" "$GITHUB_TOKEN" 
+  githubCreateRepo "${CLUSTER_NAME}" "$GITHUB_TOKEN" >/dev/null 2>&1
 
   ### CONFIGURANDO SECRECTS ####
   VAR_PROJECT_NAME="${GITHUB_USERNAME}/${CLUSTER_NAME}"
@@ -59,7 +59,7 @@ setVariablesGHUB() {
   
 
   cd "$VKPR_HOME" || exit
-  git clone https://github.com/vertigobr/aws-eks.git
+  git clone https://github.com/vertigobr/aws-eks.git >/dev/null 2>&1
   cd aws-eks 
   rm -rf .git
   git init 
