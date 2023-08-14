@@ -1,24 +1,61 @@
+#!/usr/bin/env bats
+
+# ~/.vkpr/bats/bin/bats vkpr-test/postgres/postgres.bats
+
+export DETIK_CLIENT_NAMESPACE="vkpr"
+load '../.bats/common.bats'
+
 setup() {
-  load $VKPR_HOME/bats/bats-support/load.bash
-  load $VKPR_HOME/bats/bats-assert/load.bash
-  load $(pwd)/lib/functions/helper.sh
+  load "$VKPR_HOME/bats/bats-support/load"
+  load "$VKPR_HOME/bats/bats-assert/load"
+  load "$VKPR_HOME/bats/bats-detik/load"
+  load "$VKPR_HOME/bats/bats-file/load"  
+  export FIRST_REPO="$(rit list repo | tail -n +2 | head -n3 | awk -F' ' '{print $2}' | tr '\n' ' ' | column -t | awk -F' ' '{print $1}')"
+  source ~/.rit/repos/$FIRST_REPO/lib/functions/kubernetes-operators.sh
 }
 
 setup_file() {
-  load '../.bats/common.bats.bash'
-  _common_setup
+  touch $PWD/vkpr.yaml
 
-  if [ "$VKPR_TEST_SKIP_PROVISIONING" == "true" ]; then
-    echo "setup: skipping provisionig due to VKPR_TEST_SKIP_PROVISIONING=true" >&3
+  [ "$VKPR_TEST_SKIP_ALL" == "true" ] && echo "common_setup: skipping common_setup due to VKPR_TEST_SKIP_ALL=true" >&3 && return
+  _common_setup "1" "false" "1"
+
+  if [ "$VKPR_TEST_SKIP_DEPLOY_ACTIONS" == "true" ]; then
+    echo "common_setup: skipping common_setup due to VKPR_TEST_SKIP_DEPLOY_ACTIONS=true" >&3
+    return
   else
     echo "setup: installing postgres..." >&3
-    rit vkpr postgres install --default
+    rit vkpr postgresql install --default
   fi
+}
+
+teardown_file() {
+  if [ "$VKPR_TEST_SKIP_ALL" == "true" ]; then
+    echo "common_setup: skipping common_setup due to VKPR_TEST_SKIP_ALL=true" >&3
+    return
+  fi
+
+  if [ "$VKPR_TEST_SKIP_DEPLOY_ACTIONS" == "true" ]; then
+    echo "common_setup: skipping common_setup due to VKPR_TEST_SKIP_DEPLOY_ACTIONS=true" >&3
+  else
+    echo "Uninstall postgres" >&3
+    rit vkpr postgresql remove
+  fi
+
+  _common_teardown
+}
+
+teardown() {
+  $VKPR_YQ -i "del(.global) | del(.postgresql)" $PWD/vkpr.yaml
 }
 
 @test "use function checkExistingDatabase to check the database" {
   POSTGRES_PASSWORD=$($VKPR_KUBECTL get secret -n vkpr postgres-postgresql -o jsonpath="{.data.postgresql-password}" | base64 --decode)
-  expected=$(checkExistingDatabase "postgres" "$POSTGRES_PASSWORD" "postgres" "vkpr" | xargs)
+  sleep 2
+  expected=$($VKPR_KUBECTL run pgsql-client --rm --tty -i --restart='Never' \
+                --namespace vkpr --image docker.io/bitnami/postgresql \
+                --env="PGUSER=postgres" --env="PGPASSWORD=vkpr123" --env="PGHOST=postgres-postgresql.vkpr" --env="PGPORT=5432" --env="PGDATABASE=postgres" \
+                --command -- psql -lsqt | cut -d \| -f 1 | grep "postgres" | sed -e 's/^[ \t]*//')
 
   assert_equal "postgres" "${expected}"
   assert_success
@@ -26,7 +63,8 @@ setup_file() {
 
 @test "use function createDatabase to create a new database" {
   POSTGRES_PASSWORD=$($VKPR_KUBECTL get secret -n vkpr postgres-postgresql -o jsonpath="{.data.postgresql-password}" | base64 --decode)
-  expected=$(createDatabase "postgres" "$POSTGRES_PASSWORD" "test" "vkpr")
+  sleep 2
+  expected=$(createDatabase "postgres" "postgres-postgresql.vkpr" "$POSTGRES_PASSWORD" "test" "vkpr")
   
   run echo ${expected}
 
@@ -35,13 +73,13 @@ setup_file() {
 }
 
 @test "Use another chart to use postgresql in HA mode" {
-  rit vkpr postgres install --HA="true" --default
+  rit vkpr postgresql install --HA="true" --default
   sleep 10
 
   expected=$($VKPR_HELM ls -A -o=json | $VKPR_JQ -r '.[] | select(.name | contains("postgresql")) | .chart')
   run echo $expected
 
-  assert_line --regexp --index 0 "^postgresql-ha-[0-9]+\.[0-9]+\.[0-9]$"
+  assert_line --regexp --index 0 "^postgresql-[0-9]+\.[0-9]+\.[0-9]$"
   assert_success
 }
 
@@ -58,7 +96,7 @@ setup_file() {
 }
 
 @test "Use vkpr.yaml to merge values in postgresql with helmArgs" {
-  rit vkpr postgres remove --default # Fails if dont remove the postgresql
+  rit vkpr postgresql remove --default # Fails if dont remove the postgresql
 
   testValue="postgres-test"
   useVKPRfile changeYAMLfile ".postgresql.helmArgs.nameOverride = \"${testValue}\""
@@ -71,9 +109,9 @@ setup_file() {
 }
 
 @test "use formula createdb to create a new database" {
-  POSTGRES_PASSWORD=$($VKPR_KUBECTL get secret -n vkpr postgres-postgresql -o jsonpath="{.data.postgresql-password}" | base64 --decode)
+  POSTGRES_PASSWORD=$($VKPR_KUBECTL get secret -n vkpr postgresql-postgresql -o jsonpath="{.data.postgresql-password}" | base64 --decode)
   
-  run rit vkpr postgres createdb --dbname="test2" --dbuser="test" --dbpassword="test"
+  run rit vkpr postgresql createdb --dbname="test2" --dbuser="test" --dbpassword="test"
 
   assert_line --partial "CREATE DATABASE"
   assert_success
@@ -84,7 +122,7 @@ teardown_file() {
     echo "teardown: skipping teardown due to VKPR_TEST_SKIP_TEARDOWN=true" >&3
   else
     echo "teardown: uninstalling postgres...." >&3
-    rit vkpr postgres remove --default
+    rit vkpr postgresql remove --default
   fi
 
   _common_teardown
@@ -102,5 +140,5 @@ useVKPRfile() {
 changeYAMLfile() {
   $VKPR_YQ eval -i "del(.postgresql)" vkpr.yaml
   $VKPR_YQ eval "${1}" vkpr.yaml > vkpr.yaml
-  rit vkpr postgres install $2 --default
+  rit vkpr postgresql install $2 --default
 }
