@@ -1,7 +1,7 @@
 replicas: 1
 image:
   repository: veecode/devportal-bundle
-  tag: 0.5.3 #devportal image tag
+  tag: 0.7.1 #devportal image tag
   pullPolicy: IfNotPresent
 environment: development
 service:
@@ -33,9 +33,11 @@ appConfig:
       database: platform_devportal
       user: postgres
 
-integrations:
-  github:
-    token: <your_github_token>
+# integrations:
+#   github:
+#     token: <your_github_token>
+#   gitlab:
+#    token: <your_github_token>
 
 catalog:
   providers:
@@ -50,6 +52,7 @@ catalog:
       orgEnabled: false #Enable organization
       branch: main 
       entityFilename: 'catalog-info.yaml' #Catalog file path
+      projectPattern: devportal-spechouse # Regex
 
 platform:
   guest:

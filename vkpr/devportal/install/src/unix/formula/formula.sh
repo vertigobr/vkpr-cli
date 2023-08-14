@@ -87,10 +87,11 @@ settingDevportal() {
       gitlab)
         YQ_VALUES="$YQ_VALUES |
           .integrations.gitlab.token = \"$GITLAB_TOKEN\" |
-          .integrations.gitlab.apiBaseUrl = \"$GITLAB_APIBASEURL\" |
           .catalog.providers.gitlab.branch = \"$CATALOG_BRANCH\" |
           .catalog.providers.gitlab.orgEnabled = \"false\" |
-          .catalog.providers.gitlab.orgEnabled = \"false\" |
+          .catalog.providers.gitlab.group = \"$CLIENT_ORGANIZATION\" |
+          .catalog.providers.gitlab.entityFilename = 'catalog-info.yaml' |
+          .catalog.providers.gitlab.projectPattern = \"devportal-catalog\" 
 
         "
       ;;
