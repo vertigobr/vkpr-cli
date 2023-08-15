@@ -24,7 +24,7 @@ export VKPR_PLAN=true
   installExternalDNS
   installCertManager
   installKong
-  installIngress
+  installNginx
   installConsul
   installVault
   installKeycloak
@@ -86,10 +86,10 @@ installExternalDNS(){
   fi
 }
 
-installIngress(){
-  INGRESS_EXISTS=$($VKPR_YQ eval .ingress.enabled "$VKPR_GLOBAL_CONFIG")
+installNginx(){
+  INGRESS_EXISTS=$($VKPR_YQ eval .nginx.enabled "$VKPR_GLOBAL_CONFIG")
   if [ "$INGRESS_EXISTS" == true ]; then
-    rit vkpr ingress install --diff
+    rit vkpr nginx install --diff
   fi
 }
 

@@ -27,7 +27,7 @@ jobs:
      - name: bats-teste-nginx
        continue-on-error: true
        run: |
-        ~/.vkpr/bats/bin/bats vkpr-test/ingress/ingress.bats
+        ~/.vkpr/bats/bin/bats vkpr-test/nginx/nginx.bats
       
      - name: bats-teste-postgres
        continue-on-error: true

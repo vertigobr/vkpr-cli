@@ -1,0 +1,4 @@
+{
+  "short": "Install ingress-nginx",
+  "long": "Install the nginx in the Kubernetes cluster"
+}
