@@ -12,6 +12,7 @@ service:
   
 ingress:
   enabled: false
+  className: nginx
 resources:
   requests:
     memory: 256Mi
@@ -26,18 +27,7 @@ appConfig:
   backend:
     baseUrl: https://devportal.<your-domain>
   database:
-    client: pg
-    connection:
-      host: postgres-postgresql.vkpr
-      port: 5432
-      database: platform_devportal
-      user: postgres
-
-# integrations:
-#   github:
-#     token: <your_github_token>
-#   gitlab:
-#    token: <your_github_token>
+    client: better-sqlite3
 
 catalog:
   providers:
@@ -45,14 +35,14 @@ catalog:
       organization: <your_github_org> # string
       catalogPath: /catalog-info.yaml # string
       filters:
-        branch: main # string
-        repository: devportal-spechouse # Regex
-        validateLocationsExist: true
+        branch: master # string
+        repository: devportal-catalog ## Regex repository name
     gitlab:
       orgEnabled: false #Enable organization
-      branch: main 
+      branch: master #Optional. Uses `master` as default
+      group: #Optional. Group and subgroup (if needed) to look for repositories. If not present the whole project will be scanned.
       entityFilename: 'catalog-info.yaml' #Catalog file path
-      projectPattern: devportal-spechouse # Regex
+      projectPattern: devportal-catalog 
 
 platform:
   guest:
