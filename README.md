@@ -90,7 +90,7 @@ To test some application using VKPR, we will use whoami as an example.
 For this, we will implement an ingress controller and the whoami itself:
 
 ```
-vkpr ingress install
+vkpr nginx install
 vkpr whoami install --default
 ```
 Now you can test this sample application with a simple curl command:
@@ -125,7 +125,7 @@ vkpr infra down
 
 | Tools                    | Description                                                   |
 | ------------------------ | ------------------------------------------------------------- |
-| ingress                  | Install nginx-ingress-controller                              |
+| nginx                    | Install nginx-ingress-controller                              |
 | whoami                   | Install whoami                                                |
 | cert-manager             | Install cert-manager to manage your certificates              |
 | external-dns             | Install external-dns                                          |

@@ -42,6 +42,9 @@ applyConfig(){
 #7
   installIngress
 
+#7.2
+  installNginx
+
 #8
   installConsul
 
@@ -117,10 +120,10 @@ infraUp(){
   fi
 }
 
-installIngress(){
-  INGRESS_EXISTS=$($VKPR_YQ eval .ingress.enabled "$VKPR_GLOBAL_CONFIG")
-  if [ "$INGRESS_EXISTS" == true ]; then
-    rit vkpr ingress install --default
+installNginx(){
+  NGINX_EXISTS=$($VKPR_YQ eval .nginx.enabled "$VKPR_GLOBAL_CONFIG")
+  if [ "$NGINX_EXISTS" == true ]; then
+    rit vkpr nginx install --default
   fi
 }
 
