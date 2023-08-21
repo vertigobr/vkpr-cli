@@ -4,7 +4,7 @@ global:
     autoGenerate: true
 server:
   enabled: true
-  replicas: 3
+  replicas: 2
   extraConfig: |
     {
       "performance": {
