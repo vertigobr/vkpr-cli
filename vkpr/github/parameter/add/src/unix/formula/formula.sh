@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 runFormula() {
+  info "In case of a module error with pynacl, execute the installation: pip install pynacl."
   info "Creating new secret ${PARAMETER_NAME}"
   setCredentials
  # validateInputs

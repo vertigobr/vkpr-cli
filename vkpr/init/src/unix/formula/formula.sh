@@ -29,6 +29,8 @@ runFormula() {
   installHelm
   installBats
   installeksctl
+  installpynacl
+
 }
 
 installeksctl(){
@@ -191,5 +193,3 @@ EOF
 
     info "Bats installed!"
   fi
-
-}
