@@ -23,7 +23,7 @@ setup_file() {
     return
   else
     echo "setup: installing ingress..." >&3
-    rit vkpr ingress install --default
+    rit vkpr nginx install --default
   fi
 }
 
@@ -38,14 +38,14 @@ teardown_file() {
     echo "common_setup: skipping common_setup due to VKPR_TEST_SKIP_DEPLOY_ACTIONS=true" >&3
   else
     echo "Uninstall kong" >&3
-    rit vkpr ingress remove
+    rit vkpr nginx remove
   fi
 
   _common_teardown
 }
 
 teardown() {
-  $VKPR_YQ -i "del(.global) | del(.ingress)" $PWD/vkpr.yaml
+  $VKPR_YQ -i "del(.global) | del(.nginx)" $PWD/vkpr.yaml
 }
 
 @test "curl to nGINX with HTTP and must return status 404" {
@@ -62,7 +62,7 @@ teardown() {
 
 @test "Use vkpr.yaml to merge values in ingress with helmArgs" {
   testValue="nginx-test"
-  useVKPRfile changeYAMLfile ".ingress.helmArgs.controller.labels.[\"app.kubernetes.io/tested-by\"] = \"${testValue}\"" 
+  useVKPRfile changeYAMLfile ".nginx.helmArgs.controller.labels.[\"app.kubernetes.io/tested-by\"] = \"${testValue}\"" 
   sleep 10
 
   run $VKPR_HELM get values ingress -n vkpr
@@ -72,11 +72,11 @@ teardown() {
 
 @test "Use vkpr.yaml to change values in ingress with globals" {
   useVKPRfile changeYAMLfile ".global.namespace = \"vtg\" |
-    .ingress.namespace = \"vkpr\"
+    .nginx.namespace = \"vkpr\"
   "
   sleep 10
 
-  run $VKPR_HELM ls -A -o=json | $VKPR_JQ -r '.[] | select(.name | contains("ingress-nginx"))'
+  run $VKPR_HELM ls -A -o=json | $VKPR_JQ -r '.[] | select(.name | contains("nginx"))'
 
   refute_line --partial "\"namespace\":\"vtg\""
   assert_success
@@ -86,8 +86,8 @@ teardown_file() {
   if [ "$VKPR_TEST_SKIP_TEARDOWN" == "true" ]; then
     echo "teardown: skipping uninstall due to VKPR_TEST_SKIP_TEARDOWN=true" >&3
   else
-    echo "teardown: uninstalling ingress..." >&3
-    rit vkpr ingress remove
+    echo "teardown: uninstalling nginx..." >&3
+    rit vkpr nginx remove
   fi
 
   _common_teardown
@@ -103,7 +103,7 @@ useVKPRfile() {
 # $1 - YQ_VALUES
 # $2 - FORMULA_FLAGS (Optional)
 changeYAMLfile() {
-  $VKPR_YQ eval -i "del(.ingress)" vkpr.yaml
+  $VKPR_YQ eval -i "del(.nginx)" vkpr.yaml
   $VKPR_YQ eval "${1}" vkpr.yaml > vkpr.yaml
-  rit vkpr ingress install $2 --default
+  rit vkpr nginx install $2 --default
 }

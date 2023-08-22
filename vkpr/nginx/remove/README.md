@@ -7,5 +7,5 @@ Uninstall all the contet of nginx-ingress controller from the cluster.
 Non-interactive:
 
 ```bash
-vkpr ingress remove
+vkpr nginx remove
 ```

@@ -12,7 +12,7 @@ setup_file() {
     echo "setup: skipping provisionig due to VKPR_TEST_SKIP_PROVISIONING=true" >&3
   else
     echo "setup: installing ingress..." >&3
-    rit vkpr ingress install --default
+    rit vkpr nginx install --default
     echo "setup: installing prometheus-stack..." >&3
     rit vkpr prometheus-stack install --default
   fi
@@ -84,7 +84,7 @@ teardown_file() {
     echo "teardown: uninstalling prometheus-stack..." >&3
     rit vkpr prometheus-stack remove
     echo "teardown: uninstalling ingress..." >&3
-    rit vkpr ingress remove
+    rit vkpr nginx remove
   fi
 
   _common_teardown

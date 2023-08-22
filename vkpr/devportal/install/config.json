@@ -19,10 +19,11 @@
       ]
     },
     {
-      "tutorial": "Specifies the catalog for",
-      "label": "Select the provider for catalog",
+      "tutorial": "Selects which provider will be used for template creation and catalog query",
+      "label": "Select the provider for catalog:",
       "name": "provider",
       "type": "text",
+      "default": "github",
       "required": true,
       "items": [
         "github",
@@ -30,10 +31,30 @@
       ]
     },
     {
+      "tutorial": "Specifies your Github or Gitlab repository name",
+      "label": "Git client repository name:",
+      "name": "git_repo",
+      "required": true,
+      "type": "text"
+    },
+    {
+      "tutorial": "Specifies your Github or Gitlab repository branch",
+      "label": "Git client repository branch:",
+      "name": "git_branch",
+      "default": "main",
+      "required": true,
+      "type": "text"
+    },
+    {
       "label": "Git client organization name:",
-      "tutorial": "Specifies your Github or Gitlab organization, more details at https://docs.platform.vee.codes/devportal/installationGuide",
+      "tutorial": "Specifies your Github organization, more details at https://docs.platform.vee.codes/devportal/installationGuide",
       "name": "client_organization",
       "required": true,
+      "condition": {
+        "variable": "provider",
+        "operator": "==",
+        "value": "github"
+      },
       "type": "text"
     },
     {
@@ -73,9 +94,9 @@
       "type": "text"
     },
     {
-      "label": "Gitlab apiBaseUrl:",
-      "tutorial": "Specifies your Gitlab apiBaseUrl, more details at https://docs.platform.vee.codes/devportal/installationGuide",
-      "name": "gitlab_apiBaseUrl",
+      "label": "Git client groups name:",
+      "tutorial": "Specifies yourGitlab groups, more details at https://docs.platform.vee.codes/devportal/installationGuide",
+      "name": "client_groups",
       "required": true,
       "condition": {
         "variable": "provider",
@@ -94,14 +115,6 @@
         "operator": "==",
         "value": "gitlab"
       },
-      "type": "text"
-    },
-    {
-      "label": "Repository branch:",
-      "tutorial": "Specifies your branch on repository to use as catalog",
-      "name": "catalog_branch",
-      "required": true,
-      "default": "main",
       "type": "text"
     },
     {

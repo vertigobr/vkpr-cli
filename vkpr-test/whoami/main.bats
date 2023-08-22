@@ -21,7 +21,7 @@ setup_file() {
     return
   else
     echo "Install ingress" >&3
-    rit vkpr ingress install --default
+    rit vkpr nginx install --default
   fi
 }
 
@@ -376,7 +376,7 @@ teardown() {
   run curl -LIsw "%{http_code}" -o /dev/null http://whoami.localhost:8000
   assert_output "200"
 
-  rit vkpr ingress remove
+  rit vkpr nginx remove
 }
 
 #=======================================#

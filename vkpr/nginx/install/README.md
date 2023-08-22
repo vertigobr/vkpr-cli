@@ -1,21 +1,21 @@
-# VKPR ingress install
+# VKPR nginx install
 
 ## Description#
 
-Install nginx-ingress controller into cluster. For more information about nginx-ingress controller, click [here.](https://kubernetes.github.io/ingress-nginx/deploy/)
+Install nginx controller into cluster. For more information about nginx controller, click [here.](https://kubernetes.github.io/ingress-nginx/deploy/)
 
 ## Commands
 
 Interactive inputs:
 
 ```
-  vkpr ingress install [flags]
+  vkpr nginx install [flags]
 ```
 
 Non-interactive without setting values or using ```VKPR Values```:
 
 ```
-  vkpr ingress install --default
+  vkpr nginx install --default
 ```
 
 ## Parameters
@@ -32,7 +32,7 @@ vkpr.yaml
 ```
 ```yaml
 global:
-  ingress:
+  nginx:
     namespace:   <String>
     loadBalancerType:   <String>
     metrics:    <Boolean>
