@@ -158,6 +158,7 @@ createSecretsKongDbless(){
 
 createSecretsKongStandard(){
   createKongSecretsEnterprise
+  createKongSecretsBasicAuth
   createKongCookieconfig
   createKongRbacSecret
   createKongPostgresqlSecret

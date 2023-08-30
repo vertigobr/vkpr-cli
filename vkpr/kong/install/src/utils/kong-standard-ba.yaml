@@ -12,35 +12,16 @@ env:
         name: postgres-postgresql
         key: postgres-password
   pg_port: 5432
+  portal: off
   proxy_url: "http://localhost:8000"
   admin_gui_url: "http://manager.localhost:8000"
   admin_api_uri: "http://manager.localhost:8000/api"
-  admin_session_conf:
-    valueFrom:
-      secretKeyRef:
-        name: kong-session-config
-        key: admin_gui_session_conf
-  portal: on
-  portal_auth: "basic-auth"
-  portal_auto_approve: on
-  portal_gui_host: "portal.localhost:8000"
-  portal_api_url: "http://portal.localhost:8000/api"
-  portal_gui_protocol: "http"
-  portal_session_conf:
-    valueFrom:
-      secretKeyRef:
-        name: kong-session-config
-        key: portal_session_conf
-  enforce_rbac: "on"
-  password:
-    valueFrom:
-      secretKeyRef:
-        name: kong-enterprise-superuser-password
-        key: password
 image:
   repository: kong/kong-gateway
   tag: "3.2.2.1-amazonlinux-2022"
 admin:
+  annotations:
+    konghq.com/plugins: kong-admin-basicauth
   enabled: true
   type: ClusterIP
   http:
@@ -54,6 +35,7 @@ admin:
     path: /api
     annotations:
       konghq.com/strip-path: "true"
+      konghq.com/plugins: kong-admin-basicauth
   tls:
     enabled: false
 proxy:
@@ -74,11 +56,6 @@ ingressController:
   enabled: true
   env:
     kong_admin_tls_skip_verify: true
-    kong_admin_token:
-      valueFrom:
-        secretKeyRef:
-          name: kong-enterprise-superuser-password
-          key: password
   ingressClass: kong
   rbac:
     create: true
@@ -94,16 +71,14 @@ enterprise:
   enabled: true
   license_secret: "kong-enterprise-license"
   vitals:
-    enabled: true
+    enabled: false
   portal:
-    enabled: true
-  rbac:
-    enabled: true
-    admin_gui_auth: "basic-auth"
-    session_conf_secret: "kong-session-config"
+    enabled: false
   smtp:
     enabled: false
 manager:
+  annotations:
+    konghq.com/plugins: kong-admin-basicauth
   enabled: true
   type: ClusterIP
   http:
@@ -115,38 +90,13 @@ manager:
     hostname: manager.localhost
     ingressClassName: "kong"
     path: /
+    annotations:
+      konghq.com/plugins: kong-admin-basicauth
   tls:
     enabled: false
 portal:
-  enabled: true
-  type: ClusterIP
-  http:
-    enabled: true
-    servicePort: 8003
-    containerPort: 8003
-  ingress:
-    enabled: true
-    hostname: portal.localhost
-    ingressClassName: "kong"
-    path: /
-  tls:
-    enabled: false
+  enabled: false
 portalapi:
-  enabled: true
-  type: ClusterIP
-  http:
-    enabled: true
-    servicePort: 8004
-    containerPort: 8004
-  ingress:
-    enabled: true
-    hostname: portal.localhost
-    ingressClassName: "kong"
-    path: /api
-    annotations:
-      konghq.com/strip-path: "true"
-  tls:
-    enabled: false
-
+  enabled: false
 clustertelemetry:
   enabled: true

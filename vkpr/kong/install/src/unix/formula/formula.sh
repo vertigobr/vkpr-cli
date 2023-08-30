@@ -50,8 +50,13 @@ settingKong() {
       VKPR_KONG_VALUES="$(dirname "$0")"/utils/kong-dbless.yaml
       ;;
     standard)
-      source "$(dirname "$0")"/unix/formula/setting/kong-standard.sh
-      VKPR_KONG_VALUES="$(dirname "$0")"/utils/kong.yaml
+      if [[ "$VKPR_ENV_KONG_ENTERPRISE_LICENSE" == "null" ]] && [[ $VKPR_ENV_BASIC_AUTH == true ]]; then
+        source "$(dirname "$0")"/unix/formula/setting/kong-standard-ba.sh
+        VKPR_KONG_VALUES="$(dirname "$0")"/utils/kong-standard-ba.yaml
+      else
+        source "$(dirname "$0")"/unix/formula/setting/kong-standard.sh
+        VKPR_KONG_VALUES="$(dirname "$0")"/utils/kong.yaml
+      fi
       ;;
     hybrid)
       if [[ "$KONG_PLANE" == "data" ]]; then
@@ -75,7 +80,11 @@ installKong() {
 }
 
 installPlugins() {
-  if [[ "$VKPR_ENV_KONG_MODE" == "dbless" ]]; then
+
+  if [[ "$VKPR_ENV_KONG_MODE" == "dbless" ]] && [[ $VKPR_ENV_BASIC_AUTH == true ]] && [[ "$VKPR_ENV_KONG_ENTERPRISE_LICENSE" == "null" ]]; then
+    $VKPR_KUBECTL apply -n $VKPR_ENV_KONG_NAMESPACE -f "$(dirname "$0")"/utils/kong-plugin-basicauth.yaml
+  fi
+  if [[ "$VKPR_ENV_KONG_ENTERPRISE_LICENSE" == "null" ]] && [[ $VKPR_ENV_BASIC_AUTH == true ]]; then
     $VKPR_KUBECTL apply -n $VKPR_ENV_KONG_NAMESPACE -f "$(dirname "$0")"/utils/kong-plugin-basicauth.yaml
   fi
   if [[ "$VKPR_ENV_KONG_METRICS" == "true" ]]; then
