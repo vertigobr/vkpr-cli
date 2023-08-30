@@ -30,6 +30,43 @@ settingKong() {
     "
   fi
 
+    #basic_auth on admin api and manager on fremode
+  if [[ "$VKPR_ENV_KONG_ENTERPRISE_LICENSE" == "null" ]] && [[ $VKPR_ENV_BASIC_AUTH == true ]]; then
+    YQ_VALUES="$YQ_VALUES |
+      .admin.annotations.[\"konghq.com/plugins\"] = \"kong-admin-basicauth\" |
+      .admin.ingress.annotations.[\"konghq.com/strip-path\"] = \"true\" |
+      .admin.ingress.annotations.[\"konghq.com/plugins\"] = \"kong-admin-basicauth\" |
+      .manager.annotations.[\"konghq.com/plugins\"] = \"kong-admin-basicauth\" |
+      .manager.ingress.annotations.[\"konghq.com/plugins\"] = \"kong-admin-basicauth\" 
+    "
+  fi
+
+  #   #session_conf rbac and enterprise parameters
+  # if [[ "$VKPR_ENV_KONG_ENTERPRISE_LICENSE" != "null" ]]; then
+  #   YQ_VALUES="$YQ_VALUES |
+  #     .env.admin_session_conf.valueFrom.secretKeyRef.name = \"kong-session-config\" |
+  #     .env.admin_session_conf.valueFrom.secretKeyRef.key = \"admin_gui_session_conf\" |
+  #     .env.portal_session_conf.valueFrom.secretKeyRef.name = \"kong-session-config\" |
+  #     .env.portal_session_conf.valueFrom.secretKeyRef.key = \"portal_session_conf\" |
+  #     .env.portal = \"on\" |
+  #     .env.portal_auth = \"basic-auth\" |
+  #     .env.portal_auto_approve = \"on\" |
+  #     .env.enforce_rbac = on |
+  #     .env.password.valueFrom.secretKeyRef.name = \"kong-enterprise-superuser-password\" |
+  #     .env.password.valueFrom.secretKeyRef.key = \"password\" |
+  #     .ingressController.env.kong_admin_token.valueFrom.secretKeyRef.name = \"kong-enterprise-superuser-password\" |
+  #     .ingressController.env.kong_admin_token.valueFrom.secretKeyRef.key = \"password\" |
+  #     .enterprise.vitals.enabled = \"true\" |
+  #     .enterprise.portal.enabled = \"true\" |
+  #     .enterprise.rbac.enabled = \"true\" |
+  #     .enterprise.rbac.admin_gui_auth = \"basic-auth\" |
+  #     .enterprise.rbac.session_conf_secret = \"kong-session-config\" |
+  #     .portal.enabled = \"true\" |
+  #     .portalapi.enabled = \"true\" 
+  #   "
+  # fi
+
+
   if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
     info "Creating proxy certificate..."
     $VKPR_YQ eval ".spec.dnsNames[0] = \"$VKPR_ENV_GLOBAL_DOMAIN\"" "$(dirname "$0")"/utils/proxy-certificate.yaml |\

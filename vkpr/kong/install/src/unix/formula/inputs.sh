@@ -8,6 +8,7 @@ formulaInputs() {
   checkGlobalConfig "false" "false" "kong.metrics" "KONG_METRICS"
   checkGlobalConfig "false" "false" "kong.vitals.prometheusStrategy" "KONG_VITALS_STRATEGY"
   checkGlobalConfig "${LICENSE:-null}" "null" "kong.enterprise.license" "KONG_ENTERPRISE_LICENSE"
+  checkGlobalConfig "$BASIC_AUTH" "false" "kong.basic_auth" "BASIC_AUTH"
   checkGlobalConfig "${RBAC_PASSWORD:-"vkpr123"}" "vkpr123" "kong.rbac.adminPassword" "KONG_RBAC_ADMIN_PASSWORD"
   checkGlobalConfig "${CP_URL:-"kong-kong-cluster.vkpr.svc.cluster.local:8005"}" "kong-kong-cluster.vkpr.svc.cluster.local:8005" \
     "kong.hybrid.dataPlane.controlPlaneEndpoint" "KONG_CP_ENDPOINT"
