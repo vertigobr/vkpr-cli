@@ -192,4 +192,6 @@ EOF
 
     info "Bats installed!"
   fi
+  }
 }
+

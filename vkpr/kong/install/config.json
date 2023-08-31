@@ -83,8 +83,24 @@
       }
     },
     {
-      "tutorial": "Specifies the RBAC Super Admin Password. Has no effect on hybrid data plane installations.",
-      "label": "Type the RBAC Admin Password. Has no effect on hybrid data plane installations:",
+      "tutorial": "It looks like you don't have a kong license, this will expose the Kong's admin API, do you want to configure basic auth?",
+      "label": "Do you want to use the basic-auth plugin to close Kong's admin API?",
+      "condition": {
+        "variable": "license",
+        "operator": "==",
+        "value": "null"
+      },
+      "name": "basic_auth",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "false",
+        "true"
+      ]
+    },
+    {
+      "tutorial": "Specifies the Admin Password. Has no effect on hybrid data plane installations.",
+      "label": "Type the Admin Password. Has no effect on hybrid data plane installations:",
       "name": "rbac_password",
       "type": "text",
       "default": "vkpr123"
