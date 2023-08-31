@@ -40,9 +40,7 @@ applyConfig(){
   installKong
 
 #7
-  installIngress
 
-#7.2
   installNginx
 
 #8
