@@ -66,6 +66,9 @@ applyConfig(){
 
 #15
   installDevportal
+
+#16
+  installOtel  
 }
 
 installArgoCD(){
@@ -213,4 +216,11 @@ configureProvider (){
         fi
       ;;
     esac
+}
+
+installOtel(){
+  OTEL_EXISTS=$($VKPR_YQ eval .otel.enabled "$VKPR_GLOBAL_CONFIG")
+  if [ "$OTEL_EXISTS" == true ]; then
+    rit vkpr otel install --default
+  fi
 }
