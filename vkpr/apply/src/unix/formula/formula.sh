@@ -66,6 +66,13 @@ applyConfig(){
 
 #15
   installDevportal
+
+#16
+  installOtel  
+
+#17
+  installTempo
+
 }
 
 installArgoCD(){
@@ -213,4 +220,18 @@ configureProvider (){
         fi
       ;;
     esac
+}
+
+installOtel(){
+  OTEL_EXISTS=$($VKPR_YQ eval .otel.enabled "$VKPR_GLOBAL_CONFIG")
+  if [ "$OTEL_EXISTS" == true ]; then
+    rit vkpr otel install --default
+  fi
+}
+
+installTempo(){
+  TEMPO_EXISTS=$($VKPR_YQ eval .tempo.enabled "$VKPR_GLOBAL_CONFIG")
+  if [ "$TEMPO_EXISTS" == true ]; then
+    rit vkpr tempo install --default
+  fi
 }
