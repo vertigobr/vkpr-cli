@@ -12,11 +12,10 @@ spec:
           http:
             endpoint: 0.0.0.0:4318
     processors:
-
     exporters:
       logging: 
         loglevel: debug
-      jaeger:
+      otlp:
         endpoint: tempo.vkpr:14250
         tls:
           insecure: true
@@ -25,4 +24,4 @@ spec:
         traces:
           receivers: [otlp]
           processors: []
-          exporters: [logging ,jaeger]
+          exporters: [logging ,otlp]
