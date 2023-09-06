@@ -1,5 +1,18 @@
 {
   "inputs": [
+  
+    {
+      "tutorial": "Choose which trace you will use",
+      "label": "Choose which trace you will use:",
+      "name": "trace",
+      "type": "text",
+      "default": "jaeger",
+      "required": true,
+      "items": [
+        "jaeger",
+        "tempo"
+      ]
+    },
     {
       "tutorial": "Enable Auto-Instrumentation OTEL",
       "label": "Auto-Instrumentation ?",

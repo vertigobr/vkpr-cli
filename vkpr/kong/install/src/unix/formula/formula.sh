@@ -81,11 +81,13 @@ installKong() {
 
 installPlugins() {
 
-  if [[ "$VKPR_ENV_KONG_MODE" == "dbless" ]] && [[ $VKPR_ENV_BASIC_AUTH == true ]] && [[ "$VKPR_ENV_KONG_ENTERPRISE_LICENSE" == "null" ]]; then
+  if [[ "$VKPR_ENV_KONG_MODE" == "dbless" ]] && [[ $VKPR_ENV_BASIC_AUTH == true ]]; then
     $VKPR_KUBECTL apply -n $VKPR_ENV_KONG_NAMESPACE -f "$(dirname "$0")"/utils/kong-plugin-basicauth.yaml
   fi
-  if [[ "$VKPR_ENV_KONG_ENTERPRISE_LICENSE" == "null" ]] && [[ $VKPR_ENV_BASIC_AUTH == true ]]; then
-    $VKPR_KUBECTL apply -n $VKPR_ENV_KONG_NAMESPACE -f "$(dirname "$0")"/utils/kong-plugin-basicauth.yaml
+  if [[ "$VKPR_ENV_KONG_MODE" == "standard" ]] && [[ $VKPR_ENV_BASIC_AUTH == true ]]; then
+    if [[ "$VKPR_ENV_KONG_ENTERPRISE_LICENSE" == "null" ]]; then
+      $VKPR_KUBECTL apply -n $VKPR_ENV_KONG_NAMESPACE -f "$(dirname "$0")"/utils/kong-plugin-basicauth.yaml
+    fi
   fi
   if [[ "$VKPR_ENV_KONG_METRICS" == "true" ]]; then
     $VKPR_KUBECTL apply -n $VKPR_ENV_KONG_NAMESPACE -f "$(dirname "$0")"/utils/kong-plugin-prometheus.yaml
