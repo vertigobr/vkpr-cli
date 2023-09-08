@@ -73,6 +73,9 @@ applyConfig(){
 #17
   installTempo
 
+#18
+  installDevportal
+
 }
 
 installArgoCD(){
@@ -234,4 +237,12 @@ installTempo(){
   if [ "$TEMPO_EXISTS" == true ]; then
     rit vkpr tempo install --default
   fi
+}
+
+installDevportal(){
+  DEVPORTAL_EXISTS=$($VKPR_YQ eval .devportal.enabled "$VKPR_GLOBAL_CONFIG")
+  if [ "$DEVPORTAL_EXISTS" == true ]; then
+    rit vkpr devportal install --default
+  fi
+
 }
