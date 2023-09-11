@@ -49,8 +49,10 @@ validateInputs() {
 }
 
 settingMockServer() {
-  YQ_VALUES=".ingress.hosts[0] = \"$VKPR_ENV_MOCKSERVER_DOMAIN\" |
-    .ingress.ingressClass.name = \"$VKPR_ENV_MOCKSERVER_INGRESS_CLASS_NAME\"
+  YQ_VALUES=".ingress.hosts[0].host = \"$VKPR_ENV_MOCKSERVER_DOMAIN\" |
+    .ingress.hosts[0].paths[0].path = \"/\" |
+    .ingress.hosts[0].paths[0].pathType = \"ImplementationSpecific\" |
+    .ingress.className = \"$VKPR_ENV_MOCKSERVER_INGRESS_CLASS_NAME\"
   "
 
   if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
