@@ -63,7 +63,7 @@ settingJaeger() {
     .allInOne.ingress.ingressClassName = \"$VKPR_ENV_JAEGER_INGRESS_CLASS_NAME\"
   "
   if [[ "$VKPR_ENV_JAEGER_METRICS" == true ]] && [[ $(checkPodName "$VKPR_ENV_GRAFANA_NAMESPACE" "prometheus-stack-grafana") == "true" ]]; then 
-    DATASOURCE_URL="http://jaeger-query.$VKPR_ENV_JAEGER_NAMESPACE:16686/"
+    DATASOURCE_URL="jaeger-query.$VKPR_ENV_JAEGER_NAMESPACE:16686/"
     $VKPR_JQ ".url = \"$DATASOURCE_URL\"" $VKPR_JAEGER_DATASOURCE > tmp.json 
     cat tmp.json > $VKPR_JAEGER_DATASOURCE && rm tmp.json
     createGrafanaDatasource "$VKPR_JAEGER_DATASOURCE" "$VKPR_ENV_GRAFANA_NAMESPACE"
