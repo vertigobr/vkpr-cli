@@ -8,7 +8,9 @@ runFormula() {
 
   VKPR_ENV_JAEGER_DOMAIN="jaeger.${VKPR_ENV_GLOBAL_DOMAIN}"
   VKPR_JAEGER_VALUES=$(dirname "$0")/utils/jaeger.yaml
-  VKPR_JAEGER_DATASOURCE=$(dirname "$0")/utils/datasource.json
+  VKPR_JAEGER_DATASOURCE=$(dirname "$0")/utils/prometheus-stack-kube-prom-grafana-datasource.yaml
+  #VKPR_JAEGER_DATASOURCE=$(dirname "$0")/utils/datasource.json
+  
 
   startInfos
   settingJaeger
@@ -63,10 +65,13 @@ settingJaeger() {
     .allInOne.ingress.ingressClassName = \"$VKPR_ENV_JAEGER_INGRESS_CLASS_NAME\"
   "
   if [[ "$VKPR_ENV_JAEGER_METRICS" == true ]] && [[ $(checkPodName "$VKPR_ENV_GRAFANA_NAMESPACE" "prometheus-stack-grafana") == "true" ]]; then 
-    DATASOURCE_URL="http://jaeger-query.$VKPR_ENV_JAEGER_NAMESPACE:16686/"
-    $VKPR_JQ ".url = \"$DATASOURCE_URL\"" $VKPR_JAEGER_DATASOURCE > tmp.json 
-    cat tmp.json > $VKPR_JAEGER_DATASOURCE && rm tmp.json
-    createGrafanaDatasource "$VKPR_JAEGER_DATASOURCE" "$VKPR_ENV_GRAFANA_NAMESPACE"
+    $VKPR_KUBECTL apply -f  "$VKPR_JAEGER_DATASOURCE" -n "$VKPR_ENV_JAEGER_NAMESPACE"
+   
+   
+   # DATASOURCE_URL="jaeger-query.$VKPR_ENV_JAEGER_NAMESPACE:16686/"
+   # $VKPR_JQ ".url = \"$DATASOURCE_URL\"" $VKPR_JAEGER_DATASOURCE > tmp.json 
+   # cat tmp.json > $VKPR_JAEGER_DATASOURCE && rm tmp.json
+   # createGrafanaDatasource "$VKPR_JAEGER_DATASOURCE" "$VKPR_ENV_GRAFANA_NAMESPACE"
 
     # createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
     #   YQ_VALUES="$YQ_VALUES |

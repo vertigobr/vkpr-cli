@@ -30,8 +30,16 @@ formulaInputs() {
   checkGlobalConfig "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "$VKPR_ENV_GLOBAL_INGRESS_CLASS_NAME" "devportal.ingressClassName" "DEVPORTAL_INGRESS_CLASS_NAME"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "devportal.namespace" "DEVPORTAL_NAMESPACE"
   checkGlobalConfig "$PROVIDER" "" "devportal.provider" "CATALOG_PROVIDER"
-}
+  checkGlobalConfig "$GIT_BRANCH" "" ".catalog.providers.branch" "GIT_BRANCH"
+  checkGlobalConfig "$GIT_REPO" "" ".catalog.providers.repository" "GIT_REPO"
+  checkGlobalConfig "$GITHUB_CLIENT_ID" "" ".auth.providers.github.clientId" "GITHUB_CLIENT_ID"
+  checkGlobalConfig "$GITHUB_CLIENT_SECRET" "" ".auth.providers.github.clientSecret" "GITHUB_CLIENT_SECRET"
+  checkGlobalConfig "$GITHUB_TOKEN" "" ".integrations.github.token" "GITHUB_TOKEN"
+  checkGlobalConfig "$GITHUB_ORGANIZATION" "" ".catalog.providers.repository" "GITHUB_ORGANIZATION"
+  checkGlobalConfig "$CLIENT_GROUPS" "" ".catalog.providers.gitlab.group" "CLIENT_GROUPS"
+  checkGlobalConfig "$GITLAB_TOKEN" "" ".integrations.gitlab.token" "GITLAB_TOKEN"
 
+}
 validateInputs() {
   validateDevportalDomain "$VKPR_ENV_GLOBAL_DOMAIN"
   validateDevportalSecure "$VKPR_ENV_GLOBAL_SECURE"
@@ -68,21 +76,21 @@ settingDevportal(){
     github)
       YQ_VALUES="$YQ_VALUES |
         del(.catalog.providers.gitlab) |
-        .auth.providers.github.clientId = \"$GITHUB_CLIENT_ID\" |
-        .auth.providers.github.clientSecret = \"$GITHUB_CLIENT_SECRET\" |
-        .integrations.github.token = \"$GITHUB_TOKEN\" |
-        .catalog.providers.github.organization = \"$CLIENT_ORGANIZATION\" |
-        .catalog.providers.github.filters.repository = \"$GIT_REPO\" |
-        .catalog.providers.github.filters.branch = \"$GIT_BRANCH\"
+        .auth.providers.github.clientId = \"$VKPR_ENV_GITHUB_CLIENT_ID\" |
+        .auth.providers.github.clientSecret = \"$VKPR_ENV_GITHUB_CLIENT_SECRET\" |
+        .integrations.github.token = \"$VKPR_ENV_GITHUB_TOKEN\" |
+        .catalog.providers.github.organization = \"$VKPR_ENV_CLIENT_ORGANIZATION\" |
+        .catalog.providers.github.filters.repository = \"$VKPR_ENV_GIT_REPO\" |
+        .catalog.providers.github.filters.branch = \"$VKPR_ENV_GIT_BRANCH\"
       "
     ;;
     gitlab)
       YQ_VALUES="$YQ_VALUES |
         del(.catalog.providers.github) |
-        .integrations.gitlab.token = \"$GITLAB_TOKEN\" |
-        .catalog.providers.gitlab.group = \"$CLIENT_GROUPS\" |
-        .catalog.providers.gitlab.projectPattern = \"$GIT_REPO\" |
-        .catalog.providers.gitlab.branch = \"$GIT_BRANCH\" 
+        .integrations.gitlab.token = \"$VKPR_ENV_GITLAB_TOKEN\" |
+        .catalog.providers.gitlab.group= \"$$VKPR_ENV_CLIENT_GROUPS\" |
+        .catalog.providers.gitlab.projectPattern = \"$VKPR_ENV_GIT_REPO\" |
+        .catalog.providers.gitlab.branch = \"$VKPR_ENV_GIT_BRANCH\" 
       "
     ;;
     *)
