@@ -26,7 +26,7 @@ runFormula() {
   fi 
 
   if [[ "$VKPR_ENV_OTEL_AUTO" == true ]]; then
-  $VKPR_KUBECTL apply -f "$VKPR_INSTRUMENTATION" -n "$VKPR_ENV_OTEL_NAMESPACE"
+  $VKPR_KUBECTL apply -f "$VKPR_INSTRUMENTATION" -n "$VKPR_ENV_INSTRUMENTATION_NAMESPACE"
   fi
 
 }
@@ -38,12 +38,14 @@ startInfos() {
   boldNotice "Namespace: $VKPR_ENV_OTEL_NAMESPACE"
   boldNotice "Trace: $VKPR_ENV_TRACE"
   boldNotice "Auto Instrumentation: $VKPR_ENV_OTEL_AUTO"
+  boldNotice "Instrumentation Namespace: $VKPR_ENV_INSTRUMENTATION_NAMESPACE"
   bold "=============================="
 }
 
 formulaInputs() {
   # App values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "otel.namespace" "OTEL_NAMESPACE"
+  checkGlobalConfig "$INSTRUMENTATION_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "otel.instrumentation" "INSTRUMENTATION_NAMESPACE"
   checkGlobalConfig "$OTEL_AUTO" "true" "otel.auto.enable" "OTEL_AUTO"
   checkGlobalConfig "$TRACE" "jaeger" "otel.trace" "TRACE"
 }

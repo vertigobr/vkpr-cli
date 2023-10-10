@@ -25,6 +25,19 @@
       ]
     },
     {
+      "tutorial": "Instrumentation namespace aplication",
+      "condition": {
+        "variable": "otel_auto",
+        "operator": "==",
+        "value": "true"
+      },
+      "label": "Instrumentation Namespace Aplication ?",
+      "name": "INSTRUMENTATION_NAMESPACE",
+      "type": "text",
+      "required": true,
+      "default": "vkpr"
+    },
+    {
       "tutorial": "Simulate an install",
       "label": "Dry-run ?",
       "name": "dry_run",
