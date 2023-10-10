@@ -118,6 +118,18 @@ settingKong() {
       .enterprise.rbac.admin_gui_auth_conf_secret = \"kong-idp-config\"
     "
   fi
+  
+  if [[ "$VKPR_ENV_EXTERNAL_DB" == "true" ]]; then
+    YQ_VALUES="$YQ_VALUES |
+      .env.pg_host = \"$VKPR_ENV_EXTERNAL_DB_HOST\" |
+      .env.pg_user = \"$VKPR_ENV_EXTERNAL_DB_USER\" |
+      .env.pg_database = \"$VKPR_ENV_EXTERNAL_DB_DATABASE\" |
+      .env.pg_password.valueFrom.secretKeyRef.key = \"postgres-password\" |
+      .env.pg_password.valueFrom.secretKeyRef.name = \"postgresql-external-secret\" |
+      .env.pg_port = 5432 |
+      .env.pg_ssl = \"on\" 
+    "
+  fi  
 
   settingKongProvider
 
@@ -160,7 +172,7 @@ settingKongProvider(){
 }
 
 if [[ $DRY_RUN == false ]]; then
-  [[ $DIFF == false ]] && installDB
+  [[ $DIFF == false ]] && [[ "$VKPR_ENV_EXTERNAL_DB" == "false" ]] && installDB
 fi
 
 [[ $DIFF == false ]] && createSecretsKongStandard

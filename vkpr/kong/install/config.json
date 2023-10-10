@@ -31,6 +31,66 @@
       ]
     },
     {
+      "tutorial": "Would you like to use an existing database?",
+      "condition": {
+        "variable": "mode",
+        "operator": "==",
+        "value": "standard"
+      },
+      "label": "Existing database?",
+      "name": "external_db",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "false",
+        "true"
+      ]
+    },
+    {
+      "tutorial": "Specifies the PostgreSQL host to database conextion",
+      "label": "Type the PostgreSQL host:",
+      "name": "external_db_host",
+      "type": "text",
+      "condition": {
+        "variable": "external_db",
+        "operator": "==",
+        "value": "true"
+      }
+    },
+    {
+      "tutorial": "Specifies the PostgreSQL database to use",
+      "label": "Type the PostgreSQL database:",
+      "name": "external_db_database",
+      "type": "text",
+      "condition": {
+        "variable": "external_db",
+        "operator": "==",
+        "value": "true"
+      }
+    },
+    {
+      "tutorial": "Specifies the PostgreSQL user to database conection",
+      "label": "Type the PostgreSQL user:",
+      "name": "external_db_user",
+      "type": "text",
+      "condition": {
+        "variable": "external_db",
+        "operator": "==",
+        "value": "true"
+      }
+    },
+    {
+      "tutorial": "Specifies the PostgreSQL password to database conection",
+      "label": "Type the PostgreSQL password:",
+      "name": "external_db_password",
+      "type": "text",
+      "condition": {
+        "variable": "external_db",
+        "operator": "==",
+        "value": "true"
+      }
+    },
+    {
       "tutorial": "Specifies the Plane to install on Hybrid Mode",
       "condition": {
         "variable": "mode",
