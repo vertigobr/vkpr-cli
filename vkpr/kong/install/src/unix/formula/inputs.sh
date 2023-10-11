@@ -16,6 +16,17 @@ formulaInputs() {
     "kong.hybrid.dataPlane.telemetryEndpoint" "KONG_TELEMETRY_URL"
   checkGlobalConfig "${PLANE:-control}" "control" "kong.hybrid.plane" "KONG_PLANE"
 
+  # External database
+  if [[ "$VKPR_ENV_KONG_MODE" == "standard" ]]; then
+    checkGlobalConfig "$EXTERNAL_DB" "" "kong.externalDb.enabled" "EXTERNAL_DB"
+    if [[ "$VKPR_ENV_EXTERNAL_DB" == "true" ]]; then
+      checkGlobalConfig "$EXTERNAL_DB_HOST" "" "kong.externalDb.host" "EXTERNAL_DB_HOST"
+      checkGlobalConfig "$EXTERNAL_DB_DATABASE" "" "kong.externalDb.database" "EXTERNAL_DB_DATABASE"
+      checkGlobalConfig "$EXTERNAL_DB_USER" "" "kong.externalDb.user" "EXTERNAL_DB_USER"
+      checkGlobalConfig "$EXTERNAL_DB_PASSWORD" "" "kong.externalDb.password" "EXTERNAL_DB_PASSWORD"
+    fi
+  fi
+
   # Integrate
   checkGlobalConfig "false" "false" "kong.rbac.openid.enabled" "KONG_KEYCLOAK_OPENID"
   checkGlobalConfig "" "" "kong.rbac.openid.clientSecret" "KONG_KEYCLOAK_OPENID_CLIENTSECRET"
