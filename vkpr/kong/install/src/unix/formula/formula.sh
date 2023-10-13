@@ -30,6 +30,8 @@ startInfos() {
   boldNotice "Namespace: $VKPR_ENV_KONG_NAMESPACE"
   boldNotice "HA: $VKPR_ENV_KONG_HA"
   boldNotice "Deploy Mode: ${VKPR_ENV_KONG_MODE}"
+  boldNotice "Basic Auth plugin: $VKPR_ENV_BASIC_AUTH"
+  boldNotice "External database: $VKPR_ENV_EXTERNAL_DB"
   bold "=============================="
 }
 

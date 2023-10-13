@@ -91,6 +91,19 @@ createKongPostgresqlSecret (){
   fi
 }
 
+createKongPostgresqlExternalSecret (){
+  ## Check if exist postgresql password secret in Kong namespace, if not, create one
+  if ! $VKPR_KUBECTL get secret $KONG_NAMESPACE | grep -q postgresql-external-secret; then
+    local DRY_FLAG="$(dryRunK8s "postgresql-external-secret")"
+    eval $VKPR_KUBECTL create secret generic postgresql-external-secret --from-literal="postgres-password=$VKPR_ENV_EXTERNAL_DB_PASSWORD" $KONG_NAMESPACE $DRY_FLAG
+
+    RESULT=$?
+    debug "Create postgresql-external-secret status = $RESULT"
+    [ $DRY_RUN = false ] && trace "$($VKPR_KUBECTL label secret/postgresql-external-secret app\.kubernetes\.io/managed-by=vkpr "$KONG_NAMESPACE")"
+    debug "postgresql-external-secret"
+  fi
+}
+
 createKongOpenidSecret(){
   if [[ $VKPR_ENV_KONG_KEYCLOAK_OPENID == "true" ]]; then
     local DRY_FLAG="$(dryRunK8s "kong-idp-config")"
@@ -161,7 +174,8 @@ createSecretsKongStandard(){
   createKongSecretsBasicAuth
   createKongCookieconfig
   createKongRbacSecret
-  createKongPostgresqlSecret
+  [[ "$VKPR_ENV_EXTERNAL_DB" == "true" ]] && createKongPostgresqlExternalSecret
+  [[ "$VKPR_ENV_EXTERNAL_DB" == "false" ]] && createKongPostgresqlSecret
   createKongOpenidSecret
   createKongKeyringSecret
 }
