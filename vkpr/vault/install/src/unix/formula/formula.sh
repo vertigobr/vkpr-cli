@@ -15,7 +15,7 @@ runFormula() {
 
   startInfos
   settingVault
-  if [ $DRY_RUN == false ]; then
+  if [ $DRY_RUN == false ] && [ $DIFF != true ]; then
     createStorage
     registerHelmRepository hashicorp https://helm.releases.hashicorp.com
   fi
