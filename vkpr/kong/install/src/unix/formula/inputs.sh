@@ -18,7 +18,10 @@ formulaInputs() {
 
   # External database
   if [[ "$VKPR_ENV_KONG_MODE" == "standard" ]]; then
-    checkGlobalConfig "$EXTERNAL_DB" "" "kong.externalDb.enabled" "EXTERNAL_DB"
+
+    [ ! -n "$EXTERNAL_DB" ] && export EXTERNAL_DB="false" 
+    checkGlobalConfig "$EXTERNAL_DB" "false" "kong.externalDb.enabled" "EXTERNAL_DB"
+    
     if [[ "$VKPR_ENV_EXTERNAL_DB" == "true" ]]; then
       checkGlobalConfig "$EXTERNAL_DB_HOST" "" "kong.externalDb.host" "EXTERNAL_DB_HOST"
       checkGlobalConfig "$EXTERNAL_DB_DATABASE" "" "kong.externalDb.database" "EXTERNAL_DB_DATABASE"
