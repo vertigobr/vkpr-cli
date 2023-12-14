@@ -21,12 +21,8 @@ settingKong() {
     YQ_VALUES="$YQ_VALUES |
       .admin.ingress.hostname = \"api.manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
       .manager.ingress.hostname = \"manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
-      .portal.ingress.hostname = \"portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
-      .portalapi.ingress.hostname = \"api.portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
       .env.admin_gui_url = \"https://manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
       .env.admin_api_uri = \"https://api.manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
-      .env.portal_api_url = \"https://api.portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
-      .env.portal_gui_host = \"portal.$VKPR_ENV_GLOBAL_DOMAIN\"
     "
   fi
 
@@ -35,20 +31,13 @@ settingKong() {
     $VKPR_YQ eval ".spec.dnsNames[0] = \"$VKPR_ENV_GLOBAL_DOMAIN\"" "$(dirname "$0")"/utils/proxy-certificate.yaml |\
       $VKPR_KUBECTL apply -n $VKPR_ENV_KONG_NAMESPACE -f -
     YQ_VALUES="$YQ_VALUES |
-      .env.portal_gui_protocol = \"https\" |
       .proxy.annotations.[\"external-dns.alpha.kubernetes.io/hostname\"] = \"$VKPR_ENV_GLOBAL_DOMAIN\" |
       .admin.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
       .admin.ingress.annotations.[\"konghq.com/protocols\"] = \"https\" |
       .admin.ingress.tls = \"admin-kong-cert\" |
       .manager.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
       .manager.ingress.annotations.[\"konghq.com/protocols\"] = \"https\" |
-      .manager.ingress.tls = \"manager-kong-cert\" |
-      .portal.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
-      .portal.ingress.annotations.[\"konghq.com/protocols\"] = \"https\" |
-      .portal.ingress.tls = \"portal-kong-cert\" |
-      .portalapi.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
-      .portalapi.ingress.annotations.[\"konghq.com/protocols\"] = \"https\" |
-      .portalapi.ingress.tls = \"portalapi-kong-cert\"
+      .manager.ingress.tls = \"manager-kong-cert\" 
     "
   fi
 
@@ -115,26 +104,17 @@ settingKongProvider(){
     OKTETO_NAMESPACE=$($VKPR_KUBECTL config get-contexts --no-headers | grep "\*" | xargs | awk -F " " '{print $NF}')
     HELM_ARGS="--skip-crds"
     YQ_VALUES="$YQ_VALUES |
-        del(.portal.ingress) |
         del(.admin.ingress) |
-        del(.portalapi.ingress) |
         del(.manager.ingress) |
         del(.ingressController) |
         .ingressController.enabled = false |
         .ingressController.installCRDs = false |
         .admin.ingress.enabled = false |
         .manager.ingress.enabled = false |
-        .portal.ingress.enabled = false |
-        .portalapi.ingress.enabled = false |
         .admin.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\" |
         .manager.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\" |
-        .portal.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\" |
-        .portalapi.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\" |
         .env.admin_gui_url = \"https://kong-kong-manager-$OKTETO_NAMESPACE.cloud.okteto.net\" |
         .env.admin_api_uri = \"https://kong-kong-admin-$OKTETO_NAMESPACE.cloud.okteto.net\" |
-        .env.portal_gui_host = \"kong-kong-portal-$OKTETO_NAMESPACE.cloud.okteto.net\" |
-        .env.portal_api_url = \"https://kong-kong-portalapi-$OKTETO_NAMESPACE.cloud.okteto.net\" |
-        .env.portal_gui_protocol = \"https\" |
         .env.pg_host = \"postgres-postgresql\" |
         .env.pg_password.valueFrom.secretKeyRef.key = \"postgres-password\"
       "

@@ -20,13 +20,9 @@ settingKong() {
     YQ_VALUES="$YQ_VALUES |
       .admin.ingress.hostname = \"manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
       .manager.ingress.hostname = \"manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
-      .portal.ingress.hostname = \"portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
-      .portalapi.ingress.hostname = \"portal.$VKPR_ENV_GLOBAL_DOMAIN\" |
       .env.proxy_url = \"https://$VKPR_ENV_GLOBAL_DOMAIN\" |
       .env.admin_gui_url = \"https://manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
-      .env.admin_api_uri = \"https://manager.$VKPR_ENV_GLOBAL_DOMAIN/api\" |
-      .env.portal_api_url = \"https://portal.$VKPR_ENV_GLOBAL_DOMAIN/api\" |
-      .env.portal_gui_host = \"portal.$VKPR_ENV_GLOBAL_DOMAIN\"
+      .env.admin_api_uri = \"https://manager.$VKPR_ENV_GLOBAL_DOMAIN/api\" 
     "
   fi
 
@@ -41,31 +37,6 @@ settingKong() {
     "
   fi
 
-  #   #session_conf rbac and enterprise parameters
-  # if [[ "$VKPR_ENV_KONG_ENTERPRISE_LICENSE" != "null" ]]; then
-  #   YQ_VALUES="$YQ_VALUES |
-  #     .env.admin_session_conf.valueFrom.secretKeyRef.name = \"kong-session-config\" |
-  #     .env.admin_session_conf.valueFrom.secretKeyRef.key = \"admin_gui_session_conf\" |
-  #     .env.portal_session_conf.valueFrom.secretKeyRef.name = \"kong-session-config\" |
-  #     .env.portal_session_conf.valueFrom.secretKeyRef.key = \"portal_session_conf\" |
-  #     .env.portal = \"on\" |
-  #     .env.portal_auth = \"basic-auth\" |
-  #     .env.portal_auto_approve = \"on\" |
-  #     .env.enforce_rbac = on |
-  #     .env.password.valueFrom.secretKeyRef.name = \"kong-enterprise-superuser-password\" |
-  #     .env.password.valueFrom.secretKeyRef.key = \"password\" |
-  #     .ingressController.env.kong_admin_token.valueFrom.secretKeyRef.name = \"kong-enterprise-superuser-password\" |
-  #     .ingressController.env.kong_admin_token.valueFrom.secretKeyRef.key = \"password\" |
-  #     .enterprise.vitals.enabled = \"true\" |
-  #     .enterprise.portal.enabled = \"true\" |
-  #     .enterprise.rbac.enabled = \"true\" |
-  #     .enterprise.rbac.admin_gui_auth = \"basic-auth\" |
-  #     .enterprise.rbac.session_conf_secret = \"kong-session-config\" |
-  #     .portal.enabled = \"true\" |
-  #     .portalapi.enabled = \"true\" 
-  #   "
-  # fi
-
 
   if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
     info "Creating proxy certificate..."
@@ -75,20 +46,13 @@ settingKong() {
       .secretVolumes[$SCRT_VOL_COUNT] = \"proxy-kong-cert\" |
       .env.ssl_cert = \"/etc/secrets/proxy-kong-cert/tls.crt\" |
       .env.ssl_cert_key = \"/etc/secrets/proxy-kong-cert/tls.key\" |
-      .env.portal_gui_protocol = \"https\" |
       .proxy.annotations.[\"external-dns.alpha.kubernetes.io/hostname\"] = \"$VKPR_ENV_GLOBAL_DOMAIN\" |
       .admin.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
       .admin.ingress.annotations.[\"konghq.com/protocols\"] = \"https\" |
       .admin.ingress.tls = \"admin-kong-cert\" |
       .manager.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
       .manager.ingress.annotations.[\"konghq.com/protocols\"] = \"https\" |
-      .manager.ingress.tls = \"manager-kong-cert\" |
-      .portal.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
-      .portal.ingress.annotations.[\"konghq.com/protocols\"] = \"https\" |
-      .portal.ingress.tls = \"portal-kong-cert\" |
-      .portalapi.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
-      .portalapi.ingress.annotations.[\"konghq.com/protocols\"] = \"https\" |
-      .portalapi.ingress.tls = \"portalapi-kong-cert\"
+      .manager.ingress.tls = \"manager-kong-cert\" 
     "
     ((SCRT_VOL_COUNT+=1))
   fi
@@ -166,30 +130,21 @@ settingKongProvider(){
     OKTETO_NAMESPACE=$($VKPR_KUBECTL config get-contexts --no-headers | grep "\*" | xargs | awk -F " " '{print $NF}')
     HELM_ARGS="--skip-crds"
     YQ_VALUES="$YQ_VALUES |
-        del(.portal.ingress) |
         del(.admin.ingress) |
-        del(.portalapi.ingress) |
         del(.manager.ingress) |
         del(.ingressController) |
         .ingressController.enabled = false |
         .ingressController.installCRDs = false |
         .admin.ingress.enabled = false |
         .manager.ingress.enabled = false |
-        .portal.ingress.enabled = false |
-        .portalapi.ingress.enabled = false |
         .proxy.tls.enabled = false |
         .admin.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\" |
         .manager.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\" |
-        .portal.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\" |
-        .portalapi.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\" |
         .proxy.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\" |
         .proxy.type = \"ClusterIP\" |
         .env.admin_gui_url = \"https://kong-kong-manager-$OKTETO_NAMESPACE.cloud.okteto.net\" |
         .env.admin_api_uri = \"https://kong-kong-admin-$OKTETO_NAMESPACE.cloud.okteto.net\" |
-        .env.portal_gui_host = \"kong-kong-portal-$OKTETO_NAMESPACE.cloud.okteto.net\" |
         .env.proxy_url = \"https://kong-kong-proxy-$OKTETO_NAMESPACE.cloud.okteto.net\" |
-        .env.portal_api_url = \"https://kong-kong-portalapi-$OKTETO_NAMESPACE.cloud.okteto.net\" |
-        .env.portal_gui_protocol = \"https\" |
         .env.pg_host = \"postgres-postgresql\" |
         .env.pg_password.valueFrom.secretKeyRef.key = \"postgres-password\"
       "

@@ -17,12 +17,6 @@ env:
         key: postgres-password
   pg_port: 5432
   log_level: notice
-  portal: on
-  portal_auth: "basic-auth"
-  portal_auto_approve: on
-  portal_gui_host: "portal.localhost:8000"
-  portal_api_url: "http://api.portal.localhost:8000"
-  portal_gui_protocol: "http"
   admin_gui_url: "http://manager.localhost:8000"
   admin_api_uri: "http://api.manager.localhost:8000"
   admin_session_conf:
@@ -30,11 +24,6 @@ env:
       secretKeyRef:
         name: kong-session-config
         key: admin_gui_session_conf
-  portal_session_conf:
-    valueFrom:
-      secretKeyRef:
-        name: kong-session-config
-        key: portal_session_conf
   enforce_rbac: "on"
   password:
     valueFrom:
@@ -93,8 +82,6 @@ enterprise:
     session_conf_secret: kong-session-config
   vitals:
     enabled: true
-  portal:
-    enabled: true
   smtp:
     enabled: false
 manager:
@@ -107,34 +94,6 @@ manager:
   ingress:
     enabled: true
     hostname: manager.localhost
-    ingressClassName: "kong"
-    path: /
-  tls:
-    enabled: false
-portal:
-  enabled: true
-  type: ClusterIP
-  http:
-    enabled: true
-    servicePort: 8003
-    containerPort: 8003
-  ingress:
-    enabled: true
-    hostname: portal.localhost
-    ingressClassName: "kong"
-    path: /
-  tls:
-    enabled: false
-portalapi:
-  enabled: true
-  type: ClusterIP
-  http:
-    enabled: true
-    servicePort: 8004
-    containerPort: 8004
-  ingress:
-    enabled: true
-    hostname: api.portal.localhost
     ingressClassName: "kong"
     path: /
   tls:
@@ -159,3 +118,7 @@ clustertelemetry:
     enabled: true
     servicePort: 8449
     containerPort: 8449
+portal:
+  enabled: false
+portalapi:
+  enabled: false
