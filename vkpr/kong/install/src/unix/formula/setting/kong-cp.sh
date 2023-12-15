@@ -27,9 +27,13 @@ settingKong() {
   fi
 
   if [[ "$VKPR_ENV_GLOBAL_SECURE" == true ]]; then
-    info "Creating proxy certificate..."
-    $VKPR_YQ eval ".spec.dnsNames[0] = \"$VKPR_ENV_GLOBAL_DOMAIN\"" "$(dirname "$0")"/utils/proxy-certificate.yaml |\
-      $VKPR_KUBECTL apply -n $VKPR_ENV_KONG_NAMESPACE -f -
+  
+    if [[ $DRY_RUN == false ]]; then
+      info "Creating proxy certificate..."
+      $VKPR_YQ eval ".spec.dnsNames[0] = \"$VKPR_ENV_GLOBAL_DOMAIN\"" "$(dirname "$0")"/utils/proxy-certificate.yaml |\
+        $VKPR_KUBECTL apply -n $VKPR_ENV_KONG_NAMESPACE -f -
+    fi
+
     YQ_VALUES="$YQ_VALUES |
       .proxy.annotations.[\"external-dns.alpha.kubernetes.io/hostname\"] = \"$VKPR_ENV_GLOBAL_DOMAIN\" |
       .admin.ingress.annotations.[\"kubernetes.io/tls-acme\"] = \"true\" |
