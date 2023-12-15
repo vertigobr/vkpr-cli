@@ -11,7 +11,7 @@ runFormula() {
 
   startInfos
   settingTempo
-  [ $DRY_RUN = false ] && registerHelmRepository tempo https://grafana.github.io/helm-charts
+  [ $DRY_RUN = false ] && [ $DIFF = false ] && registerHelmRepository tempo https://grafana.github.io/helm-charts
   installApplication "tempo" "grafana/tempo" "$VKPR_ENV_TEMPO_NAMESPACE" "$VKPR_TEMPO_VERSION" "$VKPR_TEMPO_VALUES" "$HELM_ARGS"
 }
 

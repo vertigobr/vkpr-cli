@@ -4,7 +4,8 @@ env:
   database: "off"
   log_level: notice
   admin_gui_url: "http://manager.localhost:8000"
-  admin_api_uri: "http://manager.localhost:8000/api"
+  admin_gui_path: "/manager"
+  admin_api_uri: "http://manager.localhost:8000"
   proxy_url: "http://localhost:8000"
 image:
   repository: kong/kong-gateway
@@ -24,7 +25,7 @@ admin:
       konghq.com/strip-path: true
     hostname: manager.localhost
     ingressClassName: "kong"
-    path: /api
+    path: /
   tls:
     enabled: false
 proxy:
@@ -66,7 +67,7 @@ manager:
     enabled: true
     hostname: manager.localhost
     ingressClassName: "kong"
-    path: /
+    path: /manager
   tls:
     enabled: false
 portal:

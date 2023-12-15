@@ -15,7 +15,8 @@ env:
   portal: off
   proxy_url: "http://localhost:8000"
   admin_gui_url: "http://manager.localhost:8000"
-  admin_api_uri: "http://manager.localhost:8000/api"
+  admin_gui_path: "/manager"
+  admin_api_uri: "http://manager.localhost:8000"
 image:
   repository: kong/kong-gateway
   tag: "3.2.2.1-amazonlinux-2022"
@@ -32,7 +33,7 @@ admin:
     enabled: true
     hostname: manager.localhost
     ingressClassName: "kong"
-    path: /api
+    path: /
     annotations:
       konghq.com/strip-path: "true"
       konghq.com/plugins: kong-admin-basicauth
@@ -89,7 +90,7 @@ manager:
     enabled: true
     hostname: manager.localhost
     ingressClassName: "kong"
-    path: /
+    path: /manager
     annotations:
       konghq.com/plugins: kong-admin-basicauth
   tls:

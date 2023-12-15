@@ -1,6 +1,7 @@
 # -----------------------------------------------------------------------------
 # Kong parameters
 env:
+  portal: off
   log_level: notice
   database: postgres
   pg_host: "postgres-postgresql"
@@ -14,23 +15,13 @@ env:
   pg_port: 5432
   proxy_url: "http://localhost:8000"
   admin_gui_url: "http://manager.localhost:8000"
-  admin_api_uri: "http://manager.localhost:8000/api"
+  admin_gui_path: "/manager"
+  admin_api_uri: "http://manager.localhost:8000"
   admin_session_conf:
     valueFrom:
       secretKeyRef:
         name: kong-session-config
         key: admin_gui_session_conf
-  portal: on
-  portal_auth: "basic-auth"
-  portal_auto_approve: on
-  portal_gui_host: "portal.localhost:8000"
-  portal_api_url: "http://portal.localhost:8000/api"
-  portal_gui_protocol: "http"
-  portal_session_conf:
-    valueFrom:
-      secretKeyRef:
-        name: kong-session-config
-        key: portal_session_conf
   enforce_rbac: "on"
   password:
     valueFrom:
@@ -51,7 +42,7 @@ admin:
     enabled: true
     hostname: manager.localhost
     ingressClassName: "kong"
-    path: /api
+    path: /
     annotations:
       konghq.com/strip-path: "true"
   tls:
@@ -96,7 +87,7 @@ enterprise:
   vitals:
     enabled: true
   portal:
-    enabled: true
+    enabled: false
   rbac:
     enabled: true
     admin_gui_auth: "basic-auth"
@@ -114,39 +105,12 @@ manager:
     enabled: true
     hostname: manager.localhost
     ingressClassName: "kong"
-    path: /
+    path: /manager
   tls:
     enabled: false
 portal:
-  enabled: true
-  type: ClusterIP
-  http:
-    enabled: true
-    servicePort: 8003
-    containerPort: 8003
-  ingress:
-    enabled: true
-    hostname: portal.localhost
-    ingressClassName: "kong"
-    path: /
-  tls:
-    enabled: false
+  enabled: false
 portalapi:
-  enabled: true
-  type: ClusterIP
-  http:
-    enabled: true
-    servicePort: 8004
-    containerPort: 8004
-  ingress:
-    enabled: true
-    hostname: portal.localhost
-    ingressClassName: "kong"
-    path: /api
-    annotations:
-      konghq.com/strip-path: "true"
-  tls:
-    enabled: false
-
+  enabled: false
 clustertelemetry:
   enabled: true
