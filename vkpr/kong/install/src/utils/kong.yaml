@@ -15,7 +15,8 @@ env:
   pg_port: 5432
   proxy_url: "http://localhost:8000"
   admin_gui_url: "http://manager.localhost:8000"
-  admin_api_uri: "http://manager.localhost:8000/api"
+  admin_gui_path: "/manager"
+  admin_api_uri: "http://manager.localhost:8000"
   admin_session_conf:
     valueFrom:
       secretKeyRef:
@@ -41,7 +42,7 @@ admin:
     enabled: true
     hostname: manager.localhost
     ingressClassName: "kong"
-    path: /api
+    path: /
     annotations:
       konghq.com/strip-path: "true"
   tls:
@@ -104,7 +105,7 @@ manager:
     enabled: true
     hostname: manager.localhost
     ingressClassName: "kong"
-    path: /
+    path: /manager
   tls:
     enabled: false
 portal:

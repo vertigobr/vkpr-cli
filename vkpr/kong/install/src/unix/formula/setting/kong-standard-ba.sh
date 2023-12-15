@@ -21,8 +21,8 @@ settingKong() {
       .admin.ingress.hostname = \"manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
       .manager.ingress.hostname = \"manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
       .env.proxy_url = \"https://$VKPR_ENV_GLOBAL_DOMAIN\" |
-      .env.admin_gui_url = \"https://manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
-      .env.admin_api_uri = \"https://manager.$VKPR_ENV_GLOBAL_DOMAIN/api\" 
+      .env.admin_gui_url = \"https://manager.$VKPR_ENV_GLOBAL_DOMAIN/manager\" |
+      .env.admin_api_uri = \"https://manager.$VKPR_ENV_GLOBAL_DOMAIN\" 
     "
   fi
 
