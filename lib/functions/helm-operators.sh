@@ -24,12 +24,11 @@ installApplication() {
     $VKPR_YQ eval $APP_VALUES
     return
   fi
-
   if [[ $DIFF == true ]]; then
     bold "=============================="
     info "The $APP_NAME application chart diff is in version $APP_VERSION"
-    if echo "$($VKPR_HELM ls -qA)" | grep -q "$APP_NAME"; then
-      local HELM_OLD_VERSION=$($VKPR_HELM ls -A | grep $APP_NAME | awk -F' ' '{print $9}'| awk -F'-' '{print $NF}')
+    if echo "$($VKPR_HELM ls -qn $APP_NAMESPACE)" | grep -q "$APP_NAME"; then
+      local HELM_OLD_VERSION=$($VKPR_HELM ls -n $APP_NAMESPACE | grep $APP_NAME | awk -F' ' '{print $9}'| awk -F'-' '{print $NF}')
       infoYellow "The current version is $HELM_OLD_VERSION" 
     fi
     bold "=============================="
@@ -45,7 +44,7 @@ installApplication() {
 
     $VKPR_HELM diff upgrade \
       --version "$APP_VERSION" \
-      --namespace $APP_NAMESPACE \
+      --namespace "$APP_NAMESPACE" \
       --values "$APP_VALUES" "$APP_NAME" "$APP_CHART" \
       --allow-unreleased --disable-validation >> /tmp/diff.txt 
 

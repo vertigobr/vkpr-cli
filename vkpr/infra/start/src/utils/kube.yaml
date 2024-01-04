@@ -2,7 +2,7 @@ apiVersion: k3d.io/v1alpha4
 kind: Simple
 metadata:
   name: vkpr-local
-image: rancher/k3s:v1.24.4-k3s1
+image: rancher/k3s:v1.27.8-k3s2
 ports:
   - nodeFilters:
       - loadbalancer

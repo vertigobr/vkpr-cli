@@ -107,4 +107,6 @@ configureCluster() {
       .volumes[0].nodeFilters[0] = \"agent:*\"
     "
   fi
+
+    debug "YQ_CONTENT = $YQ_VALUES"
 }

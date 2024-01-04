@@ -47,6 +47,21 @@
         "true",
         "false"
       ]
+    },
+    {      
+      "label": "Diff ?",
+      "condition": {
+        "variable": "dry_run",
+        "operator": "==",
+        "value": "false"
+      },
+      "name": "diff",
+      "type": "bool",
+      "default": "false",
+      "items": [
+        "false",
+        "true"
+      ]
     }
   ],
   "template": "shell-bat",
