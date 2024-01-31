@@ -85,7 +85,8 @@ existGrafana() {
   PWD_GRAFANA=$($VKPR_KUBECTL get secret --namespace "$VKPR_ENV_GRAFANA_NAMESPACE" prometheus-stack-grafana -o=jsonpath="{.data.admin-password}" | base64 -d)
   debug "server=grafana login=$LOGIN_GRAFANA password=$PWD_GRAFANA"
 
-  createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
+  # createGrafanaDashboard "$(dirname "$0")/utils/dashboard.json" "$VKPR_ENV_GRAFANA_NAMESPACE"
+  $VKPR_KUBECTL apply -f "$(dirname "$0")/utils/dashboard.yml" -n $VKPR_ENV_LOKI_NAMESPACE
   createGrafanaDatasource "$LOGIN_GRAFANA" "$PWD_GRAFANA"
 }
 
@@ -108,7 +109,7 @@ createGrafanaDatasource() {
 
   EXIST_LOKI_DATASOURCE=$(curl -skX GET -H "Content-Type: application/json" \
     -H "Authorization: Bearer $TOKEN_API_GRAFANA" \
-    http://$GRAFANA_ADDRESS/api/datasources/name/loki
+    http://$GRAFANA_ADDRESS/api/datasources/name/Loki
   )
   debug "$EXIST_LOKI_DATASOURCE"
 
@@ -117,7 +118,7 @@ createGrafanaDatasource() {
     return
   fi
 
-  local LOKI_DATASOURCE=$($VKPR_JQ -e ".url = \"loki.$VKPR_ENV_LOKI_NAMESPACE:3100\"" "$(dirname "$0")"/utils/datasource.json)
+  local LOKI_DATASOURCE=$($VKPR_JQ -e ".url = \"http://loki.$VKPR_ENV_LOKI_NAMESPACE:3100\"" "$(dirname "$0")"/utils/datasource.json)
 
   curl -sK -X -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN_API_GRAFANA" \
   -d "$LOKI_DATASOURCE" \
