@@ -16,7 +16,7 @@ env:
   proxy_url: "http://localhost:8000"
   admin_gui_url: "http://manager.localhost:8000"
   admin_gui_path: "/manager"
-  admin_api_uri: "http://manager.localhost:8000"
+  admin_gui_api_url: "http://manager.localhost:8000"
   admin_session_conf:
     valueFrom:
       secretKeyRef:
@@ -30,7 +30,7 @@ env:
         key: password
 image:
   repository: kong/kong-gateway
-  tag: "3.2.2.1-amazonlinux-2022"
+  tag: "3.4.3.7-20240423-amazonlinux-2023"
 admin:
   enabled: true
   type: ClusterIP
