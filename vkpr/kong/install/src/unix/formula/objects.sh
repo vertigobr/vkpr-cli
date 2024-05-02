@@ -122,13 +122,13 @@ createKongSecretsBasicAuth() {
   local DRY_FLAG="$(dryRunK8s "kong-admin-basicauth")"
 
   eval $VKPR_KUBECTL create secret generic kong-admin-basicauth -n $VKPR_ENV_KONG_NAMESPACE \
-    --from-literal="kongCredType=basic-auth" \
     --from-literal=username=kong_admin \
     --from-literal=password=$VKPR_ENV_KONG_RBAC_ADMIN_PASSWORD $DRY_FLAG
 
   RESULT=$?
   debug "Create $PG_SECRET status = $RESULT"
-  [ $DRY_RUN = false ] && trace "$($VKPR_KUBECTL label secret/kong-admin-basicauth app\.kubernetes\.io/managed-by=vkpr "$KONG_NAMESPACE")"
+  [ $DRY_RUN = false ] && trace "$($VKPR_KUBECTL label secret/kong-admin-basicauth app\.kubernetes\.io/managed-by=vkpr "$KONG_NAMESPACE")" && \
+                          trace "$($VKPR_KUBECTL label secret/kong-admin-basicauth konghq\.com/credential=basic-auth "$KONG_NAMESPACE")"
   debug "kong-admin-basicauth"
 }
 
