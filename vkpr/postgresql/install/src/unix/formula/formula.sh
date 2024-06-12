@@ -36,7 +36,7 @@ formulaInputs() {
   checkGlobalConfig "$HA" "false" "postgresql.HA" "POSTGRESQL_HA"
   checkGlobalConfig "false" "false" "postgresql.metrics" "POSTGRESQL_METRICS"
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "postgresql.namespace" "POSTGRESQL_NAMESPACE"
-  checkGlobalConfig "8Gi" "8Gi" "postgresql.persistanceSize" "POSTGRESQL_VOLUME_SIZE"
+  checkGlobalConfig "$PERSISTANCE" "8Gi" "postgresql.persistanceSize" "POSTGRESQL_VOLUME_SIZE"
 
   # External apps values
   checkGlobalConfig "$VKPR_ENV_GLOBAL_NAMESPACE" "$VKPR_ENV_GLOBAL_NAMESPACE" "prometheus-stack.namespace" "GRAFANA_NAMESPACE"

@@ -22,6 +22,12 @@ grafana:
     enabled: true
     ingressClassName: nginx
     path: "/"
+  sidecar:
+    dashboards: 
+      enabled: true
+      label: grafana_dashboard
+      labelValue: "vkpr"
+      searchNamespace: ALL
   dashboardsConfigMaps:
     homepage: homepage
   dashboardProviders:

@@ -22,7 +22,7 @@ settingKong() {
       .manager.ingress.hostname = \"manager.$VKPR_ENV_GLOBAL_DOMAIN\" |
       .env.proxy_url = \"https://$VKPR_ENV_GLOBAL_DOMAIN\" |
       .env.admin_gui_url = \"https://manager.$VKPR_ENV_GLOBAL_DOMAIN/manager\" |
-      .env.admin_api_uri = \"https://manager.$VKPR_ENV_GLOBAL_DOMAIN\" 
+      .env.admin_gui_api_url = \"https://manager.$VKPR_ENV_GLOBAL_DOMAIN\" 
     "
   fi
 
@@ -147,7 +147,7 @@ settingKongProvider(){
         .proxy.annotations.[\"dev.okteto.com/auto-ingress\"] = \"true\" |
         .proxy.type = \"ClusterIP\" |
         .env.admin_gui_url = \"https://kong-kong-manager-$OKTETO_NAMESPACE.cloud.okteto.net\" |
-        .env.admin_api_uri = \"https://kong-kong-admin-$OKTETO_NAMESPACE.cloud.okteto.net\" |
+        .env.admin_gui_api_url = \"https://kong-kong-admin-$OKTETO_NAMESPACE.cloud.okteto.net\" |
         .env.proxy_url = \"https://kong-kong-proxy-$OKTETO_NAMESPACE.cloud.okteto.net\" |
         .env.pg_host = \"postgres-postgresql\" |
         .env.pg_password.valueFrom.secretKeyRef.key = \"postgres-password\"

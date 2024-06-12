@@ -2,6 +2,13 @@
   "inputs": [
     {
       "tutorial": "Specifies if the application will have High Availability",
+      "label": "Persistance ? (default is 8Gi)",
+      "name": "PERSISTANCE",
+      "type": "text",
+      "default": "8Gi"
+    },
+    {
+      "tutorial": "Specifies if the application will have High Availability",
       "label": "HA ?",
       "name": "HA",
       "type": "bool",
